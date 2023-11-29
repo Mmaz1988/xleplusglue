@@ -1,0 +1,56 @@
+#set encoding to utf-8
+set-character-encoding stdio utf-8
+
+# set timeout lower; amounts are in seconds
+set timeout 15
+
+#For output window
+set semwindowtop 0
+
+#provide window for output
+#stdout not tested
+set semDisplay window
+#set semDisplay stdout
+
+# relpath turns a relative path name into an absolute one
+proc relpath {path} {
+     set home [string trimright [file dirname [info script]] ./]
+     set home [file join [pwd] $home]
+     return [file normalize [file join $home $path]]
+}
+
+
+#Loads the corresponding Glue tcl file.
+set defaultGlueTCL [relpath src/glue.tcl]
+
+#Here the grammar is loaded 
+set defaultGlueParser [relpath grammars/glue-basic-drt-pron.lfg.glue]
+
+# Specify the tmp directory for intermediate files
+set defaultTmpDir /tmp
+
+# Load in Glue specific Tcl/Tk procedures:
+source $defaultGlueTCL
+
+#detailed output
+set solutionOnly 0
+
+# choose prover  (0: HEPPLE, 1: LEV, 2: LEV-altered, 3: Multistage proving)
+set prover 1
+
+# activate semantic parser (0: no parsing / 1: semantic Parsing / 2: Prolog)
+set semParser 0
+
+# activate DRT mode (1/0); requires Prolog parsing! 
+set processDRT 0
+
+# activate debug mode (1/0)
+set transferDebug 1
+
+#set font
+set outputfont Courir
+set fontsize 18
+
+#init-glue is defined in the tcl file.
+# Load in the specified rules:
+init-glue
