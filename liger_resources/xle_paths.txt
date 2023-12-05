@@ -1,0 +1,12 @@
+XLE="/xle"
+grammar="/grammars/glue-basic-drt-tense.lfg.glue"
+OS="MAC"
+
+//grammar="/Users/princess_zelda/Projects/xleplusglue/xle-glueworkbench-interface/grammars_concept/glue-basic-drt.lfg"
+//grammar="/Users/princess_zelda/Grammars/english_pargram/english-2009-11-25/index/main.lfg"
+//grammar="/Users/princess_zelda/Projects/multistage_proving/multistage_xle.lfg"
+grammar="/Users/princess_zelda/Projects/multistage_proving/multistage_xle_adj.lfg.glue"
+grammar="/Users/princess_zelda/Projects/multistage_offline/grammars/multistage_xle_adj.lfg.glue"
+///Users/princess_zelda/Projects/pronoun_farai
+
+/Users/princess_zelda/Projects/multistage_offline/grammars
