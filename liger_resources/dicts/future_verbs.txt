@@ -1,0 +1,14 @@
+#FUTURE_PLANNED
+plan, intend, project, aim, object, target, expect, wait, arrange, schedule, organize
+promote, declare, claim, anticipate, commit, order, decide, settle, opt, announce, attempt
+continue, try, generate, entail, would
+
+***
+#FUTURE_PREDICTION
+threaten, vow, promise, pressure, force, urge, warn, indicate, insist, postpone, should
+
+***
+#FUTURE_POSSIBLE
+fear, ask, request, encourage, demand, appeal, advise, invite, scare, allow, permit
+approve, subpoena, summon, dare, desire, want, enable, imply, offer, propose, sanction
+suggest, recommend, will

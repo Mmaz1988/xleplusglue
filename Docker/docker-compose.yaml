@@ -1,0 +1,27 @@
+services:
+  gswb:
+    build:
+      dockerfile: Docker/Dockerfile-gswb
+      context: ..
+    ports:
+      - '8081:8081'
+  liger:
+    build:
+      dockerfile: Docker/Dockerfile-liger
+      context: ..
+      args:
+        - platform=linux/amd64
+    ports:
+      - '8080:8080'
+  frontend:
+    build:
+      dockerfile: Docker/Dockerfile-frontend
+      context: ..
+    ports:
+      - '80:80'
+    depends_on:
+        - gswb
+        - liger
+    restart: always
+
+

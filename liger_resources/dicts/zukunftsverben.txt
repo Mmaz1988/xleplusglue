@@ -1,0 +1,14 @@
+#FUTURE_PLANNED
+planen, beabsichtigen, erwarten, warten, arrangieren, organisieren, anstreben, versuchen, 
+fortsetzen, weitermachen, generieren, verschieben, entscheiden, bestellen, befehlen, vorhaben
+
+***
+#FUTURE_PREDICTION
+warnen, drohen, versprechen, versichern, zwingen, schwören, bestehen auf, drängen, andeuten
+
+
+***
+#FUTURE_POSSIBLE
+ahnen, befürchten, bitten, anfordern, wollen, verlangen, raten, empfehlen, erlauben, vorschlagen, einladen,
+genehmigen, gestatten, zulassen, billigen, bewilligen, auffordern, begehren, ermutigen, vorladen, wagen, riskieren, 
+ermöglichen, anbieten, brauchen, zulassen, gelingen, benötigen, beanspruchen

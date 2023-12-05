@@ -1,0 +1,129 @@
+>tense
+***
+#FUTURE_PLANNED
+plan, intend, project, aim, object, target, expect, wait, arrange, schedule, organize
+promote, declare, claim, anticipate, commit, order, decide, settle, opt, announce, attempt
+continue, try, generate, entail, would
+
+***
+#FUTURE_PREDICTION
+threaten, vow, promise, pressure, force, urge, warn, indicate, insist, postpone, should
+
+***
+#FUTURE_POSSIBLE
+fear, ask, request, encourage, demand, appeal, advise, invite, scare, allow, permit
+approve, subpoena, summon, dare, desire, want, enable, imply, offer, propose, sanction
+suggest, recommend, will
+
+//distinguish xcomp modals vs. comp modals?
+
+>ud-cats
+***
+#noun
+NN, NNS, NNP, NNPS, PRP
+
+***
+#verb
+VB, VBD, VBG, VBN, VBP, VBZ, JJR, JJS
+
+>visargue-modals
+***
+#certain
+certainly,
+
+***
+#probable
+probably, presumably, estimated, likely, expected, possible, potential, viable, realisable, realizable, possibly, feasibly,
+doable, perhaps, could, potentially
+
+***
+#impossible
+impossible, never
+
+***
+#permission
+may, might
+
+***
+#volition
+want, intend, intention, shall
+
+***
+#obligation
+should, ought, must, oblige, coerce, constrain, force 
+
+
+>xcomp-veridicality
+***
+#veridical
+infliction, attention, accept, commend, observe, caution, forethought, upkeep, fear, tutelage, celebrate, care,
+annoyance, tending, remember, bother, botheration, maintain, maintenance, commemorate, swallow, precaution, guardianship,
+withstand, balk, fend, dissent, baulk, resist, protest, jib, reveal, cue, remind, uncover, unveil,
+//1
+invalidate, bomb, forget, declivity, flunk, nonperformance, obviate, ignore, fail, miscarry, counteract, negligence,
+decline, descent, countermine, decay, worsen, bury, avoid, cave, quash, betray, weaken, sabotage, declination, forbear,
+avert, void, forefend, deflect, nullify, refrain, diminution, chorus, neglectfulness, undermine, forfend, annul, wane,
+declension, downslope, subvert, disuse, carelessness, disregard, debar, neglect,
+//2
+rating, consider, discontent, beware, terminate, requiem, ending, psyche, penchant, elegy, preface, co-occur, hate,
+empathize, reluctant, envy, submit, uphold, notice, explain, shanghai, spirit, sacrilege, coronach, antipathetical,
+cognize, dapple, pride, awareness, persevere, antecede, advantage, compassion, watch, perceive, loath, smack, scout,
+begrudge, cognisant, ticker, gem, closure, dirge, entwine, bar, compassionate, patch, erupt, supercede, agnise,
+finishing, insolence, triumph, view, smirch, bill, art, picket, sensation, mishap, freeze, culture, thinker, intertwine,
+spotter, layover, close, asperity, append, wonder, empathise, twine, detect, imposition, speckle, yarn-dye, comparable,
+sum, missing, startle, loth, finger, impressment, mouthful, discern, admiration, preserve, ken, melancholy, actualise,
+wail, visualise, stanch, understanding, refinement, job, intercept, opposition, crippled, stem, interpret, foresee, pity,
+talent, agnize, odour, ilk, example, unculture, survey, summate, distinction, skepticism, honor, confrontation, comment,
+treasure, love, key, supply, lace, period, replace, maculation, sympathise, sentinel, respect, total, plot, wealth,
+discrimination, destination, visit, mark, interlace, cultivation, scramble, sort, corresponding, posting, infamy, finis,
+impress, aware, excuse, frustration, understand, cinch, placard, enviousness, effort, pathos, kibosh, berth, look, espy,
+recall, sentry, reminiscence, plosive, barricade, behavior, error, situation, property, billet, spotlight, blemish, spy,
+diaphragm, lock, coating, occlusive, honey, shame, enlace, sense, antedate, controversy, loathe, end, goal, lame, savor,
+same, write, enquire, deference, place, guarantee, classify, construe, finish, bonus, stop, cherish, sympathize, cease,
+discomfort, lamentation, curiosity, date, lap, annotation, ingrain, relinquish, reflection, light, counter, gimpy, greet,
+inquire, switch, mania, responsibility, cognise, withdraw, nous, perceptiveness, know, ignite, gumption, office, insight,
+aroma, imprint, brain, dearest, identify, horrify, staunch, flavor, happiness, impetus, blot, banknote, forgo, stopover,
+recollection, polish, add, setting, blob, beloved, persist, respectfulness, image, lookout, return, halt, combination,
+weakness, discontinue, introduce, prise, judgement, game, threnody, fancy, background, scolding, intersection, realize,
+overlap, daub, ruth, unnaturalness, like, occlusion, preference, continue, conflict, averse, treason, predilection,
+lovemaking, sketch, observance, envision, irritation, idea, olfaction, combust, supplant, sight, measure, vacate,
+intellect, conflagrate, heartache, helplessness, disputation, preeminence, sentience, continuity, quantify, publish,
+antipathetic, passion, moot, print, sentiency, gustation, disclose, heed, resume, slur, spot, odor, foreknow, smudge,
+free, previse, position, descry, galvanize, struggle, plea, post, notation, card, restlessness, forego, smear,
+recollect, costs, predate, keen, fleck, vision, actualize, explicate, retain, hatred, accredit, foreswear, cooccur,
+overlook, decency, feel, savour, smelling, requirement, indisposed, echo, peculiarity, esteem, ADHD, eminence,
+invidia, scent, instill, humiliation, service, tasting, judgment, question, obedience, tot, tradition, predisposition,
+assort, compromise, escort, signified, translate, wonderment, function, mischief, plaint, MBD, poster, surveil,
+discover, appreciation, ADD, hear, interlock, convergence, line, reek, supersede, mystify, kind, flavour, harmfulness,
+lament, blockage, grieve, see, discernment, project, commiseration, galvanise, listen, similar, appraise, fashion,
+reconcile, mindful, taste, recognize, stain, mind, expertise, alike, cognizant, spectacle, pip, dogmatism, complete,
+tone, callback, endurance, elegance, note, pretext, desist, concerns, luxury, coincide, smell, greenback, conclusion,
+premise, halting, finale, betrayal, quit, resign, palpate, visualize, precede, vigil, reservation, blaming, class,
+effrontery, observation, dogma, reignite, alarm, renounce, principle, notification, occasion, censorship, review, marvel
+
+***
+#averidical
+must, have
+
+***
+#antiveridical
+
+>comp-veridicality
+***
+#veridical
+may, can, could
+
+***
+#averidical
+must, have
+
+***
+#antiveridical
+
+>evidential
+***
+#EPISTEMIC
+#must
+#should
+
+

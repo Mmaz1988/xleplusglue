@@ -1,0 +1,11 @@
+--replace(true);
+#g TNS-ASP #h & #g PRED %h ==> #g SEM #i & #i EV #j & #i GLUE [/e_v.strip(%h)(e)] : (#j -o #i).
+
+#g ^(SPEC) #h & #g QUANT #i ==> #h SEM #l & #l VAR #j & #l RESTR #k.
+#g ^(SPEC) #h & #g DET #i ==> #h SEM #l & #l VAR #j & #l RESTR #k.
+
+#g ^(SPEC) #h SEM #i VAR #j & #i RESTR #k & #g QUANT #l PRED %l & %l == 'every' & #h ^(%) #m SEM #n ==> #g GLUE [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) \& Q(x)]]] : ((#j -o #k) -o ((#i -o #n) -o #n)).
+#g ^(SPEC) #h SEM #i VAR #j & #i RESTR #k & #g DET #l PRED %l & #h ^(%) #m SEM #n ==> #g GLUE [/P_<e,t>.[/Q_<e,t>.Ax_e[P(x) -> Q(x)]]] : ((#j -o #k) -o ((#i -o #n) -o #n)).
+
+#g SEM #j VAR #i & #j RESTR #k & #g PRED %g ==> #g GLUE [/x_e.strip(%g)(x)] : (#i -o #k).
+#g SEM #j EV #n & #g SUBJ #h SEM #i & #g OBJ #l SEM #m ==> #g GLUE [/R_<v,t>.[/x_e.[/y_e.Ee_v[R(e) \& (agent(e,x) \& theme(e,y))]]]] : ((#n -o #j) -o (#i -o (#m -o #j)).

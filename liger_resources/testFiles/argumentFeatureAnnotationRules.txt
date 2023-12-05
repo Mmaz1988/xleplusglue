@@ -1,0 +1,83 @@
+--replace(true);
+
+//Finite forms
+#a POS VBZ & #a TOKEN %a ==> #a MORPH #b & #b FIN '+' & #b FORM 'pres' & #b HEAD %a.
+#a POS VBP & #a TOKEN %a ==> #a MORPH #b & #b FIN '+' & #b FORM 'pres' & #b HEAD %a.
+#a POS VBD & #a TOKEN %a ==> #a MORPH #b & #b FIN '+' & #b FORM 'past' & #b HEAD %a.
+#a POS MD & #a TOKEN %a ==> #a MORPH #b & #b FIN '+' & #b FORM 'lex(%a,tense)' & #b HEAD %a.
+
+
+//Non-finite forms
+#a POS VBG & #a TOKEN %a ==> #a MORPH #b & #b FIN '-' & #b HEAD %a & #b FORM 'prpart'.
+#a POS VBN & #a TOKEN %a ==> #a MORPH #b & #b FIN '-' & #b HEAD %a & #b FORM 'ppart'.
+#a POS VB & #a TOKEN %a ==> #a MORPH #b & #b FIN '-' & #b HEAD %a & #b FORM 'inf'.
+
+//Copu
+#a POS JJ & #a TOKEN %a & #a cop #b TOKEN %b &
+#b MORPH #c FIN %c & #c FORM %d ==> #a MORPH #c & #c HEAD %b %a & #c FIN %c & #c FORM %d.
+
+
+//separate finite from non-finite verbs
+#a MORPH #b FIN '+' ==> #b AUX '-'.
+
+#a FORM 'ppart' ==> #a ASPECT 'perf'.
+#a FORM 'prpart' ==> #a ASPECT 'prog'.
+
+#a aux #b & #b MORPH #c ASPECT %c & #a MORPH #d &
+#c HEAD %b & #d HEAD %d
+==> #c AUX '+' & #d ASP-AUX #c & #d MAIN '+' & #d HEAD %b %d.
+
+#a cop #b & #b TOKEN %c & #b MORPH #c ASPECT %c &
+#c HEAD %b & #a TOKEN %a
+==> #c AUX '+' & #d ASP-AUX #c & #d MAIN '+' & #c HEAD %b %a.
+
+//Fusing heads for aux verbs in the main verb (finite aux)
+#a aux #b & #b MORPH #c FORM 'inf' & #a MORPH #d &
+#c HEAD %b & #d HEAD %d
+==> #c AUX '+' & #d ASP-AUX #c & #d MAIN '+' & #d HEAD %b %d.
+
+#a aux:pass #b & #b MORPH #c FORM 'inf' & #a MORPH #d &
+#c HEAD %b & #d HEAD %d
+==> #c AUX '+' & #d ASP-AUX #c & #d MAIN '+' & #d HEAD %b %d.
+
+#a aux #b & #b MORPH #c FIN '+' & #c FORM %c & #a MORPH #d &
+#c HEAD %b & #d HEAD %d
+==> #c AUX '+' & #d AUX #c & #d MAIN '+' & #d FIN '+' & #d FORM %c & #d HEAD %b %d.
+
+//#a aux:pass #b & #a MORPH #c FIN '+' & #b MORPH #d &
+//#c HEAD %b & #d HEAD %d
+//==> #b AUX '+' & #c AUX #d & #c MAIN '+' & #c HEAD %d %b.
+
+//#a aux:pass #b & #a MORPH #c FIN '-' & #b MORPH #d &
+//#c HEAD %b & #d HEAD %d
+//==> #b AUX '+' & #c AUX #d & #c MAIN '+' & #c HEAD %d %b.
+
+#a aux:pass #b & #a MORPH #c & #b MORPH #d &
+#c HEAD %b & #d HEAD %d & #d FIN %a
+==> #d AUX '+' & #c AUX #d & #c MAIN '+' & #c FIN %a & #c HEAD %d %b.
+
+//#a aux #b & #b MORPH #c TENSE %c & #a MORPH #d FORM 'ppart' ==> #c AUX '+' & #d AUX #c & #d MAIN '+' & #d ASPECT 'perf' & #b ASPECT 'perf'.
+//#a aux #b & #b MORPH #c TENSE %c & #a MORPH #d FORM 'prpart' ==> #c AUX '+' & #d AUX #c & #d MAIN '+' & #d ASPECT 'prog'.
+
+#a LEMMA go & #a MORPH #b ASPECT 'prog' &
+#a aux #c MORPH #f FIN '+' & #f FORM %f &
+#a xcomp #d & #d MORPH #e &
+#b HEAD %b & #e HEAD %e
+==> #e AUX #b & #e FORM %f('fut') & #b MAIN '-' & #e FIN '+' & #b FIN '+' & #e MAIN '+' & #e HEAD %b to %e.
+
+//Simple tense
+#b FIN '+' & #b FORM %b & #b HEAD %c & #b AUX '-' ==> #b TAM #d & #d HEAD '%c' & #d TENSE %b & #d FIN '+'.
+
+//Tense from aux verb
+#b MAIN '+' & #b AUX #c & #c FIN '+' & #b FORM %b &
+#c HEAD %d & #b HEAD %c ==> #c TAM #d & #b TAM #d & #d HEAD '%c' & #d TENSE %b & #d FIN '+'.
+
+//non-finite
+#a HEAD %a & #a FIN '-' & #a MAIN '+' ==> #a TAM #b & #b HEAD '%a'.
+
+//aspect
+#a HEAD %a & #a MAIN '+' & #a ASPECT %b & #a FIN '-' & #a TAM #b ==> #b ASPECT %b.
+
+//Aspect
+#a TAM #b & #a MAIN '+' & #a ASPECT %a & #a FIN '+' ==> #b ASPECT %a.
+#a TAM #b & #a MAIN '+' & #a ASPECT %a & #a ASP-AUX #c ASPECT %b ==> #b ASPECT '%b,%a'.

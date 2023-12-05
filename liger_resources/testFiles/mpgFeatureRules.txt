@@ -1,0 +1,12 @@
+--replace(true);
+
+#a root #b ==> #b sentence_annotation #c.
+#a POS %a ==> #a word_annotation #b & #b position '#a'.
+
+#a word_annotation #c & #a ccomp #b & #a LEMMA %b ==> #c prop-attitude %b.
+
+#a word_annotation #c & #a xcomp #b & #a LEMMA %b ==> #c embedding-verb %b.
+
+#a word_annotation #c & #a advmod #b & #a POS %a & #b LEMMA %b ==> #c lex(%a,ud-cats)-advmod %b.
+
+#a word_annotation #c & #a LEMMA %a & #a POS MD ==> #c MODAL %a.
