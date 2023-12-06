@@ -1,5 +1,6 @@
 # Start from a jdk base image
 FROM eclipse-temurin:17.0.9_9-jdk
+#@sha256:ef3ab7c2888f8f2f9cc043a9f33ce3dac5e7acd0d8fe964188989234337090dc
 
 EXPOSE 8080
 
