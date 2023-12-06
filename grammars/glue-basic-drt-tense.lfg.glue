@@ -271,15 +271,15 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    DITRANS-PASSIVE-ARGS(ARG1 ARG2 ARG3) = { 
 	    (^ PASSIVE) =c - 
-	    ARG1 = (^ SUBJ)
+	    (^ SUBJ) = ARG1
 	    { 
 	      (^ DATIVE-SHIFT) =c -
-	      ARG2 = (^ OBJ)
-	      ARG3 = (^ OBL-TO)
+	      (^ OBJ) = ARG2
+	      (^ OBL-TO) = ARG3
 	     |
 	      (^ DATIVE-SHIFT) =c +
-	      ARG3 = (^ OBJ)
-	      ARG2 = (^ OBJ2) 
+	      (^ OBJ) = ARG3
+	      (^ OBJ2) = ARG2
 	    } 
 	   |
 	    (^ PASSIVE) =c +
@@ -291,12 +291,12 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    }
 	    { 
 	      (^ DATIVE-SHIFT) =c -
-	      ARG2 = (^ SUBJ)
-	      ARG3 = (^ OBL-TO) 
+	      (^ SUBJ) = ARG2
+	      (^ OBL-TO) = ARG3
 	     |
 	      (^ DATIVE-SHIFT) =c +
-	      ARG2 = (^ OBJ2)
-	      ARG3 = (^ SUBJ)
+	      (^ OBJ2) = ARG2
+	      (^ SUBJ) = ARG3
 	    } 
 	  }.
   
