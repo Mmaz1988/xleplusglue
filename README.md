@@ -38,8 +38,15 @@ For the system to work properly, you need access to the XLE binaries for Linux. 
 
 ## Running the system 
 
-The web interface is hosted on _http://localhost:80_ 
+The system can be started from the command line by navigating to the _./Docker_ within the repository. There you need to execute the following command:
+
+```
+docker compose up --build
+```
+This will start the system and provide access to the browser-based user interface. It is hosted on _http://localhost:80_ 
 The system has been tested with Firefox and Chrome. 
+
+The system can be shut down by using the keyboard command _ctrl+c_ in the command line where the docker container is running.
 
 For further details, a documentation document will be made available soon. 
 
