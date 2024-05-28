@@ -6,4 +6,5 @@ This repository contains:
 - The latest version of the Glue Semantics Workbench
 - The latest version of LiGER (Linguistic Graph Expansion and Rewriting) 
 - XLE+Glue_web: A browser-based user interface for the GSWB and LiGER
-- Sample Grammars for XLE+Glue 
+- Sample Grammars for XLE+Glue
+- A docker compose file for running the system on a local docker container
