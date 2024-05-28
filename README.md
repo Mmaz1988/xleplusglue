@@ -38,7 +38,7 @@ For the system to work properly, you need access to the XLE binaries for Linux. 
 
 ## Running the system 
 
-The system can be started from the command line by navigating to the _./Docker_ within the repository. There you need to execute the following command:
+The system can be started from the command line by navigating to the _./Docker_ folder within the repository. There you need to execute the following command:
 
 ```
 docker compose up --build
