@@ -34,7 +34,14 @@ OS="LINUX"
 ```
 Here, you also need to specify the grammar you intend to use before building the system. The grammar should be stored within the grammar folder in the repository. A system for uploading grammars and changing the grammar during use is in preparation.
 
-For the system to work properly, you need access to the XLE binaries for Linux. These need to be stored in a folder called "xle" in the root directory of this repository. The Dockerfile-liger specifies where to copy the XLE binaries from if you want to store them else where. 
+For the system to work properly, you need access to the XLE binaries for Linux. These need to be stored in a folder called _xle_ in the root directory of this repository. The Dockerfile-liger specifies where to copy the XLE binaries from if you want to store them elsewhere.
+
+## Running the system 
+
+The web interface is hosted on _http://localhost:80_ 
+The system has been tested with Firefox and Chrome. 
+
+For further details, a documentation document will be made available soon. 
 
 
 
