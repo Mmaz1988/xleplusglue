@@ -11,6 +11,7 @@ services:
       context: ..
       args:
         - platform=linux/amd64
+    platform: linux/amd64
     ports:
       - '8080:8080'
   frontend:
