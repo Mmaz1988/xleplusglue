@@ -72,9 +72,19 @@ DEMO   ENGLISH   RULES (1.0)
 
    VPinf --> PARTinf VP. 
 
+"
+   NP --> 
+ 	  { (D: ^=!)
+ 	    AP*: ! $ (^ ADJUNCT);
+ 	    N: ^=!;
+ 	    PP*: ! $ (^ ADJUNCT)
+		 (! PTYPE) =c sem 
+		 @(OT-MARK PPattach)
+ 	  | PRON}. 
+"
 
    NP --> { (D: ^=!)
- 	    NP' 
+ 	    NP'
 	    PP*: ! $ (^ ADJUNCT)
 	       (! PTYPE) =c sem 
 	       @(OT-MARK PPattach)
@@ -281,8 +291,6 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	  :$ [/x_e.P(x)] : (s::(^ SUBJ)_e -o s::^_t).
 
    INTRANS-OBL(P) = (^ PRED) = 'P<(^SUBJ)(^OBL)>'.
-             
-
 
    OPT-TRANS(P) = { (^ PRED) = 'P<(^SUBJ)(^OBJ)>' "P is a variable"
 	    :$ [/x_e.[/y_e.P(x,y)]] : (s::(^SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
@@ -439,6 +447,9 @@ smart 	  A * @(PRED smart).
 
 grey 	  A * @(PRED grey).
 
+angry 	  A * @(PRED angry)
+	      :$ [/P_<e,t>.[/x_e.(angry(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)).
+
 big 	  A * @(PRED big)
 	      :$ [/P_<e,t>.[/x_e.(big(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)).
 
@@ -476,7 +487,9 @@ on 	  P * @(PREP on).
 
 in 	  P * @(PREP in). 
 
-with 	  P * @(PREP with). 
+with  P * @(PREP with).
+
+of 	  P * @(PREP of).
 
 
 "auxiliaries"

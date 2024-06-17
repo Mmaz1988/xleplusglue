@@ -72,9 +72,19 @@ DEMO   ENGLISH   RULES (1.0)
 
    VPinf --> PARTinf VP. 
 
+"
+   NP --> 
+ 	  { (D: ^=!)
+ 	    AP*: ! $ (^ ADJUNCT);
+ 	    N: ^=!;
+ 	    PP*: ! $ (^ ADJUNCT)
+		 (! PTYPE) =c sem 
+		 @(OT-MARK PPattach)
+ 	  | PRON}. 
+"
 
    NP --> { (D: ^=!)
- 	    NP' 
+ 	    NP'
 	    PP*: ! $ (^ ADJUNCT)
 	       (! PTYPE) =c sem 
 	       @(OT-MARK PPattach)
@@ -314,8 +324,6 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 @(GLUE-MEANING %mc28 %mc29).
 
    INTRANS-OBL(P) = (^ PRED) = 'P<(^SUBJ)(^OBL)>'.
-             
-
 
    OPT-TRANS(P) = { (^ PRED) = 'P<(^SUBJ)(^OBJ)>' "P is a variable"
 	    @(LLCLOSURE %mc34)
@@ -508,7 +516,7 @@ smart 	  A * @(PRED smart).
 
 grey 	  A * @(PRED grey).
 
-big 	  A * @(PRED big)
+angry 	  A * @(PRED angry)
 	      @(LLCLOSURE %mc68)
 @(LLATOM %mc62 (s::(ADJUNCT $ ^) VAR) e)
 @(LLATOM %mc63 (s::(ADJUNCT $ ^) RESTR) t)
@@ -517,10 +525,10 @@ big 	  A * @(PRED big)
 @(LLATOM %mc66 (s::(ADJUNCT $ ^) RESTR) t)
 @(LLIMP %mc67 %mc65 %mc66)
 @(LLIMP %mc68 %mc64 %mc67)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( big `( x `)   `&  P `( x `)  `)  `]  `]  %mc69)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( angry `( x `)   `&  P `( x `)  `)  `]  `]  %mc69)
 @(GLUE-MEANING %mc68 %mc69).
 
-black 	  A * @(PRED black)
+big 	  A * @(PRED big)
 	      @(LLCLOSURE %mc76)
 @(LLATOM %mc70 (s::(ADJUNCT $ ^) VAR) e)
 @(LLATOM %mc71 (s::(ADJUNCT $ ^) RESTR) t)
@@ -529,10 +537,10 @@ black 	  A * @(PRED black)
 @(LLATOM %mc74 (s::(ADJUNCT $ ^) RESTR) t)
 @(LLIMP %mc75 %mc73 %mc74)
 @(LLIMP %mc76 %mc72 %mc75)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( black `( x `)   `&  P `( x `)  `)  `]  `]  %mc77)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( big `( x `)   `&  P `( x `)  `)  `]  `]  %mc77)
 @(GLUE-MEANING %mc76 %mc77).
 
-scottish  A * @(PRED scottish)
+black 	  A * @(PRED black)
 	      @(LLCLOSURE %mc84)
 @(LLATOM %mc78 (s::(ADJUNCT $ ^) VAR) e)
 @(LLATOM %mc79 (s::(ADJUNCT $ ^) RESTR) t)
@@ -541,11 +549,11 @@ scottish  A * @(PRED scottish)
 @(LLATOM %mc82 (s::(ADJUNCT $ ^) RESTR) t)
 @(LLIMP %mc83 %mc81 %mc82)
 @(LLIMP %mc84 %mc80 %mc83)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( scottish `( x `)   `&  P `( x `)  `)  `]  `]  %mc85)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( black `( x `)   `&  P `( x `)  `)  `]  `]  %mc85)
 @(GLUE-MEANING %mc84 %mc85).
 
-trustworthy A * @(PRED trustworthy)
-		@(LLCLOSURE %mc92)
+scottish  A * @(PRED scottish)
+	      @(LLCLOSURE %mc92)
 @(LLATOM %mc86 (s::(ADJUNCT $ ^) VAR) e)
 @(LLATOM %mc87 (s::(ADJUNCT $ ^) RESTR) t)
 @(LLIMP %mc88 %mc86 %mc87)
@@ -553,11 +561,11 @@ trustworthy A * @(PRED trustworthy)
 @(LLATOM %mc90 (s::(ADJUNCT $ ^) RESTR) t)
 @(LLIMP %mc91 %mc89 %mc90)
 @(LLIMP %mc92 %mc88 %mc91)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( trustworthy `( x `)   `&  P `( x `)  `)  `]  `]  %mc93)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( scottish `( x `)   `&  P `( x `)  `)  `]  `]  %mc93)
 @(GLUE-MEANING %mc92 %mc93).
 
-alleged   A * @(PRED alleged)
-	      @(LLCLOSURE %mc100)
+trustworthy A * @(PRED trustworthy)
+		@(LLCLOSURE %mc100)
 @(LLATOM %mc94 (s::(ADJUNCT $ ^) VAR) e)
 @(LLATOM %mc95 (s::(ADJUNCT $ ^) RESTR) t)
 @(LLIMP %mc96 %mc94 %mc95)
@@ -565,10 +573,10 @@ alleged   A * @(PRED alleged)
 @(LLATOM %mc98 (s::(ADJUNCT $ ^) RESTR) t)
 @(LLIMP %mc99 %mc97 %mc98)
 @(LLIMP %mc100 %mc96 %mc99)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `. alleged `( P `( x `)  `)  `]  `]  %mc101)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( trustworthy `( x `)   `&  P `( x `)  `)  `]  `]  %mc101)
 @(GLUE-MEANING %mc100 %mc101).
 
-former 	  A * @(PRED former)
+alleged   A * @(PRED alleged)
 	      @(LLCLOSURE %mc108)
 @(LLATOM %mc102 (s::(ADJUNCT $ ^) VAR) e)
 @(LLATOM %mc103 (s::(ADJUNCT $ ^) RESTR) t)
@@ -577,8 +585,20 @@ former 	  A * @(PRED former)
 @(LLATOM %mc106 (s::(ADJUNCT $ ^) RESTR) t)
 @(LLIMP %mc107 %mc105 %mc106)
 @(LLIMP %mc108 %mc104 %mc107)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `. former `( P `( x `)  `)  `]  `]  %mc109)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `. alleged `( P `( x `)  `)  `]  `]  %mc109)
 @(GLUE-MEANING %mc108 %mc109).
+
+former 	  A * @(PRED former)
+	      @(LLCLOSURE %mc116)
+@(LLATOM %mc110 (s::(ADJUNCT $ ^) VAR) e)
+@(LLATOM %mc111 (s::(ADJUNCT $ ^) RESTR) t)
+@(LLIMP %mc112 %mc110 %mc111)
+@(LLATOM %mc113 (s::(ADJUNCT $ ^) VAR) e)
+@(LLATOM %mc114 (s::(ADJUNCT $ ^) RESTR) t)
+@(LLIMP %mc115 %mc113 %mc114)
+@(LLIMP %mc116 %mc112 %mc115)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `. former `( P `( x `)  `)  `]  `]  %mc117)
+@(GLUE-MEANING %mc116 %mc117).
 
 
 "adverbs --- should really be done via the morphology, like the nouns"
@@ -599,7 +619,9 @@ on 	  P * @(PREP on).
 
 in 	  P * @(PREP in). 
 
-with 	  P * @(PREP with). 
+with  P * @(PREP with).
+
+of 	  P * @(PREP of).
 
 
 "auxiliaries"
@@ -665,127 +687,127 @@ him 	  PRON * @(PRON he 3 sg pers)
 "determiners"
 
 the 	  D * (^DEF) = +
-	      @(LLCLOSURE %mc114)
-@(LLATOM %mc110 (s::^ VAR) e)
-@(LLATOM %mc111 (s::^ RESTR) t)
-@(LLIMP %mc112 %mc110 %mc111)
-@(LLATOM %mc113 s::^ e)
-@(LLIMP %mc114 %mc112 %mc113)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `. Ix `_ e `[ P `( x `)  `]  `]  %mc115)
-@(GLUE-MEANING %mc114 %mc115).
+	      @(LLCLOSURE %mc122)
+@(LLATOM %mc118 (s::^ VAR) e)
+@(LLATOM %mc119 (s::^ RESTR) t)
+@(LLIMP %mc120 %mc118 %mc119)
+@(LLATOM %mc121 s::^ e)
+@(LLIMP %mc122 %mc120 %mc121)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `. Ix `_ e `[ P `( x `)  `]  `]  %mc123)
+@(GLUE-MEANING %mc122 %mc123).
 
 The 	  D * (^DEF) = +
-	      @(LLCLOSURE %mc114)
-@(LLATOM %mc110 (s::^ VAR) e)
-@(LLATOM %mc111 (s::^ RESTR) t)
-@(LLIMP %mc112 %mc110 %mc111)
-@(LLATOM %mc113 s::^ e)
-@(LLIMP %mc114 %mc112 %mc113)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `. Ix `_ e `[ P `( x `)  `]  `]  %mc115)
-@(GLUE-MEANING %mc114 %mc115).
+	      @(LLCLOSURE %mc122)
+@(LLATOM %mc118 (s::^ VAR) e)
+@(LLATOM %mc119 (s::^ RESTR) t)
+@(LLIMP %mc120 %mc118 %mc119)
+@(LLATOM %mc121 s::^ e)
+@(LLIMP %mc122 %mc120 %mc121)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `. Ix `_ e `[ P `( x `)  `]  `]  %mc123)
+@(GLUE-MEANING %mc122 %mc123).
 
 
 a 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      @(LLCLOSURE %mc130)
-@(LLATOM %mc122 (s::^ VAR) e)
-@(LLATOM %mc123 (s::^ RESTR) t)
-@(LLIMP %mc124 %mc122 %mc123)
-@(LLATOM %mc125 s::^ e)
-@(LLATOM %mc126 %q t)
-@(LLIMP %mc127 %mc125 %mc126)
-@(LLATOM %mc128 %q t)
-@(LLIMP %mc129 %mc127 %mc128)
-@(LLIMP %mc130 %mc124 %mc129)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ex `_ e `[ P `( x `)   `&  Q `( x `)  `]  `]  `]  %mc131)
-@(GLUE-MEANING %mc130 %mc131).
+	      @(LLCLOSURE %mc138)
+@(LLATOM %mc130 (s::^ VAR) e)
+@(LLATOM %mc131 (s::^ RESTR) t)
+@(LLIMP %mc132 %mc130 %mc131)
+@(LLATOM %mc133 s::^ e)
+@(LLATOM %mc134 %q t)
+@(LLIMP %mc135 %mc133 %mc134)
+@(LLATOM %mc136 %q t)
+@(LLIMP %mc137 %mc135 %mc136)
+@(LLIMP %mc138 %mc132 %mc137)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ex `_ e `[ P `( x `)   `&  Q `( x `)  `]  `]  `]  %mc139)
+@(GLUE-MEANING %mc138 %mc139).
 
 an 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      @(LLCLOSURE %mc130)
-@(LLATOM %mc122 (s::^ VAR) e)
-@(LLATOM %mc123 (s::^ RESTR) t)
-@(LLIMP %mc124 %mc122 %mc123)
-@(LLATOM %mc125 s::^ e)
-@(LLATOM %mc126 %q t)
-@(LLIMP %mc127 %mc125 %mc126)
-@(LLATOM %mc128 %q t)
-@(LLIMP %mc129 %mc127 %mc128)
-@(LLIMP %mc130 %mc124 %mc129)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ex `_ e `[ P `( x `)   `&  Q `( x `)  `]  `]  `]  %mc131)
-@(GLUE-MEANING %mc130 %mc131).
+	      @(LLCLOSURE %mc138)
+@(LLATOM %mc130 (s::^ VAR) e)
+@(LLATOM %mc131 (s::^ RESTR) t)
+@(LLIMP %mc132 %mc130 %mc131)
+@(LLATOM %mc133 s::^ e)
+@(LLATOM %mc134 %q t)
+@(LLIMP %mc135 %mc133 %mc134)
+@(LLATOM %mc136 %q t)
+@(LLIMP %mc137 %mc135 %mc136)
+@(LLIMP %mc138 %mc132 %mc137)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ex `_ e `[ P `( x `)   `&  Q `( x `)  `]  `]  `]  %mc139)
+@(GLUE-MEANING %mc138 %mc139).
 	
 A 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      @(LLCLOSURE %mc130)
-@(LLATOM %mc122 (s::^ VAR) e)
-@(LLATOM %mc123 (s::^ RESTR) t)
-@(LLIMP %mc124 %mc122 %mc123)
-@(LLATOM %mc125 s::^ e)
-@(LLATOM %mc126 %q t)
-@(LLIMP %mc127 %mc125 %mc126)
-@(LLATOM %mc128 %q t)
-@(LLIMP %mc129 %mc127 %mc128)
-@(LLIMP %mc130 %mc124 %mc129)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ex `_ e `[ P `( x `)   `&  Q `( x `)  `]  `]  `]  %mc131)
-@(GLUE-MEANING %mc130 %mc131).
+	      @(LLCLOSURE %mc138)
+@(LLATOM %mc130 (s::^ VAR) e)
+@(LLATOM %mc131 (s::^ RESTR) t)
+@(LLIMP %mc132 %mc130 %mc131)
+@(LLATOM %mc133 s::^ e)
+@(LLATOM %mc134 %q t)
+@(LLIMP %mc135 %mc133 %mc134)
+@(LLATOM %mc136 %q t)
+@(LLIMP %mc137 %mc135 %mc136)
+@(LLIMP %mc138 %mc132 %mc137)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ex `_ e `[ P `( x `)   `&  Q `( x `)  `]  `]  `]  %mc139)
+@(GLUE-MEANING %mc138 %mc139).
 
 An 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      @(LLCLOSURE %mc130)
-@(LLATOM %mc122 (s::^ VAR) e)
-@(LLATOM %mc123 (s::^ RESTR) t)
-@(LLIMP %mc124 %mc122 %mc123)
-@(LLATOM %mc125 s::^ e)
-@(LLATOM %mc126 %q t)
-@(LLIMP %mc127 %mc125 %mc126)
-@(LLATOM %mc128 %q t)
-@(LLIMP %mc129 %mc127 %mc128)
-@(LLIMP %mc130 %mc124 %mc129)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ex `_ e `[ P `( x `)   `&  Q `( x `)  `]  `]  `]  %mc131)
-@(GLUE-MEANING %mc130 %mc131).
+	      @(LLCLOSURE %mc138)
+@(LLATOM %mc130 (s::^ VAR) e)
+@(LLATOM %mc131 (s::^ RESTR) t)
+@(LLIMP %mc132 %mc130 %mc131)
+@(LLATOM %mc133 s::^ e)
+@(LLATOM %mc134 %q t)
+@(LLIMP %mc135 %mc133 %mc134)
+@(LLATOM %mc136 %q t)
+@(LLIMP %mc137 %mc135 %mc136)
+@(LLIMP %mc138 %mc132 %mc137)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ex `_ e `[ P `( x `)   `&  Q `( x `)  `]  `]  `]  %mc139)
+@(GLUE-MEANING %mc138 %mc139).
 
 every 	  D * @(SPEC-DET-PRED every)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      @(LLCLOSURE %mc170)
-@(LLATOM %mc162 (s::^ VAR) e)
-@(LLATOM %mc163 (s::^ RESTR) t)
-@(LLIMP %mc164 %mc162 %mc163)
-@(LLATOM %mc165 s::^ e)
-@(LLATOM %mc166 %q t)
-@(LLIMP %mc167 %mc165 %mc166)
-@(LLATOM %mc168 %q t)
-@(LLIMP %mc169 %mc167 %mc168)
-@(LLIMP %mc170 %mc164 %mc169)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ax `_ e `[ P `( x `)   `-  `>  Q `( x `)  `]  `]  `]  %mc171)
-@(GLUE-MEANING %mc170 %mc171).
+	      @(LLCLOSURE %mc178)
+@(LLATOM %mc170 (s::^ VAR) e)
+@(LLATOM %mc171 (s::^ RESTR) t)
+@(LLIMP %mc172 %mc170 %mc171)
+@(LLATOM %mc173 s::^ e)
+@(LLATOM %mc174 %q t)
+@(LLIMP %mc175 %mc173 %mc174)
+@(LLATOM %mc176 %q t)
+@(LLIMP %mc177 %mc175 %mc176)
+@(LLIMP %mc178 %mc172 %mc177)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ax `_ e `[ P `( x `)   `-  `>  Q `( x `)  `]  `]  `]  %mc179)
+@(GLUE-MEANING %mc178 %mc179).
 
 Every 	  D * @(SPEC-DET-PRED every)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      @(LLCLOSURE %mc170)
-@(LLATOM %mc162 (s::^ VAR) e)
-@(LLATOM %mc163 (s::^ RESTR) t)
-@(LLIMP %mc164 %mc162 %mc163)
-@(LLATOM %mc165 s::^ e)
-@(LLATOM %mc166 %q t)
-@(LLIMP %mc167 %mc165 %mc166)
-@(LLATOM %mc168 %q t)
-@(LLIMP %mc169 %mc167 %mc168)
-@(LLIMP %mc170 %mc164 %mc169)
-@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ax `_ e `[ P `( x `)   `-  `>  Q `( x `)  `]  `]  `]  %mc171)
-@(GLUE-MEANING %mc170 %mc171).
+	      @(LLCLOSURE %mc178)
+@(LLATOM %mc170 (s::^ VAR) e)
+@(LLATOM %mc171 (s::^ RESTR) t)
+@(LLIMP %mc172 %mc170 %mc171)
+@(LLATOM %mc173 s::^ e)
+@(LLATOM %mc174 %q t)
+@(LLIMP %mc175 %mc173 %mc174)
+@(LLATOM %mc176 %q t)
+@(LLIMP %mc177 %mc175 %mc176)
+@(LLIMP %mc178 %mc172 %mc177)
+@(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ Q `_  `< e `, t `>  `. Ax `_ e `[ P `( x `)   `-  `>  Q `( x `)  `]  `]  `]  %mc179)
+@(GLUE-MEANING %mc178 %mc179).
 
 
 "complementizers"
@@ -845,17 +867,17 @@ MORPH   ENGLISH   LEXICON (1.0)
 	  ADV-S XLE @(PRED %stem);
 	  N-S XLE @(PRED %stem)
 		  { (^ NTYPE) = count
-		    @(LLCLOSURE %mc184)
-@(LLATOM %mc182 (s::^ VAR) e)
-@(LLATOM %mc183 (s::^ RESTR) t)
-@(LLIMP %mc184 %mc182 %mc183)
-@(CONCAT  `[  `/ x `_ e `. %stem `( x `)  `]  %mc185)
-@(GLUE-MEANING %mc184 %mc185)		  |
+		    @(LLCLOSURE %mc192)
+@(LLATOM %mc190 (s::^ VAR) e)
+@(LLATOM %mc191 (s::^ RESTR) t)
+@(LLIMP %mc192 %mc190 %mc191)
+@(CONCAT  `[  `/ x `_ e `. %stem `( x `)  `]  %mc193)
+@(GLUE-MEANING %mc192 %mc193)		  |
 		  (^ NTYPE) = name
-		  @(LLCLOSURE %mc186)
-@(LLATOM %mc186 s::^ e)
-@(CONCAT %stem %mc187)
-@(GLUE-MEANING %mc186 %mc187)		  }. 
+		  @(LLCLOSURE %mc194)
+@(LLATOM %mc194 s::^ e)
+@(CONCAT %stem %mc195)
+@(GLUE-MEANING %mc194 %mc195)		  }. 
 
 "lexical entries for tags coming out of the morphological analyzer" 
 
