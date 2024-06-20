@@ -19,9 +19,10 @@
 
 %:- consult('glue_prover_amended.pl').       % glue/2
 :- consult('boxer/betaConversionDRT.pl').   % betaConvert/2
-:- consult('boxer/presupDRT.pl').           % resolveDrs/2
-:- consult('boxer/printDrs.pl').            % printDrs/1
+:- consult('boxer/mainPronounsDRT.pl').           % resolveDrs/1
+  :- consult('boxer/printDrs.pl').            % printDrs/1
 
+ 
 
 main :- 
  current_prolog_flag(argv,Argv),
@@ -38,7 +39,7 @@ drt2file(L,F) :- betaConvertList(L,L2),
   close(Stream).
  
 betaConvertList([],[]).
-  betaConvertList([H1|T1],[H2|T2]) :- betaConvert(H1,H2),resolveDrs(H2,H3),
+  betaConvertList([H1|T1],[H2|T2]) :- betaConvert(H1,H2),resolveDrs([H2]-[H3]),
   printDrs(H3),
   betaConvertList(T1,T2),halt. 
 

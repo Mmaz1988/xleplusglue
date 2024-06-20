@@ -9,7 +9,7 @@
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
-
+ 
     BB2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -143,23 +143,8 @@ unionSets([X|L1],L2,[X|L3]):-
 ========================================================================*/
 
 simpleTerms([]).
-
 simpleTerms([X|Rest]):-
-   simpleTerm(X),
-   simpleTerms(Rest).
-
-simpleTerm(T):-
-   (
-    var(T)
-   ;   
-    atomic(T)
-   ;
-    nonvar(T),
-    functor(T,'$VAR',1) 
-   ;
-    nonvar(T),
-    functor(T,fun,_)
-   ).
+    simple(X), simpleTerms(Rest).
 
 
 /*========================================================================

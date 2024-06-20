@@ -1,78 +1,354 @@
 /*************************************************************************
 
-         name: englishGrammar.pl
-      version: November 12, 1997
-  description: Grammar rules for a small coverage of English
-      authors: Patrick Blackburn & Johan Bos
- 
+    File: englishGrammar.pl
+    Copyright (C) 2004,2006 Patrick Blackburn & Johan Bos
+
+    This file is part of BB2, version 2.0 (November 2006).
+
+    BB2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    BB2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with BB2; if not, write to the Free Software Foundation, Inc., 
+    59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 *************************************************************************/
 
 /*========================================================================
-   Grammar Rules
+   Texts
 ========================================================================*/
 
-d(S) --> s(S).
-d(app(app(C,S1),S2))--> dcoord(D,C), s(S1), D, d(S2).
+t([sem:T])--> 
+   s([coord:no,sem:S]),
+   {combine(t:T,[s:S])}.
 
-s(app(NP,VP))--> np2(NP), vp2(VP).
+t([sem:T])--> 
+   s([coord:no,sem:S1]), 
+   t([sem:S2]),
+   {combine(t:T,[s:S1,t:S2])}.
 
-np2(NP)--> np1(NP).
-np2(app(app(C,NP1),NP2))--> np1(NP1), coord(C), np1(NP2).
+t([sem:T])--> 
+   s([coord:yes,sem:S]),
+   {combine(t:T,[s:S])}.
 
-np1(app(Det,Noun))--> det(Det), n2(Noun).
-np1(NP)--> pn(NP).
-np1(NP)--> pro(NP).
+t([sem:T])--> 
+   s([coord:yes,sem:S1]), 
+   t([sem:S2]),
+   {combine(t:T,[s:S1,t:S2])}.
 
-n2(N)--> n1(N).
-n2(app(app(C,N1),N2))--> n1(N1), coord(C), n1(N2).
+t([sem:T])--> 
+   q([sem:Q]),
+   {combine(t:T,[q:Q])}.
 
-n1(N)--> noun(N).
-n1(app(PP,N))--> noun(N), pp(PP).
-n1(app(RC,N))--> noun(N), rc(RC).
 
-vp2(VP)--> vp1(VP).
-vp2(app(app(C,VP1),VP2))--> vp1(VP1), coord(C), vp1(VP2).
+/*========================================================================
+   Sentences
+========================================================================*/
 
-vp1(app(Mod,VP))--> mod(Mod),  v2(inf,VP).
-vp1(VP)--> v2(fin,VP).
+s([coord:no,sem:Sem])--> 
+   np([coord:_,num:Num,gap:[],ref:no,sem:NP]), 
+   vp([coord:_,inf:fin,num:Num,gap:[],sem:VP]), 
+   {combine(s:Sem,[np:NP,vp:VP])}.
 
-v2(fin,app(Cop,NP))--> cop(Cop), np2(NP).
-v2(fin,app(Neg,app(Cop,NP)))--> cop(Cop), neg(Neg), np2(NP).
+s([coord:yes,sem:Sem])--> 
+   s([coord:ant,sem:S1]), 
+   s([coord:con,sem:S2]), 
+   {combine(s:Sem,[s:S1,s:S2])}.
 
-v2(I,V)--> v1(I,V).
-v2(I,app(app(C,V1),V2))--> v1(I,V1), coord(C), v1(I,V2).
+s([coord:yes,sem:Sem])--> 
+   s([coord:either,sem:S1]), 
+   s([coord:or,sem:S2]), 
+   {combine(s:Sem,[s:S1,s:S2])}.
 
-v1(I,V)--> iv(I,V).
-v1(I,app(TV,NP))--> tv(I,TV), np2(NP).
+s([coord:ant,sem:Sem])--> 
+   [if], 
+   s([coord:no,sem:S]),
+   {combine(s:Sem,[if:S])}.
 
-pp(app(Prep,NP))--> prep(Prep), np2(NP).
+s([coord:either,sem:Sem])--> 
+   [either], 
+   s([coord:no,sem:S]),
+   {combine(s:Sem,[either:S])}.
 
-rc(app(RP,VP))--> relpro(RP), vp2(VP).
+s([coord:con,sem:Sem])--> 
+   [then], 
+   s([coord:no,sem:S]),
+   {combine(s:Sem,[then:S])}.
 
-iv(I,IV)--> {lexicon(iv,Sym,Word,I),ivSem(Sym,IV)}, Word.
+s([coord:con,sem:Sem])-->
+   s([coord:no,sem:S]),
+   {combine(s:Sem,[then:S])}.
 
-tv(I,TV)--> {lexicon(tv,Sym,Word,I),tvSem(Sym,TV)}, Word.
+s([coord:or,sem:Sem])-->
+   [or], 
+   s([coord:no,sem:S]),
+   {combine(s:Sem,[or:S])}.
 
-cop(Cop)--> {lexicon(cop,Sym,Word,_),tvSem(Sym,Cop)}, Word.
+s([coord:C,sem:Sem])-->
+   [it,is,not,the,case,that], 
+   s([coord:C,sem:S]),
+   {combine(s:Sem,[not:S])}.
 
-det(Det)--> {lexicon(det,_,Word,Type),detSem(Type,Det)}, Word.
+sinv([gap:G,sem:S])-->
+   av([inf:fin,num:Num,sem:Sem]),
+   np([coord:_,num:Num,gap:[],ref:no,sem:NP]),
+   vp([coord:_,inf:inf,num:Num,gap:G,sem:VP]), 
+   {combine(sinv:S,[av:Sem,np:NP,vp:VP])}.
 
-pn(PN)--> {lexicon(pn,Sym,Word,G),pnSem(Sym,G,PN)}, Word.
 
-pro(Pro)--> {lexicon(pro,Gender,Word,Type),proSem(Gender,Type,Pro)}, Word.
+/*========================================================================
+   Questions
+========================================================================*/
 
-noun(N)--> {lexicon(noun,Sym,Word,_),nounSem(Sym,N)}, Word.
+q([sem:Sem])--> 
+   whnp([num:Num,sem:NP]), 
+   vp([coord:_,inf:fin,num:Num,gap:[],sem:VP]), 
+   {combine(q:Sem,[whnp:NP,vp:VP])}.
 
-relpro(RP)--> {lexicon(relpro,_,Word,_),relproSem(RP)}, Word.
+q([sem:Sem])--> 
+   whnp([num:_,sem:NP]), 
+   sinv([gap:[np:NP],sem:S]),
+   {combine(q:Sem,[sinv:S])}.
 
-prep(Prep)--> {lexicon(prep,Sym,Word,_),prepSem(Sym,Prep)}, Word.
 
-mod(Mod)--> {lexicon(mod,_,Word,Type),modSem(Type,Mod)}, Word.
+/*========================================================================
+   Noun Phrases
+========================================================================*/
 
-neg(Neg)--> [not], {modSem(neg,Neg)}.
+np([coord:no,num:sg,gap:[np:NP],ref:no,sem:NP])--> [].
 
-coord(C)--> {lexicon(coord,_,Word,Type), coordSem(Type,C)}, Word.
+np([coord:yes,num:pl,gap:[],ref:Ref,sem:NP])--> 
+   np([coord:no,num:sg,gap:[],ref:Ref,sem:NP1]), 
+   coord([type:conj,sem:C]), 
+   np([coord:_,num:_,gap:[],ref:Ref,sem:NP2]), 
+   {combine(np:NP,[np:NP1,coord:C,np:NP2])}.
 
-dcoord(D,C)--> {lexicon(dcoord,Word,D,Type), dcoordSem(Type,C)}, Word.
+np([coord:yes,num:sg,gap:[],ref:Ref,sem:NP])--> 
+   np([coord:no,num:sg,gap:[],ref:Ref,sem:NP1]), 
+   coord([type:disj,sem:C]), 
+   np([coord:_,num:sg,gap:[],ref:Ref,sem:NP2]), 
+   {combine(np:NP,[np:NP1,coord:C,np:NP2])}.
 
+np([coord:no,num:Num,gap:[],ref:no,sem:NP])--> 
+   det([mood:decl,type:_,num:Num,sem:Det]), 
+   n([coord:_,num:Num,sem:N]), 
+   {combine(np:NP,[det:Det,n:N])}.
+
+np([coord:no,num:sg,gap:[],ref:no,sem:NP])--> 
+   pn([sem:PN]), 
+   {combine(np:NP,[pn:PN])}.
+
+np([coord:no,num:sg,gap:[],ref:Ref,sem:NP])--> 
+   pro([ref:Ref,sem:PN]), 
+   {combine(np:NP,[pn:PN])}.
+
+np([coord:no,num:sg,gap:[],ref:no,sem:NP])--> 
+   qnp([mood:decl,sem:QNP]), 
+   {combine(np:NP,[qnp:QNP])}.
+
+
+/*========================================================================
+   WH Noun Phrases
+========================================================================*/
+
+whnp([num:sg,sem:NP])--> 
+   qnp([mood:int,sem:QNP]), 
+   {combine(whnp:NP,[qnp:QNP])}.
+
+whnp([num:sg,sem:NP])--> 
+   det([mood:int,type:_,num:_,sem:Det]), 
+   n([coord:_,num:_,sem:N]), 
+   {combine(whnp:NP,[det:Det,n:N])}.
+
+
+/*========================================================================
+   Nouns
+========================================================================*/
+
+n([coord:yes,num:Num,sem:N])--> 
+   n([coord:no,num:Num,sem:N1]), 
+   coord([type:_,sem:C]),  
+   n([coord:_,num:Num,sem:N2]),
+   {combine(n:N,[n:N1,coord:C,n:N2])}.
+
+n([coord:C,num:Num,sem:Sem])--> 
+   adj([sem:A]), 
+   n([coord:C,num:Num,sem:N]), 
+   {combine(n:Sem,[adj:A,n:N])}.
+
+n([coord:no,num:Num,sem:N])--> 
+   noun([num:Num,sem:Noun]),
+   {combine(n:N,[noun:Noun])}.
+
+n([coord:no,num:Num,sem:Sem])--> 
+   noun([num:Num,sem:N]), 
+   nmod([num:Num,sem:PP]),
+   {combine(n:Sem,[noun:N,nmod:PP])}. 
+
+nmod([num:_,sem:N])--> 
+   pp([type:n,sem:PP]),
+   {combine(nmod:N,[pp:PP])}.
+
+nmod([num:Num,sem:N])--> 
+   rc([num:Num,sem:RC]),
+   {combine(nmod:N,[rc:RC])}.
+
+nmod([num:Num,sem:Sem])--> 
+   pp([type:n,sem:PP]), 
+   nmod([num:Num,sem:NMod]),
+   {combine(nmod:Sem,[pp:PP,nmod:NMod])}.
+
+
+/*========================================================================
+   Verb Phrases
+========================================================================*/
+
+vp([coord:yes,inf:Inf,num:Num,gap:[],sem:VP])--> 
+   vp([coord:no,inf:Inf,num:Num,gap:[],sem:VP1]), 
+   coord([type:_,sem:C]), 
+   vp([coord:_,inf:Inf,num:Num,gap:[],sem:VP2]),
+   {combine(vp:VP,[vp:VP1,coord:C,vp:VP2])}.
+
+vp([coord:no,inf:Inf,num:Num,gap:[],sem:VP])--> 
+   av([inf:Inf,num:Num,sem:Mod]), 
+   vp([coord:_,inf:inf,num:_,gap:[],sem:V2]), 
+   {combine(vp:VP,[av:Mod,vp:V2])}.
+
+vp([coord:no,inf:Inf,num:Num,gap:[],sem:VP])--> 
+   cop([inf:Inf,num:Num,sem:Cop]), 
+   np([coord:_,num:_,gap:[],ref:_,sem:NP]), 
+   {combine(vp:VP,[cop:Cop,np:NP])}.
+
+%von mir:
+vp([coord:no,inf:Inf,num:Num,gap:[],sem:VP])--> 
+   cop([inf:Inf,num:Num,sem:Cop]), 
+   adj([sem:A]),
+   {combine(vp:VP,[cop:Cop,adj:A])}.
+
+%von mir:
+vp([coord:no,inf:Inf,num:Num,gap:[],sem:VP])--> 
+   cop([inf:Inf,num:Num,sem:Cop]), 
+   pp([sem:ADV]),
+   {combine(vp:VP,[cop:Cop,adv:ADV])}.
+
+vp([coord:no,inf:Inf,num:Num,gap:[],sem:VP])--> 
+   iv([inf:Inf,num:Num,sem:IV]), 
+   {combine(vp:VP,[iv:IV])}.
+
+vp([coord:no,inf:Inf,num:Num,gap:[],sem:VP])--> 
+   iv([inf:Inf,num:Num,sem:IV]), 
+   adv([sem:ADV]),
+   {combine(vp:VP,[iv:IV,adv:ADV])}.
+
+vp([coord:no,inf:Inf,num:Num,gap:[],sem:VP])--> 
+   iv([inf:Inf,num:Num,sem:IV]), 
+   pp([type:vp,sem:ADV]),
+   {combine(vp:VP,[iv:IV,adv:ADV])}.
+
+vp([coord:no,inf:I,num:Num,gap:G,sem:VP])-->   
+   tv([inf:I,num:Num,ref:Ref,sem:TV]), 
+   np([coord:_,num:_,gap:G,ref:Ref,sem:NP]), 
+   {combine(vp:VP,[tv:TV,np:NP])}.
+
+
+/*========================================================================
+   Prepositional Phrases
+========================================================================*/
+
+pp([type:Type,sem:PP])--> 
+   prep([type:Type,sem:Prep]), 
+   np([coord:_,num:_,gap:[],ref:no,sem:NP]), 
+   {combine(pp:PP,[prep:Prep,np:NP])}.
+
+
+/*========================================================================
+   Relative Clauses
+========================================================================*/
+
+rc([num:Num,sem:RC])--> 
+   relpro([sem:RP]), 
+   vp([coord:_,inf:fin,num:Num,gap:[],sem:VP]), 
+   {combine(rc:RC,[relpro:RP,vp:VP])}.
+
+
+/*========================================================================
+   Lexical Rules
+========================================================================*/
+
+iv([inf:Inf,num:Num,sem:Sem])--> 
+   {lexEntry(iv,[symbol:Sym,syntax:Word,inf:Inf,num:Num])},
+   Word,
+   {semLex(iv,[symbol:Sym,sem:Sem])}.
+
+tv([inf:Inf,num:Num,ref:Ref,sem:Sem])--> 
+   {lexEntry(tv,[symbol:Sym,syntax:Word,inf:Inf,num:Num])},
+   Word,
+   {semLex(tv,[symbol:Sym,ref:Ref,sem:Sem])}.
+
+cop([inf:Inf,num:Num,sem:Sem])--> 
+   {lexEntry(cop,[pol:Pol,syntax:Word,inf:Inf,num:Num])},
+   Word,
+   {semLex(cop,[pol:Pol,sem:Sem])}.
+
+det([mood:M,type:Type,num:Num,sem:Det])--> 
+   {lexEntry(det,[syntax:Word,mood:M,num:Num,type:Type])},
+   Word,
+   {semLex(det,[type:Type,num:Num,sem:Det])}. 
+
+pn([sem:Sem])--> 
+   {lexEntry(pn,[symbol:Sym,syntax:Word])},
+   Word,  
+   {semLex(pn,[symbol:Sym,sem:Sem])}.
+
+pro([ref:Ref,sem:Sem])--> 
+   {lexEntry(pro,[symbol:Sym,ref:Ref,syntax:Word])},
+   Word,  
+   {semLex(pro,[symbol:Sym,sem:Sem])}.
+
+relpro([sem:Sem])--> 
+   {lexEntry(relpro,[syntax:Word])},
+   Word,
+   {semLex(relpro,[sem:Sem])}.
+
+prep([type:Type,sem:Sem])--> 
+   {lexEntry(prep,[symbol:Sym,syntax:Word])},
+   Word,
+   {semLex(prep,[symbol:Sym,type:Type,sem:Sem])}.
+
+adj([sem:Sem])--> 
+   {lexEntry(adj,[symbol:Sym,syntax:Word])},
+   Word,
+   {semLex(adj,[symbol:Sym,sem:Sem])}.
+
+adv([sem:Sem])--> 
+   {lexEntry(adv,[symbol:Sym,syntax:Word])},
+   Word,
+   {semLex(adv,[symbol:Sym,sem:Sem])}.
+
+av([inf:Inf,num:Num,sem:Sem])--> 
+   {lexEntry(av,[syntax:Word,inf:Inf,num:Num,pol:Pol])},
+   Word,
+   {semLex(av,[pol:Pol,sem:Sem])}.
+
+coord([type:Type,sem:Sem])--> 
+   {lexEntry(coord,[syntax:Word,type:Type])},
+   Word, 
+   {semLex(coord,[type:Type,sem:Sem])}.
+
+qnp([mood:M,sem:NP])--> 
+   {lexEntry(qnp,[symbol:Symbol,syntax:Word,mood:M,type:Type])},
+   Word,
+   {semLex(qnp,[type:Type,symbol:Symbol,sem:NP])}.
+
+noun([num:Num,sem:Sem])--> 
+   {lexEntry(noun,[symbol:Sym,num:Num,syntax:Word])},
+   Word,
+   {semLex(noun,[symbol:Sym,sem:Sem])}.
 

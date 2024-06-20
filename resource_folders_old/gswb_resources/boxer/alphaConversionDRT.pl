@@ -99,11 +99,12 @@ alphaConvertDRS(Exp,Vars1-Vars2,drs([New|L2],C2)):-
    Exp=drs([Ref|L1],C1),
    alphaConvertDRS(drs(L1,C1),[sub(Ref,New)|Vars1]-Vars2,drs(L2,C2)).
 
-alphaConvertDRS(Exp,Vars1-Vars3,alfa(Type,B3,B4)):-
+alphaConvertDRS(Exp,Vars1-Vars2,alfa(New,Type,NewGender,B2)):-
    nonvar(Exp),
-   Exp=alfa(Type,B1,B2),
-   alphaConvertDRS(B1,Vars1-Vars2,B3),
-   alphaConvertDRS(B2,Vars2-Vars3,B4).
+   Exp=alfa(X,Type,Gender,B1),
+   alphaConvertVar(X,Vars1,New),
+   alphaConvertCondition(Gender,Vars1,NewGender),
+   alphaConvertDRS(B1,Vars1-Vars2,B2).
 
 alphaConvertDRS(Exp,Vars1-Vars3,merge(B3,B4)):-
    nonvar(Exp),
@@ -131,7 +132,7 @@ alphaConvertCondition(try(B1),Vars,try(B2)):-
 alphaConvertCondition(say(B1),Vars,say(B2)):-
    alphaConvertDRS(B1,Vars-_,B2).
 
-alphaConvertCondition(seem(B1),Vars,seem(B2)):-
+alphaConvertCondition(try(B1),Vars,seem(B2)):-
    alphaConvertDRS(B1,Vars-_,B2).
 
 alphaConvertCondition(imp(B1,B2),Vars,imp(B3,B4)):-

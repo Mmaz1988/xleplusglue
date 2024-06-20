@@ -24,7 +24,7 @@ proc relpath {path} {
 set defaultGlueTCL [relpath src/glue.tcl]
 
 #Here the grammar is loaded 
-set defaultGlueParser [relpath grammars/glue-basic-drt-pron.lfg.glue]
+set defaultGlueParser [relpath grammars/hybrid-drt-tense.lfg.glue]
 
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
