@@ -19,7 +19,7 @@ COPY jars/liger.jar app.jar
 COPY liger_resources liger_resources
 
 # copy XLE
-COPY xle_linux /xle
+COPY xle /xle
 
 COPY src/.bashrc /root/.bashrc
 
