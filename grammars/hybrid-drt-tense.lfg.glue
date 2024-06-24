@@ -379,6 +379,7 @@ convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
 		  (^ XCOMP SUBJ) = (^OBJ). 
  
 try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+          @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
 		  :$ lam(X,lam(P,drs([],[try(app(P,X))]))) : (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o s::(^ XCOMP)_t)  -o s::^_t)).
 
@@ -668,9 +669,10 @@ MORPH   ENGLISH   LEXICON (1.0)
 		    :$ lam(X,drs([],[pred(%stem,X)])) : (s::^_e -o s::^_t),
 		  |
 		  (^ NTYPE) = name
-		  @(QUANT-SCOPE ^ %q)
+		  @(NAME-SCOPE ^ %q)
+
 		  :$ lam(X,drs([],[eq(X,'%stem')])) : (s::^_e -o s::^_t),
-	      	  :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) : ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
+	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) : ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
 		  }.  
 
 
@@ -742,6 +744,13 @@ GLUE   BASIC   TEMPLATES (1.0)
 	  (R MEANING) = M.
 
   NOSCOPE(G) = (G NOSCOPE) = +.  
+
+
+   NAME-SCOPE(UP NAME) =
+   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^)
+   (%name ROOT)
+   NAME  = (s::%name SIT)
+   	(s::^ QUANT-SCOPE) = NAME.
 
    QUANT-SCOPE(UP NAME) =
 	  NAME = (s::({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^) SIT)
