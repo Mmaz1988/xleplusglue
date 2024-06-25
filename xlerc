@@ -44,6 +44,10 @@ set semParser 0
 # activate DRT mode (1/0); requires Prolog parsing! 
 set processDRT 0
 
+# Choose between Prolog-encoding (0) and String-encoding (1) for MCs
+set mcEncoding 1
+
+
 # activate debug mode (1/0)
 set transferDebug 1
 

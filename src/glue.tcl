@@ -103,7 +103,7 @@ proc fswindow-to-premises {displaywindow window displaymode position} {
    
     global defaultTmpDir prover semParser \
     transferDebug processDRT solutionOnly \
-	outputfont fontsize
+    mcEncoding outputfont fontsize
 	
     
     #For Sicstus Prolog
@@ -147,10 +147,10 @@ proc fswindow-to-premises {displaywindow window displaymode position} {
     set ligerpath "jars/liger.jar"
     set prologPath [relpath $prologfile]
     set outputPath [relpath $outputfile]
-    set command "-fs2mcs $prologPath $outputPath"
+    set command "-fs2mcs $mcEncoding $prologPath $outputPath"
 
     
-    #Set up the command to call the GSWB in accordance with the parameters set in xlerc
+    #Set up the command to call LIGER in accordance with the parameters set in xlerc
     set fs2glue exec
     lappend fs2glue java
     lappend fs2glue -jar

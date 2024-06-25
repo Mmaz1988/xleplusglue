@@ -237,7 +237,7 @@ DEMO   ENGLISH   TEMPLATES (1.0)
    "lambda DRT"
    INTRANS-EV(P) = (^ PRED) = 'P<(^SUBJ)>'
 	  @(EVENT P)
-	  @(ARG1 %arg1).
+	  @(ARG1 (^ SUBJ)).
 
    INTRANS-OBL(P) = (^ PRED) = 'P<(^SUBJ)(^OBL)>'.
 
@@ -439,9 +439,7 @@ give 	  V-S XLE @(DITRANS-EV give).
 
 "Nouns"
 
-cat 	  N * (^PRED) = 'cat'
-	      (^ NTYPE) = count
-	      :$ [/x_e.%stem(x)] : ((s::^ VAR)_e -o (s::^ RESTR)_t).
+
 
 "adjectives --- should really be done via the morphology, like the nouns"
 
