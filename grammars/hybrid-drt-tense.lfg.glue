@@ -39,6 +39,7 @@ DEMO   ENGLISH   RULES (1.0)
    S --> NP: (^ SUBJ)=!
 	     (! CASE)=nom;
  	 VP: (^ TNS-ASP TENSE) "require that sentences have tense"
+ 	     (^ FIN) = +
 	     (s::^ TEMP-REF EVAL) = %eval. "Tense needs to be evaluated against sth."
 
 	 
@@ -63,7 +64,8 @@ DEMO   ENGLISH   RULES (1.0)
  	  ({ CP: (^ COMP) = !
  	  	|
  		VPinf: (^XCOMP) = !
-		 (^ VFORM) = inf
+ 		 (! FIN) = -
+		 (! VFORM) = inf
  		 (s::^ TEMP-REF) = (s::(^XCOMP) EVAL)}
  		 )
  (ADVP: ! $ (^ ADJUNCT)).
@@ -267,37 +269,37 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
 	    }
 	    ARG2 = (^ SUBJ)
-	  }. 
+	  }.
 
-   DITRANS-PASSIVE-ARGS(ARG1 ARG2 ARG3) = { 
-	    (^ PASSIVE) =c - 
+   DITRANS-PASSIVE-ARGS(ARG1 ARG2 ARG3) = {
+	    (^ PASSIVE) =c -
 	    ARG1 = (^ SUBJ)
-	    { 
+	    {
 	      (^ DATIVE-SHIFT) =c -
 	      ARG2 = (^ OBJ)
 	      ARG3 = (^ OBL-TO)
 	     |
 	      (^ DATIVE-SHIFT) =c +
 	      ARG3 = (^ OBJ)
-	      ARG2 = (^ OBJ2) 
-	    } 
+	      ARG2 = (^ OBJ2)
+	    }
 	   |
 	    (^ PASSIVE) =c +
-	    { 
+	    {
 	      (^OBL-AG) = ARG1 |
 	      ~[(^OBL-AG)]
 	      ARG1 = %empty
 	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
 	    }
-	    { 
+	    {
 	      (^ DATIVE-SHIFT) =c -
 	      ARG2 = (^ SUBJ)
-	      ARG3 = (^ OBL-TO) 
+	      ARG3 = (^ OBL-TO)
 	     |
 	      (^ DATIVE-SHIFT) =c +
 	      ARG2 = (^ OBJ2)
 	      ARG3 = (^ SUBJ)
-	    } 
+	    }
 	  }.
   
    """Functional feature templates"""
@@ -481,7 +483,7 @@ very 	  ADV * @(PRED very).
 by 	  P * @(PREP by). 
 
 to 	  P * @(PREP to); 
-	  PARTinf * (^ VFORM) =c inf. 
+	  PARTinf * (^ VFORM) =c inf.
 
 on 	  P * @(PREP on). 
 
@@ -670,7 +672,6 @@ MORPH   ENGLISH   LEXICON (1.0)
 		  |
 		  (^ NTYPE) = name
 		  @(NAME-SCOPE ^ %q)
-
 		  :$ lam(X,drs([],[eq(X,'%stem')])) : (s::^_e -o s::^_t),
 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) : ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
 		  }.  
@@ -748,9 +749,9 @@ GLUE   BASIC   TEMPLATES (1.0)
 
    NAME-SCOPE(UP NAME) =
    %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^)
-   (%name ROOT)
+   (%name FIN) =c +
    NAME  = (s::%name SIT)
-   	(s::^ QUANT-SCOPE) = NAME.
+   (s::^ QUANT-SCOPE) = NAME.
 
    QUANT-SCOPE(UP NAME) =
 	  NAME = (s::({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^) SIT)
