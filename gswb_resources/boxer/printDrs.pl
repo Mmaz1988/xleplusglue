@@ -42,8 +42,8 @@ counter(0).
      Predicates that embedd DRS.
 ========================================================================*/
 
-embeddingPredicates([think,say,try,seem,ensure,convince]).
 
+embeddingPredicate(X) :- member(X,[think,say,try,seem,ensure,convince]).
 
 /*========================================================================
      Print Predicates
@@ -198,25 +198,16 @@ formatConds([try(Drs)|Rest],L1-L2,N0-N3):-!,
    Length is N2 + 8,
    (Length > N1, !, N3 = Length; N3 = N1).
 
-formatConds([say(Drs)|Rest],L1-L2,N0-N3):-!,
+formatConds([AttitudeCond|Rest],L1-L2,N0-N3):-
+    AttitudeCond =.. [EmbeddingVerb | [Drs|_]],
+    embeddingPredicate(EmbeddingVerb),!,
    formatConds(Rest,L1-Lines,N0-N1),
    formatDrs(Drs,[A,B,C,D|Lines1],N2),
    combLinesConds2([],Lines1,Lines2,5,''),
    appendLists([[124,32,32,32,32,32|A],
                 [124,32,32,32,32,32|B],
                 [124,32,32,32,32,32|C],
-                [124,32,115,97,121,32|D]|Lines2],Lines,L2),
-   Length is N2 + 8,
-   (Length > N1, !, N3 = Length; N3 = N1).
-
-formatConds([seem(Drs)|Rest],L1-L2,N0-N3):-!,
-   formatConds(Rest,L1-Lines,N0-N1),
-   formatDrs(Drs,[A,B,C,D|Lines1],N2),
-   combLinesConds2([],Lines1,Lines2,5,''),
-   appendLists([[124,32,32,32,32,32|A],
-                [124,32,32,32,32,32|B],
-                [124,32,95,95,32,32|C],
-                [124,32,32,32,124,32|D]|Lines2],Lines,L2),
+                [124,99,111,110,116,32|D]|Lines2], Lines, L2),
    Length is N2 + 8,
    (Length > N1, !, N3 = Length; N3 = N1).
 
