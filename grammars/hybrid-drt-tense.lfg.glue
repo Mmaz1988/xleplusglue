@@ -303,12 +303,8 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	  }.
   
    """Functional feature templates"""
-	  
-   TENSE(T) = (^ TNS-ASP TENSE) = T.  "the more general case"
 
    CASE(C) = (^ CASE) = C.   
-
-   MOOD(M) = (^ TNS-ASP MOOD) = M.
 
    VPRES = { (^VFORM) ~= inf
 	    @(TENSE pres)
@@ -325,16 +321,16 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    PASTP = (^ PARTICIPLE) = past. 
 
-   BARE-AGR = { (^VFORM) ~= inf 
+   BARE-AGR = { (^VFORM) ~= inf
 	    { (^ SUBJ NUM) = pl "either it is plural"
 	    | (^ SUBJ PERS) ~= 3 "or singular and not 3rd person"
 	      (^ SUBJ NUM) = sg
-	      @(OT-MARK sg-imp) "prefer a singular imperative"
+	      "@(OT-MARK sg-imp) prefer a singular imperative"
 	    }
 	  | (^VFORM) = inf}.
 
    S-AGR = (^ SUBJ PERS) = 3 "for verbs in -s"
-	  (^ SUBJ NUM) = sg. 
+	  (^ SUBJ NUM) = sg.
 
 "template for ntypes, called NPOS here because of clash with common templates"
 
@@ -682,12 +678,10 @@ MORPH   ENGLISH   LEXICON (1.0)
 +Verb 	  V-POS XLE .
 
 +Pres 	  TNS XLE @VPRES
-		   @(PROG -_)
-		   @(PERF -_).
+            @(PROG -_)
+            @(PERF -_).
 
-+3sg 	  PERS XLE @S-AGR
-		   @(PROG -_)
-		   @(PERF -_).
++3sg 	  PERS XLE @S-AGR.
 
 +PastBoth TNS XLE "past tense or past particle"
 		  { @VPAST | @PASTP }
