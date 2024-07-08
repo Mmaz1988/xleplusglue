@@ -679,6 +679,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 -unknown  ADJ-S XLE @(PRED %stem);
 	  ADV-S XLE @(PRED %stem);
 	  N-S XLE @(PRED %stem)
+	      (s::^ TYPE) = entity
 		  { (^ NTYPE) = count
 		    :$ lam(X,drs([],[pred(%stem,X)])) : (s::^_e -o s::^_t),
 		  |
@@ -759,19 +760,28 @@ GLUE   BASIC   TEMPLATES (1.0)
 
   NOSCOPE(G) = (G NOSCOPE) = +.  
 
-
    NAME-SCOPE(UP NAME) =
    %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^)
    (%name FIN) =c +
    NAME  = (s::%name SIT)
    (s::^ QUANT-SCOPE) = NAME.
 
+     QUANT-SCOPE(UP NAME) =
+  	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^)
+  	  (s::%name EV TYPE) =c eventuality
+  	  NAME = (s::%name SIT)
+  	  (s::^ QUANT-SCOPE) = NAME.
+
+" Why does the below not work?
    QUANT-SCOPE(UP NAME) =
-	  NAME = (s::({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^) SIT)
-	  (s::^ QUANT-SCOPE) = NAME.
+	  NAME = s::({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^)
+	  (NAME EV TYPE) =c eventuality
+	  (s::^ QUANT-SCOPE) = (NAME SIT).
+	  "
 
    ATTITUDE = (s::^ SIT) = %s
-	  { 
+   	      (s::^ EV TYPE) = eventuality
+	  {
 	    (^ ROOT)
 	    @TENSE-CLOSURE
 	   |
@@ -779,7 +789,7 @@ GLUE   BASIC   TEMPLATES (1.0)
 	    }.
 	  
    EVENT(REL) =
-	  (s::^ EV TYPE) = event
+	  (s::^ EV TYPE) = eventuality
 	  (s::^ SIT) = %s
 	  :$ lam(V,drs([],[pred(REL,V)])) : ((s::^ EV)_v -o (s::^ EV)_t),
 	  :$ lam(V,lam(S,merge(drs([E],[rel(partOf,E,S)]),app(V,E)))) : (((s::^ EV)_v -o (s::^ EV)_t) -o (%s_s -o %s_t)),
@@ -792,17 +802,18 @@ GLUE   BASIC   TEMPLATES (1.0)
    PREP-SEM(P) =
              {
 	     %scope = (s::(ADJUNCT ^) EV)
-	     (%scope TYPE) =c event
+	     (%scope TYPE) =c eventuality
 	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
 	    ((%scope_v -o s::^_t) -o ((%scope_v -o %scope_t) -o (%scope_v -o %scope_t))),
 	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (%scope_v -o s::^_t)),
 	    |
-	    %scope = (s::(ADJUNCT ^) QUANT-SCOPE)
+	    %scope = s::(ADJUNCT ^)
+	    (%scope TYPE) =c entity
 	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
 	    ((s::(ADJUNCT ^)_e -o s::^_t) -o ((s::(ADJUNCT ^)_e -o %scope_t) -o (s::(ADJUNCT ^)_e -o %scope_t))) || noscope,
 	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (s::(ADJUNCT ^)_e -o s::^_t)),
 	     }.
-           
+
  TENSE-CLOSURE = %tense = (s::^ TEMP-REF EVAL)
  :$ lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((%tense_s -o %tense_t) -o s::^_t).
 
