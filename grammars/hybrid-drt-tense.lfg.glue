@@ -383,11 +383,13 @@ try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
 		  :$ lam(X,lam(P,lam(S,drs([],[pred(try,S),rel(arg1,S,X),try(app(app(P,X),S))])))) :
-		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
 
-seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
+            @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ lam(X,lam(P,seem(app(P,X)))) : (s::(^ SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o s::(^ XCOMP)_t) -o s::^_t)).
+		  :$ lam(P,lam(S,drs([],[pred(seem,S),seem(app(P,S))]))) :
+		  (((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t) -o ((s::^ SIT)_s -o (s::^ SIT)_t)).
 
 "Intransitives"
 
@@ -427,7 +429,7 @@ implement V * @(TRANS see)
 	      @VPRES
 	      @BARE-AGR. 
 
-love 	  V-S XLE @(TRANS %stem).
+love 	  V-S XLE @(TRANS-EV %stem).
 
 receive   V-S XLE @(TRANS %stem).
 
