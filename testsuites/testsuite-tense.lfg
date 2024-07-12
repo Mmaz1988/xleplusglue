@@ -1,0 +1,157 @@
+# sem parser indexed from 0
+
+# 1
+
+A cat appeared
+
+# 2
+
+Every cat appeared
+
+# 3  no
+
+a cat convinced Mary to appear
+
+# 4
+
+A cat appears
+
+# 5
+
+A cat tries to appear
+
+# 6 grammar has no progressive, so no sem
+
+A cat has appeared
+
+# 7. 2 lev, 4 hepple
+
+every man hugged a very small cat
+
+# 8. == 7
+
+every man hugs a cat
+
+# 9. no
+
+Every man appeared to Mary
+
+# 10. no
+
+Every man thinks that he is waiting
+
+# 11. no
+
+the cat and the cake appear
+
+#12. no
+
+the cat appears and waits
+
+# 13
+
+a cat tried to appear
+
+# 14 no - doesnt even have a graph; different sem entry to "tried"  -> seem blocks scope and tried doesn't  ->
+
+a cat seemed to appear
+
+# 15 good
+
+the dogs appeared
+
+# 16 - no
+
+dogs appeared
+
+# 17 big no from grammar (no mass nouns?)
+
+fish appeared
+
+# 18
+
+a cat tried to hug Mary
+
+
+# passive
+
+#19
+
+Mary was devoured
+
+#20
+
+Mary was devoured by a dog
+
+# no
+
+# 21
+
+Mary was given a book by Sue
+
+# ditrans
+# 22
+
+a girl gave Mary a book
+
+# dative shift
+# 23
+
+a girl gave a book to Mary
+
+# PPs non-passive, in NPs on, in
+#24
+
+Mary saw the bear with the telescope
+
+# 25
+
+Mary appeared with the cake
+
+# 26
+
+The cat with the cake appeared with the telescope
+
+# 27
+
+Mary was eating on the table
+
+# 28
+
+Mary eats in the table
+
+# 29
+
+Mary eats the cake on the table
+
+
+# clausal embedding words
+#30
+
+Mary says that the cat hates the dog
+
+# 31
+
+John thinks that Mary hated the cake
+
+# 32
+
+The banana ensures that John drinks
+
+# 33
+
+The banana ensured that John drinks
+
+# scope 2 for seemed, 1 for tried
+#34
+
+Every cat seemed to hate Mary
+
+#35 one parse
+
+Every cat tried to hate Mary
+
+# 36 does not work - no pronouns yet
+
+I tried to appear
+

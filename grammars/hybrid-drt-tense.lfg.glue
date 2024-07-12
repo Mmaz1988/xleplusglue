@@ -503,6 +503,10 @@ with 	  P * @(PREP with)
 "auxiliaries"
 
 was 	  AUX * @(TENSE past)
+            { @(PROG -_)
+              @(PERF -_) |
+             (^ TNS-ASP PROG)
+            }
 		{ (^ SUBJ PERS) = 1
                 | (^ SUBJ PERS) = 3
                 }
