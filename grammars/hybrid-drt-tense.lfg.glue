@@ -266,7 +266,8 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      (^OBL-AG) = ARG1 |
 	      ~[(^OBL-AG)]
 	      ARG1 = %empty
-	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
+	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) :
+	      ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
 	    }
 	    ARG2 = (^ SUBJ)
 	  }.
