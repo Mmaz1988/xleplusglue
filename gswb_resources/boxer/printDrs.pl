@@ -187,15 +187,23 @@ formatConds([not(Drs)|Rest],L1-L2,N0-N3):-!,
    Length is N2 + 8,
    (Length > N1, !, N3 = Length; N3 = N1).
 
-formatConds([cont(_,Drs)|Rest],L1-L2,N0-N3):-
+formatConds([cont(X,Drs)|Rest],L1-L2,N0-N3):-
    formatConds(Rest,L1-Lines,N0-N1),
    formatDrs(Drs,[A,B,C,D|Lines1],N2),
-   combLinesConds2([],Lines1,Lines2,5,''),
-   appendLists([[124,32,32,32,32,32|A],
-                [124,32,32,32,32,32|B],
-                [124,32,32,32,32,32|C],
-                [124,99,111,110,116,32|D]|Lines2], Lines, L2),
-   Length is N2 + 8,
+   string_length(X,Len),
+   string_codes(X,Codes),
+   append(Codes,[44],Codes1),
+   appendLists([124,99,111,110,116,40],Codes1,Cond1),
+   appendLists(Cond1,D,Cond2),
+   appendLists(Cond2,[41],Cond3),
+   combLinesConds2([],Lines1,Lines2,6 + Len,''),
+%   string_codes(Str,D),
+%   write(Str),
+   appendLists([[124,32,32,32,32,32,32,32,32|A],
+                [124,32,32,32,32,32,32,32,32|B],
+                [124,32,32,32,32,32,32,32,32|C],
+                Cond3|Lines2], Lines, L2),
+   Length is N2 + 10 + Len,
    (Length > N1, !, N3 = Length; N3 = N1).
 
 formatConds([not(Drs)|Rest],L1-L2,N0-N3):-!,
