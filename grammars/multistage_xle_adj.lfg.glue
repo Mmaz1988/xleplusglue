@@ -75,7 +75,8 @@ DEMO   ENGLISH   RULES (1.0)
 "
    NP --> 
  	  { (D: ^=!)
- 	    AP*: ! $ (^ ADJUNCT);
+ 	    AP*: ! $ (^ ADJUNCT)
+ 	    @(DOMINATES-GLUE * t::M* 1);
  	    N: ^=!;
  	    PP*: ! $ (^ ADJUNCT)
 		 (! PTYPE) =c sem 
@@ -99,8 +100,6 @@ DEMO   ENGLISH   RULES (1.0)
  	    N: ^=!
  	  }. 
 
-
-  
 
    AP --> ADV*: ! $ (^ ADJUNCT);
  	  A
