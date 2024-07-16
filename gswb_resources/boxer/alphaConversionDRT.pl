@@ -125,14 +125,9 @@ alphaConvertDRS(Exp,Vars-Vars,app(E3,E4)):-
 alphaConvertCondition(not(B1),Vars,not(B2)):-
    alphaConvertDRS(B1,Vars-_,B2).
 
-alphaConvertCondition(try(B1),Vars,try(B2)):-
-   alphaConvertDRS(B1,Vars-_,B2).
-
-alphaConvertCondition(say(B1),Vars,say(B2)):-
-   alphaConvertDRS(B1,Vars-_,B2).
-
-alphaConvertCondition(seem(B1),Vars,seem(B2)):-
-   alphaConvertDRS(B1,Vars-_,B2).
+alphaConvertCondition(cont(X1,B1),Vars,cont(X2,B2)):-
+   alphaConvertDRS(X1, Vars-Vars1,X2),
+   alphaConvertDRS(B1,Vars1-_,B2).
 
 alphaConvertCondition(imp(B1,B2),Vars,imp(B3,B4)):-
     alphaConvertDRS(B1,Vars-Vars1,B3),

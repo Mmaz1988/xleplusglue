@@ -56,11 +56,7 @@ mergeDrs([not(B1)|C1],[not(B2)|C2]):-
    mergeDrs(B1,B2),
    mergeDrs(C1,C2).
 
-mergeDrs([try(B1)|C1],[try(B2)|C2]):-
-   mergeDrs(B1,B2),
-   mergeDrs(C1,C2).
-
-mergeDrs([say(B1)|C1],[say(B2)|C2]):-
+mergeDrs([cont(X,B1)|C1],[cont(X,B2)|C2]):-
    mergeDrs(B1,B2),
    mergeDrs(C1,C2).
 

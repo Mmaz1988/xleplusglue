@@ -387,7 +387,7 @@ convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
 try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ lam(X,lam(P,lam(S,drs([],[pred(try,S),rel(arg1,S,X),try(app(app(P,X),S))])))) :
+		  :$ lam(X,lam(P,lam(S,drs([],[pred(try,S),rel(arg1,S,X),cont(S,app(app(P,X),S))])))) :
 		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
 
 seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
@@ -557,9 +557,9 @@ They 	  PRON * @(PRON they 3 pl pers)
 		 @(CASE nom). 
 
 they 	  PRON * @(PRON they 3 pl pers)
-		 @(CASE nom). 
+		 @(CASE nom).
 
-My 	  PRON * @(PRON my 1 sg poss). 
+My 	  PRON * @(PRON my 1 sg poss).
 
 my 	  PRON * @(PRON my 1 sg poss).
 
