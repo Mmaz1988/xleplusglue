@@ -1,0 +1,49 @@
+# sem parser indexed from 0
+
+#grammatical, no sem
+
+John sees himself
+
+He appears
+
+He waits
+
+She appears
+
+Mary hugs her
+
+She gave him the cake
+
+Mary hugs herself
+
+# ungrammatical: template errors
+
+I appear
+
+They appear
+
+It appears
+
+We eat cake
+
+My cat appears
+
+
+# ungrammatical: just "unknown words"
+
+She gave I the cake
+
+She gave me the cake
+
+I tried to appear
+
+# ungrammatical: other
+
+Mary eats her cake
+
+Every man thinks that he is waiting
+
+himself sees John
+
+
+

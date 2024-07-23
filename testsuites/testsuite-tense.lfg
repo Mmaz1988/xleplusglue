@@ -1,5 +1,9 @@
 # sem parser indexed from 0
 
+# ensure and thinks??
+# missing sem: conjunction, every+embedding
+# check 27-29
+
 # 1
 
 A cat appeared
@@ -8,7 +12,7 @@ A cat appeared
 
 Every cat appeared
 
-# 3  no
+# 3
 
 a cat convinced Mary to appear
 
@@ -20,7 +24,7 @@ A cat appears
 
 A cat tries to appear
 
-# 6 grammar has no progressive, so no sem
+# 6 grammar has no perfect, so no sem
 
 A cat has appeared
 
@@ -44,7 +48,7 @@ Every man thinks that he is waiting
 
 the cat and the cake appear
 
-#12. no
+#12. no check
 
 the cat appears and waits
 
@@ -52,7 +56,7 @@ the cat appears and waits
 
 a cat tried to appear
 
-# 14 no - doesnt even have a graph; different sem entry to "tried"  -> seem blocks scope and tried doesn't  ->
+# 14 2 parses - as expected
 
 a cat seemed to appear
 
@@ -82,24 +86,22 @@ Mary was devoured
 
 Mary was devoured by a dog
 
-# no
-
 # 21
 
 Mary was given a book by Sue
 
 # ditrans
-# 22
+# 22 2 parses
 
 a girl gave Mary a book
 
 # dative shift
-# 23
+# 23 2 parses
 
 a girl gave a book to Mary
 
 # PPs non-passive, in NPs on, in
-#24
+#24 2 parses
 
 Mary saw the bear with the telescope
 
@@ -111,18 +113,17 @@ Mary appeared with the cake
 
 The cat with the cake appeared with the telescope
 
-# 27
+# 27 no
 
 Mary was eating on the table
 
-# 28
+# 28 no
 
 Mary eats in the table
 
-# 29
+# 29 no
 
 Mary eats the cake on the table
-
 
 # clausal embedding words
 #30
@@ -133,16 +134,16 @@ Mary says that the cat hates the dog
 
 John thinks that Mary hated the cake
 
-# 32
+# 32 no?
 
-The banana ensures that John drinks
+The banana ensures that John appears
 
-# 33
+# 33 no?
 
-The banana ensured that John drinks
+The banana ensured that John appears
 
 # scope 2 for seemed, 1 for tried
-#34
+#34 2 parses - good
 
 Every cat seemed to hate Mary
 
@@ -153,4 +154,8 @@ Every cat tried to hate Mary
 # 36 does not work - no pronouns yet
 
 I tried to appear
+
+# 37
+
+John convinced Mary to appear
 
