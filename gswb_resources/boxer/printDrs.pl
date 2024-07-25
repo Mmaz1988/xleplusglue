@@ -187,6 +187,7 @@ formatConds([not(Drs)|Rest],L1-L2,N0-N3):-!,
    Length is N2 + 8,
    (Length > N1, !, N3 = Length; N3 = N1).
 
+%prints cont(e,DRS) as thematic role for complements
 formatConds([cont(X,Drs)|Rest],L1-L2,N0-N3):-
    formatConds(Rest,L1-Lines,N0-N1),
    formatDrs(Drs,[A,B,C,D|Lines1],N2),

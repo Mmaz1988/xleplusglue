@@ -450,7 +450,10 @@ angry 	  A * @(PRED angry)
 	      :$ [/P_<e,t>.[/x_e.(angry(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)).
 
 big 	  A * @(PRED big)
-	      :$ [/P_<e,t>.[/x_e.(big(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)).
+           %var = (s::(ADJUNCT $ ^) VAR)
+           %restr = (s::(ADJUNCT $ ^) RESTR)
+	      :$ [/P_<e,t>.[/x_e.(big(x) & P(x))]] :
+	      ((%var_e -o %restr_t) -o (%var_e -o %restr_t)).
 
 black 	  A * @(PRED black)
 	      :$ [/P_<e,t>.[/x_e.(black(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)).

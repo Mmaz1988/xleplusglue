@@ -364,23 +364,29 @@ DEMO ENGLISH LEXICON (1.0)
 "verbs with clausal arguments"
 
 say 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
-           @ATTITUDE
-           %s = (s::(^ COMP) TEMP-REF EVAL)
+          @ATTITUDE
+          %s = (s::(^ COMP) TEMP-REF EVAL)
 	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(say,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
 	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
 
 think 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
-	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(think,S),rel(arg1,S,X)]),drs([],[think(app(P,S))]))))) :
-	      (((s::(^ COMP) TEMP-REF EVAL)_s -o s::(^ COMP)_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o s::^_t))).
+          @ATTITUDE
+	      %s = (s::(^ COMP) TEMP-REF EVAL)
+	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(think,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
+	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
 
-ensure 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
-	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(ensure,S),rel(arg1,S,X)]),drs([],[ensure(app(P,S))]))))) :
-	      (((s::(^ COMP) TEMP-REF EVAL)_s -o s::(^ COMP)_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o s::^_t))).
+ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+          @ATTITUDE
+          %s = (s::(^ COMP) TEMP-REF EVAL)
+	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(ensure,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
+	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+
+
 
 convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
           @ATTITUDE
 		  (^ XCOMP SUBJ) = (^OBJ)
-		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(try,S), rel(arg1,X,S), rel(arg2,Y,S), try(app(app(P,Y),S))]))))) :
+		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(try,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
 		  (s:: (^SUBJ)_e -o (s::(^OBJ)_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
 
 
@@ -391,9 +397,9 @@ try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
 
 seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
-            @ATTITUDE
+          @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ lam(P,lam(S,drs([],[pred(seem,S),seem(app(P,S))]))) :
+		  :$ lam(P,lam(S,drs([],[pred(seem,S),cont(S,app(P,S))]))) :
 		  (((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t) -o ((s::^ SIT)_s -o (s::^ SIT)_t)).
 
 "Intransitives"
