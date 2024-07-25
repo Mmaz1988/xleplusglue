@@ -1,0 +1,77 @@
+TOY    ENGLISH   CONFIG (1.0)
+  ROOTCAT   S.
+  FILES  .
+  LEXENTRIES   (TOY ENGLISH).
+  RULES   (TOY ENGLISH).
+  TEMPLATES   (TOY ENGLISH) (GLUE BASIC).
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ2 OBL OBL-?+ COMP XCOMP.
+  SEMANTICFUNCTIONS    ADJUNCT  TOPIC.
+  NONDISTRIBUTIVES    NUM PERS.
+  EPSILON   e.
+  OPTIMALITYORDER     NOGOOD.
+
+----
+TOY   ENGLISH   RULES (1.0)
+
+S --> N: (^ SUBJ)=!;
+      N: (^ OBJ)=!;
+      VP: ^=!.
+
+VP --> V:   ^=!;
+       (CP: (^ COMP) = !).
+
+CP --> C
+       S.
+
+----
+TOY   ENGLISH   TEMPLATES (1.0)
+
+----
+TOY   ENGLISH   LEXICON (1.0)
+
+c1      V * (^ PRED)='c1<(^ SUBJ)(^ OBJ)(^ COMP)>'
+             :$ c1 : (s::^_t -o s::(^ COMP)_t).
+
+v1      V * (^ PRED)='v1<(^ SUBJ)(^ OBJ)>'
+            :$ v1 : s::^_e.
+
+a1      N * (^ PRED) = 'a1'
+            %m = (COMP* {SUBJ|OBJ} ^)
+            :$ a1 : (s::%m_t -o s::%m_t).
+
+a2     N * (^ PRED) = 'a2'
+            %m = (COMP* {SUBJ|OBJ} ^)
+            :$ a2 : (s::%m_t -o s::%m_t).
+
+b1      N * (^ PRED) = 'b1'
+            %m = (COMP* {SUBJ|OBJ} ^)
+            :$ b1 : (s::%m_t -o s::%m_t).
+
+b2     N * (^ PRED) = 'b2'
+            %m = (COMP* {SUBJ|OBJ} ^)
+            :$ b2 : (s::%m_t -o s::%m_t).
+
+
+c2   C * .
+
+----
+
+GLUE   BASIC   TEMPLATES (1.0)
+
+   LLIMP(N L R) = (N ANT) = L
+	  (N CONS) = R.
+
+   LLATOM(N L T) = (N RESOURCE) = L
+	  (N TYPE) = T.
+
+   LLCLOSURE(G) = G $ (g::* GLUE).
+
+   GLUE-MEANING(TypedRES M) =
+	  (TypedRES MEANING) = M.
+
+   NOSCOPE(G) = (G NOSCOPE) = +.
+
+   QUANT-SCOPE(UP NAME) =
+	  NAME = s::({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ ^).
+
+----
