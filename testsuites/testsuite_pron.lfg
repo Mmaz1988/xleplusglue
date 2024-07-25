@@ -1,5 +1,18 @@
 # sem parser indexed from 0
 
+# MultiS -> basically works as a sentence-level conjunction using "&"
+# does not work for two separate sentences
+# using "and" generates a real sentence level conjunction
+# no sem for any of them
+
+John appears. Mary sleeps.
+
+John appears and Mary sleeps.
+
+John appears & Mary sleeps.
+
+John appears. & Mary sleeps.
+
 #grammatical, no sem
 
 John sees himself
@@ -36,6 +49,8 @@ She gave I the cake
 She gave me the cake
 
 I tried to appear
+
+
 
 # ungrammatical: other
 
