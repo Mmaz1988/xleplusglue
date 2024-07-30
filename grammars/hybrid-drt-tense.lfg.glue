@@ -302,6 +302,24 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      ARG3 = (^ SUBJ)
 	    }
 	  }.
+
+
+	      XCOMP-OBJ-PASSIVE-ARGS(ARG1 ARG2 ARG3) = {
+       	    (^ PASSIVE) =c -
+       	    ARG1 = (^ SUBJ)
+       	    ARG2 = (^ OBJ)
+       	    ARG3 = (^ XCOMP)
+       	   |
+       	    (^ PASSIVE) =c +
+       	    {
+       	      (^OBL-AG) = ARG1 |
+       	      ~[(^OBL-AG)]
+       	      ARG1 = %empty
+       	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
+       	    }
+       	    ARG2 = (^ SUBJ)
+       	    ARG3 = (^ XCOMP)
+       	  }.
   
    """Functional feature templates"""
 
@@ -386,7 +404,7 @@ ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
 convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
           @ATTITUDE
 		  (^ XCOMP SUBJ) = (^OBJ)
-		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(try,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
+		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(convince,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
 		  (s:: (^SUBJ)_e -o (s::(^OBJ)_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
 
 
@@ -401,6 +419,19 @@ seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
 		  (^ XCOMP SUBJ) = (^SUBJ)
 		  :$ lam(P,lam(S,drs([],[pred(seem,S),cont(S,app(P,S))]))) :
 		  (((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t) -o ((s::^ SIT)_s -o (s::^ SIT)_t)).
+
+"John believed Mary to appear SUBJ OBJ XCOMP
+Mary is believed to appear SUBJ XCOMP
+Mary is believed by John to appear SUBJ OBL-AG XCOMP
+Mary believed that John appeared SUBJ COMP
+Mary believed John that Peter appeared SUBJ OBJ COMP"
+
+believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
+          @(XCOMP-OBJ-PASSIVE-ARGS %arg1 %arg2 %arg3)
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = %arg2
+		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(believe,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
+          (s::%arg1_e -o (s::%arg2_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
 
 "Intransitives"
 
