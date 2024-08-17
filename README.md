@@ -29,7 +29,7 @@ In the folder ./liger_resources create a file named xle_paths.txt with the follo
 
 ```
 XLE="/bin/xle"
-grammar="/grammars/glue-basic-drt-tense.lfg.glue"
+grammar="/grammars/polar-urdu.lfg.glue"
 OS="LINUX"
 ```
 Here, you also need to specify the grammar you intend to use before building the system. The grammar should be stored within the grammar folder in the repository. A system for uploading grammars and changing the grammar during use is in preparation.
