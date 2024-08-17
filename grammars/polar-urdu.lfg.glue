@@ -1,0 +1,455 @@
+URDU    POLAR   CONFIG (1.0)
+  ROOTCAT   ROOT.
+  FILES common.templates.lfg . 
+  LEXENTRIES   (URDU POLAR).
+  RULES   (URDU POLAR).
+  TEMPLATES   (URDU POLAR) (STANDARD COMMON) (GLUE BASIC) (MULTISTAGE BASIC). 
+  MORPHOLOGY .
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ-?+ COMP PREDLINK  XCOMP OBL OBL-?+.
+  SEMANTICFUNCTIONS    ADJUNCT  POSS STANDARD OPERATOR.
+  PROJECTIONS   (f:: : : : : : : F-)
+                (i:: : : : : : : I-)
+                (p:: : : : : : : P-).
+
+  NONDISTRIBUTIVES   NUM PERS COORD-FORM.
+  EPSILON   e.
+  OPTIMALITYORDER NOGOOD +SUBJfirst . 
+  GENOPTIMALITYORDER GenBadPunct . 
+  
+ 
+----
+URDU  POLAR   RULES (1.0)
+
+   ROOT --> S: ^=!
+	       { (p::M* BOUNDARY-TONE)=LOW
+		 { (^ CLAUSE-TYPE)=declarative
+		    :$ w0 : s::^_s,
+		   ~(^ (OBJ) (SPEC DET) QUESTION-TYPE)
+		 | (^ CLAUSE-TYPE)=interrogative
+		   (^ (OBJ) (SPEC DET) QUESTION-TYPE) =c constituent "expand this eventually"
+		 }
+	       | (p::M* BOUNDARY-TONE)=HIGH
+		 (^ CLAUSE-TYPE)=interrogative
+		 (^ QUESTION-TYPE) = polar
+		 :$ (/q_a.{(/w_s.Ep_<s,t>(in(q,p) & eq(p(w),1)))}) :
+		  ((s::^_s -o s::^_t) -o s::^_a),
+		 "(^ QUESTION-TYPE) =c polar" 
+	       | "trying this for AltQs"
+		 (p::M* BOUNDARY-TONE)=LOW
+		 (^ @GF COORD-FORM)   "only allow altq reading if have a coordination"
+		 (^ CLAUSE-TYPE)=interrogative
+		 (^ QUESTION-TYPE) = alternative
+		 :$ (/q_a.q) :
+		  ((s::^_s -o s::^_t) -o s::^_a),
+	       }.
+
+  
+   S --> { e: (^ OPERATOR);
+ 	   @SINITKYA
+ 	 | e: { (^ OPERATOR) @FOCUS-SENSITIVE | ~(^OPERATOR)}; "mucking with f-precedence" 
+ 	   @SMEDKYA
+ 	 | e: (^ UNCERTAINTY) = +; 
+ 	   KP: (^ SUBJ) = !;
+ 	   KP: (^ OBJ-GO) = !;
+ 	   NP: (^ OBJ) = !;
+ 	   VC
+ 	   Q: ^=!
+	      (! P-STRESSED) ~= +
+ 	 | "normal declarative"
+ 	   @ARGS,
+ 	   VC}. 
+
+
+   ARGS = KP*: { (^ SUBJ)=! | (^ OBJ)=!|(^ OBJ-GO)=!},
+	       { NP: (^ SUBJ)=! "either a nom subj followed optionally by a nom obj and this is preferred"
+		 (! CASE) = nom
+		 @(OT-MARK SUBJfirst);
+ 	  (NP: (^ OBJ)=!
+	       (! CASE) = nom)
+ 	| "or a nom obj followed by a nom subj"
+	"probably too restrictive, but okay for now"
+ 	  NP: (^ OBJ)=! 
+	      (! CASE) = nom;
+ 	  NP: (^ SUBJ)=!
+	      (! CASE) = nom}.
+		  
+	   
+   SINITKYA = Q: ^=!
+		 (! P-STRESSED) ~= + ;
+ 	  [KP*: { (^ SUBJ)=! | (^ OBJ)=!|(^ OBJ-GO)=!},
+		NP*: 
+		{ (^ SUBJ)=!
+		  (! CASE) = nom
+		 |(^ OBJ)=!
+		  (! CASE) = nom}]
+ 	  VC.
+
+
+
+   SMEDKYA  =  KP*: { (^ SUBJ)=! | (^ OBJ)=!|(^ OBJ-GO)=!},  "probably need to redo, don't want initial and final kya here" 
+	      NP*: 
+	      { (^ SUBJ)=!
+		(! CASE) = nom
+	       |(^ OBJ)=!
+		(! CASE) = nom},
+	      VC,
+	      (Q: ^=! "(^ OPERATOR) =!"
+	      (! P-STRESSED) ~= + "polar kya"
+		"mucking with f-precedence" 
+		"@FOCUS-SENSITIVE"
+		"@FPRECEDENCE") .
+		
+   
+   KP -->  NP K.
+
+   NP --> { (Q: (^ SPEC DET P-STRESSED)=c + "np internal kya"
+		(^ SPEC DET ) = ! )
+ 	     N 
+ 	  | Q: (^ P-STRESSED)=c + "wh constituent kya"
+ 	  | PRON 
+ 	  | @(NPCOORD NP)}. 
+	 
+
+""" 
+({SUBJ|OBJ|OBJ-GO} ^) = %ROOT
+   (%ROOT CLAUSE-TYPE)=interrogative 
+	  """
+    "making clause interrogative; will eventually need to make the path to %ROOT more complex"
+    
+   VC --> V (AUX). 
+
+
+
+   NPCOORD(_CAT) = "coordination of nominals"
+	  "COM{EX RULE NP: girls and boys}"
+	  "This differs from SCCOORD in that the conjunction provides NUM pl to
+	  the resulting coordinated f-structure and the person features are
+	  resolved for the noun phrase."
+
+ 	  _CAT: @IN-SET "first nominal"
+		@NP-CONJUNCT "calls person resolution template"
+		(s::^ COORD1) = s::!;
+
+ 	  CONJnp: @PUSHUP; "conjunction"
+	  "PUSHUP avoids vacuous ambiguity in constructions like:
+	  COM{EX RULES NP: girls and boys}"
+
+ 	  _CAT: @IN-SET "second nominal"
+		@NP-CONJUNCT
+		(s::^ COORD2) = s::!
+		:$ (/x_e.(/y_e.{x,y})) :
+	    	((s::^ COORD1)_e -o ((s::^ COORD2)_e -o s::^_e)).
+
+
+	  GF = {SUBJ|OBJ|OBJ-GO}.
+	  
+----
+
+URDU POLAR TEMPLATES (1.0)
+
+ OT-MARK(_mark) = "assigns an OT mark, from common templates"
+       _mark $ o::*.
+       
+
+
+NP-CONJUNCT = "called by the NP coordination rule to get the number"
+	  "person, and case correct"
+	  "COM{EX TEMPLATE NP: a cat and a dog}"
+	  
+	  
+	  { (! PERS)=c 1 "if any conjunct is first person,"
+	    @(PERS 1) "the whole NP is first person"
+	    
+	   |(! PERS)=c 2 "if any conjunct is second person,"
+	    { (^ PERS)=c 1 "the whole NP is second person"
+	     |@(PERS 2) } "unless there was a first person conjunct"
+	    
+	   |(! PERS)=c 3
+	    { (^ PERS)=c 1
+	     |(^ PERS)=c 2
+	     |@(PERS 3)}} "third person if both conjuncts are"
+	  
+	  { (! NUM)=c pl "if have plural conjunct, whole NP is plural"
+	    @(NUM pl) 
+           |(! NUM)=c sg }
+	    "number with singular depends on conjunction (e.g., and vs. or)".
+
+
+
+   FPRECEDENCE = (^ {SUBJ|OBJ|OBJ-GO}) = %Target
+	  ! <h %Target
+	  ! >s %Target.
+		   
+   FOCUS-SENSITIVE = @OBJ-SCOPE
+	  @SUBJ-SCOPE.
+
+ 
+	  
+   OBJ-SCOPE = { (^ OPERATOR) <h (^ OBJ)
+	    (^ OPERATOR) >s (^ OBJ)
+	  | (^ OPERATOR) ~<h (^ OBJ)
+	    (^ OBJ) >s (^ OPERATOR)}.
+
+SUBJ-SCOPE = { (^ OPERATOR) <h (^ SUBJ)
+		    (^ OPERATOR) >s (^ SUBJ)
+	       | (^ OPERATOR) ~<h (^ SUBJ) 
+		 (^ SUBJ) >s (^ OPERATOR)}.
+		 
+
+FOCUS-SENSITIVE3 = { (^ OPERATOR) <h (^ OBJ)
+		 (^ OPERATOR) >s (^ OBJ)
+	       | (^ OPERATOR) ~<h (^ OBJ) 
+		 (^ OBJ) >s (^ OPERATOR)}.
+		 
+
+  NUM(P) = "number of nouns"
+	    (^ NUM)=P.
+
+   PERS(P) = "person of nouns"
+	     (^ PERS)=P.
+
+   GEND(P) = (^ GEND) = P. 
+
+   PRED(P) = (^ PRED) = 'P'.
+
+   ASSIGN-CASE(GF C) = (^ GF CASE) = C. 
+                        
+   ASSIGN-NUM(GF P) = (^ GF NUM)=P.
+                        
+   ASSIGN-PERS(GF N) = (^ GF PERS)=N.
+
+   MOOD(P) = (^ TNS-ASP MOOD)=P.
+
+   ASPECT(P)  = (^ TNS-ASP ASPECT) = P.
+
+   TENSE(P) = (^ TNS-ASP TENSE)=P
+              (^ FIN)=+.
+
+   EVENT(P)  = (^ EVENT-STR) = COMPLETIVE. 
+
+   CASE(C) = (^ CASE) = C. 
+
+   NOM-ACC = {@(CASE nom) | @(CASE acc)}.
+
+   TRANS(P) = @(PASS (^ PRED)='P<(^ SUBJ)(^ OBJ)>')
+		~(^ OBJ PCASE).
+
+   INTRANS(P) = (^ PRED)='P<(^ SUBJ)>'. 
+
+   LIGHT-VERB(P) = (^ PRED) = 'DUMMY'.  
+
+
+   PASS(SCHEMATA) = "allows non-passive form as first option and"
+		    "passive form as second"
+		    { SCHEMATA
+		      @NOPASSIVE
+		      "if no passive, assign Acc to object"
+		     |SCHEMATA
+		      @PASSIVE-LOC
+		      (^ OBJ)-->(^ SUBJ)
+		      "SUBJ becomes NULL"
+		      "von/durch phrases treated as adjuncts"
+		      (^ SUBJ)-->NULL }. 
+
+
+   NOPASSIVE = (^ PASSIVE)=- .
+
+   PASSIVE-LOC = (^ PASSIVE)=+    "our own def"
+             "should put in some constraints"
+             (^ VFORM) =c PERFP
+             "this as a temporary measure". 
+
+   VTYPE(_T) = "vtype - used for complex predicates"
+	       (^ VTYPE)= _T.
+
+
+"this bit is for the prosodic information"
+
+   PWORD(_F) = (p::M* P-FORM) = _F "don't want to use PRED FN due to"
+	       "complex predicates"
+	       (p::M* DOMAIN) = P-WORD. 
+
+ 
+   COMMON-NOUN(_P) = (^ PRED) = '_P'
+           @(NUM sg)
+	   @(GEND fem)
+	   @(PERS 3)
+	   (^ NOUN-TYPE) = common.
+
+ PRONOUN(_P _N _V) = (^ PRED) = '_P'
+           @(NUM _N)
+	   @(PERS _V)
+	   (^ PRON-TYPE) = pers.
+	   
+  NAME(_P) = (^ PRED) = '_P'
+           @(NUM sg)
+	   @(GEND fem)
+	   @(PERS 3)
+	   (^ NOUN-TYPE) = name.
+
+  HAS-STRESS = "adds prosodic stress"
+     (^ P-STRESSED)=+.
+
+  QUESTION-TYPE(_T) = (^ QUESTION-TYPE)=_T.
+
+   AGR(_P _G _N) = 
+	  { (^ SUBJ CASE) =c nom
+	    (^ SUBJ PERS) = _P
+	    (^ SUBJ NUM) = _N
+	    (^ SUBJ GEND) = _G
+	  | (^ SUBJ CASE) ~= nom
+	    (^ OBJ CASE) =c nom
+	    (^ OBJ PERS) = _P
+	    (^ OBJ NUM) = _N
+	    (^ OBJ GEND) = _G
+	  | (^ SUBJ CASE) ~= nom
+	    (^ OBJ CASE) ~= nom
+	    "default, put in CHECK"
+	    (^ CHECK _NUM) = sg
+	    (^ CHECK _GEND) = masc
+	    (^ CHECK _PERS) = 3}. 
+
+----
+
+URDU POLAR LEXICON (1.0)
+
+"nouns"
+
+AlInA  N * @(NAME %stem).
+
+AlInA_f N * @(NAME %stem) @HAS-STRESS.
+
+UmA  N * @(NAME %stem).
+
+UmA_f N * @(NAME %stem) @HAS-STRESS.
+
+anU  N * @(NAME %stem).
+
+anU_f N * @(NAME %stem) @HAS-STRESS. 
+
+zain  N * @(NAME %stem).
+
+zain_f  N * @(NAME %stem) @HAS-STRESS.
+
+kitAb   N * @(COMMON-NOUN %stem).
+
+kitAb_f   N * @(COMMON-NOUN %stem) @HAS-STRESS.
+
+tOfA   N * @(COMMON-NOUN %stem).
+
+tOfA_f   N * @(COMMON-NOUN %stem) @HAS-STRESS.
+
+
+"radish"
+mUlI 	  N * @(COMMON-NOUN %stem)
+	      :$ radish : s::^_e.
+
+"cauliflower"
+gobHI 	  N * @(COMMON-NOUN %stem)
+	      :$ cauliflower : s::^_e.
+
+"pronouns"
+
+tum  PRON * @(PRONOUN you sg 2)
+     	    :$ you : s::^_e.
+
+
+
+"verbs"
+
+"eat"
+kHAogI 	  V * (^ PRED) = 'kHA<(^SUBJ)(^OBJ)>'
+	      (^TNS-ASP TENSE) = fut
+	      :$ [/x_e.[/y_e.[/w_s.eat(x,y,w)]]] :
+	      (s::(^SUBJ)_e -o (s::(^OBJ)_e -o (s::^_s -o s::^_t))).
+	     
+
+dI   V * (^ PRED) = 'dE<(^SUBJ)(^OBJ-GO)(^OBJ)>'
+          "@(AGR 3 fem sg)"  "agr too complicated now"
+	   (^TNS-ASP ASPECT PERF) = +. 
+
+dIyA   V * (^ PRED) = 'dE<(^SUBJ)(^OBJ-GO)(^OBJ)>'
+           " @(AGR 3 masc sg)" "agr too complicated now"
+	   (^TNS-ASP ASPECT PERF) = +. 
+
+tHA   AUX * (^TNS-ASP TENSE) = past.
+
+"wh words"
+kyA 	  Q * { "polar kyA"
+		(^ OPERATOR) = !
+		(! PRED) = 'what'
+		"(^INT-FORM) = what"
+		@(QUESTION-TYPE polar)
+	      | "wh-kya"
+		@(QUESTION-TYPE constituent)
+		@HAS-STRESS
+		(^ NTYPE NSYN) = pronoun
+		(^ PRON-TYPE) = int
+		(^ PRED) = 'kya'
+		(^ CASE) = nom}.
+ 
+
+"case clitics"
+
+kO K  *  (OBJ-GO ($) ^)
+          @(CASE dat).
+
+kO_f K  *  (OBJ-GO ($) ^)
+          @(CASE dat)
+	  @HAS-STRESS. 
+
+nE  K  *  (SUBJ ($) ^)
+          @(CASE erg).
+
+nE_f  K  *  (SUBJ ($) ^)
+          @(CASE erg)
+	  @HAS-STRESS.
+
+"conjunctions"
+
+jA 	  CONJ * (^COORD-FORM) = jA;
+	  CONJnp * (^COORD-FORM) = jA 
+		   (^ COORD) = +_ "to check for coordinated items".
+
+or 	  CONJ * (^COORD-FORM) = or; 
+	  CONJnp * (^COORD-FORM) = or
+		   @(NUM pl).  "for NP conj"
+
+
+----
+
+GLUE   BASIC   TEMPLATES (1.0)
+
+   LLIMP(N L R) = (N ANT) = L
+	  (N CONS) = R.
+	      
+   LLATOM(N L T) = (N RESOURCE) = L
+	  (N TYPE) = T.
+
+   LLCLOSURE(G) = G $ (g::* GLUE).
+
+   GLUE-MEANING(TypedRES M) = 
+	  (TypedRES MEANING) = M.
+
+   NOSCOPE(G) = (G NOSCOPE) = +.  
+
+   QUANT-SCOPE(UP NAME) =
+	  NAME = s::({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ ^).
+
+----
+
+MULTISTAGE   BASIC   TEMPLATES (1.0)
+
+   EQUAL-GLUE(DOWN UP) =
+	  UP = %up
+	  DOWN = %down
+	  %down $ (%up ELEMENTS).
+
+   DOMINATES-GLUE(DOWN UP N) =
+	  @(CONCAT DAUGHTER N %daughter)
+	  UP = %up
+	  DOWN = %down
+	  %down $ (%up %daughter ELEMENTS).
+
+
+----
