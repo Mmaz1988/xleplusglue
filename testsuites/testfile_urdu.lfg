@@ -1,0 +1,57 @@
+
+#1  Alina had given Zain a what present. 
+
+AlInA nE zain kO kyA tOfA dIyA tHA (3 0.006 42)
+
+#2  Alina_F had given Zain a what present. 
+
+AlInA_f nE zain kO kyA tOfA dIyA tHA (3 0.005 42)
+
+#3  Alina had given Zain_F a what present. 
+
+AlInA nE zain_f kO kyA tOfA dIyA tHA (3 0.004 42)
+
+#4 Alina had given Zain_F what present?
+
+AlInA nE zain kO_f kyA tOfA dIyA tHA (3 0.004 42)
+
+#5 with kyA a H tone -- Alina had given Zain a what present 
+
+AlInA nE zain kO kyA tOfA dIyA tHA (3 0.004 42)
+
+
+#moving on to doing just the scope of polar kya
+#also identifying kya as a whole consituent
+
+#6 Anu gave Uma a book.
+
+anU nE UmA kO kitAb dI (2 0.002 24)
+
+#7 Anu gave Uma what?
+
+anU nE UmA kO kyA dIyA (2 0.003 26)
+
+#8 what Anu gave Uma a book?
+
+kyA anU nE UmA kO kitAb dI (4 0.004 53)
+
+#9 Anu gave Uma a book what?
+
+anU nE UmA kO kitAb dI kyA (2 0.003 37)
+
+
+#moving on to alternative questions for LFG24 paper
+
+#10 You will eat a radish/Q
+
+tum mUlI kHAogI (2+6 0.002 17)
+
+#11 You will eat a cauliflower/Q
+
+tum gobHI kHAogI (2+6 0.001 17)
+
+#12 You will eat a radish or a cauliflower./Q 
+
+tum mUlI jA gobHI kHAogI (3+9 0.002 23)
+
+# 12 sentences, 0.039 CPU secs total, 0.006 CPU secs max (07/23/24)
