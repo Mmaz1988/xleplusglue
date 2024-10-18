@@ -14,6 +14,15 @@ services:
     platform: linux/amd64
     ports:
       - '8080:8080'
+  vampire:
+    build:
+      dockerfile: Docker/Dockerfile-vampire
+      context: ..
+      args:
+        - platform=linux/amd64
+    platform: linux/amd64
+    ports:
+      - '8082:8082'
   frontend:
     build:
       dockerfile: Docker/Dockerfile-frontend

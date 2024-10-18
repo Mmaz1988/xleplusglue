@@ -1,0 +1,39 @@
+# Use the official Python base image
+FROM python:3.9-slim
+
+EXPOSE 8082
+
+# Install system dependencies for building Vampire
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    g++ \
+    wget \
+    ca-certificates && \
+    apt-get clean
+
+# Set the working directory
+WORKDIR /vampire
+
+# Download the specific release of Vampire
+RUN wget https://github.com/vprover/vampire/archive/refs/tags/v4.9casc2024.tar.gz
+
+# Unpack the archive and move into the source directory
+RUN tar -xzf v4.9casc2024.tar.gz && \
+    mv vampire-4.9casc2024/* . && \
+    rm -rf vampire-4.9casc2024 v4.9casc2024.tar.gz
+
+# Build Vampire
+# RUN mkdir build && cd build && \
+#    cmake .. && \
+#    make
+
+# Optionally install Python libraries (if needed)
+RUN pip install --upgrade pip
+
+# Copy a sample Python script into the container (if applicable)
+COPY inference/run_vampire.py /vampire/
+COPY inference/requirements.txt /vampire/
+
+# RUN pip install requirements.txt
