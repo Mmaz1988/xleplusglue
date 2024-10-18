@@ -45,12 +45,13 @@ DEMO   ENGLISH   RULES (1.0)
 	 
    VP --> (AUX) "auxiliary introduced for passive" 
  	  V: ^=!;
- 	  (NP: (^ OBJ)=! "direct object"
-	       (! CASE)=acc)
+ 	  ({NP: (^ OBJ)=! "direct object"
+	       (! CASE)=acc |
+	       NP: (^ PREDLINK) = !|
+	       AP: (^ PREDLINK) = !})
  	  (NP: (^ OBJ2) = !)
 
  	  "to be + ..."
- 	  {(NP: (^ PREDLINK) = !)   |AP: (^ PREDLINK) = !}
 
 	  "secondary object"
  	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"
@@ -503,7 +504,8 @@ give 	  V-S XLE @(DITRANS-EV give).
 be   V-S XLE   {@(TRANS-EV be) "not accurate but predlink does not work for NP"
                 |
                 (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
-                | (^ PRED)='be<(^OBJ)>(^SUBJ)'}.       "not working if there is a determiner, but ok with proper noun" "to allow expletives with an NP"
+		@(EVENT %stem) 
+                | (^ PRED)='be<(^OBJ)>(^SUBJ)'}.       "EX.: There is an example; not working if there is a determiner, but ok with proper noun" "to allow expletives with an NP"
 
 
 
@@ -711,7 +713,7 @@ every 	  D * @(SPEC-DET-PRED every)
 Every 	   D * @(SPEC-DET-PRED every)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
-	      @(QUANT-SCOPE ^ %q) 
+ 	      @(QUANT-SCOPE ^ %q) 
 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
@@ -837,6 +839,11 @@ MORPH   ENGLISH   LEXICON (1.0)
 +Adj 	  ADJ-POS XLE .
 
 +Adv 	  ADV-POS XLE .
+
+"""
+TODO: morphemes of be include '+sg', which doesn't seem to occur for verbs elsewhere (?) 
+Needs fixing
+"""
 
 
 ----
