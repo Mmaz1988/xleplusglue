@@ -17,16 +17,18 @@ RUN apt-get update && \
 WORKDIR /vampire
 
 # Download the specific release of Vampire
-RUN wget https://github.com/vprover/vampire/archive/refs/tags/v4.9casc2024.tar.gz
-
-# Unpack the archive and move into the source directory
-RUN tar -xzf v4.9casc2024.tar.gz && \
-    mv vampire-4.9casc2024/* . && \
-    rm -rf vampire-4.9casc2024 v4.9casc2024.tar.gz
+#RUN wget https://github.com/vprover/vampire/archive/refs/tags/v4.9casc2024.tar.gz
+#
+## Unpack the archive and move into the source directory
+#RUN tar -xzf v4.9casc2024.tar.gz && \
+#    mv vampire-4.9casc2024/* . && \
+#    rm -rf vampire-4.9casc2024 v4.9casc2024.tar.gz
 
 # Build Vampire
 # RUN cmake . && \
 #    make
+
+COPY vampire_build/vampire /vampire/
 
 # Optionally install Python libraries (if needed)
 RUN pip install --upgrade pip
@@ -34,6 +36,7 @@ RUN pip install --upgrade pip
 # Copy a sample Python script into the container (if applicable)
 COPY inference/run_vampire.py /vampire/
 COPY inference/requirements.txt /vampire/
+COPY inference/eprover.p /vampire/
 
 # RUN pip install requirements.txt
 # Set the command to run Vampire

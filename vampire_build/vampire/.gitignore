@@ -1,0 +1,44 @@
+# ignore CMake/Doxygen output
+cmake-build
+build/
+doc/
+
+# ignore TPTP directories/symlinks
+Problems
+Axioms
+tptp
+
+# ctags
+tags
+
+# Callgrind?
+.kdbgrc.vampire*
+callgrind.out.*
+valgrind.supp
+
+# Mac things?
+._*
+.DS_Store
+.cproject
+.project
+.vscode/
+.settings/
+
+# Problem files
+*.p
+*.tptp
+*.txt
+*.smt2
+*.cnf
+tags
+cmake-build
+.exrc
+.clang-format
+.clangd
+.lldbinit
+
+# vim swap files
+**/.*.swp
+**/.*.swo
+.ccls-cache
+.cache/
