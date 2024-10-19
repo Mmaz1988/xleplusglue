@@ -100,8 +100,6 @@ DEMO   ENGLISH   RULES (1.0)
  	  }. 
 
 
-  
-
    AP --> ADV*: ! $ (^ ADJUNCT);
  	  A
  	  (COMMA).						
@@ -503,10 +501,7 @@ cat 	  N * (^PRED) = 'cat'
 	      (^ NTYPE) = count
 	      @(LLCLOSURE %mc60)
 @(LLATOM %mc58 (s::^ VAR) e)
-@(LLATOM %mc59 (s::^ RESTR) t)
-@(LLIMP %mc60 %mc58 %mc59)
-@(CONCAT  `[  `/ x `_ e `. %stem `( x `)  `]  %mc61)
-@(GLUE-MEANING %mc60 %mc61).
+@(LLATOM %mc59 (s::^ RESTR) t).cd D
 
 "adjectives --- should really be done via the morphology, like the nouns"
 
@@ -514,7 +509,10 @@ small 	  A * @(PRED small).
 
 smart 	  A * @(PRED smart). 
 
-grey 	  A * @(PRED grey).
+grey 	  A * @(PRED grey)
+@(LLIMP %mc60 %mc58 %mc59)
+@(CONCAT  `[  `/ x `_ e `. %stem `( x `)  `]  %mc61)
+@(GLUE-MEANING %mc60 %mc61).
 
 angry 	  A * @(PRED angry)
 	      @(LLCLOSURE %mc68)
@@ -529,12 +527,14 @@ angry 	  A * @(PRED angry)
 @(GLUE-MEANING %mc68 %mc69).
 
 big 	  A * @(PRED big)
+           %var = (s::(ADJUNCT $ ^) VAR)
+           %restr = (s::(ADJUNCT $ ^) RESTR)
 	      @(LLCLOSURE %mc76)
-@(LLATOM %mc70 (s::(ADJUNCT $ ^) VAR) e)
-@(LLATOM %mc71 (s::(ADJUNCT $ ^) RESTR) t)
+@(LLATOM %mc70 %var e)
+@(LLATOM %mc71 %restr t)
 @(LLIMP %mc72 %mc70 %mc71)
-@(LLATOM %mc73 (s::(ADJUNCT $ ^) VAR) e)
-@(LLATOM %mc74 (s::(ADJUNCT $ ^) RESTR) t)
+@(LLATOM %mc73 %var e)
+@(LLATOM %mc74 %restr t)
 @(LLIMP %mc75 %mc73 %mc74)
 @(LLIMP %mc76 %mc72 %mc75)
 @(CONCAT  `[  `/ P `_  `< e `, t `>  `.  `[  `/ x `_ e `.  `( big `( x `)   `&  P `( x `)  `)  `]  `]  %mc77)
