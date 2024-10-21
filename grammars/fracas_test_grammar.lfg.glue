@@ -22,6 +22,7 @@ P!tokenizers/basic-parse-tok.fst G!tokenizers/default-gen-tokenizer.fst
 ANALYZE:
 tokenizers/english.infl.patch.full.fst
 
+
 ----
 
 DEMO   ENGLISH   RULES (1.0)
@@ -390,7 +391,6 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 DEMO ENGLISH LEXICON (1.0)
 
 "nouns"
-
 
 
 "took out all names and nouns because they are now handled via the morphology"

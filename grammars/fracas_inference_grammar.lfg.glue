@@ -320,7 +320,7 @@ DEMO   ENGLISH   TEMPLATES (1.0)
        	    ARG2 = (^ SUBJ)
        	    ARG3 = (^ XCOMP)
        	  }.
-  
+
    """Functional feature templates"""
 
    CASE(C) = (^ CASE) = C.   
@@ -375,6 +375,10 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
 DEMO ENGLISH LEXICON (1.0)
 
+"nouns"
+
+
+
 "took out all names and nouns because they are now handled via the morphology"
 
 "all verbs here -- still need to convert fully to just have lemmas" 
@@ -400,7 +404,6 @@ ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
 	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
 
 
-
 convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
           @ATTITUDE
 		  (^ XCOMP SUBJ) = (^OBJ)
@@ -420,11 +423,8 @@ seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
 		  :$ lam(P,lam(S,drs([],[pred(seem,S),cont(S,app(P,S))]))) :
 		  (((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t) -o ((s::^ SIT)_s -o (s::^ SIT)_t)).
 
-"John believed Mary to appear SUBJ OBJ XCOMP
-Mary is believed to appear SUBJ XCOMP
-Mary is believed by John to appear SUBJ OBL-AG XCOMP
-Mary believed that John appeared SUBJ COMP
-Mary believed John that Peter appeared SUBJ OBJ COMP"
+
+
 
 believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
           @(XCOMP-OBJ-PASSIVE-ARGS %arg1 %arg2 %arg3)
