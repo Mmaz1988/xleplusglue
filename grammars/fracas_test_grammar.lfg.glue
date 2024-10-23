@@ -48,11 +48,11 @@ DEMO   ENGLISH   RULES (1.0)
  	  V: ^=!;
  	  ({NP: (^ OBJ)=! "direct object"
 	       (! CASE)=acc |
-	       NP: (^ PREDLINK) = !|
+	       NP: (^ PREDLINK) = !| "to be + ..."
 	       AP: (^ PREDLINK) = !})
  	  (NP: (^ OBJ2) = !)
 
- 	  "to be + ..."
+
 
 	  "secondary object"
  	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"
@@ -74,7 +74,7 @@ DEMO   ENGLISH   RULES (1.0)
 		 (! VFORM) = inf
  		 (s::^ TEMP-REF) = (s::(^XCOMP) EVAL)}
  		 )
- (ADVP: ! $ (^ ADJUNCT)).
+    (ADVP: ! $ (^ ADJUNCT)).
 
    ADVP --> VP: (^ SUBJ PRED) = 'pro'
    	    	~[(^ TNS-ASP TENSE)].
@@ -87,11 +87,10 @@ DEMO   ENGLISH   RULES (1.0)
               VP.
 
 
-
    VPinf --> PARTinf VP. 
 
    NP --> "either a full NP or a PRON"
- 	  { (D: ^=!)
+ 	  { ( {D: ^=! | PRON})
 	    "optional determiner"
  	    AP*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
  	     N: ^=!;
@@ -106,6 +105,7 @@ DEMO   ENGLISH   RULES (1.0)
 
    AP --> ADV*: ! $ (^ ADJUNCT);
  	  A
+ 	  (CPthan: (! DEGREE) =c comparativ)
  	  (COMMA).						
 
    PP --> { P: ^ = ! "head of PP"
@@ -319,22 +319,22 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	  }.
 
 
-	      XCOMP-OBJ-PASSIVE-ARGS(ARG1 ARG2 ARG3) = {
-       	    (^ PASSIVE) =c -
-       	    ARG1 = (^ SUBJ)
-       	    ARG2 = (^ OBJ)
-       	    ARG3 = (^ XCOMP)
-       	   |
-       	    (^ PASSIVE) =c +
-       	    {
-       	      (^OBL-AG) = ARG1 |
-       	      ~[(^OBL-AG)]
-       	      ARG1 = %empty
-       	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
-       	    }
-       	    ARG2 = (^ SUBJ)
-       	    ARG3 = (^ XCOMP)
-       	  }.
+  XCOMP-OBJ-PASSIVE-ARGS(ARG1 ARG2 ARG3) = {
+    (^ PASSIVE) =c -
+    ARG1 = (^ SUBJ)
+    ARG2 = (^ OBJ)
+    ARG3 = (^ XCOMP)
+   |
+    (^ PASSIVE) =c +
+    {
+      (^OBL-AG) = ARG1 |
+      ~[(^OBL-AG)]
+      ARG1 = %empty
+      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
+    }
+    ARG2 = (^ SUBJ)
+    ARG3 = (^ XCOMP)
+  }.
 
    """Functional feature templates"""
 
@@ -384,7 +384,16 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	  (^ PRON-TYPE) = T
 	  (^ NTYPE) = pron. 
 
+"template for possessive pronouns, as these have conflicting heads in regular template"
+
+    POSS-PRON(P N Z) = (^ POSS PRED) = 'P'
+	  	   (^ POSS NUM) = N
+	  	   (^ POSS PERS) = Z
+	  	   (^ POSS PRON-TYPE) = poss
+	  	   (^ POSS NTYPE) = pronoun.
+
    DEF = (^ DEF).
+
 
 ----
 
@@ -392,10 +401,9 @@ DEMO ENGLISH LEXICON (1.0)
 
 "nouns"
 
-
 "took out all names and nouns because they are now handled via the morphology"
 
-"all verbs here -- still need to convert fully to just have lemmas" 
+"all verbs here -- still need to convert fully to just have lemmas"
 
 "verbs with clausal arguments"
 
@@ -501,10 +509,12 @@ give 	  V-S XLE @(DITRANS-EV give).
 
 "to be"
 
-be   V-S XLE   {@(TRANS-EV be) "not accurate but predlink does not work for NP"
-                |
-                (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
-		@(EVENT %stem) 
+be   V-S XLE   {"@(TRANS-EV be)" "not accurate but predlink does not work for NP"
+                "|"
+                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'          "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>'"
+		        (^SUBJ) = (^ PREDLINK SUBJ)
+		        @(EVENT %stem)
+
                 | (^ PRED)='be<(^OBJ)>(^SUBJ)'}.       "EX.: There is an example; not working if there is a determiner, but ok with proper noun" "to allow expletives with an NP"
 
 
@@ -520,15 +530,19 @@ greater  A * (^DEGREE) = comparative
                { @(PRED great)
                (^ATYPE) = attributive
                | (^ATYPE) = predicative
-               (^ PRED)='great <(^ OBL-COMP)>')
+               (^ PRED)='great <(^ OBL-COMP)>'
                }.
 
+great   A * (^ PRED)='great <(^SUBJ)>'.
 
 small 	  A * @(PRED small). 
 
 smart 	  A * @(PRED smart). 
 
 grey 	  A * @(PRED grey).
+
+
+"not the revised semantics"
 
 big 	  A * @(PRED big)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
@@ -543,8 +557,8 @@ scottish  A * @(PRED scottish)
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
 
 trustworthy A * @(PRED trustworthy)
-		:$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-		((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+		  :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+		  ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
 
 alleged   A * @(PRED alleged)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
@@ -634,13 +648,14 @@ They 	  PRON * @(PRON they 3 pl pers)
 they 	  PRON * @(PRON they 3 pl pers)
 		 @(CASE nom).
 
-My 	  PRON * @(PRON my 1 sg poss).
+My 	  PRON * @(POSS-PRON I sg 3).   "'I' or 'my' ??"
 
-my 	  PRON * @(PRON my 1 sg poss).
+my 	  PRON * @(POSS-PRON I sg 3).
 
-Her 	  PRON * @(PRON her 3 sg poss).
+Her 	  PRON * {@(PRON she sg 3 pers)
+		    |@(POSS-PRON she sg 3)}.
 
-her 	  PRON * @(PRON her 3 sg poss).
+her 	  PRON * @(PRON her 3 sg pers).
 
 Him 	  PRON * @(PRON he 3 sg pers)
 		 @(CASE acc).
@@ -651,8 +666,7 @@ him 	  PRON * @(PRON he 3 sg pers)
 
 
 "expletive"
-There   PRON *
-                 (^PRON-TYPE) = expl_
+There   PRON *   (^PRON-TYPE) = expl_
 	             (^PRON-FORM) = it.
 
 "relative"

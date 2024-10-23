@@ -26,6 +26,9 @@ set defaultGlueTCL [relpath src/glue.tcl]
 #Here the grammar is loaded 
 set defaultGlueParser [relpath grammars/fracas_test_grammar.lfg.glue]
 
+
+proc t {} {parse-testfile [relpath testsuites/fracas_quantifiers_testsuite.lfg] }
+
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
 
