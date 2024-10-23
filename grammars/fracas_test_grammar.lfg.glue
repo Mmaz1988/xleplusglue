@@ -512,6 +512,10 @@ give 	  V-S XLE @(DITRANS-EV give).
 be   V-S XLE   {"@(TRANS-EV be)" "not accurate but predlink does not work for NP"
                 "|"
                 (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'          "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>'"
+		        @(EVENT %stem)
+
+		       |
+		        (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'       "so that adjectives can take their own predicate"
 		        (^SUBJ) = (^ PREDLINK SUBJ)
 		        @(EVENT %stem)
 
@@ -884,14 +888,14 @@ GLUE   BASIC   TEMPLATES (1.0)
    (s::^ QUANT-SCOPE) = NAME.
 
      QUANT-SCOPE(UP NAME) =
-  	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^)
+  	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT | PREDLINK}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
   	  (s::%name EV TYPE) =c eventuality
   	  NAME = (s::%name SIT)
   	  (s::^ QUANT-SCOPE) = NAME.
 
 " Why does the below not work?
    QUANT-SCOPE(UP NAME) =
-	  NAME = s::({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^)
+	  NAME = s::({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT | PREDLINK}+ ^)
 	  (NAME EV TYPE) =c eventuality
 	  (s::^ QUANT-SCOPE) = (NAME SIT).
 	  "
