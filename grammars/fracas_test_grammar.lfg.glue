@@ -53,7 +53,6 @@ DEMO   ENGLISH   RULES (1.0)
  	  (NP: (^ OBJ2) = !)
 
 
-
 	  "secondary object"
  	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"
 		 (! PTYPE) =c sem "only semantic PPs here"
@@ -83,11 +82,12 @@ DEMO   ENGLISH   RULES (1.0)
 	   S. 
 
    CPrel --> NP: (! PRON-TYPE) =c rel
-                    (^ SUBJ)=!;
+                   (^ SUBJ)=!;
               VP.
 
 
    VPinf --> PARTinf VP. 
+
 
    NP --> "either a full NP or a PRON"
  	  { ( {D: ^=! | PRON})
@@ -105,7 +105,7 @@ DEMO   ENGLISH   RULES (1.0)
 
    AP --> ADV*: ! $ (^ ADJUNCT);
  	  A
- 	  (CPthan: (! DEGREE) =c comparativ)
+ 	  (CPthan: (! DEGREE) =c comparative)  "not implemented, just an example"
  	  (COMMA).						
 
    PP --> { P: ^ = ! "head of PP"
@@ -445,6 +445,13 @@ seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
 		  :$ lam(P,lam(S,drs([],[pred(seem,S),cont(S,app(P,S))]))) :
 		  (((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t) -o ((s::^ SIT)_s -o (s::^ SIT)_t)).
 
+"want is a copy of try"
+want	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  :$ lam(X,lam(P,lam(S,drs([],[pred(want,S),rel(arg1,S,X),cont(S,app(app(P,X),S))])))) :
+		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+
 
 
 
@@ -509,17 +516,17 @@ give 	  V-S XLE @(DITRANS-EV give).
 
 "to be"
 
-be   V-S XLE   {"@(TRANS-EV be)" "not accurate but predlink does not work for NP"
-                "|"
-                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'          "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>'"
-		        @(EVENT %stem)
+be   V-S XLE   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'         "for nouns without arguments"
+		        @(EVENT %stem)                              "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>' ??"
 
+		       	@(ARG1 (^SUBJ))
+                @(ARG2 (^ OBJ))
 		       |
-		        (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'       "so that adjectives can take their own predicate"
+		        (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'       "so that adjectives can take their own arguments"
 		        (^SUBJ) = (^ PREDLINK SUBJ)
-		        @(EVENT %stem)
+		        @(EVENT %stem)}.       "EX.: There is an example; to allow expletives with an NP"
 
-                | (^ PRED)='be<(^OBJ)>(^SUBJ)'}.       "EX.: There is an example; not working if there is a determiner, but ok with proper noun" "to allow expletives with an NP"
+
 
 
 
@@ -537,7 +544,11 @@ greater  A * (^DEGREE) = comparative
                (^ PRED)='great <(^ OBL-COMP)>'
                }.
 
-great   A * (^ PRED)='great <(^SUBJ)>'.
+great   A *  { @(PRED great)
+               (^ATYPE) = attributive
+               | (^ATYPE) = predicative
+               (^ PRED)='great <(^SUBJ)>'
+               }.
 
 small 	  A * @(PRED small). 
 
@@ -599,7 +610,7 @@ with 	  P * @(PREP with)
 
 "auxiliaries"
 
-was 	  AUX * @(TENSE past)
+"was 	  AUX * @(TENSE past)
             { @(PROG -_)
               @(PERF -_) |
              (^ TNS-ASP PROG)
@@ -607,7 +618,7 @@ was 	  AUX * @(TENSE past)
 		{ (^ SUBJ PERS) = 1
                 | (^ SUBJ PERS) = 3
                 }
-                (^ SUBJ NUM) = sg.
+                (^ SUBJ NUM) = sg."
 
 is 	  AUX * @(TENSE pres)
 		{ (^ SUBJ PERS) = 1
@@ -674,9 +685,9 @@ There   PRON *   (^PRON-TYPE) = expl_
 	             (^PRON-FORM) = it.
 
 "relative"
-who PRON *      PRON-TYPE = rel
-                PRON-FORM = who
-                PRED = 'PRO'.
+who PRON *      (^PRON-TYPE) = rel
+                (^PRON-FORM) = who
+                (^PRED) = 'PRO'.
 
 
 "determiners"
