@@ -453,8 +453,6 @@ want	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
 
 
-
-
 believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
           @(XCOMP-OBJ-PASSIVE-ARGS %arg1 %arg2 %arg3)
 		  @ATTITUDE
@@ -517,16 +515,11 @@ give 	  V-S XLE @(DITRANS-EV give).
 "to be"
 
 be   V-S XLE   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'         "for nouns without arguments"
-		        @(EVENT %stem)                              "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>' ??"
-
-		       	@(ARG1 (^SUBJ))
-                @(ARG2 (^ OBJ))
-		       |
-		        (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'       "so that adjectives can take their own arguments"
-		        (^SUBJ) = (^ PREDLINK SUBJ)
-		        @(EVENT %stem)}.       "EX.: There is an example; to allow expletives with an NP"
-
-
+               @(EVENT %stem)                              "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>' ??"
+              |
+               (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'       "so that adjectives can take their own arguments"
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)}.       "EX.: There is an example; to allow expletives with an NP"
 
 
 
@@ -556,6 +549,7 @@ smart 	  A * @(PRED smart).
 
 grey 	  A * @(PRED grey).
 
+Italian   A * @(PRED italian).
 
 "not the revised semantics"
 
@@ -732,14 +726,16 @@ An 	  D * @(SPEC-DET-PRED a)
 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
-every 	  D * @(SPEC-DET-PRED every)
+
+"changed to spec-quant"
+every 	  D * @(SPEC-QUANT-PRED every)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
-Every 	   D * @(SPEC-DET-PRED every)
+Every 	   D * @(SPEC-QUANT-PRED every)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
  	      @(QUANT-SCOPE ^ %q) 
