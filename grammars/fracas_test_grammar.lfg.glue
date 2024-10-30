@@ -549,7 +549,7 @@ smart 	  A * @(PRED smart).
 
 grey 	  A * @(PRED grey).
 
-Italian   A * @(PRED italian).
+Italian   A * @(PRED italian); ETC.
 
 "not the revised semantics"
 
@@ -729,6 +729,7 @@ An 	  D * @(SPEC-DET-PRED a)
 
 "changed to spec-quant"
 every 	  D * @(SPEC-QUANT-PRED every)
+               @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
@@ -736,12 +737,25 @@ every 	  D * @(SPEC-QUANT-PRED every)
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Every 	   D * @(SPEC-QUANT-PRED every)
+               @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
  	      @(QUANT-SCOPE ^ %q) 
 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
+
+" new quantifiers"
+
+some D * @(SPEC-QUANT-PRED some)
+	      (^ DEF) = -
+	      (^ NUM) = pl
+ 	      @(QUANT-SCOPE ^ %q).
+
+Some D * @(SPEC-QUANT-PRED some)
+	      (^ DEF) = -
+	      (^ NUM) = pl
+ 	      @(QUANT-SCOPE ^ %q).
 
 "complementizers"
 
@@ -852,7 +866,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Giv 	  N-NAME XLE .   "for given names, no info associated so far"
 
-+Pl 	  N-NUM XLE (^ NUM) = pl. 
++Pl 	  N-NUM XLE (^ NUM) = pl.
 
 +Sg 	  N-NUM XLE (^ NUM) = sg
                     @(PERS 3).
