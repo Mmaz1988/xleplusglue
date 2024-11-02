@@ -24,7 +24,7 @@ proc relpath {path} {
 set defaultGlueTCL [relpath src/glue.tcl]
 
 #Here the grammar is loaded 
-set defaultGlueParser [relpath grammars/hybrid-drt-tense.lfg.glue]
+set defaultGlueParser [relpath grammars/multistage_grammar.lfg.glue]
 
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
@@ -36,10 +36,10 @@ source $defaultGlueTCL
 set solutionOnly 0
 
 # choose prover  (0: HEPPLE, 1: LEV, 2: LEV-altered, 3: Multistage proving)
-set prover 1
+set prover 3
 
 # activate semantic parser (0: no parsing / 1: semantic Parsing / 2: Prolog)
-set semParser 0
+set semParser 1
 
 # activate DRT mode (1/0); requires Prolog parsing! 
 set processDRT 0
@@ -49,7 +49,7 @@ set mcEncoding 1
 
 
 # activate debug mode (1/0)
-set transferDebug 1
+set transferDebug 0
 
 #set font
 set outputfont Courir

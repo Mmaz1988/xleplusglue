@@ -261,7 +261,6 @@ if {[catch {eval exec $gswb} result]} {
 	    file delete $outputfile
 	    file delete $displayfile
 #	    file delete $drtOutputFile
-	    file delete $prettydrtfile
 	    file delete $gswbfile
 	    file delete -force tmp
 	    puts "Temporary files are deleted after procedure is completed."
