@@ -103,10 +103,23 @@ DEMO   ENGLISH   RULES (1.0)
 		 "@(OT-MARK PPattach)" "prefer PPs attached to NPs"
  	  | PRON}. 
 
-   AP --> ADV*: ! $ (^ ADJUNCT);
- 	  A
- 	  (CPthan: (! DEGREE) =c comparative)  "not implemented, just an example"
- 	  (COMMA).						
+   AP -->
+           ADV*: ! $ (^ ADJUNCT);
+           A: ^ = !;
+
+           "than-comparatives as adjuncts on the AP"
+           (CPComp: ! $ (^ ADJUNCT)
+                    (^ DEGREE) =c comparative)
+
+           (COMMA).
+
+
+   "rule for comparison constructions"
+   "EX: He is greater than the dog (is)."
+   CPComp --> CComp: ^ = !;
+ 	      { NP: (^ OBJ) = !
+		        (! CASE) = acc
+ 	      | S: (^ OBJ) = !}.
 
    PP --> { P: ^ = ! "head of PP"
 	       (! PTYPE) =c sem; "semantic type, Adjunct"
@@ -550,6 +563,10 @@ smart 	  A * @(PRED smart).
 grey 	  A * @(PRED grey).
 
 Italian   A * @(PRED italian); ETC.
+
+"comparison constructions"
+
+than      CComp * (^PRED) = 'than<(^OBJ)>'.
 
 "not the revised semantics"
 
