@@ -883,10 +883,14 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Giv 	  N-NAME XLE .   "for given names, no info associated so far"
 
-+Pl 	  N-NUM XLE (^ NUM) = pl.
++Pl 	  N-NUM XLE (^ NUM) = pl;
+	  PERS XLE {(^ NUM) = sg |
+	       	    (^ NUM) = pl}.
 
 +Sg 	  N-NUM XLE (^ NUM) = sg
-                    @(PERS 3).
+                    @(PERS 3);
+	  PERS XLE (^ NUM) = sg.
+	  
 
 +Fem 	  N-GEND XLE (^GEND) = fem. 
 
@@ -895,6 +899,9 @@ MORPH   ENGLISH   LEXICON (1.0)
 +Adj 	  ADJ-POS XLE .
 
 +Adv 	  ADV-POS XLE .
+
++Inf 	  ASP XLE .
+	  
 
 """
 TODO: morphemes of be include '+sg', which doesn't seem to occur for verbs elsewhere (?) 
