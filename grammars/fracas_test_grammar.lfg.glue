@@ -104,22 +104,48 @@ DEMO   ENGLISH   RULES (1.0)
  	  | PRON}. 
 
    AP -->
-           ADV*: ! $ (^ ADJUNCT);
-           A: ^ = !;
+      {
+        ADV*: ! $ (^ ADJUNCT);
+        A*: ^=!;
 
-           "than-comparatives as adjuncts on the AP"
-           (CPComp: ! $ (^ ADJUNCT)
-                    (^ DEGREE) =c comparative)
+        "than-comparatives as adjuncts on the AP"
+        (CPComp: ! $ (^ ADJUNCT)
+                 (^ DEGREE) =c comparative)
 
-           (COMMA).
+        (COMMA)
+      |
+        "introduces the left as into the structure"
+        "EX. He is as tall"
+        (ADVComp: ! $ (^ ADJUNCT))
+
+ 	    ADV*: ! $ (^ ADJUNCT);
+
+ 	    A*: ^=!;
+
+        "does not work yet, just an example"
+        "should probably be done by a complex category"
+        "He is as tall as him."
+        (CPEqu: ! $ (^ ADJUNCT))
+
+ 	    (COMMA)
+ 	  }.
 
 
    "rule for comparison constructions"
    "EX: He is greater than the dog (is)."
-   CPComp --> CComp: ^ = !;
+   CPComp --> CComp
  	      { NP: (^ OBJ) = !
 		        (! CASE) = acc
- 	      | S: (^ OBJ) = !}.
+ 	      |
+ 	        "for elliptical constructions."
+            "EX: He is greater than the dog is (great)."
+ 	        S: (^ OBJ) = !
+ 	      }.
+
+   CPEqu --> CCompEqu
+    	  { NP: (^ OBJ) = !
+    	  | S: (^ OBJ) = !
+    	  }.
 
    PP --> { P: ^ = ! "head of PP"
 	       (! PTYPE) =c sem; "semantic type, Adjunct"
@@ -550,7 +576,8 @@ greater  A * (^DEGREE) = comparative
                (^ PRED)='great <(^ OBL-COMP)>'
                }.
 
-great   A *  { @(PRED great)
+great   A * (^DEGREE) = positive
+               { @(PRED great)
                (^ATYPE) = attributive
                | (^ATYPE) = predicative
                (^ PRED)='great <(^SUBJ)>'
@@ -563,10 +590,6 @@ smart 	  A * @(PRED smart).
 grey 	  A * @(PRED grey).
 
 Italian   A * @(PRED italian); ETC.
-
-"comparison constructions"
-
-than      CComp * (^PRED) = 'than<(^OBJ)>'.
 
 "not the revised semantics"
 
@@ -595,13 +618,18 @@ former 	  A * @(PRED former)
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
 
 
-
 "adverbs --- should really be done via the morphology, like the nouns"
 
 quickly   ADV * @(PRED quickly). 
 
 very 	  ADV * @(PRED very).
 
+
+"comparison constructions"
+
+than      CComp * (^PRED) = 'than<(^OBJ)>'.
+
+as        ADVcomp * (^PRED) = 'as'.         "maybe two different lexical entries?"
 
 
 "prepositions"
@@ -773,6 +801,25 @@ Some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
 	      (^ NUM) = pl
  	      @(QUANT-SCOPE ^ %q).
+
+"preliminary semantics for all"
+"also for Fracas Testsuite"
+"EX: All mice are animals"
+all 	  D * @(SPEC-QUANT-PRED all)
+          @(SPEC-QUANT-TYPE universal)
+	      (^ DEF) = - "this indefinite only marks singulars"
+	      (^ NUM) = pl
+	      @(QUANT-SCOPE ^ %q)
+	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+All 	  D * @(SPEC-QUANT-PRED all)
+          @(SPEC-QUANT-TYPE universal)
+	      (^ DEF) = - "this indefinite only marks singulars"
+	      (^ NUM) = pl
+	      @(QUANT-SCOPE ^ %q)
+	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 "complementizers"
 
