@@ -96,6 +96,10 @@ DEMO   ENGLISH   RULES (1.0)
  	     N: ^=!;
 	    "head of NP"
 
+	    "comparison with whole NPs"
+	    "EX: He is a fatter politician than him."
+        (CPComp: ! $ (^ ADJUNCT)
+         	     (^ ADJUNCT $ DEGREE) =c comparative)
 	    (CPrel: ! $ (^ ADJUNCT))
 
  	    PP*: ! $ (^ ADJUNCT) "PPs modifying NPs" 
