@@ -108,31 +108,21 @@ DEMO   ENGLISH   RULES (1.0)
  	  | PRON}. 
 
    AP -->
-      {
+
+        (ADVComp: ! $ (^ ADJUNCT))
+
         ADV*: ! $ (^ ADJUNCT);
+
         A*: ^=!;
 
         "than-comparatives as adjuncts on the AP"
-        (CPComp: ! $ (^ ADJUNCT)
-                 (^ DEGREE) =c comparative)
+        "type of comparative is handled in the lexicon"
+        "EX1: The tree is greater than the plant."
+        "EX2: The tree is (as) great (as the plant)."
+        (CPComp: ! $ (^ ADJUNCT))
 
-        (COMMA)
-      |
-        "introduces the left as into the structure"
-        "EX. He is as tall"
-        (ADVComp: ! $ (^ ADJUNCT))
+        (COMMA).
 
- 	    ADV*: ! $ (^ ADJUNCT);
-
- 	    A*: ^=!;
-
-        "does not work yet, just an example"
-        "should probably be done by a complex category"
-        "He is as tall as him."
-        (CPEqu: ! $ (^ ADJUNCT))
-
- 	    (COMMA)
- 	  }.
 
 
    "rule for comparison constructions"
@@ -146,10 +136,6 @@ DEMO   ENGLISH   RULES (1.0)
  	        S: (^ OBJ) = !
  	      }.
 
-   CPEqu --> CCompEqu
-    	  { NP: (^ OBJ) = !
-    	  | S: (^ OBJ) = !
-    	  }.
 
    PP --> { P: ^ = ! "head of PP"
 	       (! PTYPE) =c sem; "semantic type, Adjunct"
@@ -587,7 +573,8 @@ great   A * (^DEGREE) = positive
                (^ PRED)='great <(^SUBJ)>'
                }.
 
-small 	  A * @(PRED small). 
+small 	  A * @(PRED small)
+              (^DEGREE) = positive.
 
 smart 	  A * @(PRED smart). 
 
@@ -631,9 +618,13 @@ very 	  ADV * @(PRED very).
 
 "comparison constructions"
 
-than      CComp * (^PRED) = 'than<(^OBJ)>'.
+than      CComp * (^PRED) = 'than<(^OBJ)>'
+                  (^DEGREE) =c comparative.
 
-as        ADVcomp * (^PRED) = 'as'.         "maybe two different lexical entries?"
+as        CComp * (^PRED) = 'as<(^OBJ)>'
+                  (^DEGREE) =c positive;
+          ADVComp * @(PRED as)
+                   (^DEGREE) =c positive.
 
 
 "prepositions"
@@ -806,7 +797,7 @@ Some D * @(SPEC-QUANT-PRED some)
 	      (^ NUM) = pl
  	      @(QUANT-SCOPE ^ %q).
 
-"preliminary semantics for all"
+"preliminary semantics for all, copied from every"
 "also for Fracas Testsuite"
 "EX: All mice are animals"
 all 	  D * @(SPEC-QUANT-PRED all)
