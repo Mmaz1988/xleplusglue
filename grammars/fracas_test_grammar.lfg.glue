@@ -901,18 +901,18 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 "lexical entries for tags coming out of the morphological analyzer" 
 
+"verbal tags"
+
 +Verb 	  V-POS XLE .
 
 +Pres 	  TNS XLE @VPRES
 		   @(PROG -_)
 		   @(PERF -_).
 
-+3sg 	  PERS XLE @S-AGR.
-
 +PastBoth TNS XLE "past tense or past particle"
 		  { @VPAST | @PASTP }
 		  @(PROG -_)
-		  @(PERF -_). 
+		  @(PERF -_).
 
 +PastTense TNS XLE "past tense"
 		   @VPAST
@@ -921,11 +921,27 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +PastPerf TNS XLE @PASTP.
 
++Prog 	  ASP XLE @VPROG.
+
++Inf 	  ASP XLE .
+
++3sg 	  PERS XLE @S-AGR.
+
 +123SP 	  PERS XLE .
 
 +Non3sg   PERS XLE @BARE-AGR.
 
-+Prog 	  ASP XLE @VPROG.  
+"nominal/verbal"
+
++Pl 	  N-NUM XLE (^ NUM) = pl;
+	  PERS XLE {(^ NUM) = sg |
+	       	    (^ NUM) = pl}.
+
++Sg 	  N-NUM XLE (^ NUM) = sg
+                    @(PERS 3);
+	  PERS XLE (^ NUM) = sg.
+
+"nominal tags"
 
 +Noun 	  N-POS XLE @(NPOS count) "3rd person count noun"
 		    @(PERS 3).
@@ -935,24 +951,18 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Giv 	  N-NAME XLE .   "for given names, no info associated so far"
 
-+Pl 	  N-NUM XLE (^ NUM) = pl;
-	  PERS XLE {(^ NUM) = sg |
-	       	    (^ NUM) = pl}.
-
-+Sg 	  N-NUM XLE (^ NUM) = sg
-                    @(PERS 3);
-	  PERS XLE (^ NUM) = sg.
-	  
-
 +Fem 	  N-GEND XLE (^GEND) = fem. 
 
 +Masc 	  N-GEND XLE (^GEND) = masc.
+
+
+"other"
 
 +Adj 	  ADJ-POS XLE .
 
 +Adv 	  ADV-POS XLE .
 
-+Inf 	  ASP XLE .
+
 	  
 
 """
