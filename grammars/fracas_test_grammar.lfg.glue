@@ -48,8 +48,12 @@ DEMO   ENGLISH   RULES (1.0)
  	  V: ^=!;
  	  ({NP: (^ OBJ)=! "direct object"
 	       (! CASE)=acc |
-	       NP: (^ PREDLINK) = !| "to be + ..."
-	       AP: (^ PREDLINK) = !})
+	       NP: (^ PREDLINK) = ! "to be + ..."
+	       "referential subject must match object in number "
+	       "eg. Mary is a dog vs *Mary is the dogs"
+	       @(IF (^SUBJ NUM) (^SUBJ NUM)=c(^PREDLINK NUM)) |
+	       AP: (^ PREDLINK) = !
+	            })
  	  (NP: (^ OBJ2) = !)
 
 
@@ -81,8 +85,13 @@ DEMO   ENGLISH   RULES (1.0)
    CP -->  C
 	   S. 
 
+
+  "aber who sollte ja eigentlich zum gleichen subject wie der main clause referen"
+  "get features of the NP on the who somehow"
    CPrel --> NP: (! PRON-TYPE) =c rel
-                   (^ SUBJ)=!;
+                   "(^ SUBJ)=!"
+                   (^SUBJ) = !
+                   ;
               VP.
 
 
@@ -548,11 +557,13 @@ give 	  V-S XLE @(DITRANS-EV give).
 "to be"
 
 be   V-S XLE   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'         "for nouns without arguments"
+
                @(EVENT %stem)                              "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>' ??"
               |
                (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'       "so that adjectives can take their own arguments"
                (^SUBJ) = (^ PREDLINK SUBJ)
                @(EVENT %stem)}.       "EX.: There is an example; to allow expletives with an NP"
+
 
 
 
@@ -701,9 +712,11 @@ They 	  PRON * @(PRON they 3 pl pers)
 they 	  PRON * @(PRON they 3 pl pers)
 		 @(CASE nom).
 
-My 	  PRON * @(POSS-PRON I sg 3).   "'I' or 'my' ??"
+My 	  PRON * @(POSS-PRON I sg 1).   "'I' or 'my' ??"
 
-my 	  PRON * @(POSS-PRON I sg 3).
+my 	  PRON * @(POSS-PRON I sg 1).
+
+his 	  PRON * @(POSS-PRON he sg 3).
 
 Her 	  PRON * {@(PRON she sg 3 pers)
 		    |@(POSS-PRON she sg 3)}.
@@ -720,7 +733,8 @@ him 	  PRON * @(PRON he 3 sg pers)
 
 "expletive"
 There   PRON *   (^PRON-TYPE) = expl_
-	             (^PRON-FORM) = it.
+	             (^PRON-FORM) = it
+	             {(^NUM) =sg |(^NUM) = pl}.
 
 "relative"
 who PRON *      (^PRON-TYPE) = rel
@@ -730,12 +744,16 @@ who PRON *      (^PRON-TYPE) = rel
 
 "determiners"
 
-the 	  D * (^DEF) = +
+the 	  D *
+          @(SPEC-DET-PRED the)
+          (^DEF) = +        "encoded as det-type in inness"
 	      @(QUANT-SCOPE ^ %q) 
 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
 
-The 	  D * (^DEF) = +
+The 	  D *
+          @(SPEC-DET-PRED the)
+          (^DEF) = +
 	      @(QUANT-SCOPE ^ %q) 
 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
@@ -769,6 +787,7 @@ An 	  D * @(SPEC-DET-PRED a)
 	      @(QUANT-SCOPE ^ %q) 
 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
 
 
 more  D * (^DEF) = - "this indefinite only marks plurals"
@@ -828,6 +847,20 @@ All 	  D * @(SPEC-QUANT-PRED all)
 	      @(QUANT-SCOPE ^ %q)
 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+
+"each"
+Each D *  @(SPEC-QUANT-PRED each)
+          @(SPEC-QUANT-TYPE universal)
+	      (^ DEF) = -
+	      (^ NUM) = sg
+ 	      @(QUANT-SCOPE ^ %q).
+
+each D *  @(SPEC-QUANT-PRED each)
+          @(SPEC-QUANT-TYPE universal)
+	      (^ DEF) = -
+	      (^ NUM) = sg
+ 	      @(QUANT-SCOPE ^ %q).
 
 "complementizers"
 
@@ -992,7 +1025,7 @@ GLUE   BASIC   TEMPLATES (1.0)
   NOSCOPE(G) = (G NOSCOPE) = +.  
 
    NAME-SCOPE(UP NAME) =
-   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT}+ ^)
+   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT| PREDLINK}+ ^)
    (%name FIN) =c +
    NAME  = (s::%name SIT)
    (s::^ QUANT-SCOPE) = NAME.
