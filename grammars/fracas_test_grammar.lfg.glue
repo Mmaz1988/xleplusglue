@@ -92,7 +92,7 @@ DEMO   ENGLISH   RULES (1.0)
    NP --> "either a full NP or a PRON"
  	  { ( {D: ^=! | PRON})
 	    "optional determiner"
- 	    AP*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
+ 	     AP*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
  	     N: ^=!;
 	    "head of NP"
 
@@ -109,6 +109,7 @@ DEMO   ENGLISH   RULES (1.0)
 		 "@(OT-MARK PPattach)" "prefer PPs attached to NPs"
  	  | PRON}. 
 
+
    AP -->
 
         (ADVComp: ! $ (^ ADJUNCT))
@@ -121,17 +122,19 @@ DEMO   ENGLISH   RULES (1.0)
         "type of comparative is handled in the lexicon"
         "EX1: The tree is greater than the plant."
         "EX2: The tree is (as) great (as the plant)."
-        (CPComp: ! $ (^ ADJUNCT))
+        (CPComp: (^ OBJ) = !)
 
         (COMMA).
 
 
 
    "rule for comparison constructions"
-   "EX: He is greater than the dog (is)."
-   CPComp --> CComp
- 	      { NP: (^ OBJ) = !
-		        (! CASE) = acc
+   "EX: ... than the dog/as the dog."
+   CPComp -->
+         {
+          CComp: ^ = !;
+ 	      NP: (^ OBJ) = !
+		      (! CASE) = acc
  	      |
  	        "for elliptical constructions."
             "EX: He is greater than the dog is (great)."
@@ -564,14 +567,14 @@ greater  A * (^DEGREE) = comparative
                { @(PRED great)
                (^ATYPE) = attributive
                | (^ATYPE) = predicative
-               (^ PRED)='great <(^ OBL-COMP)>'
+               (^ PRED)='great <(^OBJ)>'
                }.
 
 great   A * (^DEGREE) = positive
                { @(PRED great)
                (^ATYPE) = attributive
                | (^ATYPE) = predicative
-               (^ PRED)='great <(^SUBJ)>'
+               (^ PRED)='great <(^OBL-COMP)>'
                }.
 
 small 	  A * @(PRED small)
@@ -625,7 +628,7 @@ than      CComp * (^PRED) = 'than<(^OBJ)>'
 as        CComp * (^PRED) = 'as<(^OBJ)>'
                   (^DEGREE) =c positive;
           ADVComp * @(PRED as)
-                   (^DEGREE) =c positive.
+                    (^DEGREE) =c positive.
 
 
 "prepositions"
@@ -766,6 +769,15 @@ An 	  D * @(SPEC-DET-PRED a)
 	      @(QUANT-SCOPE ^ %q) 
 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+
+more  D * (^DEF) = - "this indefinite only marks plurals"
+          (^NUM) = pl
+          (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
+
+More  D * (^DEF) = - "this indefinite only marks plurals"
+          (^NUM) = pl
+          (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
 
 "changed to spec-quant"
