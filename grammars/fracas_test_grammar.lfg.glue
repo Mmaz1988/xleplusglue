@@ -87,11 +87,11 @@ DEMO   ENGLISH   RULES (1.0)
 
 
   "aber who sollte ja eigentlich zum gleichen subject wie der main clause referen"
-  "get features of the NP on the who somehow"
+  "get features of the NP on the who somehow -> NUM und PERS"
    CPrel --> NP: (! PRON-TYPE) =c rel
-                   "(^ SUBJ)=!"
-                   (^SUBJ) = !
-                   ;
+                 (^ SUBJ) = !
+                 "(^NUM ADJUNCT SUBJ) = (!NUM)"
+                 ;
               VP.
 
 
@@ -739,7 +739,8 @@ There   PRON *   (^PRON-TYPE) = expl_
 "relative"
 who PRON *      (^PRON-TYPE) = rel
                 (^PRON-FORM) = who
-                (^PRED) = 'PRO'.
+                (^PRED) = 'PRO'
+                "(^NUM)".
 
 
 "determiners"
