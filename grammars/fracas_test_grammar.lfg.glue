@@ -49,8 +49,9 @@ DEMO   ENGLISH   RULES (1.0)
  	  ({NP: (^ OBJ)=! "direct object"
 	       (! CASE)=acc |
 	       NP: (^ PREDLINK) = ! "to be + ..."
-	       "referential subject must match object in number "
+	       "nominal subject must match object in number "
 	       "eg. Mary is a dog vs *Mary is the dogs"
+	       "issue: All Italian men want to be a great tenor"
 	       @(IF (^SUBJ NUM) (^SUBJ NUM)=c(^PREDLINK NUM)) |
 	       AP: (^ PREDLINK) = !
 	            })
@@ -111,7 +112,8 @@ DEMO   ENGLISH   RULES (1.0)
          	     (^ ADJUNCT $ DEGREE) =c comparative)
 
 
-	    (CPrel: ! $ (^ ADJUNCT))
+	    (CPrel: ! $ (^ ADJUNCT)
+	                "(^ NUM) = (!SUBJECT NUM)")
 
  	    PP*: ! $ (^ ADJUNCT) "PPs modifying NPs" 
 		 (! PTYPE) =c sem "have to be semantic" 
