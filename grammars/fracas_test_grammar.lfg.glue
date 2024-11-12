@@ -121,8 +121,7 @@ DEMO   ENGLISH   RULES (1.0)
         "type of comparative is handled in the lexicon"
         "EX1: The tree is greater than the plant."
         "EX2: The tree is (as) great (as the plant)."
-        (CPComp: ! $ (^ ADJUNCT))
-
+        (CPComp: (^ OBL-COMP) = !)
         (COMMA).
 
 
@@ -620,7 +619,7 @@ very 	  ADV * @(PRED very).
 "comparison constructions"
 
 than      CComp * (^PRED) = 'than<(^OBJ)>'
-                  (^DEGREE) =c comparative.
+                  "((OBL-COMP ^) DEGREE) =c comparative".
 
 as        CComp * (^PRED) = 'as<(^OBJ)>'
                   (^DEGREE) =c positive;
