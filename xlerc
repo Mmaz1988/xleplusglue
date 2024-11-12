@@ -51,7 +51,7 @@ set processDRT 0
 set mcEncoding 1
 
 
-# activate debugxle mode (1/0)
+# activate debug mode (1/0)
 set transferDebug 1
 
 #set font
