@@ -77,7 +77,13 @@ DEMO   ENGLISH   RULES (1.0)
 		 (! VFORM) = inf
  		 (s::^ TEMP-REF) = (s::(^XCOMP) EVAL)}
  		 )
-    (ADVP: ! $ (^ ADJUNCT)).
+
+    (ADVP: ! $ (^ ADJUNCT))
+
+    "rule for phrasal comparative"
+    "EX: He laughs greater than her."
+    "somewhat preliminary, should not be 'predicative', works for the moment though"
+    (AP[predicative]: ! $ (^ ADJUNCT)).
 
    ADVP --> VP: (^ SUBJ PRED) = 'pro'
    	    	~[(^ TNS-ASP TENSE)].
@@ -102,19 +108,19 @@ DEMO   ENGLISH   RULES (1.0)
  	  { ( {D: ^=! | PRON})
 	    "optional determiner"
  	     AP[attributive]*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
+
  	     N: ^=!;
 	    "head of NP"
 
 	    "comparison with whole NPs"
 	    "EX: He is a fatter politician than him."
-        (CPComp: ! $ (^ ADJUNCT)
-         	     (^ ADJUNCT $ DEGREE) =c comparative)
+        (CPComp: (^ OBL-COMP) = !)
 
 
 	    (CPrel: ! $ (^ ADJUNCT))
 
  	    PP*: ! $ (^ ADJUNCT) "PPs modifying NPs" 
-		 (! PTYPE) =c sem "have to be semantic" 
+		(! PTYPE) =c sem "have to be semantic"
 		 "@(OT-MARK PPattach)" "prefer PPs attached to NPs"
  	  | PRON}. 
 
@@ -566,7 +572,7 @@ be   V-S XLE   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'         "for nouns withou
 
 
 "adjectives --- should really be done via the morphology, like the nouns"
-
+He is a fatter politician than the other guy.
 greatest  A * (^DEGREE) = superlative
                @(PRED great).
                "is atype important here?"
@@ -633,12 +639,17 @@ very 	  ADV * @(PRED very).
 
 than      CComp * (^PRED) = 'than<(^OBJ)>'
                   "(^DEGREE) =c comparative." "da muss man noch schauen wie.."
-                  ((OBL-COMP ^) DEGREE) =c comparative.
+                  ((OBL-COMP ^) DEGREE) =c comparative;
+                  "(^ ADJUNCT $ DEGREE) =c comparative"                         "funktioniert nicht mit he is a greater politican than..."
+          CComp * (^PRED) = 'than<(^OBJ)>'
+                  (^ ADJUNCT $ DEGREE) =c comparative.                          "keine Ahnung..."
 
 as        CComp * (^PRED) = 'as<(^OBJ)>'
-                  (^DEGREE) =c positive;
+                  (^DEGREE) ~=c comparative
+                  (^DEGREE) ~=c superlative;
           ADVComp * @(PRED as)
-                    (^DEGREE) =c positive.
+                  (^DEGREE) ~=c comparative
+                  (^DEGREE) ~=c superlative.
 
 
 "prepositions"
@@ -705,7 +716,7 @@ We 	  PRON * @(PRON we 1 pl pers)
 we 	  PRON * @(PRON we 1 pl pers)
 		 @(CASE nom).
 
-They 	  PRON * @(PRON they 3 pl pers) 
+They 	  PRON * @(PRON they 3 pl pers)
 		 @(CASE nom). 
 
 they 	  PRON * @(PRON they 3 pl pers)
@@ -790,7 +801,8 @@ An 	  D * @(SPEC-DET-PRED a)
 
 
 
-more  D * (^DEF) = - "this indefinite only marks plurals"
+more  D * (^PRED) = 'more<(^OBL-COMP)>'
+          (^DEF) = - "this indefinite only marks plurals"
           (^NUM) = pl
           (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
