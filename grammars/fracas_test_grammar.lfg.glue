@@ -639,10 +639,8 @@ very 	  ADV * @(PRED very).
 
 than      CComp * (^PRED) = 'than<(^OBJ)>'
                   "(^DEGREE) =c comparative." "da muss man noch schauen wie.."
-                  ((OBL-COMP ^) DEGREE) =c comparative;
+                  ((OBL-COMP ^) DEGREE) =c comparative.
                   "(^ ADJUNCT $ DEGREE) =c comparative"                         "funktioniert nicht mit he is a greater politican than..."
-          CComp * (^PRED) = 'than<(^OBJ)>'
-                  (^ ADJUNCT $ DEGREE) =c comparative.                          "keine Ahnung..."
 
 as        CComp * (^PRED) = 'as<(^OBJ)>'
                   (^DEGREE) ~=c comparative
@@ -801,8 +799,7 @@ An 	  D * @(SPEC-DET-PRED a)
 
 
 
-more  D * (^PRED) = 'more<(^OBL-COMP)>'
-          (^DEF) = - "this indefinite only marks plurals"
+more  D * (^DEF) = - "this indefinite only marks plurals"
           (^NUM) = pl
           (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
