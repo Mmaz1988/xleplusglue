@@ -18,3 +18,4 @@ fof(fact4, axiom, (older(alice, bob))).
 fof(distinct1, axiom, (john != alice)).
 fof(distinct2, axiom, (john != bob)).
 fof(distinct3, axiom, (alice != bob)).
+
