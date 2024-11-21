@@ -1,9 +1,9 @@
 DEMO   ENGLISH   CONFIG (1.0)
   ROOTCAT   ROOT.  "changed to ROOT from S"
-  FILES common.templates.lfg  morph_fracas.lfg templates_fracas.lfg glue_fracas_grammar.lfg.
+  FILES common.templates.lfg  morph_fracas.lfg templates_fracas.lfg glue_fracas_grammar.lfg modifier_fracas-grammar.lfg.
   LEXENTRIES   (DEMO ENGLISH) (MORPH ENGLISH).
   TEMPLATES (DEMO ENGLISH) (GLUE BASIC) (STANDARD COMMON).  "added common ParGram templates"
-  RULES   (DEMO ENGLISH) (MORPH ENGLISH).
+  RULES   (DEMO ENGLISH) (MORPH ENGLISH) (MODIFIER ENGLISH).
   MORPHOLOGY (DEMO ENGLISH).
   GOVERNABLERELATIONS    SUBJ OBJ OBJ2 COMP XCOMP OBL OBL-?+ PREDLINK.
   SEMANTICFUNCTIONS    ADJUNCT  TOPIC FOCUS POSS STANDARD.
@@ -74,9 +74,6 @@ DEMO   ENGLISH   RULES (1.0)
     "somewhat preliminary, should not be 'predicative', works for the moment though"
     (AP[predicative]: ! $ (^ ADJUNCT)).
 
-   ADVP --> VP: (^ SUBJ PRED) = 'pro'
-   	    	~[(^ TNS-ASP TENSE)].
-
    CP -->  C
 	   S. 
 
@@ -111,48 +108,7 @@ DEMO   ENGLISH   RULES (1.0)
  	    PP*: ! $ (^ ADJUNCT) "PPs modifying NPs" 
 		(! PTYPE) =c sem "have to be semantic"
 		 "@(OT-MARK PPattach)" "prefer PPs attached to NPs"
- 	  | PRON}. 
-
-
-   AP[_type $ {attributive predicative}] -->
-
-        (ADVComp: _type = predicative
-                  ! $ (^ ADJUNCT))
-
-        ADV*: ! $ (^ ADJUNCT);
-
-        A*: ^=!;
-
-        "than-comparatives as adjuncts on the AP"
-        "type of comparative is handled in the lexicon"
-        "EX1: The tree is greater than the plant."
-        "EX2: The tree is (as) great (as the plant)."
-        (CPComp: _type = predicative
-                 (^ OBL-COMP) = !)
-        (COMMA).
-
-
-
-   "rule for comparison constructions"
-   "EX: He is greater than the dog (is)."
-   CPComp --> CComp
- 	      { NP: (^ OBJ) = !
-		        (! CASE) = acc
- 	      |
- 	        "for elliptical constructions."
-            "EX: He is greater than the dog is (great)."
- 	        S: (^ OBJ) = !
- 	      }.
-
-
-   PP --> { P: ^ = ! "head of PP"
-	       (! PTYPE) =c sem; "semantic type, Adjunct"
- 	    NP: (^ OBJ) = !
-		(! CASE) = acc
- 	  | P: ^ = ! "head of PP" 
-	       (! PTYPE) =c nosem; "non-semantxic type, OBL"
- 	    NP
- 	  }.
+ 	  | PRON}.
 
 
   METARULEMACRO(_CAT _BASECAT _RHS) = "applies to all rules in the grammar"
