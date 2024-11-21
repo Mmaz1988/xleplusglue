@@ -1,6 +1,6 @@
 DEMO   ENGLISH   CONFIG (1.0)
   ROOTCAT   ROOT.  "changed to ROOT from S"
-  FILES common.templates.lfg  morph_fracas.lfg templates_fracas.lfg glue_fracas_grammar.lfg modifier_fracas-grammar.lfg.
+  FILES common.templates.lfg  morph_fracas.lfg templates_fracas.lfg glue_fracas_grammar.lfg modifier_fracas_grammar.lfg.
   LEXENTRIES   (DEMO ENGLISH) (MORPH ENGLISH).
   TEMPLATES (DEMO ENGLISH) (GLUE BASIC) (STANDARD COMMON).  "added common ParGram templates"
   RULES   (DEMO ENGLISH) (MORPH ENGLISH) (MODIFIER ENGLISH).
