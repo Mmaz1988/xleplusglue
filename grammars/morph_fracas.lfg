@@ -44,14 +44,32 @@ MORPH   ENGLISH   LEXICON (1.0)
 	  N-S XLE @(PRED %stem)
 	      (s::^ TYPE) = entity
 		  { (^ NTYPE) = count
-		    :$ lam(X,drs([],[pred(%stem,X)])) : (s::^_e -o s::^_t),
-		  |
+		    @(LLCLOSURE %mc996)
+@(LLATOM %mc994 s::^ e)
+@(LLATOM %mc995 s::^ t)
+@(LLIMP %mc996 %mc994 %mc995)
+@(CONCAT lam `( X `, drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `)  %mc997)
+@(GLUE-MEANING %mc996 %mc997)		  |
 		  (^ NTYPE) = name
 		  @(NAME-SCOPE ^ %q)
-		  :$ lam(X,drs([],[eq(X,'%stem')])) : (s::^_e -o s::^_t),
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
-		  }.  
+		  @(LLCLOSURE %mc1000)
+@(LLATOM %mc998 s::^ e)
+@(LLATOM %mc999 s::^ t)
+@(LLIMP %mc1000 %mc998 %mc999)
+@(CONCAT lam `( X `, drs `(  `[  `]  `,  `[ eq `( X `,  `' %stem `'  `)  `]  `)  `)  %mc1001)
+@(GLUE-MEANING %mc1000 %mc1001)	      @(LLCLOSURE %mc1010)
+@(LLATOM %mc1002 s::^ e)
+@(LLATOM %mc1003 s::^ t)
+@(LLIMP %mc1004 %mc1002 %mc1003)
+@(LLATOM %mc1005 s::^ e)
+@(LLATOM %mc1006 %q t)
+@(LLIMP %mc1007 %mc1005 %mc1006)
+@(LLATOM %mc1008 %q t)
+@(LLIMP %mc1009 %mc1007 %mc1008)
+@(LLIMP %mc1010 %mc1004 %mc1009)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc1011)
+@(GLUE-MEANING %mc1010 %mc1011)
+@(NOSCOPE %mc1010)		  }.  
 
 
             "lam(Y,lam(P,lam(X,merge(drs([],[%stem(X,Y)]),app(P,X))))"

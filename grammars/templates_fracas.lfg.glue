@@ -1,0 +1,208 @@
+DEMO   ENGLISH   TEMPLATES (1.0)
+
+   NP-CONJUNCT = "provides person resolution features for nominal
+	  coordination" 
+	  
+	  { "if either conjunct is 1st person; the whole NP is"
+	    "EX: the boys and me}"
+	    (! PERS)=c 1
+	    (^ PERS)=1
+	   |"if a conjunct is 2nd person and the NP is not
+	    already 1st person, make it 2nd person"
+	    (! PERS)=c 2
+	    { (^ PERS)=c 1 "one conjunct was 1st person"
+	      "EX: you and I}"
+	     |(^ PERS)=2 } "else assign 2nd person"
+	    "EX: you and the boys}"
+	   |"otherwise, the NP is 3rd person"
+	    "EX: the boys and her}"
+	    (^ PERS)=3}.
+
+   OT-MARK(_mark) = "assigns an OT mark, from common templates"
+	  _mark $ o::*.
+
+   PASS(FRAME) = { FRAME "no passive, just give back subcat frame"
+	    (^ PASSIVE) = - "no passive"
+	  | FRAME "passive"
+	    (^ PASSIVE) = + "mark as such"
+	    (^ PARTICIPLE) =c past "make sure to have a past participle"
+	    (^ OBJ)-->(^ SUBJ) "obj goes to subj"
+	    { (^ SUBJ)-->(^ OBL-AG) "either make subj obl-ag"
+	    | (^ SUBJ)--> NULL "or delete"
+	    }
+	  }. 
+
+   DAT-SHIFT(SCHEMATA) = { SCHEMATA
+	    (^ DATIVE-SHIFT) = -
+	  | SCHEMATA
+	    (^ DATIVE-SHIFT) = +
+	    (^ OBJ)-->(^ OBJ2)
+	    (^ OBL-TO)-->(^ OBJ)}.
+
+   """Subcategorization templates"""
+
+   "lambda DRT"
+   DITRANS-EV(P) = @(PASS @(DAT-SHIFT (^ PRED)='P<(^ SUBJ) (^ OBJ) (^ OBL-TO)>'))
+	       @(DITRANS-PASSIVE-ARGS %arg1 %arg2 %arg3)
+	       @(EVENT P)
+	       @(ARG1 %arg1)
+	       @(ARG2 %arg2)
+	       @(ARG3 %arg3).
+
+	  	       
+   "lambda DRT"
+   TRANS-EV(P) = @(PASS (^ PRED)='P<(^SUBJ) (^OBJ)>')
+   	  @(TRANS-PASSIVE-ARGS %arg1 %arg2)
+	  @(EVENT P)
+	  @(ARG1 %arg1)
+	  @(ARG2 %arg2).
+
+
+
+   "lambda DRT"
+   INTRANS-EV(P) = (^ PRED) = 'P<(^SUBJ)>'
+	  @(EVENT P)
+	  @(ARG1 (^ SUBJ)).
+
+   INTRANS-OBL(P) = (^ PRED) = 'P<(^SUBJ)(^OBL)>'.
+
+   "FOL + lambda calculus"
+   OPT-TRANS(P) = { (^ PRED) = 'P<(^SUBJ)(^OBJ)>' "P is a variable"
+	    :$ [/x_e.[/y_e.P(x,y)]] : (s::(^SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
+	          | (^ PRED) = 'P<(^SUBJ)>'
+		  :$ [/x_e.P(x)] : (s::(^ SUBJ)_e -o s::^_t),
+		  }.  "this template takes one argument:  P"
+
+   "lambda DRT"
+   OPT-TRANS-EV(P) = { @(TRANS-EV P)
+	   |
+	    @(INTRANS-EV P)
+	  }. 
+
+""" Argument structure templates """
+   
+   TRANS-PASSIVE-ARGS(ARG1 ARG2) = { 
+	    (^ PASSIVE) =c - 
+	    ARG1 = (^ SUBJ)
+	    ARG2 = (^ OBJ)
+	   |
+	    (^ PASSIVE) =c +
+	    { 
+	      (^OBL-AG) = ARG1 |
+	      ~[(^OBL-AG)]
+	      ARG1 = %empty
+	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) :
+	      ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
+	    }
+	    ARG2 = (^ SUBJ)
+	  }.
+
+   DITRANS-PASSIVE-ARGS(ARG1 ARG2 ARG3) = {
+	    (^ PASSIVE) =c -
+	    ARG1 = (^ SUBJ)
+	    {
+	      (^ DATIVE-SHIFT) =c -
+	      ARG2 = (^ OBJ)
+	      ARG3 = (^ OBL-TO)
+	     |
+	      (^ DATIVE-SHIFT) =c +
+	      ARG3 = (^ OBJ)
+	      ARG2 = (^ OBJ2)
+	    }
+	   |
+	    (^ PASSIVE) =c +
+	    {
+	      (^OBL-AG) = ARG1 |
+	      ~[(^OBL-AG)]
+	      ARG1 = %empty
+	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
+	    }
+	    {
+	      (^ DATIVE-SHIFT) =c -
+	      ARG2 = (^ SUBJ)
+	      ARG3 = (^ OBL-TO)
+	     |
+	      (^ DATIVE-SHIFT) =c +
+	      ARG2 = (^ OBJ2)
+	      ARG3 = (^ SUBJ)
+	    }
+	  }.
+
+
+  XCOMP-OBJ-PASSIVE-ARGS(ARG1 ARG2 ARG3) = {
+    (^ PASSIVE) =c -
+    ARG1 = (^ SUBJ)
+    ARG2 = (^ OBJ)
+    ARG3 = (^ XCOMP)
+   |
+    (^ PASSIVE) =c +
+    {
+      (^OBL-AG) = ARG1 |
+      ~[(^OBL-AG)]
+      ARG1 = %empty
+      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
+    }
+    ARG2 = (^ SUBJ)
+    ARG3 = (^ XCOMP)
+  }.
+
+   """Functional feature templates"""
+
+   CASE(C) = (^ CASE) = C.   
+
+   VPRES = { (^VFORM) ~= inf
+	    @(TENSE pres)
+	    @(MOOD indicative)
+	  |
+	  (^VFORM) = inf}.
+
+   VPAST = @(TENSE past) 
+	  @(MOOD indicative). 
+
+   VPROG = (^ TNS-ASP PROG) = +_.
+
+   PRED(P) = (^ PRED) = 'P'. 
+
+   PASTP = (^ PARTICIPLE) = past. 
+
+   BARE-AGR = { (^VFORM) ~= inf
+	    { (^ SUBJ NUM) = pl "either it is plural"
+	    | (^ SUBJ PERS) ~= 3 "or singular and not 3rd person"
+	      (^ SUBJ NUM) = sg
+	      @(OT-MARK sg-imp) "prefer a singular imperative"
+	    }
+	  | (^VFORM) = inf}.
+
+   S-AGR = (^ SUBJ PERS) = 3 "for verbs in -s"
+	  (^ SUBJ NUM) = sg.
+
+"template for ntypes, called NPOS here because of clash with common templates"
+
+   NPOS(N) = (^ NTYPE) = N. 
+
+   PREP(P) = "template for most prepositions"
+	  { (^ PRED) = 'P<(^OBJ)>' 
+	    (^ PTYPE) = sem
+	  | (^ PTYPE) = nosem
+	    (^ PFORM) = P}.
+
+"template for pronouns of all types" 
+
+   PRON(P Z N T) = (^ PRED) = 'P'
+	  (^ NUM) = N
+	  (^ PERS) = Z
+	  (^ PRON-TYPE) = T
+	  (^ NTYPE) = pron. 
+
+"template for possessive pronouns, as these have conflicting heads in regular template"
+
+    POSS-PRON(P N Z) = (^ POSS PRED) = 'P'
+	  	   (^ POSS NUM) = N
+	  	   (^ POSS PERS) = Z
+	  	   (^ POSS PRON-TYPE) = poss
+	  	   (^ POSS NTYPE) = pronoun.
+
+   DEF = (^ DEF).
+
+
+----
