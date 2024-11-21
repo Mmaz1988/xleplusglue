@@ -1,0 +1,67 @@
+ADJADV ENGLISH LEXICON (1.0)
+
+"adjectives --- should really be done via the morphology, like the nouns"
+"He is a fatter politician than the other guy."
+greatest  A * (^DEGREE) = superlative
+               @(PRED great).
+               "is atype important here?"
+
+
+greater  A * (^DEGREE) = comparative
+               { @(PRED great)
+               (^ATYPE) = attributive
+               | (^ATYPE) = predicative
+               (^ PRED)='great <(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
+               }.
+
+great   A * (^DEGREE) = positive
+               { @(PRED great)
+               (^ATYPE) = attributive
+               | (^ATYPE) = predicative
+               (^ PRED)='great <(^OBL-COMP)>'
+               }.
+
+small 	  A * @(PRED small)
+              (^DEGREE) = positive.
+
+smart 	  A * @(PRED smart).
+
+grey 	  A * @(PRED grey).
+
+Italian   A * @(PRED italian); ETC.
+
+"not the revised semantics"
+
+big 	  A * @(PRED big)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+black 	  A * @(PRED black)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+scottish  A * @(PRED scottish)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+trustworthy A * @(PRED trustworthy)
+		  :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+		  ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+alleged   A * @(PRED alleged)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+former 	  A * @(PRED former)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+
+"adverbs --- should really be done via the morphology, like the nouns"
+
+quickly   ADV * @(PRED quickly).
+
+very 	  ADV * @(PRED very).
+
+
+----
