@@ -295,10 +295,20 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    "FOL + lambda calculus"
    OPT-TRANS(P) = { (^ PRED) = 'P<(^SUBJ)(^OBJ)>' "P is a variable"
-	    :$ [/x_e.[/y_e.P(x,y)]] : (s::(^SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
-	          | (^ PRED) = 'P<(^SUBJ)>'
-		  :$ [/x_e.P(x)] : (s::(^ SUBJ)_e -o s::^_t),
-		  }.  "this template takes one argument:  P"
+	    @(LLCLOSURE %mc676)
+@(LLATOM %mc672 s::(^SUBJ) e)
+@(LLATOM %mc673 s::(^OBJ) e)
+@(LLATOM %mc674 s::^ t)
+@(LLIMP %mc675 %mc673 %mc674)
+@(LLIMP %mc676 %mc672 %mc675)
+@(CONCAT  `[  `/ x `_ e `.  `[  `/ y `_ e `. P `( x `, y `)  `]  `]  %mc677)
+@(GLUE-MEANING %mc676 %mc677)	          | (^ PRED) = 'P<(^SUBJ)>'
+		  @(LLCLOSURE %mc680)
+@(LLATOM %mc678 s::(^ SUBJ) e)
+@(LLATOM %mc679 s::^ t)
+@(LLIMP %mc680 %mc678 %mc679)
+@(CONCAT  `[  `/ x `_ e `. P `( x `)  `]  %mc681)
+@(GLUE-MEANING %mc680 %mc681)		  }.  "this template takes one argument:  P"
 
    "lambda DRT"
    OPT-TRANS-EV(P) = { @(TRANS-EV P)
@@ -318,9 +328,15 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      (^OBL-AG) = ARG1 |
 	      ~[(^OBL-AG)]
 	      ARG1 = %empty
-	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) :
-	      ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
-	    }
+	      @(LLCLOSURE %mc686)
+@(LLATOM %mc682 s::%empty e)
+@(LLATOM %mc683 s::^ t)
+@(LLIMP %mc684 %mc682 %mc683)
+@(LLATOM %mc685 s::^ t)
+@(LLIMP %mc686 %mc684 %mc685)
+@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc687)
+@(GLUE-MEANING %mc686 %mc687)
+@(NOSCOPE %mc686)	    }
 	    ARG2 = (^ SUBJ)
 	  }.
 
@@ -342,8 +358,15 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      (^OBL-AG) = ARG1 |
 	      ~[(^OBL-AG)]
 	      ARG1 = %empty
-	      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
-	    }
+	      @(LLCLOSURE %mc692)
+@(LLATOM %mc688 s::%empty e)
+@(LLATOM %mc689 s::^ t)
+@(LLIMP %mc690 %mc688 %mc689)
+@(LLATOM %mc691 s::^ t)
+@(LLIMP %mc692 %mc690 %mc691)
+@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc693)
+@(GLUE-MEANING %mc692 %mc693)
+@(NOSCOPE %mc692)	    }
 	    {
 	      (^ DATIVE-SHIFT) =c -
 	      ARG2 = (^ SUBJ)
@@ -367,8 +390,15 @@ DEMO   ENGLISH   TEMPLATES (1.0)
       (^OBL-AG) = ARG1 |
       ~[(^OBL-AG)]
       ARG1 = %empty
-      :$ lam(Q,merge(drs([X],[]),app(Q,X))) : ((s::%empty_e -o s::^_t) -o s::^_t) || noscope,
-    }
+      @(LLCLOSURE %mc692)
+@(LLATOM %mc688 s::%empty e)
+@(LLATOM %mc689 s::^ t)
+@(LLIMP %mc690 %mc688 %mc689)
+@(LLATOM %mc691 s::^ t)
+@(LLIMP %mc692 %mc690 %mc691)
+@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc693)
+@(GLUE-MEANING %mc692 %mc693)
+@(NOSCOPE %mc692)    }
     ARG2 = (^ SUBJ)
     ARG3 = (^ XCOMP)
   }.
@@ -447,55 +477,145 @@ DEMO ENGLISH LEXICON (1.0)
 say 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
           @ATTITUDE
           %s = (s::(^ COMP) TEMP-REF EVAL)
-	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(say,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
-	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+	      @(LLCLOSURE %mc708)
+@(LLATOM %mc700 %s s)
+@(LLATOM %mc701 %s t)
+@(LLIMP %mc702 %mc700 %mc701)
+@(LLATOM %mc703 s::(^ SUBJ) e)
+@(LLATOM %mc704 (s::^ SIT) s)
+@(LLATOM %mc705 (s::^ SIT) t)
+@(LLIMP %mc706 %mc704 %mc705)
+@(LLIMP %mc707 %mc703 %mc706)
+@(LLIMP %mc708 %mc702 %mc707)
+@(CONCAT lam `( P `, lam `( X `, lam `( S `, merge `( drs `(  `[  `]  `,  `[ pred `( say `, S `)  `, rel `( arg1 `, S `, X `)  `]  `)  `, drs `(  `[  `]  `,  `[ cont `( S `, app `( P `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc709)
+@(GLUE-MEANING %mc708 %mc709).
 
 think 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
           @ATTITUDE
 	      %s = (s::(^ COMP) TEMP-REF EVAL)
-	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(think,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
-	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+	      @(LLCLOSURE %mc718)
+@(LLATOM %mc710 %s s)
+@(LLATOM %mc711 %s t)
+@(LLIMP %mc712 %mc710 %mc711)
+@(LLATOM %mc713 s::(^ SUBJ) e)
+@(LLATOM %mc714 (s::^ SIT) s)
+@(LLATOM %mc715 (s::^ SIT) t)
+@(LLIMP %mc716 %mc714 %mc715)
+@(LLIMP %mc717 %mc713 %mc716)
+@(LLIMP %mc718 %mc712 %mc717)
+@(CONCAT lam `( P `, lam `( X `, lam `( S `, merge `( drs `(  `[  `]  `,  `[ pred `( think `, S `)  `, rel `( arg1 `, S `, X `)  `]  `)  `, drs `(  `[  `]  `,  `[ cont `( S `, app `( P `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc719)
+@(GLUE-MEANING %mc718 %mc719).
 
 ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
           @ATTITUDE
           %s = (s::(^ COMP) TEMP-REF EVAL)
-	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(ensure,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
-	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+	      @(LLCLOSURE %mc728)
+@(LLATOM %mc720 %s s)
+@(LLATOM %mc721 %s t)
+@(LLIMP %mc722 %mc720 %mc721)
+@(LLATOM %mc723 s::(^ SUBJ) e)
+@(LLATOM %mc724 (s::^ SIT) s)
+@(LLATOM %mc725 (s::^ SIT) t)
+@(LLIMP %mc726 %mc724 %mc725)
+@(LLIMP %mc727 %mc723 %mc726)
+@(LLIMP %mc728 %mc722 %mc727)
+@(CONCAT lam `( P `, lam `( X `, lam `( S `, merge `( drs `(  `[  `]  `,  `[ pred `( ensure `, S `)  `, rel `( arg1 `, S `, X `)  `]  `)  `, drs `(  `[  `]  `,  `[ cont `( S `, app `( P `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc729)
+@(GLUE-MEANING %mc728 %mc729).
 
 
 convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
           @ATTITUDE
 		  (^ XCOMP SUBJ) = (^OBJ)
-		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(convince,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
-		  (s:: (^SUBJ)_e -o (s::(^OBJ)_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
+		  @(LLCLOSURE %mc742)
+@(LLATOM %mc730 s:: (^SUBJ) e)
+@(LLATOM %mc731 s::(^OBJ) e)
+@(LLATOM %mc732 s::(^XCOMP SUBJ) e)
+@(LLATOM %mc733 (s::(^ XCOMP) SIT)  s)
+@(LLATOM %mc734 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc735 %mc733 %mc734)
+@(LLIMP %mc736 %mc732 %mc735)
+@(LLATOM %mc737 (s::^ SIT) s)
+@(LLATOM %mc738 (s::^ SIT) t)
+@(LLIMP %mc739 %mc737 %mc738)
+@(LLIMP %mc740 %mc736 %mc739)
+@(LLIMP %mc741 %mc731 %mc740)
+@(LLIMP %mc742 %mc730 %mc741)
+@(CONCAT lam `( X `,  lam `( Y `, lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( convince `, S `)  `,  rel `( arg1 `, X `, S `)  `,  rel `( arg2 `, Y `, S `)  `,  cont `( S `, app `( app `( P `, Y `)  `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc743)
+@(GLUE-MEANING %mc742 %mc743).
 
 
 try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ lam(X,lam(P,lam(S,drs([],[pred(try,S),rel(arg1,S,X),cont(S,app(app(P,X),S))])))) :
-		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+		  @(LLCLOSURE %mc754)
+@(LLATOM %mc744 s::(^XCOMP SUBJ) e)
+@(LLATOM %mc745 s::(^ XCOMP SUBJ) e)
+@(LLATOM %mc746 (s::(^ XCOMP) SIT) s)
+@(LLATOM %mc747 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc748 %mc746 %mc747)
+@(LLIMP %mc749 %mc745 %mc748)
+@(LLATOM %mc750 (s::^ SIT) s)
+@(LLATOM %mc751 (s::^ SIT) t)
+@(LLIMP %mc752 %mc750 %mc751)
+@(LLIMP %mc753 %mc749 %mc752)
+@(LLIMP %mc754 %mc744 %mc753)
+@(CONCAT lam `( X `, lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( try `, S `)  `, rel `( arg1 `, S `, X `)  `, cont `( S `, app `( app `( P `, X `)  `, S `)  `)  `]  `)  `)  `)  `)  %mc755)
+@(GLUE-MEANING %mc754 %mc755).
 
 seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
           @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ lam(P,lam(S,drs([],[pred(seem,S),cont(S,app(P,S))]))) :
-		  (((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t) -o ((s::^ SIT)_s -o (s::^ SIT)_t)).
+		  @(LLCLOSURE %mc762)
+@(LLATOM %mc756 (s::(^ XCOMP) SIT) s)
+@(LLATOM %mc757 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc758 %mc756 %mc757)
+@(LLATOM %mc759 (s::^ SIT) s)
+@(LLATOM %mc760 (s::^ SIT) t)
+@(LLIMP %mc761 %mc759 %mc760)
+@(LLIMP %mc762 %mc758 %mc761)
+@(CONCAT lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( seem `, S `)  `, cont `( S `, app `( P `, S `)  `)  `]  `)  `)  `)  %mc763)
+@(GLUE-MEANING %mc762 %mc763).
 
 "want is a copy of try"
 want	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ lam(X,lam(P,lam(S,drs([],[pred(want,S),rel(arg1,S,X),cont(S,app(app(P,X),S))])))) :
-		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+		  @(LLCLOSURE %mc774)
+@(LLATOM %mc764 s::(^XCOMP SUBJ) e)
+@(LLATOM %mc765 s::(^ XCOMP SUBJ) e)
+@(LLATOM %mc766 (s::(^ XCOMP) SIT) s)
+@(LLATOM %mc767 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc768 %mc766 %mc767)
+@(LLIMP %mc769 %mc765 %mc768)
+@(LLATOM %mc770 (s::^ SIT) s)
+@(LLATOM %mc771 (s::^ SIT) t)
+@(LLIMP %mc772 %mc770 %mc771)
+@(LLIMP %mc773 %mc769 %mc772)
+@(LLIMP %mc774 %mc764 %mc773)
+@(CONCAT lam `( X `, lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( want `, S `)  `, rel `( arg1 `, S `, X `)  `, cont `( S `, app `( app `( P `, X `)  `, S `)  `)  `]  `)  `)  `)  `)  %mc775)
+@(GLUE-MEANING %mc774 %mc775).
 
 
 believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
           @(XCOMP-OBJ-PASSIVE-ARGS %arg1 %arg2 %arg3)
 		  @ATTITUDE
 		  (^ XCOMP SUBJ) = %arg2
-		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(believe,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
-          (s::%arg1_e -o (s::%arg2_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
+		  @(LLCLOSURE %mc788)
+@(LLATOM %mc776 s::%arg1 e)
+@(LLATOM %mc777 s::%arg2 e)
+@(LLATOM %mc778 s::(^XCOMP SUBJ) e)
+@(LLATOM %mc779 (s::(^ XCOMP) SIT)  s)
+@(LLATOM %mc780 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc781 %mc779 %mc780)
+@(LLIMP %mc782 %mc778 %mc781)
+@(LLATOM %mc783 (s::^ SIT) s)
+@(LLATOM %mc784 (s::^ SIT) t)
+@(LLIMP %mc785 %mc783 %mc784)
+@(LLIMP %mc786 %mc782 %mc785)
+@(LLIMP %mc787 %mc777 %mc786)
+@(LLIMP %mc788 %mc776 %mc787)
+@(CONCAT lam `( X `,  lam `( Y `, lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( believe `, S `)  `,  rel `( arg1 `, X `, S `)  `,  rel `( arg2 `, Y `, S `)  `,  cont `( S `, app `( app `( P `, Y `)  `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc789)
+@(GLUE-MEANING %mc788 %mc789).
 
 "Intransitives"
 
@@ -594,28 +714,82 @@ Italian   A * @(PRED italian); ETC.
 "not the revised semantics"
 
 big 	  A * @(PRED big)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+	      @(LLCLOSURE %mc796)
+@(LLATOM %mc790 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc791 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc792 %mc790 %mc791)
+@(LLATOM %mc793 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc794 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc795 %mc793 %mc794)
+@(LLIMP %mc796 %mc792 %mc795)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc797)
+@(GLUE-MEANING %mc796 %mc797)
+@(NOSCOPE %mc796).
 
 black 	  A * @(PRED black)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+	      @(LLCLOSURE %mc796)
+@(LLATOM %mc790 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc791 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc792 %mc790 %mc791)
+@(LLATOM %mc793 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc794 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc795 %mc793 %mc794)
+@(LLIMP %mc796 %mc792 %mc795)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc797)
+@(GLUE-MEANING %mc796 %mc797)
+@(NOSCOPE %mc796).
 
 scottish  A * @(PRED scottish)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+	      @(LLCLOSURE %mc796)
+@(LLATOM %mc790 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc791 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc792 %mc790 %mc791)
+@(LLATOM %mc793 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc794 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc795 %mc793 %mc794)
+@(LLIMP %mc796 %mc792 %mc795)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc797)
+@(GLUE-MEANING %mc796 %mc797)
+@(NOSCOPE %mc796).
 
 trustworthy A * @(PRED trustworthy)
-		  :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-		  ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+		  @(LLCLOSURE %mc820)
+@(LLATOM %mc814 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc815 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc816 %mc814 %mc815)
+@(LLATOM %mc817 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc818 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc819 %mc817 %mc818)
+@(LLIMP %mc820 %mc816 %mc819)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc821)
+@(GLUE-MEANING %mc820 %mc821)
+@(NOSCOPE %mc820).
 
 alleged   A * @(PRED alleged)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+	      @(LLCLOSURE %mc796)
+@(LLATOM %mc790 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc791 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc792 %mc790 %mc791)
+@(LLATOM %mc793 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc794 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc795 %mc793 %mc794)
+@(LLIMP %mc796 %mc792 %mc795)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc797)
+@(GLUE-MEANING %mc796 %mc797)
+@(NOSCOPE %mc796).
 
 former 	  A * @(PRED former)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+	      @(LLCLOSURE %mc796)
+@(LLATOM %mc790 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc791 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc792 %mc790 %mc791)
+@(LLATOM %mc793 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc794 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc795 %mc793 %mc794)
+@(LLIMP %mc796 %mc792 %mc795)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc797)
+@(GLUE-MEANING %mc796 %mc797)
+@(NOSCOPE %mc796).
 
 
 "adverbs --- should really be done via the morphology, like the nouns"
@@ -747,45 +921,107 @@ the 	  D *
           @(SPEC-DET-PRED the)
           (^DEF) = +        "encoded as det-type in inness"
 	      @(QUANT-SCOPE ^ %q) 
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
+	      @(LLCLOSURE %mc846)
+@(LLATOM %mc838 s::^ e)
+@(LLATOM %mc839 s::^ t)
+@(LLIMP %mc840 %mc838 %mc839)
+@(LLATOM %mc841 s::^ e)
+@(LLATOM %mc842 %q t)
+@(LLIMP %mc843 %mc841 %mc842)
+@(LLATOM %mc844 %q t)
+@(LLIMP %mc845 %mc843 %mc844)
+@(LLIMP %mc846 %mc840 %mc845)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc847)
+@(GLUE-MEANING %mc846 %mc847)
+@(NOSCOPE %mc846).
 
 The 	  D *
           @(SPEC-DET-PRED the)
           (^DEF) = +
 	      @(QUANT-SCOPE ^ %q) 
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
+	      @(LLCLOSURE %mc846)
+@(LLATOM %mc838 s::^ e)
+@(LLATOM %mc839 s::^ t)
+@(LLIMP %mc840 %mc838 %mc839)
+@(LLATOM %mc841 s::^ e)
+@(LLATOM %mc842 %q t)
+@(LLIMP %mc843 %mc841 %mc842)
+@(LLATOM %mc844 %q t)
+@(LLIMP %mc845 %mc843 %mc844)
+@(LLIMP %mc846 %mc840 %mc845)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc847)
+@(GLUE-MEANING %mc846 %mc847)
+@(NOSCOPE %mc846).
 
 
 a 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @(LLCLOSURE %mc866)
+@(LLATOM %mc858 s::^ e)
+@(LLATOM %mc859 s::^ t)
+@(LLIMP %mc860 %mc858 %mc859)
+@(LLATOM %mc861 s::^ e)
+@(LLATOM %mc862 %q t)
+@(LLIMP %mc863 %mc861 %mc862)
+@(LLATOM %mc864 %q t)
+@(LLIMP %mc865 %mc863 %mc864)
+@(LLIMP %mc866 %mc860 %mc865)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc867)
+@(GLUE-MEANING %mc866 %mc867).
 
 
 an 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @(LLCLOSURE %mc866)
+@(LLATOM %mc858 s::^ e)
+@(LLATOM %mc859 s::^ t)
+@(LLIMP %mc860 %mc858 %mc859)
+@(LLATOM %mc861 s::^ e)
+@(LLATOM %mc862 %q t)
+@(LLIMP %mc863 %mc861 %mc862)
+@(LLATOM %mc864 %q t)
+@(LLIMP %mc865 %mc863 %mc864)
+@(LLIMP %mc866 %mc860 %mc865)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc867)
+@(GLUE-MEANING %mc866 %mc867).
 	
 A 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @(LLCLOSURE %mc866)
+@(LLATOM %mc858 s::^ e)
+@(LLATOM %mc859 s::^ t)
+@(LLIMP %mc860 %mc858 %mc859)
+@(LLATOM %mc861 s::^ e)
+@(LLATOM %mc862 %q t)
+@(LLIMP %mc863 %mc861 %mc862)
+@(LLATOM %mc864 %q t)
+@(LLIMP %mc865 %mc863 %mc864)
+@(LLIMP %mc866 %mc860 %mc865)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc867)
+@(GLUE-MEANING %mc866 %mc867).
 
 An 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @(LLCLOSURE %mc866)
+@(LLATOM %mc858 s::^ e)
+@(LLATOM %mc859 s::^ t)
+@(LLIMP %mc860 %mc858 %mc859)
+@(LLATOM %mc861 s::^ e)
+@(LLATOM %mc862 %q t)
+@(LLIMP %mc863 %mc861 %mc862)
+@(LLATOM %mc864 %q t)
+@(LLIMP %mc865 %mc863 %mc864)
+@(LLIMP %mc866 %mc860 %mc865)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc867)
+@(GLUE-MEANING %mc866 %mc867).
 
 
 
@@ -804,16 +1040,36 @@ every 	  D * @(SPEC-QUANT-PRED every)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @(LLCLOSURE %mc906)
+@(LLATOM %mc898 s::^ e)
+@(LLATOM %mc899 s::^ t)
+@(LLIMP %mc900 %mc898 %mc899)
+@(LLATOM %mc901 s::^ e)
+@(LLATOM %mc902 %q t)
+@(LLIMP %mc903 %mc901 %mc902)
+@(LLATOM %mc904 %q t)
+@(LLIMP %mc905 %mc903 %mc904)
+@(LLIMP %mc906 %mc900 %mc905)
+@(CONCAT lam `( P `, lam `( Q `, drs `(  `[  `]  `,  `[ imp `( merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( P `, X `)  `)  `, app `( Q `, X `)  `)  `]  `)  `)  `)  %mc907)
+@(GLUE-MEANING %mc906 %mc907).
 
 Every 	   D * @(SPEC-QUANT-PRED every)
                @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
  	      @(QUANT-SCOPE ^ %q) 
-	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @(LLCLOSURE %mc906)
+@(LLATOM %mc898 s::^ e)
+@(LLATOM %mc899 s::^ t)
+@(LLIMP %mc900 %mc898 %mc899)
+@(LLATOM %mc901 s::^ e)
+@(LLATOM %mc902 %q t)
+@(LLIMP %mc903 %mc901 %mc902)
+@(LLATOM %mc904 %q t)
+@(LLIMP %mc905 %mc903 %mc904)
+@(LLIMP %mc906 %mc900 %mc905)
+@(CONCAT lam `( P `, lam `( Q `, drs `(  `[  `]  `,  `[ imp `( merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( P `, X `)  `)  `, app `( Q `, X `)  `)  `]  `)  `)  `)  %mc907)
+@(GLUE-MEANING %mc906 %mc907).
 
 
 " new quantifiers"
@@ -836,16 +1092,36 @@ all 	  D * @(SPEC-QUANT-PRED all)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = pl
 	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @(LLCLOSURE %mc906)
+@(LLATOM %mc898 s::^ e)
+@(LLATOM %mc899 s::^ t)
+@(LLIMP %mc900 %mc898 %mc899)
+@(LLATOM %mc901 s::^ e)
+@(LLATOM %mc902 %q t)
+@(LLIMP %mc903 %mc901 %mc902)
+@(LLATOM %mc904 %q t)
+@(LLIMP %mc905 %mc903 %mc904)
+@(LLIMP %mc906 %mc900 %mc905)
+@(CONCAT lam `( P `, lam `( Q `, drs `(  `[  `]  `,  `[ imp `( merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( P `, X `)  `)  `, app `( Q `, X `)  `)  `]  `)  `)  `)  %mc907)
+@(GLUE-MEANING %mc906 %mc907).
 
 All 	  D * @(SPEC-QUANT-PRED all)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = pl
 	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @(LLCLOSURE %mc906)
+@(LLATOM %mc898 s::^ e)
+@(LLATOM %mc899 s::^ t)
+@(LLIMP %mc900 %mc898 %mc899)
+@(LLATOM %mc901 s::^ e)
+@(LLATOM %mc902 %q t)
+@(LLIMP %mc903 %mc901 %mc902)
+@(LLATOM %mc904 %q t)
+@(LLIMP %mc905 %mc903 %mc904)
+@(LLIMP %mc906 %mc900 %mc905)
+@(CONCAT lam `( P `, lam `( Q `, drs `(  `[  `]  `,  `[ imp `( merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( P `, X `)  `)  `, app `( Q `, X `)  `)  `]  `)  `)  `)  %mc907)
+@(GLUE-MEANING %mc906 %mc907).
 
 
 "each"
@@ -934,9 +1210,21 @@ GLUE   BASIC   TEMPLATES (1.0)
    EVENT(REL) =
 	  (s::^ EV TYPE) = eventuality
 	  (s::^ SIT) = %s
-	  :$ lam(V,drs([],[pred(REL,V)])) : ((s::^ EV)_v -o (s::^ EV)_t),
-	  :$ lam(V,lam(S,merge(drs([E],[rel(partOf,E,S)]),app(V,E)))) : (((s::^ EV)_v -o (s::^ EV)_t) -o (%s_s -o %s_t)),
-	  { 
+	  @(LLCLOSURE %mc940)
+@(LLATOM %mc938 (s::^ EV) v)
+@(LLATOM %mc939 (s::^ EV) t)
+@(LLIMP %mc940 %mc938 %mc939)
+@(CONCAT lam `( V `, drs `(  `[  `]  `,  `[ pred `( REL `, V `)  `]  `)  `)  %mc941)
+@(GLUE-MEANING %mc940 %mc941)	  @(LLCLOSURE %mc948)
+@(LLATOM %mc942 (s::^ EV) v)
+@(LLATOM %mc943 (s::^ EV) t)
+@(LLIMP %mc944 %mc942 %mc943)
+@(LLATOM %mc945 %s s)
+@(LLATOM %mc946 %s t)
+@(LLIMP %mc947 %mc945 %mc946)
+@(LLIMP %mc948 %mc944 %mc947)
+@(CONCAT lam `( V `, lam `( S `, merge `( drs `(  `[ E `]  `,  `[ rel `( partOf `, E `, S `)  `]  `)  `, app `( V `, E `)  `)  `)  `)  %mc949)
+@(GLUE-MEANING %mc948 %mc949)	  { 
 	    (^ ROOT)
 	    @TENSE-CLOSURE
 	   |
@@ -946,32 +1234,107 @@ GLUE   BASIC   TEMPLATES (1.0)
              {
 	     %scope = (s::(ADJUNCT ^) EV)
 	     (%scope TYPE) =c eventuality
-	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
-	    ((%scope_v -o s::^_t) -o ((%scope_v -o %scope_t) -o (%scope_v -o %scope_t))),
-	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (%scope_v -o s::^_t)),
-	    |
+	    @(LLCLOSURE %mc960)
+@(LLATOM %mc950 %scope v)
+@(LLATOM %mc951 s::^ t)
+@(LLIMP %mc952 %mc950 %mc951)
+@(LLATOM %mc953 %scope v)
+@(LLATOM %mc954 %scope t)
+@(LLIMP %mc955 %mc953 %mc954)
+@(LLATOM %mc956 %scope v)
+@(LLATOM %mc957 %scope t)
+@(LLIMP %mc958 %mc956 %mc957)
+@(LLIMP %mc959 %mc955 %mc958)
+@(LLIMP %mc960 %mc952 %mc959)
+@(CONCAT lam `( U `, lam `( V `, lam `( E `, merge `( drs `(  `[  `]  `,  `[  `]  `)  `, merge `( app `( U `, E `)  `, app `( V `, E `)  `)  `)  `)  `)  `)  %mc961)
+@(GLUE-MEANING %mc960 %mc961)	    @(LLCLOSURE %mc966)
+@(LLATOM %mc962 s::(^OBJ) e)
+@(LLATOM %mc963 %scope v)
+@(LLATOM %mc964 s::^ t)
+@(LLIMP %mc965 %mc963 %mc964)
+@(LLIMP %mc966 %mc962 %mc965)
+@(CONCAT lam `( Y `, lam `( X `, drs `(  `[  `]  `,  `[ rel `( P `, X `, Y `)  `]  `)  `)  `)  %mc967)
+@(GLUE-MEANING %mc966 %mc967)	    |
 	    %scope = s::(ADJUNCT ^)
 	    (%scope TYPE) =c entity
-	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
-	    ((s::(ADJUNCT ^)_e -o s::^_t) -o ((s::(ADJUNCT ^)_e -o %scope_t) -o (s::(ADJUNCT ^)_e -o %scope_t))) || noscope,
-	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (s::(ADJUNCT ^)_e -o s::^_t)),
-	     }.
+	    @(LLCLOSURE %mc978)
+@(LLATOM %mc968 s::(ADJUNCT ^) e)
+@(LLATOM %mc969 s::^ t)
+@(LLIMP %mc970 %mc968 %mc969)
+@(LLATOM %mc971 s::(ADJUNCT ^) e)
+@(LLATOM %mc972 %scope t)
+@(LLIMP %mc973 %mc971 %mc972)
+@(LLATOM %mc974 s::(ADJUNCT ^) e)
+@(LLATOM %mc975 %scope t)
+@(LLIMP %mc976 %mc974 %mc975)
+@(LLIMP %mc977 %mc973 %mc976)
+@(LLIMP %mc978 %mc970 %mc977)
+@(CONCAT lam `( U `, lam `( V `, lam `( E `, merge `( drs `(  `[  `]  `,  `[  `]  `)  `, merge `( app `( U `, E `)  `, app `( V `, E `)  `)  `)  `)  `)  `)  %mc979)
+@(GLUE-MEANING %mc978 %mc979)
+@(NOSCOPE %mc978)	    @(LLCLOSURE %mc984)
+@(LLATOM %mc980 s::(^OBJ) e)
+@(LLATOM %mc981 s::(ADJUNCT ^) e)
+@(LLATOM %mc982 s::^ t)
+@(LLIMP %mc983 %mc981 %mc982)
+@(LLIMP %mc984 %mc980 %mc983)
+@(CONCAT lam `( Y `, lam `( X `, drs `(  `[  `]  `,  `[ rel `( P `, X `, Y `)  `]  `)  `)  `)  %mc985)
+@(GLUE-MEANING %mc984 %mc985)	     }.
 
  TENSE-CLOSURE = %tense = (s::^ TEMP-REF EVAL)
- :$ lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((%tense_s -o %tense_t) -o s::^_t).
+ @(LLCLOSURE %mc990)
+@(LLATOM %mc986 %tense s)
+@(LLATOM %mc987 %tense t)
+@(LLIMP %mc988 %mc986 %mc987)
+@(LLATOM %mc989 s::^ t)
+@(LLIMP %mc990 %mc988 %mc989)
+@(CONCAT lam `( P `, merge `( drs `(  `[ T `]  `,  `[ eq `( T `, now `)  `]  `)  `, app `( P `, T `)  `)  `)  %mc991)
+@(GLUE-MEANING %mc990 %mc991).
 
    "Templates for argument structure. Need to be separate to avoid trouble with local names"
    ARG1(ARG) =
-       :$ lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) :
-       (((s::^ EV)_v -o (s::^ EV)_t) -o (s::ARG_e -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
+       @(LLCLOSURE %mc1000)
+@(LLATOM %mc992 (s::^ EV) v)
+@(LLATOM %mc993 (s::^ EV) t)
+@(LLIMP %mc994 %mc992 %mc993)
+@(LLATOM %mc995 s::ARG e)
+@(LLATOM %mc996 (s::^ EV) v)
+@(LLATOM %mc997 (s::^ EV) t)
+@(LLIMP %mc998 %mc996 %mc997)
+@(LLIMP %mc999 %mc995 %mc998)
+@(LLIMP %mc1000 %mc994 %mc999)
+@(CONCAT lam `( V `, lam `( X `, lam `( E `, merge `( app `( V `, E `)  `, drs `(  `[  `]  `,  `[ rel `( arg1 `, E `, X `)  `]  `)  `)  `)  `)  `)  %mc1001)
+@(GLUE-MEANING %mc1000 %mc1001)
+@(NOSCOPE %mc1000).
 
    ARG2(ARG) =
-       :$ lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg2,E,X)]))))) :
-       (((s::^ EV)_v -o (s::^ EV)_t) -o (s::ARG_e -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
+       @(LLCLOSURE %mc1010)
+@(LLATOM %mc1002 (s::^ EV) v)
+@(LLATOM %mc1003 (s::^ EV) t)
+@(LLIMP %mc1004 %mc1002 %mc1003)
+@(LLATOM %mc1005 s::ARG e)
+@(LLATOM %mc1006 (s::^ EV) v)
+@(LLATOM %mc1007 (s::^ EV) t)
+@(LLIMP %mc1008 %mc1006 %mc1007)
+@(LLIMP %mc1009 %mc1005 %mc1008)
+@(LLIMP %mc1010 %mc1004 %mc1009)
+@(CONCAT lam `( V `, lam `( X `, lam `( E `, merge `( app `( V `, E `)  `, drs `(  `[  `]  `,  `[ rel `( arg2 `, E `, X `)  `]  `)  `)  `)  `)  `)  %mc1011)
+@(GLUE-MEANING %mc1010 %mc1011)
+@(NOSCOPE %mc1010).
 
    ARG3(ARG) =
-       :$ lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg3,E,X)]))))) :
-       (((s::^ EV)_v -o (s::^ EV)_t) -o (s::ARG_e -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
+       @(LLCLOSURE %mc1020)
+@(LLATOM %mc1012 (s::^ EV) v)
+@(LLATOM %mc1013 (s::^ EV) t)
+@(LLIMP %mc1014 %mc1012 %mc1013)
+@(LLATOM %mc1015 s::ARG e)
+@(LLATOM %mc1016 (s::^ EV) v)
+@(LLATOM %mc1017 (s::^ EV) t)
+@(LLIMP %mc1018 %mc1016 %mc1017)
+@(LLIMP %mc1019 %mc1015 %mc1018)
+@(LLIMP %mc1020 %mc1014 %mc1019)
+@(CONCAT lam `( V `, lam `( X `, lam `( E `, merge `( app `( V `, E `)  `, drs `(  `[  `]  `,  `[ rel `( arg3 `, E `, X `)  `]  `)  `)  `)  `)  `)  %mc1021)
+@(GLUE-MEANING %mc1020 %mc1021)
+@(NOSCOPE %mc1020).
 
 
 
