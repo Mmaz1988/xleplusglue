@@ -43,4 +43,14 @@
 ADVP --> VP: (^ SUBJ PRED) = 'pro'
    	    	~[(^ TNS-ASP TENSE)].
 
+
+ "aber who sollte ja eigentlich zum gleichen subject wie der main clause referen"
+  "get features of the NP on the who somehow -> NUM und PERS"
+   CPrel --> NP: (! PRON-TYPE) =c rel
+                 (^ SUBJ) = !
+                 "(^NUM ADJUNCT SUBJ) = (!NUM)"
+                 ;
+              VP.
+
+
 ----

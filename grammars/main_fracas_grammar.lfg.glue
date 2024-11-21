@@ -75,17 +75,7 @@ DEMO   ENGLISH   RULES (1.0)
     (AP[predicative]: ! $ (^ ADJUNCT)).
 
    CP -->  C
-	   S. 
-
-
-  "aber who sollte ja eigentlich zum gleichen subject wie der main clause referen"
-  "get features of the NP on the who somehow -> NUM und PERS"
-   CPrel --> NP: (! PRON-TYPE) =c rel
-                 (^ SUBJ) = !
-                 "(^NUM ADJUNCT SUBJ) = (!NUM)"
-                 ;
-              VP.
-
+	   S.
 
    VPinf --> PARTinf VP. 
 
