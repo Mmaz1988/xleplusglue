@@ -120,12 +120,9 @@ MORPH   ENGLISH   LEXICON (1.0)
 +Adv 	  ADV-POS XLE .
 
 
-	  
-
 """
 TODO: morphemes of be include '+sg', which doesn't seem to occur for verbs elsewhere (?) 
 Needs fixing
 """
-
 
 ----
