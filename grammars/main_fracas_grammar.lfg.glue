@@ -103,7 +103,7 @@ DEMO   ENGLISH   RULES (1.0)
 
 	    "comparison with whole NPs"
 	    "EX: He is a fatter politician than him."
-        (CPComp: (^ OBL-COMP) = !)
+        (CPComp: (^ ADJUNCT $ OBL-COMP) = !)
 
 
 	    (CPrel: ! $ (^ ADJUNCT))
