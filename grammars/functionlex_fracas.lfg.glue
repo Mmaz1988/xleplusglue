@@ -3,9 +3,8 @@ FUNCTION ENGLISH LEXICON (1.0)
 "comparison constructions"
 
 than      CComp * (^PRED) = 'than<(^OBJ)>'
-                  "(^DEGREE) =c comparative." "da muss man noch schauen wie.."
                   ((OBL-COMP ^) DEGREE) =c comparative.
-                  "(^ ADJUNCT $ DEGREE) =c comparative"                         "funktioniert nicht mit he is a greater politican than..."
+
 
 as        CComp * (^PRED) = 'as<(^OBJ)>'
                   (^DEGREE) ~=c comparative
