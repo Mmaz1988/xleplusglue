@@ -1,33 +1,33 @@
  MODIFIER ENGLISH RULES (1.0)
 
- AP[_type $ {attributive predicative}] -->
+   AP[_type $ {attributive predicative}] -->
 
-        (ADVComp: _type = predicative
-                  ! $ (^ ADJUNCT))
+ 	  (ADVComp: _type = predicative
+		    ! $ (^ ADJUNCT))
 
-        ADV*: ! $ (^ ADJUNCT);
+ 	  ADV*: ! $ (^ ADJUNCT);
 
-        A*: ^=!;
+ 	  A*: ^=!;
 
-        "than-comparatives as adjuncts on the AP"
-        "type of comparative is handled in the lexicon"
-        "EX1: The tree is greater than the plant."
-        "EX2: The tree is (as) great (as the plant)."
-        (CPComp: _type = predicative
-                 (^ OBL-COMP) = !)
-        (COMMA).
+	  "than-comparatives as adjuncts on the AP"
+	  "type of comparative is handled in the lexicon"
+	  "EX1: The tree is greater than the plant."
+	  "EX2: The tree is (as) great (as the plant)."
+ 	  (CPComp: _type = predicative
+		   (^ OBL-COMP) = !)
+ 	  (COMMA).
 
 
    "rule for comparison constructions"
    "EX: He is greater than the dog (is)."
    CPComp --> CComp
- 	      { NP: (^ OBJ) = !
-		        (! CASE) = acc
- 	      |
- 	        "for elliptical constructions."
-            "EX: He is greater than the dog is (great)."
- 	        S: (^ OBJ) = !
- 	      }.
+ 	  { NP: (^ OBJ) = !
+		(! CASE) = acc
+ 	   |
+	    "for elliptical constructions."
+	    "EX: He is greater than the dog is (great)."
+ 	    S: (^ OBJ) = !
+ 	  }.
 
 
    PP --> { P: ^ = ! "head of PP"
@@ -40,17 +40,18 @@
  	  }.
 
 
-ADVP --> VP: (^ SUBJ PRED) = 'pro'
-   	    	~[(^ TNS-ASP TENSE)].
+   ADVP --> VP: (^ SUBJ PRED) = 'pro'
+		~[(^ TNS-ASP TENSE)].
 
 
- "aber who sollte ja eigentlich zum gleichen subject wie der main clause referen"
-  "get features of the NP on the who somehow -> NUM und PERS"
+   "aber who sollte ja eigentlich zum gleichen subject wie der main clause referen"
+   "get features of the NP on the who somehow -> NUM und PERS"
    CPrel --> NP: (! PRON-TYPE) =c rel
-                 (^ SUBJ) = !
-                 "(^NUM ADJUNCT SUBJ) = (!NUM)"
-                 ;
-              VP.
+		 (^ SUBJ) = !
+		 "(^NUM ADJUNCT SUBJ) = (!NUM)"
+		 ;
+ 	  VP.
+
 
 
 ----

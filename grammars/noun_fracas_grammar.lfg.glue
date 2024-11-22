@@ -1,23 +1,32 @@
 NOUN ENGLISH RULES (1.0)
 
-NP --> "either a full NP or a PRON"
- 	  { ( {D: ^=! | PRON})
-	    "optional determiner"
- 	     AP[attributive]*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
+   NP --> "either a full NP or a PRON"
+ 	  { 
 
- 	     N: ^=!;
+	    "optional determiner"
+ 	    ( { D: ^=! | PRON})
+ 
+ 
+ 	    AP[attributive]*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
+
+
 	    "head of NP"
+ 	    N: ^=!;
+ 
 
 	    "comparison with whole NPs"
 	    "EX: He is a fatter politician than him."
-        (CPComp: (^ ADJUNCT $ OBL-COMP) = !)
+ 	    (CPComp: (^ ADJUNCT $ OBL-COMP) = !)
 
 
-	    (CPrel: ! $ (^ ADJUNCT))
+ 	    (CPrel: ! $ (^ ADJUNCT))
+
+
 
  	    PP*: ! $ (^ ADJUNCT) "PPs modifying NPs"
-		(! PTYPE) =c sem "have to be semantic"
+		 (! PTYPE) =c sem "have to be semantic"
 		 "@(OT-MARK PPattach)" "prefer PPs attached to NPs"
+		 
  	  | PRON}.
 
 ----

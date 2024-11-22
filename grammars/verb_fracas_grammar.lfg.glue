@@ -1,15 +1,15 @@
 VERB ENGLISH RULES (1.0)
 
-VP --> (AUX) "auxiliary introduced for passive"
+   VP --> (AUX) "auxiliary introduced for passive"
  	  V: ^=!;
- 	  ({NP: (^ OBJ)=! "direct object"
-	       (! CASE)=acc |
-	       NP: (^ PREDLINK) = ! "to be + ..."
-	       "referential subject must match object in number "
-	       "eg. Mary is a dog vs *Mary is the dogs"
-	       @(IF (^SUBJ NUM) (^SUBJ NUM)=c(^PREDLINK NUM)) |
-	       AP[predicative]: (^ PREDLINK) = !
-	            })
+ 	  ({ NP: (^ OBJ)=! "direct object"
+		 (! CASE)=acc |
+ 	     NP: (^ PREDLINK) = ! "to be + ..."
+		 "referential subject must match object in number "
+		 "eg. Mary is a dog vs *Mary is the dogs"
+		 @(IF (^SUBJ NUM) (^SUBJ NUM)=c(^PREDLINK NUM)) |
+ 	     AP[predicative]: (^ PREDLINK) = !
+ 	   })
  	  (NP: (^ OBJ2) = !)
 
 
@@ -27,20 +27,24 @@ VP --> (AUX) "auxiliary introduced for passive"
 	       (! PFORM) =c by
 	       @(OT-MARK PPpassiv))
  	  ({ CP: (^ COMP) = !
- 	  	|
- 		VPinf: (^XCOMP) = !
- 		 (! FIN) = -
-		 (! VFORM) = inf
- 		 (s::^ TEMP-REF) = (s::(^XCOMP) EVAL)}
- 		 )
+ 	    |
+ 	     VPinf: (^XCOMP) = !
+		    (! FIN) = -
+		    (! VFORM) = inf
+		    (s::^ TEMP-REF) = (s::(^XCOMP) EVAL)}
+ 	   )
 
-    (ADVP: ! $ (^ ADJUNCT))
+ 	  (ADVP: ! $ (^ ADJUNCT))
 
-    "rule for phrasal comparative"
-    "EX: He laughs greater than her."
-    "somewhat preliminary, should not be 'predicative', works for the moment though"
-    (AP[predicative]: ! $ (^ ADJUNCT)).
+	  "rule for phrasal comparative"
+	  "EX: He laughs greater than her."
+	  "somewhat preliminary, should not be 'predicative', works for the moment though"
+ 	  (AP[predicative]: ! $ (^ ADJUNCT)).
 
-VPinf --> PARTinf VP.
 
-    ----
+
+   VPinf --> PARTinf VP.
+
+
+
+----
