@@ -7,12 +7,15 @@ greatest  A * (^DEGREE) = superlative
                "is atype important here?"
 
 
-greater  A * (^DEGREE) = comparative
+greater  A *   (^DEGREE) = comparative
                { @(PRED great)
                (^ATYPE) = attributive
                | (^ATYPE) = predicative
                (^ PRED)='great<(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
-               }.
+               };
+         ADV * (^DEGREE) = comparative
+               (^ PRED)='great<(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
+               .
 
 great   A * (^DEGREE) = positive
                { @(PRED great)
@@ -34,7 +37,7 @@ fast   A * (^DEGREE) = positive
                { @(PRED great)
                (^ATYPE) = attributive
                | (^ATYPE) = predicative
-               (^ PRED)='fast<>(^OBL-COMP)'
+               (^ PRED)='fast<(^OBL-COMP)>'
                };
        ADV *  { (^ PRED) = 'fast<(^OBL-COMP)>'
               | @(PRED fast)}.
