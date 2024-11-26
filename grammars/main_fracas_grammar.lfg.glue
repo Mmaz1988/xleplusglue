@@ -1,0 +1,47 @@
+DEMO   ENGLISH   CONFIG (1.0)
+  ROOTCAT   ROOT.  "changed to ROOT from S"
+  FILES common.templates.lfg
+        morph_fracas.lfg
+        templates_fracas.lfg
+        glue_fracas_grammar.lfg
+        modifier_fracas_grammar.lfg
+        verb_fracas_grammar.lfg
+        sentence_fracas_grammar.lfg
+        noun_fracas_grammar.lfg
+        verblex_fracas.lfg
+        functionlex_fracas.lfg
+        detpronlex_fracas.lfg
+        adj_adv_lex_fracas.lfg
+        coord_fracas_grammar.lfg.
+  LEXENTRIES   (DEMO ENGLISH) (MORPH ENGLISH) (VERB ENGLISH) (FUNCTION ENGLISH) (DETPRON ENGLISH) (ADJADV ENGLISH).
+  TEMPLATES (DEMO ENGLISH) (GLUE BASIC) (STANDARD COMMON).  "added common ParGram templates"
+  RULES   (DEMO ENGLISH)
+          (MORPH ENGLISH)
+          (MODIFIER ENGLISH)
+          (VERB ENGLISH)
+          (SENTENCE ENGLISH)
+          (NOUN ENGLISH)
+          (COORD ENGLISH).
+  MORPHOLOGY (DEMO ENGLISH).
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ2 COMP XCOMP OBL OBL-?+ PREDLINK.
+  SEMANTICFUNCTIONS    ADJUNCT  TOPIC FOCUS POSS STANDARD.
+  NONDISTRIBUTIVES   NUM PERS COORD-FORM.
+  EPSILON   e.
+  OPTIMALITYORDER NOGOOD  PPadj +PPattach +PPpassiv +sg-imp.
+  GENOPTIMALITYORDER GenBadPunct NOGOOD +Punct.
+
+----
+
+DEMO   ENGLISH   RULES (1.0)
+
+----
+
+DEMO ENGLISH LEXICON (1.0)
+
+"nouns"
+
+"took out all names and nouns because they are now handled via the morphology"
+
+
+----
+

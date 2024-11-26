@@ -1,0 +1,142 @@
+VERB ENGLISH LEXICON (1.0)
+
+
+"all verbs here -- still need to convert fully to just have lemmas"
+
+"verbs with clausal arguments"
+
+say 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+          @ATTITUDE
+          %s = (s::(^ COMP) TEMP-REF EVAL)
+	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(say,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
+	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+
+think 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+          @ATTITUDE
+	      %s = (s::(^ COMP) TEMP-REF EVAL)
+	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(think,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
+	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+
+ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+          @ATTITUDE
+          %s = (s::(^ COMP) TEMP-REF EVAL)
+	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(ensure,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
+	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+
+
+convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
+          @ATTITUDE
+		  (^ XCOMP SUBJ) = (^OBJ)
+		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(convince,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
+		  (s:: (^SUBJ)_e -o (s::(^OBJ)_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
+
+
+try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  :$ lam(X,lam(P,lam(S,drs([],[pred(try,S),rel(arg1,S,X),cont(S,app(app(P,X),S))])))) :
+		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+
+seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
+          @ATTITUDE
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  :$ lam(P,lam(S,drs([],[pred(seem,S),cont(S,app(P,S))]))) :
+		  (((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t) -o ((s::^ SIT)_s -o (s::^ SIT)_t)).
+
+"want is a copy of try"
+want	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  :$ lam(X,lam(P,lam(S,drs([],[pred(want,S),rel(arg1,S,X),cont(S,app(app(P,X),S))])))) :
+		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+
+
+believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
+          @(XCOMP-OBJ-PASSIVE-ARGS %arg1 %arg2 %arg3)
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = %arg2
+		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(believe,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
+          (s::%arg1_e -o (s::%arg2_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
+
+"Intransitives"
+
+appear 	  V-S XLE @(INTRANS-EV %stem).
+
+disappear V-S XLE @(INTRANS-EV %stem).
+
+laugh 	  V-S XLE @(INTRANS-EV %stem).
+
+sleep 	  V-S XLE @(INTRANS-EV %stem).
+
+wait 	  V-S XLE { @(INTRANS-EV wait) |
+		@(INTRANS-OBL wait)
+		"this is the non-semantic OBL wait on a customer use"
+		(^ OBL PFORM) =c on
+		(^ PSEM) =c nosem }.
+
+"Optional transitives"
+
+drinks 	  V-S XLE @(OPT-TRANS-EV %stem).
+
+eat 	  V-S XLE @(OPT-TRANS-EV %stem).
+
+escape 	  V-S XLE @(OPT-TRANS-EV %stem).
+
+"Transitives"
+
+become 	  V-S XLE @(TRANS-EV %stem).
+
+devour 	  V-S XLE @(TRANS-EV %stem).
+
+lick 	  V-S XLE @(TRANS-EV %stem).
+
+hate 	  V-S XLE @(TRANS-EV %stem).  "using the morphological analyzer"
+
+hug V-S XLE @(TRANS-EV %stem);ETC.
+
+implement V * @(TRANS see)
+	      @VPRES
+	      @BARE-AGR.
+
+love 	  V-S XLE @(TRANS-EV %stem).
+
+receive   V-S XLE @(TRANS %stem).
+
+see 	  V-S XLE @(TRANS-EV %stem).
+
+"Ditransitives"
+
+give 	  V-S XLE @(DITRANS-EV give).
+
+
+
+"to be"
+
+be   V-S XLE   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'         "for nouns without arguments"
+               @(EVENT %stem)                              "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>' ??"
+              |
+               (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'       "so that adjectives can take their own arguments"
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)}.       "EX.: There is an example; to allow expletives with an NP"
+
+
+"auxiliaries"
+
+"was 	  AUX * @(TENSE past)
+            { @(PROG -_)
+              @(PERF -_) |
+             (^ TNS-ASP PROG)
+            }
+		{ (^ SUBJ PERS) = 1
+                | (^ SUBJ PERS) = 3
+                }
+                (^ SUBJ NUM) = sg."
+
+is 	  AUX * @(TENSE pres)
+		{ (^ SUBJ PERS) = 1
+                | (^ SUBJ PERS) = 3
+                }
+                (^ SUBJ NUM) = sg.
+
+
+----

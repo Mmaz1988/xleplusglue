@@ -1,0 +1,149 @@
+DEMO ENGLISH MORPHOLOGY (1.0)
+
+TOKENIZE:
+P!tokenizers/basic-parse-tok.fst G!tokenizers/default-gen-tokenizer.fst
+
+ANALYZE:
+tokenizers/english.infl.patch.full.fst
+
+----
+
+MORPH   ENGLISH   RULES (1.0)
+
+"sample rule"
+
+"this deals with verbs.  
+The sublexcial items are the POS assigned to the various tags in morph-lex.lfg" 
+
+   V --> V-S_BASE "verb stem, e.g. run"
+ 	 V-POS_BASE "suffix saying that this is a verb: +Verb"
+ 	 {TNS_BASE "tense suffix, e.g. +Pres" 
+ 	   PERS_BASE "person suffix, e.g. +3sg"
+ 	 | ASP_BASE}.   "aspectual information"
+
+  
+   N --> N-S_BASE "noun stem"
+ 	 N-POS_BASE
+ 	 (N-NAME_BASE) "allow for +Giv or +Place in names"
+ 	 (N-GEND_BASE) "allow for gender information" 
+ 	 N-NUM_BASE.
+
+   A --> ADJ-S_BASE
+ 	 ADJ-POS_BASE.
+	 
+   ADV --> ADV-S_BASE
+ 	  ADV-POS_BASE.
+
+----
+MORPH   ENGLISH   LEXICON (1.0)
+
+"this guesses words that are unknown to your lexicon
+ to be either adjectives or nouns"
+-unknown  ADJ-S XLE @(PRED %stem);
+	  ADV-S XLE @(PRED %stem);
+	  N-S XLE @(PRED %stem)
+	      (s::^ TYPE) = entity
+		  { (^ NTYPE) = count
+		    @(LLCLOSURE %mc996)
+@(LLATOM %mc994 s::^ e)
+@(LLATOM %mc995 s::^ t)
+@(LLIMP %mc996 %mc994 %mc995)
+@(CONCAT lam `( X `, drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `)  %mc997)
+@(GLUE-MEANING %mc996 %mc997)		  |
+		  (^ NTYPE) = name
+		  @(NAME-SCOPE ^ %q)
+		  @(LLCLOSURE %mc1000)
+@(LLATOM %mc998 s::^ e)
+@(LLATOM %mc999 s::^ t)
+@(LLIMP %mc1000 %mc998 %mc999)
+@(CONCAT lam `( X `, drs `(  `[  `]  `,  `[ eq `( X `,  `' %stem `'  `)  `]  `)  `)  %mc1001)
+@(GLUE-MEANING %mc1000 %mc1001)	      @(LLCLOSURE %mc1010)
+@(LLATOM %mc1002 s::^ e)
+@(LLATOM %mc1003 s::^ t)
+@(LLIMP %mc1004 %mc1002 %mc1003)
+@(LLATOM %mc1005 s::^ e)
+@(LLATOM %mc1006 %q t)
+@(LLIMP %mc1007 %mc1005 %mc1006)
+@(LLATOM %mc1008 %q t)
+@(LLIMP %mc1009 %mc1007 %mc1008)
+@(LLIMP %mc1010 %mc1004 %mc1009)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc1011)
+@(GLUE-MEANING %mc1010 %mc1011)
+@(NOSCOPE %mc1010)		  }.  
+
+
+            "lam(Y,lam(P,lam(X,merge(drs([],[%stem(X,Y)]),app(P,X))))"
+
+"lexical entries for tags coming out of the morphological analyzer" 
+
+"verbal tags"
+
++Verb 	  V-POS XLE .
+
++Pres 	  TNS XLE @VPRES
+		   @(PROG -_)
+		   @(PERF -_).
+
++PastBoth TNS XLE "past tense or past particle"
+		  { @VPAST | @PASTP }
+		  @(PROG -_)
+		  @(PERF -_).
+
++PastTense TNS XLE "past tense"
+		   @VPAST
+		   @(PROG -_)
+		   @(PERF -_).
+
++PastPerf TNS XLE @PASTP.
+
++Prog 	  ASP XLE @VPROG.
+
++Inf 	  ASP XLE .
+
++3sg 	  PERS XLE @S-AGR.
+
++123SP 	  PERS XLE .
+
++Non3sg   PERS XLE @BARE-AGR.
+
+"nominal/verbal"
+
++Pl 	  N-NUM XLE (^ NUM) = pl;
+	  PERS XLE {(^ NUM) = sg |
+	       	    (^ NUM) = pl}.
+
++Sg 	  N-NUM XLE (^ NUM) = sg
+                    @(PERS 3);
+	  PERS XLE (^ NUM) = sg.
+
+"nominal tags"
+
++Noun 	  N-POS XLE @(NPOS count) "3rd person count noun"
+		    @(PERS 3).
+		       
++Prop 	  N-POS XLE @(NPOS name) "3rd person name"
+		    @(PERS 3).   
+
++Giv 	  N-NAME XLE .   "for given names, no info associated so far"
+
++Fem 	  N-GEND XLE (^GEND) = fem. 
+
++Masc 	  N-GEND XLE (^GEND) = masc.
+
+
+"other"
+
++Adj 	  ADJ-POS XLE .
+
++Adv 	  ADV-POS XLE .
+
+
+	  
+
+"""
+TODO: morphemes of be include '+sg', which doesn't seem to occur for verbs elsewhere (?) 
+Needs fixing
+"""
+
+
+----
