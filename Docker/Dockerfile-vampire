@@ -18,11 +18,17 @@ RUN chmod +x /vampire/bin/vampire
 
 # Optionally install Python libraries (if needed)
 RUN pip install --upgrade pip
+# install prolog
+RUN apt-get install --yes swi-prolog
+RUN pip install -U pyswip
 
 # Copy the inference Python script and related files
 COPY inference/run_vampire.py /vampire/
 COPY inference/requirements.txt /vampire/
 COPY inference/eprover.p /vampire/
+COPY inference/comsemPredicates.pl /vampire/
+COPY inference/fol2tptp.pl /vampire/
+
 
 # Install the required Python libraries
 RUN pip install -r requirements.txt
