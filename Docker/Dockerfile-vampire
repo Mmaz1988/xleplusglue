@@ -28,6 +28,7 @@ COPY inference/requirements.txt /vampire/
 COPY inference/eprover.p /vampire/
 COPY inference/comsemPredicates.pl /vampire/
 COPY inference/fol2tptp.pl /vampire/
+COPY inference/drs2fol.pl /vampire/
 
 
 # Install the required Python libraries
