@@ -60,6 +60,8 @@ believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
 
 "Intransitives"
 
+did       V-S XLE @(INTRANS-EV %stem).
+
 appear 	  V-S XLE @(INTRANS-EV %stem).
 
 disappear V-S XLE @(INTRANS-EV %stem).

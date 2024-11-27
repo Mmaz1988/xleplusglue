@@ -44,32 +44,32 @@ MORPH   ENGLISH   LEXICON (1.0)
 	  N-S XLE @(PRED %stem)
 	      (s::^ TYPE) = entity
 		  { (^ NTYPE) = count
-		    @(LLCLOSURE %mc996)
-@(LLATOM %mc994 s::^ e)
-@(LLATOM %mc995 s::^ t)
-@(LLIMP %mc996 %mc994 %mc995)
-@(CONCAT lam `( X `, drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `)  %mc997)
-@(GLUE-MEANING %mc996 %mc997)		  |
+		    @(LLCLOSURE %mc906)
+@(LLATOM %mc904 s::^ e)
+@(LLATOM %mc905 s::^ t)
+@(LLIMP %mc906 %mc904 %mc905)
+@(CONCAT lam `( X `, drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `)  %mc907)
+@(GLUE-MEANING %mc906 %mc907)		  |
 		  (^ NTYPE) = name
 		  @(NAME-SCOPE ^ %q)
-		  @(LLCLOSURE %mc1000)
-@(LLATOM %mc998 s::^ e)
-@(LLATOM %mc999 s::^ t)
-@(LLIMP %mc1000 %mc998 %mc999)
-@(CONCAT lam `( X `, drs `(  `[  `]  `,  `[ eq `( X `,  `' %stem `'  `)  `]  `)  `)  %mc1001)
-@(GLUE-MEANING %mc1000 %mc1001)	      @(LLCLOSURE %mc1010)
-@(LLATOM %mc1002 s::^ e)
-@(LLATOM %mc1003 s::^ t)
-@(LLIMP %mc1004 %mc1002 %mc1003)
-@(LLATOM %mc1005 s::^ e)
-@(LLATOM %mc1006 %q t)
-@(LLIMP %mc1007 %mc1005 %mc1006)
-@(LLATOM %mc1008 %q t)
-@(LLIMP %mc1009 %mc1007 %mc1008)
-@(LLIMP %mc1010 %mc1004 %mc1009)
-@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc1011)
-@(GLUE-MEANING %mc1010 %mc1011)
-@(NOSCOPE %mc1010)		  }.  
+		  @(LLCLOSURE %mc910)
+@(LLATOM %mc908 s::^ e)
+@(LLATOM %mc909 s::^ t)
+@(LLIMP %mc910 %mc908 %mc909)
+@(CONCAT lam `( X `, drs `(  `[  `]  `,  `[ eq `( X `,  `' %stem `'  `)  `]  `)  `)  %mc911)
+@(GLUE-MEANING %mc910 %mc911)	      @(LLCLOSURE %mc920)
+@(LLATOM %mc912 s::^ e)
+@(LLATOM %mc913 s::^ t)
+@(LLIMP %mc914 %mc912 %mc913)
+@(LLATOM %mc915 s::^ e)
+@(LLATOM %mc916 %q t)
+@(LLIMP %mc917 %mc915 %mc916)
+@(LLATOM %mc918 %q t)
+@(LLIMP %mc919 %mc917 %mc918)
+@(LLIMP %mc920 %mc914 %mc919)
+@(CONCAT lam `( P `, lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, merge `( app `( P `, X `)  `, app `( Q `, X `)  `)  `)  `)  `)  %mc921)
+@(GLUE-MEANING %mc920 %mc921)
+@(NOSCOPE %mc920)		  }.  
 
 
             "lam(Y,lam(P,lam(X,merge(drs([],[%stem(X,Y)]),app(P,X))))"
@@ -138,12 +138,9 @@ MORPH   ENGLISH   LEXICON (1.0)
 +Adv 	  ADV-POS XLE .
 
 
-	  
-
 """
 TODO: morphemes of be include '+sg', which doesn't seem to occur for verbs elsewhere (?) 
 Needs fixing
 """
-
 
 ----

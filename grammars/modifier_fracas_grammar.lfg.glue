@@ -7,7 +7,7 @@
 
  	  ADV*: ! $ (^ ADJUNCT);
 
- 	  A*: ^=!;
+ 	  A: ^=!;
 
 	  "than-comparatives as adjuncts on the AP"
 	  "type of comparative is handled in the lexicon"
@@ -40,8 +40,26 @@
  	  }.
 
 
-   ADVP --> VP: (^ SUBJ PRED) = 'pro'
-		~[(^ TNS-ASP TENSE)].
+   ADVP -->
+ 	  { VP: (^ SUBJ PRED) = 'pro'
+		~[(^ TNS-ASP TENSE)]
+		
+ 	   |
+
+ 	    (ADVComp: ! $ (^ ADJUNCT))
+
+ 	    ADV: ^=!;
+
+	    "than-comparatives as adjuncts on the AP"
+	    "type of comparative is handled in the lexicon"
+	    "EX1: The tree is greater than the plant."
+	    "EX2: The tree is (as) great (as the plant)."
+ 	    (CPComp: (^ OBL-COMP) = !)
+
+ 	    (COMMA)
+
+ 	  }.
+
 
 
    "aber who sollte ja eigentlich zum gleichen subject wie der main clause referen"
