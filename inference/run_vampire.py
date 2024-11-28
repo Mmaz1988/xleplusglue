@@ -34,14 +34,14 @@ def conversion(formula):
     print("Processing input: " + formula)
     prolog = subprocess.Popen(['swipl'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     # Load the knowledgebase
-    #prolog.stdin.write('X = Mia.')
-   #prolog.stdin.write('[fol2tptp].')
-   #prolog.stdin.flush()
+    #prolog.stdin.write('X = Mia.\n')
+    prolog.stdin.write('[fol2tptp].\n')
+    prolog.stdin.flush()
     # Execute a query
-    prolog.stdin.write(formula)
+    prolog.stdin.write(formula + "\n")
     prolog.stdin.flush()
     # Exit Prolog
-    prolog.stdin.write('halt.')
+    prolog.stdin.write('halt.\n')
     prolog.stdin.flush()
     # Read Prolog output
     stdout, stderr = prolog.communicate()
