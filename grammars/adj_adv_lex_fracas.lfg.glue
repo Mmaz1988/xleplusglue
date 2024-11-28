@@ -7,18 +7,21 @@ greatest  A * (^DEGREE) = superlative
                "is atype important here?"
 
 
-greater  A * (^DEGREE) = comparative
+greater  A *   (^DEGREE) = comparative
                { @(PRED great)
                (^ATYPE) = attributive
                | (^ATYPE) = predicative
-               (^ PRED)='great <(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
-               }.
+               (^ PRED)='great<(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
+               };
+         ADV * (^DEGREE) = comparative
+               (^ PRED)='great<(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
+               .
 
 great   A * (^DEGREE) = positive
                { @(PRED great)
                (^ATYPE) = attributive
                | (^ATYPE) = predicative
-               (^ PRED)='great <(^OBL-COMP)>'
+               (^ PRED)='great<(^OBL-COMP)>'
                }.
 
 small 	  A * @(PRED small)
@@ -29,6 +32,15 @@ smart 	  A * @(PRED smart).
 grey 	  A * @(PRED grey).
 
 Italian   A * @(PRED italian); ETC.
+
+fast   A * (^DEGREE) = positive
+               { @(PRED great)
+               (^ATYPE) = attributive
+               | (^ATYPE) = predicative
+               (^ PRED)='fast<(^OBL-COMP)>'
+               };
+       ADV *  { (^ PRED) = 'fast<(^OBL-COMP)>'
+              | @(PRED fast)}.
 
 "not the revised semantics"
 
@@ -59,7 +71,10 @@ former 	  A * @(PRED former)
 
 "adverbs --- should really be done via the morphology, like the nouns"
 
-quickly   ADV * @(PRED quickly).
+quickly   ADV * (^ PRED) = 'quick<>(^OBL-COMP)'.
+
+quicker   ADV * (^ DEGREE) = comparative
+                (^ PRED)='quick<>(^OBL-COMP)'.
 
 very 	  ADV * @(PRED very).
 

@@ -5,14 +5,12 @@ FUNCTION ENGLISH LEXICON (1.0)
 than      CComp * (^PRED) = 'than<(^OBJ)>'
                   ((OBL-COMP ^) DEGREE) =c comparative.
 
-
 as        CComp * (^PRED) = 'as<(^OBJ)>'
                   (^DEGREE) ~=c comparative
                   (^DEGREE) ~=c superlative;
           ADVComp * @(PRED as)
                   (^DEGREE) ~=c comparative
                   (^DEGREE) ~=c superlative.
-
 
 
 
@@ -35,6 +33,7 @@ with 	  P * @(PREP with)
 "complementizers"
 
 that  C * (^COMP-FORM) = that.
+
 
 
 "conjunctions"

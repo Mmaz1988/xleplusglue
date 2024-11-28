@@ -1,10 +1,8 @@
-import io
-import sys
-from contextlib import redirect_stdout
+import os
 import subprocess
 from fastapi import FastAPI
 from pydantic import BaseModel
-from pyswip import Prolog
+
 
 
 #put input into a temporary file and let vampire work on that
@@ -18,30 +16,52 @@ def bloodsucking(history,premises):
     #if "Termination reason: Satisfiable" in vampResult:
     #    history = history + premises
     resultList = [history, premises, vampResult]
+    if os.path.exists("inputpremises.p"):
+        os.remove("inputpremises.p")
     return resultList
 
-#convert fol to tptp
+#convert drs to fol to tptp and get the vampire output from that
 def conversion(formula):
-    #command = "[fol2tptp]."
-    #subprocess.run('swipl')
-    #convResult = subprocess.run(['swipl','fol2tptp.pl',formula],stdout=subprocess.PIPE)
-    #Prolog.consult("fol2tptp.pl")
-    #convResult = str(dict(Prolog.query(formula)))
-    #return convResult
-    #def run_prolog():
-    # Start Prolog
-#   subprocess
-    print("Processing input: " + formula)
+    #get prolog output of drs to fol
+    betterformula = "drs2fol:printfol(" + formula + ",'folly.txt')."
+    useProlog('[drs2fol].',betterformula)
+    newfilepath = "folly.txt"
+    newfol = open(newfilepath, 'r').read()
+    print(newfol)
+    #now get TPTP string from Prolog
+    betterfol = "fol2tptp(" + newfol + ",'output.txt')."
+    useProlog('[fol2tptp].',betterfol)
+    filepath = "output.txt"
+    data = open(filepath, 'r').read()
+    print(data)
+    # delete temp files if they haven't been already
+    if os.path.exists("output.txt"):
+        os.remove("output.txt")
+    if os.path.exists("folly.txt"):
+        os.remove("folly.txt")
+    newstring = inputToFof(data)
+    # get vampire to work on the final formula
+    newblood = bloodsucking(newstring,"")
+    return newblood
+
+# manipulate a string to be readable by vampire
+def inputToFof(inputstring):
+    fofstring = inputstring.replace("input_formula","fof")
+    return fofstring
+
+# function for calling predicate with a specific knowledgebase and input
+def useProlog(knowledgeBase,inputString):
+    # get Prolog output
     prolog = subprocess.Popen(['swipl'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     # Load the knowledgebase
-    #prolog.stdin.write('X = Mia.\n')
-    prolog.stdin.write('[fol2tptp].\n')
+    prolog.stdin.write(knowledgeBase + '\n')
     prolog.stdin.flush()
     # Execute a query
-    prolog.stdin.write(formula + "\n")
+    # give Prolog the input query
+    prolog.stdin.write(inputString + "\n")
     prolog.stdin.flush()
     # Exit Prolog
-    prolog.stdin.write('halt.\n')
+    prolog.stdin.write('halt.')
     prolog.stdin.flush()
     # Read Prolog output
     stdout, stderr = prolog.communicate()
@@ -50,6 +70,7 @@ def conversion(formula):
         print("Prolog Output:", stdout)
     if stderr:
         print("Prolog Errors:", stderr)
+
 
 
 
@@ -68,12 +89,14 @@ app = FastAPI()
 def root():
     return {"test": "Hello World"}
 
+# where 'pure' proving happens
 @app.post("/prove")
 def proving(request: Item):
     histresult = str(request.axioms)
     newresult = str(request.premises)
     return bloodsucking(histresult, newresult)
 
+# where conversion to TPTP and then proving happens
 @app.post("/convert")
 def proving(request: Formula):
     discourse = str(request.formula)

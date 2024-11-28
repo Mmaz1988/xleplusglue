@@ -43,16 +43,16 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    "lambda DRT"
    DITRANS-EV(P) = @(PASS @(DAT-SHIFT (^ PRED)='P<(^ SUBJ) (^ OBJ) (^ OBL-TO)>'))
-	       @(DITRANS-PASSIVE-ARGS %arg1 %arg2 %arg3)
-	       @(EVENT P)
-	       @(ARG1 %arg1)
-	       @(ARG2 %arg2)
-	       @(ARG3 %arg3).
+	  @(DITRANS-PASSIVE-ARGS %arg1 %arg2 %arg3)
+	  @(EVENT P)
+	  @(ARG1 %arg1)
+	  @(ARG2 %arg2)
+	  @(ARG3 %arg3).
 
 	  	       
    "lambda DRT"
    TRANS-EV(P) = @(PASS (^ PRED)='P<(^SUBJ) (^OBJ)>')
-   	  @(TRANS-PASSIVE-ARGS %arg1 %arg2)
+	  @(TRANS-PASSIVE-ARGS %arg1 %arg2)
 	  @(EVENT P)
 	  @(ARG1 %arg1)
 	  @(ARG2 %arg2).
@@ -113,10 +113,10 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    ARG2 = (^ SUBJ)
 	  }.
 
-   DITRANS-PASSIVE-ARGS(ARG1 ARG2 ARG3) = {
+   DITRANS-PASSIVE-ARGS(ARG1 ARG2 ARG3) = { 
 	    (^ PASSIVE) =c -
 	    ARG1 = (^ SUBJ)
-	    {
+	    { 
 	      (^ DATIVE-SHIFT) =c -
 	      ARG2 = (^ OBJ)
 	      ARG3 = (^ OBL-TO)
@@ -127,7 +127,7 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    }
 	   |
 	    (^ PASSIVE) =c +
-	    {
+	    { 
 	      (^OBL-AG) = ARG1 |
 	      ~[(^OBL-AG)]
 	      ARG1 = %empty
@@ -140,7 +140,7 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 @(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc1033)
 @(GLUE-MEANING %mc1032 %mc1033)
 @(NOSCOPE %mc1032)	    }
-	    {
+	    { 
 	      (^ DATIVE-SHIFT) =c -
 	      ARG2 = (^ SUBJ)
 	      ARG3 = (^ OBL-TO)
@@ -152,18 +152,18 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	  }.
 
 
-  XCOMP-OBJ-PASSIVE-ARGS(ARG1 ARG2 ARG3) = {
-    (^ PASSIVE) =c -
-    ARG1 = (^ SUBJ)
-    ARG2 = (^ OBJ)
-    ARG3 = (^ XCOMP)
-   |
-    (^ PASSIVE) =c +
-    {
-      (^OBL-AG) = ARG1 |
-      ~[(^OBL-AG)]
-      ARG1 = %empty
-      @(LLCLOSURE %mc1032)
+   XCOMP-OBJ-PASSIVE-ARGS(ARG1 ARG2 ARG3) = { 
+	    (^ PASSIVE) =c -
+	    ARG1 = (^ SUBJ)
+	    ARG2 = (^ OBJ)
+	    ARG3 = (^ XCOMP)
+	   |
+	    (^ PASSIVE) =c +
+	    { 
+	      (^OBL-AG) = ARG1 |
+	      ~[(^OBL-AG)]
+	      ARG1 = %empty
+	      @(LLCLOSURE %mc1032)
 @(LLATOM %mc1028 s::%empty e)
 @(LLATOM %mc1029 s::^ t)
 @(LLIMP %mc1030 %mc1028 %mc1029)
@@ -171,10 +171,10 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 @(LLIMP %mc1032 %mc1030 %mc1031)
 @(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc1033)
 @(GLUE-MEANING %mc1032 %mc1033)
-@(NOSCOPE %mc1032)    }
-    ARG2 = (^ SUBJ)
-    ARG3 = (^ XCOMP)
-  }.
+@(NOSCOPE %mc1032)	    }
+	    ARG2 = (^ SUBJ)
+	    ARG3 = (^ XCOMP)
+	  }.
 
    """Functional feature templates"""
 
@@ -183,8 +183,8 @@ DEMO   ENGLISH   TEMPLATES (1.0)
    VPRES = { (^VFORM) ~= inf
 	    @(TENSE pres)
 	    @(MOOD indicative)
-	  |
-	  (^VFORM) = inf}.
+	   |
+	    (^VFORM) = inf}.
 
    VPAST = @(TENSE past) 
 	  @(MOOD indicative). 
@@ -226,11 +226,11 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
 "template for possessive pronouns, as these have conflicting heads in regular template"
 
-    POSS-PRON(P N Z) = (^ POSS PRED) = 'P'
-	  	   (^ POSS NUM) = N
-	  	   (^ POSS PERS) = Z
-	  	   (^ POSS PRON-TYPE) = poss
-	  	   (^ POSS NTYPE) = pronoun.
+   POSS-PRON(P N Z) = (^ POSS PRED) = 'P'
+	  (^ POSS NUM) = N
+	  (^ POSS PERS) = Z
+	  (^ POSS PRON-TYPE) = poss
+	  (^ POSS NTYPE) = pronoun.
 
    DEF = (^ DEF).
 
