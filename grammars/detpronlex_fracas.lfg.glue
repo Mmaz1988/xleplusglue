@@ -117,13 +117,13 @@ An 	  D * @(SPEC-DET-PRED a)
 
 
 
-more  D * (^DEF) = - "this indefinite only marks plurals"
-          (^NUM) = pl
-          (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
+more 	  DComp * (^DEF) = - "this indefinite only marks plurals"
+		  (^NUM) = pl
+		  (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
-More  D * (^DEF) = - "this indefinite only marks plurals"
-          (^NUM) = pl
-          (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
+More 	  DComp * (^DEF) = - "this indefinite only marks plurals"
+		  (^NUM) = pl
+		  (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
 
 "changed to spec-quant"

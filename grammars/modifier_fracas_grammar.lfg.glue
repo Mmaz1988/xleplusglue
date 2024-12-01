@@ -7,14 +7,18 @@
 
  	  ADV*: ! $ (^ ADJUNCT);
 
- 	  A: ^=!;
+ 	  { A: ^=!
+ 	  | Num: ^=!
+ 	  }
 
 	  "than-comparatives as adjuncts on the AP"
 	  "type of comparative is handled in the lexicon"
 	  "EX1: The tree is greater than the plant."
 	  "EX2: The tree is (as) great (as the plant)."
  	  (CPComp: _type = predicative
-		   (^ OBL-COMP) = !)
+		   { (^ OBL-COMP) = !
+		   | (^ ADJUNCT) = !})
+
  	  (COMMA).
 
 
@@ -69,7 +73,5 @@
 		 "(^NUM ADJUNCT SUBJ) = (!NUM)"
 		 ;
  	  VP.
-
-
 
 ----

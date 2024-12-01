@@ -7,11 +7,11 @@ VERB ENGLISH RULES (1.0)
  	     NP: (^ PREDLINK) = ! "to be + ..."
 		 "referential subject must match object in number "
 		 "eg. Mary is a dog vs *Mary is the dogs"
-		 @(IF (^SUBJ NUM) (^SUBJ NUM)=c(^PREDLINK NUM)) |
- 	     AP[predicative]: (^ PREDLINK) = !
+		 @(IF (^SUBJ NUM) (^SUBJ NUM)=c(^PREDLINK NUM))
  	   })
  	  (NP: (^ OBJ2) = !)
 
+ 	  AP[predicative]*: (^ PREDLINK) = !;
 
 	  "secondary object"
  	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"

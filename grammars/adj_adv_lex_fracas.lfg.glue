@@ -79,4 +79,8 @@ quicker   ADV * (^ DEGREE) = comparative
 very 	  ADV * @(PRED very).
 
 
+"measure words/numerals"
+
+ten 	  Num * @(PRED ten).
+
 ----

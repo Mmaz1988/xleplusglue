@@ -4,7 +4,10 @@ NOUN ENGLISH RULES (1.0)
  	  { 
 
 	    "optional determiner"
- 	    ( { D: ^=! | PRON})
+ 	    ( { D: ^=!
+ 	     | PRON
+ 	     | (Num) DComp
+ 	     } )
  
  
  	    AP[attributive]*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
