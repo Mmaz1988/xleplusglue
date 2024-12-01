@@ -6,10 +6,10 @@ NOUN ENGLISH RULES (1.0)
 	    "optional determiner"
  	    ( { D: ^=!
  	     | PRON
- 	     | (Num) DComp
+ 	     | (Num: ! $ (^ ADJUNCT)) DComp
  	     } )
- 
- 
+
+
  	    AP[attributive]*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
 
 
