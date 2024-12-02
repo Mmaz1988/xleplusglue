@@ -24,7 +24,7 @@ proc relpath {path} {
 set defaultGlueTCL [relpath src/glue.tcl]
 
 #Here the grammar is loaded
-set defaultGlueParser [relpath grammars/main_fracas_grammar.lfg.glue]
+set defaultGlueParser [relpath grammars/fracas_inference_grammar/main_fracas_grammar.lfg.glue]
 
 proc t {} {parse-testfile [relpath testsuites/fracas_quantifiers_testsuite.lfg] }
 

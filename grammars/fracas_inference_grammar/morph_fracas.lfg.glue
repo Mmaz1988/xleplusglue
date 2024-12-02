@@ -1,10 +1,10 @@
 DEMO ENGLISH MORPHOLOGY (1.0)
 
 TOKENIZE:
-P!tokenizers/basic-parse-tok.fst G!tokenizers/default-gen-tokenizer.fst
+P!../tokenizers/basic-parse-tok.fst G!tokenizers/default-gen-tokenizer.fst
 
 ANALYZE:
-tokenizers/english.infl.patch.full.fst
+../tokenizers/english.infl.patch.full.fst
 
 ----
 

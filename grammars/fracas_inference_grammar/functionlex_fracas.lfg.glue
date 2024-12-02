@@ -1,0 +1,58 @@
+FUNCTION ENGLISH LEXICON (1.0)
+
+"comparison constructions"
+
+than      CComp * (^PRED) = 'than<(^OBJ)>'
+                  ((OBL-COMP ^) DEGREE) =c comparative.
+
+as        CComp * (^PRED) = 'as<(^OBJ)>'
+                  (^DEGREE) ~=c comparative
+                  (^DEGREE) ~=c superlative;
+          ADVComp * @(PRED as)
+                  (^DEGREE) ~=c comparative
+                  (^DEGREE) ~=c superlative.
+
+
+
+"prepositions"
+
+by 	  P * @(PREP by).
+
+to 	  P * @(PREP to);
+	  PARTinf * (^ VFORM) =c inf.
+
+on 	  P * @(PREP on).
+
+in 	  P * @(PREP in).
+
+with 	  P * @(PREP with)
+	  @(PREP-SEM with).
+
+
+
+"complementizers"
+
+that  C * (^COMP-FORM) = that.
+
+
+
+"conjunctions"
+
+and 	  CONJ * @(COORD-FORM %stem);
+	  CONJnp * @(COORD-FORM %stem) @(NUM pl).
+
+or 	  CONJ * @(COORD-FORM %stem);
+	  CONJnp * @(COORD-FORM %stem) @(NUM pl).
+
+
+"punctuation, now with some functional information"
+
+. 	  PERIOD * (^ STMT-TYPE) = declarative.
+
+, 	  COMMA * .
+
+! 	  EXCL * (^ STMT-TYPE) = exclamation.
+
+
+
+----
