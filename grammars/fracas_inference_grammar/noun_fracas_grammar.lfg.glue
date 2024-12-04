@@ -19,7 +19,9 @@ NOUN ENGLISH RULES (1.0)
 
 	    "comparison with whole NPs"
 	    "EX: He is a fatter politician than him."
- 	    (CPComp: (^ ADJUNCT $ OBL-COMP) = !)
+ 	    (CPComp: (%LOCAL OBL-COMP)=!
+ 	            (^ ADJUNCT $)=%LOCAL
+ 	             %LOCAL $ (^ ADJUNCT))
 
 
  	    (CPrel: ! $ (^ ADJUNCT))
