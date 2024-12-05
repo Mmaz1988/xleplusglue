@@ -156,6 +156,10 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	   |
 	    (^VFORM) = inf}.
 
+    VPRESBE = (^VFORM) ~= inf
+	    @(TENSE pres)
+	    @(MOOD indicative).
+
    VPAST = @(TENSE past) 
 	  @(MOOD indicative). 
 

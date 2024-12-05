@@ -123,7 +123,7 @@ give 	  V-S XLE @(DITRANS-EV give).
 
 "present: am(1sg), are(pl, 2sg, all person), is(3sg)  + aux is"
 
-is   V *    @VPRES       "how does the +inf part of this template work?"
+is   V *    @VPRESBE       "template without inf option"
 		   @(PROG -_)
 		   @(PERF -_)
 		   @S-AGR       "3sg"
@@ -141,7 +141,7 @@ is   V *    @VPRES       "how does the +inf part of this template work?"
                 }
                 (^ SUBJ NUM) = sg.
 
-am   V *    @VPRES
+am   V *    @VPRESBE
 		   @(PROG -_)
 		   @(PERF -_)
 		   (^SUBJ PERS) = 1
@@ -154,7 +154,7 @@ am   V *    @VPRES
                "(^SUBJ) = (^ PREDLINK SUBJ)"
                @(EVENT %stem)}.
 
-are  V *   @VPRES
+are  V *   @VPRESBE
 		   @(PROG -_)
 		   @(PERF -_)
 		   {(^ SUBJ NUM) = pl |
@@ -213,7 +213,16 @@ were   V *  @VPAST
 
 "be, (being, been??)"
 
+be   V *  (^VFORM) = inf
+		   @(PROG -_)
+		   @(PERF -_)
 
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)}.
 
 "auxiliaries"
 
