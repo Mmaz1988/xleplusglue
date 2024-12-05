@@ -90,13 +90,10 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 "nominal/verbal"
 
-+Pl 	  N-NUM XLE (^ NUM) = pl;
-	  PERS XLE {(^ NUM) = sg |
-	       	    (^ NUM) = pl}.
++Pl 	  N-NUM XLE (^ NUM) = pl.
 
 +Sg 	  N-NUM XLE (^ NUM) = sg
-                    @(PERS 3);
-	  PERS XLE (^ NUM) = sg.
+                    @(PERS 3).
 
 "nominal tags"
 

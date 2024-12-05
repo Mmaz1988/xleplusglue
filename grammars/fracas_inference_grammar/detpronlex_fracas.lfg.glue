@@ -60,13 +60,15 @@ him 	  PRON * @(PRON he 3 sg pers)
 "expletive"
 There   PRON *   (^PRON-TYPE) = expl_
 	             (^PRON-FORM) = it
-	             {(^NUM) =sg |(^NUM) = pl}.
+	             "{(^NUM) =sg |(^NUM) = pl}"
+	             "(^NUM)"
+	             "inherit features from subject??".
 
 "relative"
 who PRON *      (^PRON-TYPE) = rel
                 (^PRON-FORM) = who
                 (^PRED) = 'PRO'
-                "(^NUM)".
+                {(^NUM) =sg |(^NUM) = pl}.
 
 
 "determiners"

@@ -114,17 +114,78 @@ give 	  V-S XLE @(DITRANS-EV give).
 
 "to be"
 
-be   V-S XLE   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'         "for nouns without arguments"
-               @(EVENT %stem)                              "(^PRED) = 'be<(^SUBJ)(^PREDLINK)>' ??"
+
+
+
+"MOOD, PERF, PROG, PAST - theres templates for this"
+
+
+
+"present: am(1sg), are(pl, 2sg, all person), is(3sg)  + aux is"
+
+is   V *    @VPRES       "how does the +inf part of this template work?"
+		   @(PROG -_)
+		   @(PERF -_)
+		   @S-AGR       "3sg"
+
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
               |
-               (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'       "so that adjectives can take their own arguments"
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem)}.       "EX.: There is an example; to allow expletives with an NP"
+               @(EVENT %stem)};
+
+      AUX * @(TENSE pres)
+		    { (^ SUBJ PERS) = 1
+                | (^ SUBJ PERS) = 3
+                }
+                (^ SUBJ NUM) = sg.
+
+am   V *    @VPRES
+		   @(PROG -_)
+		   @(PERF -_)
+		   (^SUBJ PERS) = 1
+	       (^SUBJ NUM) = sg
+
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               "(^SUBJ) = (^ PREDLINK SUBJ)"
+               @(EVENT %stem)}.
+
+are  V *   @VPRES
+		   @(PROG -_)
+		   @(PERF -_)
+		   {(^ SUBJ NUM) = pl |
+		     (^ SUBJ PERS) = 2
+	       (^ SUBJ NUM) = sg}
+
+		   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)}.
 
 
-"auxiliaries"
+"past: was(1sg, 3sg), were(pl, 2sg)  + aux was"
 
-"was 	  AUX * @(TENSE past)
+was   V *  @VPAST
+		   @(PROG -_)
+		   @(PERF -_)
+		   {@S-AGR  |
+		     (^ SUBJ PERS) = 2
+	       (^ SUBJ NUM) = sg}
+
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)};
+
+        AUX * @(TENSE past)
             { @(PROG -_)
               @(PERF -_) |
              (^ TNS-ASP PROG)
@@ -132,13 +193,30 @@ be   V-S XLE   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'         "for nouns withou
 		{ (^ SUBJ PERS) = 1
                 | (^ SUBJ PERS) = 3
                 }
-                (^ SUBJ NUM) = sg."
-
-is 	  AUX * @(TENSE pres)
-		{ (^ SUBJ PERS) = 1
-                | (^ SUBJ PERS) = 3
-                }
                 (^ SUBJ NUM) = sg.
+
+
+were   V *  @VPAST
+		   @(PROG -_)
+		   @(PERF -_)
+		   {(^ SUBJ NUM) = pl |
+		     (^ SUBJ PERS) = 2
+	       (^ SUBJ NUM) = sg}
+
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)}.
+
+
+"be, (being, been??)"
+
+
+
+"auxiliaries"
+
 
 
 ----

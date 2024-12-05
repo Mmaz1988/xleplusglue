@@ -70,7 +70,9 @@
    "get features of the NP on the who somehow -> NUM und PERS"
    CPrel --> NP: (! PRON-TYPE) =c rel
 		 (^ SUBJ) = !
-		 "(^NUM ADJUNCT SUBJ) = (!NUM)"
+		 ((ADJUNCT ^) PERS)  = (^SUBJ PERS)
+		 "((ADJUNCT ^) NUM)  = (^SUBJ NUM)"
+		 "from Pargram: (^ TOPIC-REL {(OBJ)|(OBL-PART)} [SPEC (POSS)]*) = (^ PRON-REL)"
 		 ;
  	  VP.
 
