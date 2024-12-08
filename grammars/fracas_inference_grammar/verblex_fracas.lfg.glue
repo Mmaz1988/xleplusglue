@@ -119,14 +119,16 @@ have      V-S XLE @(TRANS-EV %stem).
 give 	  V-S XLE @(DITRANS-EV give).
 
 
+"comes: eg. 'comes cheap'"
+
+
+come V-S XLE    (^PRED) = 'come<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+               "(^ PREDLINK PRED) c= 'cheap'".
+
 "to be"
 
-
-
-
 "MOOD, PERF, PROG, PAST - theres templates for this"
-
-
 
 "present: am(1sg), are(pl, 2sg, all person), is(3sg)  + aux is"
 

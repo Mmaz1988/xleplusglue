@@ -215,6 +215,18 @@ both D *  @(SPEC-QUANT-PRED both)
 	      (^ NUM) = pl
  	      @(QUANT-SCOPE ^ %q).
 
+Neither  D * @(SPEC-QUANT-PRED neither)
+         @(SPEC-QUANT-TYPE negative)
+          (^ DEF) = -
+          (^ NUM) = sg
+          @(QUANT-SCOPE ^ %q).
+
+neither  D * @(SPEC-QUANT-PRED neither)
+         @(SPEC-QUANT-TYPE negative)
+          (^ DEF) = -
+          (^ NUM) = sg
+          @(QUANT-SCOPE ^ %q).
+
 
 "AQUANTS"
 
