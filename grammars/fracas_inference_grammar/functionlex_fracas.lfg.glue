@@ -54,5 +54,36 @@ or 	  CONJ * @(COORD-FORM %stem);
 ! 	  EXCL * (^ STMT-TYPE) = exclamation.
 
 
+"negation"
 
+not   NEG * @(PRED not).
+
+
+"hardcoded words"
+
+Dumbo 	  N * @(PRED Dumbo).
+
+Bill 	  N * @(PRED Bill).
+
+Fido 	  N * @(PRED Fido).
+
+PC-6082   N * @(PRED PC-6082).
+
+ITEL-XZ   N * @(PRED ITEL-XZ).
+
+ITEL-ZY   N * @(PRED ITEL-ZY).
+
+ITEL-ZX   N * @(PRED ITEL-ZX).
+
+MIPS 	  N * @(PRED MIPS).
+
+ITEL 	  N * @(PRED ITEL);
+	  NMod * .
+
+APCOM 	  N * @(PRED APCOM).
+
+
+university NMod * .
+
+law 	  NMod * .
 ----

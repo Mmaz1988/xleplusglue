@@ -2,45 +2,64 @@ ADJADV ENGLISH LEXICON (1.0)
 
 "adjectives --- should really be done via the morphology, like the nouns"
 "He is a fatter politician than the other guy."
-greatest  A * (^DEGREE) = superlative
-               @(PRED great).
+greatest  A * @(ADJ-SUP great).
                "is atype important here?"
 
 
-greater  A *   (^DEGREE) = comparative
-               { @(PRED great)
-               (^ATYPE) = attributive
-               | (^ATYPE) = predicative
-               (^ PRED)='great<(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
-               };
-         ADV * (^DEGREE) = comparative
-               (^ PRED)='great<(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
-               .
+greater   A * @(ADJ-COMP great);
+	      ADV * (^DEGREE) = comparative
+		        (^ PRED)='great<(^ OBL-COMP)>'
+		.
 
-great   A * (^DEGREE) = positive
-               { @(PRED great)
-               (^ATYPE) = attributive
-               | (^ATYPE) = predicative
-               (^ PRED)='great<(^OBL-COMP)>'
-               }.
+great   A *  @(ADJ-POS great).
 
-small 	  A * @(PRED small)
-              (^DEGREE) = positive.
+small 	  A * @(ADJ-POS small).
 
 smart 	  A * @(PRED smart).
 
 grey 	  A * @(PRED grey).
 
+genuine   A * (^DEGREE) = positive
+	      @(PRED genuine)
+	      (^ATYPE) = attributive.
+
+former 	  A * (^DEGREE) = positive
+	      @(PRED former)
+	      (^ATYPE) = attributive.
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+successful A * @(ADJ-POS successful).
+
+large 	  A * @(ADJ-POS large).
+
+fat	  A * @(ADJ-POS fat).
+
+fatter	  A * @(ADJ-COMP fat).
+
+clever	  A * @(ADJ-POS clever).
+
+cleverer  A * @(ADJ-COMP cleverer).
+
+four-legged A * @(ADJ-POS four-legged).
+
 Italian   A * @(PRED italian); ETC.
 
-fast   A * (^DEGREE) = positive
-               { @(PRED great)
-               (^ATYPE) = attributive
-               | (^ATYPE) = predicative
-               (^ PRED)='fast<(^OBL-COMP)>'
-               };
-       ADV *  { (^ PRED) = 'fast<(^OBL-COMP)>'
-              | @(PRED fast)}.
+legal 	  A * @(ADJ-POS legal).
+
+slower 	  A * @(ADJ-COMP slow).
+
+fast 	  A * @(ADJ-POS fast);
+	  ADV * { (^ PRED) = 'fast<(^OBL-COMP)>'
+		| @(PRED fast)}.
+
+faster 	  A * @(ADJ-COMP fast);
+	  ADV * { (^ PRED) = 'fast<(^OBL-COMP)>'
+		  (^DEGREE) = comparative
+		| @(PRED fast)}.
+
+"still to implement:"
+       "four-legged, NEGATION??, "
 
 "not the revised semantics"
 
@@ -64,10 +83,6 @@ alleged   A * @(PRED alleged)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
 
-former 	  A * @(PRED former)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-
 
 "adverbs --- should really be done via the morphology, like the nouns"
 
@@ -82,5 +97,7 @@ very 	  ADV * @(PRED very).
 "measure words/numerals"
 
 ten 	  Num * @(PRED ten).
+
+500	  Num * @(PRED 500).
 
 ----

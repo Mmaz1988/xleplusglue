@@ -12,6 +12,10 @@ NOUN ENGLISH RULES (1.0)
 
  	    AP[attributive]*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
 
+        "hardcoding of MWEs"
+        "should be done more elegantly in the end"
+        "hardcoded words can be found in the functionlex_fracas"
+        (NMod)
 
 	    "head of NP"
  	    N: ^=!;
