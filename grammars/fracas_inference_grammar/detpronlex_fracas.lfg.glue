@@ -121,10 +121,12 @@ An 	  D * @(SPEC-DET-PRED a)
 
 
 more 	  DComp * (^DEF) = - "this indefinite only marks plurals"
+                @(SPEC-QUANT-TYPE comparative)
 		  (^NUM) = pl
 		  (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
 More 	  DComp * (^DEF) = - "this indefinite only marks plurals"
+                @(SPEC-QUANT-TYPE comparative)
 		  (^NUM) = pl
 		  (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
@@ -151,7 +153,7 @@ Every 	   D * @(SPEC-QUANT-PRED every)
 
 some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
-	      "(^ NUM) = pl" "some man and some men both work"
+	      "(^ NUM) = pl" "some man and some men both work :)"
  	      @(QUANT-SCOPE ^ %q).
 
 Some D * @(SPEC-QUANT-PRED some)
@@ -203,6 +205,52 @@ no D * @(SPEC-QUANT-PRED no)
        (^ DEF) = -
        @(QUANT-SCOPE ^ %q).
 
+Both D *  @(SPEC-QUANT-PRED both)
+	      (^ DEF) = -
+	      (^ NUM) = pl
+ 	      @(QUANT-SCOPE ^ %q).
+
+both D *  @(SPEC-QUANT-PRED both)
+	      (^ DEF) = -
+	      (^ NUM) = pl
+ 	      @(QUANT-SCOPE ^ %q).
 
 
+"AQUANTS"
+
+Several D * @(SPEC-AQUANT-PRED several)
+             "no quant type?"
+             (^ DEF) = -
+	         (^ NUM) = pl
+ 	        @(QUANT-SCOPE ^ %q).
+
+
+several D * @(SPEC-AQUANT-PRED several)
+             (^ DEF) = -
+	         (^ NUM) = pl
+ 	        @(QUANT-SCOPE ^ %q).
+
+
+Most    D* @(SPEC-AQUANT-PRED most)
+            @(SPEC-AQUANT-TYPE superlative)
+             (^ DEF) = -
+	         (^ NUM) = pl
+ 	        @(QUANT-SCOPE ^ %q).
+
+most    D* @(SPEC-AQUANT-PRED most)
+            @(SPEC-AQUANT-TYPE superlative)
+             (^ DEF) = -
+	         (^ NUM) = pl
+ 	        @(QUANT-SCOPE ^ %q).
+
+
+Few D*      @(SPEC-AQUANT-PRED few)
+             (^ DEF) = -
+	         (^ NUM) = pl
+ 	        @(QUANT-SCOPE ^ %q).
+
+few D*      @(SPEC-AQUANT-PRED few)
+             (^ DEF) = -
+	         (^ NUM) = pl
+ 	        @(QUANT-SCOPE ^ %q).
 ----

@@ -19,8 +19,18 @@ smart 	  A * @(PRED smart).
 
 grey 	  A * @(PRED grey).
 
+indispensable   A * @(PRED indispensable).
+
 genuine   A * (^DEGREE) = positive
 	      @(PRED genuine)
+	      (^ATYPE) = attributive.
+
+leading	  A * (^DEGREE) = positive
+	      @(PRED leading)
+	      (^ATYPE) = attributive.
+
+Leading	  A * (^DEGREE) = positive
+	      @(PRED leading)
 	      (^ATYPE) = attributive.
 
 former 	  A * (^DEGREE) = positive
@@ -42,8 +52,6 @@ clever	  A * @(ADJ-POS clever).
 cleverer  A * @(ADJ-COMP cleverer).
 
 four-legged A * @(ADJ-POS four-legged).
-
-Italian   A * @(PRED italian); ETC.
 
 legal 	  A * @(ADJ-POS legal).
 
@@ -99,5 +107,14 @@ very 	  ADV * @(PRED very).
 ten 	  Num * @(PRED ten).
 
 500	  Num * @(PRED 500).
+
+
+"countries"
+
+British     A * @(PRED british); ETC.
+
+German      A * @(PRED german); ETC.
+
+Italian     A * @(PRED italian); ETC.
 
 ----

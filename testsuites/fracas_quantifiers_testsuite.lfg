@@ -105,32 +105,56 @@ Many great tenors are German.
 
 There are great tenors who are German.
 
-#
+# 18
 
 Several great tenors are British.
 
-#
-#There are great tenors who are British.
-#
-#Most great tenors are Italian.
-#
-#There are great tenors who are Italian.
-#
-#A few great tenors sing popular music.
-#
-#Some great tenors like popular music.
-#
-#There are great tenors who sing popular music.
-#
-#Few great tenors are poor.
-#
-#There are great tenors who are poor.
-#
-#Both leading tenors are excellent.
-#
-#Leading tenors who are excellent are indispensable.
-#
-#Both leading tenors are indispensable.
+# 19
+
+There are great tenors who are British.
+
+# 20 - 2 "Italian"
+
+Most great tenors are Italian.
+
+# 21 - 2 "Italian"
+
+There are great tenors who are Italian.
+
+# 22 - multiword
+
+A few great tenors sing popular music.
+
+#Several great tenors sing popular music.
+
+# 23
+
+Some great tenors like popular music.
+
+# 24
+
+There are great tenors who sing popular music.
+
+# 25 - 2sol N vs Adj
+
+Few great tenors are poor.
+
+# 26 - 2sol N vs Adj
+
+There are great tenors who are poor.
+
+# 27 - leading is in lexicon
+
+Both leading tenors are excellent.
+
+# 28
+
+Leading tenors who are excellent are indispensable.
+
+# 29
+
+Both leading tenors are indispensable.
+
 #
 #Neither leading tenor comes cheap.
 #

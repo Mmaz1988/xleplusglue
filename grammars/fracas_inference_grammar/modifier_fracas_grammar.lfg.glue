@@ -74,6 +74,7 @@
 		 ((ADJUNCT ^) NUM)  = (^SUBJ NUM)
 		 "from Pargram: (^ TOPIC-REL {(OBJ)|(OBL-PART)} [SPEC (POSS)]*) = (^ PRON-REL)"
 		 ;
- 	  VP.
+ 	  VP: (^ TNS-ASP TENSE) "require that sentences have tense"
+	     (^ FIN) = +.
 
 ----

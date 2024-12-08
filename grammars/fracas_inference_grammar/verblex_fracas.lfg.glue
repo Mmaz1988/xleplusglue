@@ -78,6 +78,8 @@ wait 	  V-S XLE { @(INTRANS-EV wait) |
 
 "Optional transitives"
 
+sing      V-S XLE @(OPT-TRANS-EV %stem).
+
 drinks 	  V-S XLE @(OPT-TRANS-EV %stem).
 
 eat 	  V-S XLE @(OPT-TRANS-EV %stem).
@@ -87,6 +89,8 @@ escape 	  V-S XLE @(OPT-TRANS-EV %stem).
 win       V-S XLE @(OPT-TRANS-EV %stem).
 
 "Transitives"
+
+like      V-S XLE @(TRANS-EV %stem).
 
 become 	  V-S XLE @(TRANS-EV %stem).
 
