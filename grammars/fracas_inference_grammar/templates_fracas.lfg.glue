@@ -208,5 +208,23 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    DEF = (^ DEF).
 
+"template for adjectives"
 
-----
+   ADJ-POS(P) = (^ DEGREE) = positive
+	  { @(PRED P)
+	    (^ATYPE) = attributive
+	  | (^ATYPE) = predicative
+	    (^ PRED)='P<(^OBL-COMP)>'
+	  }.
+
+   ADJ-COMP(P) = (^ DEGREE) = comparative
+	  { @(PRED P)
+	    (^ATYPE) = attributive
+	  | (^ATYPE) = predicative
+	    (^ PRED)='P<(^OBL-COMP)>'
+	  }.
+
+   ADJ-SUP(P) = (^DEGREEREE) = superlative
+	  @(PRED great).
+
+   ----

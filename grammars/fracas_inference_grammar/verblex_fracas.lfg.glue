@@ -84,6 +84,8 @@ eat 	  V-S XLE @(OPT-TRANS-EV %stem).
 
 escape 	  V-S XLE @(OPT-TRANS-EV %stem).
 
+win       V-S XLE @(OPT-TRANS-EV %stem).
+
 "Transitives"
 
 become 	  V-S XLE @(TRANS-EV %stem).
@@ -106,10 +108,11 @@ receive   V-S XLE @(TRANS %stem).
 
 see 	  V-S XLE @(TRANS-EV %stem).
 
+have      V-S XLE @(TRANS-EV %stem).
+
 "Ditransitives"
 
 give 	  V-S XLE @(DITRANS-EV give).
-
 
 
 "to be"

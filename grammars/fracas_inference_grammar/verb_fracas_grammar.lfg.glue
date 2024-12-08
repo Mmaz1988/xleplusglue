@@ -1,7 +1,11 @@
 VERB ENGLISH RULES (1.0)
 
    VP --> (AUX) "auxiliary introduced for passive"
+
  	  V: ^=!;
+
+ 	  (NEG: ! $ (^ ADJUNCT))
+
  	  ({ NP: (^ OBJ)=! "direct object"
 		 (! CASE)=acc |
  	     NP: (^ PREDLINK) = ! "to be + ..."
