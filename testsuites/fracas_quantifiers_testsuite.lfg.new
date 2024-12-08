@@ -1,15 +1,16 @@
 # 1
 
-#An Italian became the world's greatest tenor.
+An Italian became the world's greatest tenor. (0 0.006 0)
 
-An Italian became the greatest tenor.
+An Italian became the greatest tenor. (1 0.003 36)
 
+# not implementing "the world's" yet
 
-# 2 - 4sol  There pers, scope of CPrel
+# 2 - 2 solutions for num
 
-#There was an Italian who became the world's greatest tenor.
+There was an Italian who became the world's greatest tenor. (0 0.005 0)
 
-There was an Italian who became the greatest tenor.
+There was an Italian who became the greatest tenor. (8 0.003 53)
 
 #There was an Italian.
 
@@ -21,10 +22,9 @@ There was an Italian who became the greatest tenor.
 
 #Mary is an Italian.
 
+# 3
 
-# 3 - 6sol scope of wants to be
-
-Every Italian man wants to be a great tenor.
+Every Italian man wants to be a great tenor. (6 0.004 50)
 
 #An Italian man wants to be a great tenor.
 
@@ -40,75 +40,59 @@ Every Italian man wants to be a great tenor.
 
 #A man wants to appear.
 
-# 4
+# 4 - 2 solutions because of "to be"
 
-Some Italian men are great tenors.
+Some Italian men are great tenors. (2 0.004 37)
 
 #Some Italian men hate great tenors.
 
+# 5
 
-# 5 - 12 sol, there features, tnsasp be, scope
-
-There are Italian men who want to be a great tenor.
+There are Italian men who want to be a great tenor. (36 0.008 65)
 
 #There is an Italian man who wants to be a great tenor.
 
 #There is an Italian man who wants to hug a great tenor.
 
-# 6 - 6 sol scope
 
-All Italian men want to be a great tenor.
+# 6 XX
 
-# 7 - 3 scope
-
-Each Italian tenor wants to be great.
-
-# 8
-
-Some Italian tenors are great.
-
-# 9 - 4 sol, there features, want +inf or -inf
-
-There are Italian tenors who want to be great.
-
-# There are Italian tenors who try to be great
-
-# 10 - 2 sol, N vs Adj "Italian"
-
-The really ambitious tenors are Italian.
-
-# 11 - 4 there features, N vs Adj "Italian"
-
-There are really ambitious tenors who are Italian.
-
-# 12
-
-No really great tenors are modest.
-
-# 13 - 2 there features
-
-There are really great tenors who are modest.
-
-# 14
-
-Some great tenors are Swedish.
-
-# 15 - 2 there features
-
-There are great tenors who are Swedish.
-
-# 16
-
-Many great tenors are German.
-
-# 17
-
-There are great tenors who are German.
+All Italian men want to be a great tenor. (6 0.004 50)
 
 #
 
-Several great tenors are British.
+Each Italian tenor wants to be great. (3 0.004 40)
 
+#
+
+Some Italian tenors are great. (2 0.004 29)
+
+#
+
+There are Italian tenors who want to be great. (12 0.004 62)
+
+#
+
+The really ambitious tenors are Italian. (4 0.004 46)
+
+#
+
+There are really ambitious tenors who are Italian. (64 0.004 66)
+
+#
+#No really great tenors are modest.
+#
+#There are really great tenors who are modest.
+#
+#Some great tenors are Swedish.
+#
+#There are great tenors who are Swedish.
+#
+#Many great tenors are German.
+#
+#There are great tenors who are German.
+#
+#Several great tenors are British.
 #
 #There are great tenors who are British.
 #
@@ -306,3 +290,5 @@ Several great tenors are British.
 # One of the female commissioners spends a lot of time at home.
 #
 # At least three male commissioners spend time at home.
+
+# 13 sentences, 0.056 CPU secs total, 0.008 CPU secs max (12/02/24)

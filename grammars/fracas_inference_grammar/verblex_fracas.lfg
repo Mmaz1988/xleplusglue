@@ -1,0 +1,314 @@
+VERB ENGLISH LEXICON (1.0)
+
+
+"all verbs here -- still need to convert fully to just have lemmas"
+
+"verbs with clausal arguments"
+
+say 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+          @ATTITUDE
+          %s = (s::(^ COMP) TEMP-REF EVAL)
+	      @(LLCLOSURE %mc286)
+@(LLATOM %mc278 %s s)
+@(LLATOM %mc279 %s t)
+@(LLIMP %mc280 %mc278 %mc279)
+@(LLATOM %mc281 s::(^ SUBJ) e)
+@(LLATOM %mc282 (s::^ SIT) s)
+@(LLATOM %mc283 (s::^ SIT) t)
+@(LLIMP %mc284 %mc282 %mc283)
+@(LLIMP %mc285 %mc281 %mc284)
+@(LLIMP %mc286 %mc280 %mc285)
+@(CONCAT lam `( P `, lam `( X `, lam `( S `, merge `( drs `(  `[  `]  `,  `[ pred `( say `, S `)  `, rel `( arg1 `, S `, X `)  `]  `)  `, drs `(  `[  `]  `,  `[ cont `( S `, app `( P `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc287)
+@(GLUE-MEANING %mc286 %mc287).
+
+think 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+          @ATTITUDE
+	      %s = (s::(^ COMP) TEMP-REF EVAL)
+	      @(LLCLOSURE %mc296)
+@(LLATOM %mc288 %s s)
+@(LLATOM %mc289 %s t)
+@(LLIMP %mc290 %mc288 %mc289)
+@(LLATOM %mc291 s::(^ SUBJ) e)
+@(LLATOM %mc292 (s::^ SIT) s)
+@(LLATOM %mc293 (s::^ SIT) t)
+@(LLIMP %mc294 %mc292 %mc293)
+@(LLIMP %mc295 %mc291 %mc294)
+@(LLIMP %mc296 %mc290 %mc295)
+@(CONCAT lam `( P `, lam `( X `, lam `( S `, merge `( drs `(  `[  `]  `,  `[ pred `( think `, S `)  `, rel `( arg1 `, S `, X `)  `]  `)  `, drs `(  `[  `]  `,  `[ cont `( S `, app `( P `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc297)
+@(GLUE-MEANING %mc296 %mc297).
+
+ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+          @ATTITUDE
+          %s = (s::(^ COMP) TEMP-REF EVAL)
+	      @(LLCLOSURE %mc306)
+@(LLATOM %mc298 %s s)
+@(LLATOM %mc299 %s t)
+@(LLIMP %mc300 %mc298 %mc299)
+@(LLATOM %mc301 s::(^ SUBJ) e)
+@(LLATOM %mc302 (s::^ SIT) s)
+@(LLATOM %mc303 (s::^ SIT) t)
+@(LLIMP %mc304 %mc302 %mc303)
+@(LLIMP %mc305 %mc301 %mc304)
+@(LLIMP %mc306 %mc300 %mc305)
+@(CONCAT lam `( P `, lam `( X `, lam `( S `, merge `( drs `(  `[  `]  `,  `[ pred `( ensure `, S `)  `, rel `( arg1 `, S `, X `)  `]  `)  `, drs `(  `[  `]  `,  `[ cont `( S `, app `( P `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc307)
+@(GLUE-MEANING %mc306 %mc307).
+
+
+convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
+          @ATTITUDE
+		  (^ XCOMP SUBJ) = (^OBJ)
+		  @(LLCLOSURE %mc320)
+@(LLATOM %mc308 s:: (^SUBJ) e)
+@(LLATOM %mc309 s::(^OBJ) e)
+@(LLATOM %mc310 s::(^XCOMP SUBJ) e)
+@(LLATOM %mc311 (s::(^ XCOMP) SIT)  s)
+@(LLATOM %mc312 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc313 %mc311 %mc312)
+@(LLIMP %mc314 %mc310 %mc313)
+@(LLATOM %mc315 (s::^ SIT) s)
+@(LLATOM %mc316 (s::^ SIT) t)
+@(LLIMP %mc317 %mc315 %mc316)
+@(LLIMP %mc318 %mc314 %mc317)
+@(LLIMP %mc319 %mc309 %mc318)
+@(LLIMP %mc320 %mc308 %mc319)
+@(CONCAT lam `( X `,  lam `( Y `, lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( convince `, S `)  `,  rel `( arg1 `, X `, S `)  `,  rel `( arg2 `, Y `, S `)  `,  cont `( S `, app `( app `( P `, Y `)  `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc321)
+@(GLUE-MEANING %mc320 %mc321).
+
+
+try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  @(LLCLOSURE %mc332)
+@(LLATOM %mc322 s::(^XCOMP SUBJ) e)
+@(LLATOM %mc323 s::(^ XCOMP SUBJ) e)
+@(LLATOM %mc324 (s::(^ XCOMP) SIT) s)
+@(LLATOM %mc325 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc326 %mc324 %mc325)
+@(LLIMP %mc327 %mc323 %mc326)
+@(LLATOM %mc328 (s::^ SIT) s)
+@(LLATOM %mc329 (s::^ SIT) t)
+@(LLIMP %mc330 %mc328 %mc329)
+@(LLIMP %mc331 %mc327 %mc330)
+@(LLIMP %mc332 %mc322 %mc331)
+@(CONCAT lam `( X `, lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( try `, S `)  `, rel `( arg1 `, S `, X `)  `, cont `( S `, app `( app `( P `, X `)  `, S `)  `)  `]  `)  `)  `)  `)  %mc333)
+@(GLUE-MEANING %mc332 %mc333).
+
+seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
+          @ATTITUDE
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  @(LLCLOSURE %mc340)
+@(LLATOM %mc334 (s::(^ XCOMP) SIT) s)
+@(LLATOM %mc335 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc336 %mc334 %mc335)
+@(LLATOM %mc337 (s::^ SIT) s)
+@(LLATOM %mc338 (s::^ SIT) t)
+@(LLIMP %mc339 %mc337 %mc338)
+@(LLIMP %mc340 %mc336 %mc339)
+@(CONCAT lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( seem `, S `)  `, cont `( S `, app `( P `, S `)  `)  `]  `)  `)  `)  %mc341)
+@(GLUE-MEANING %mc340 %mc341).
+
+"want is a copy of try"
+want	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  @(LLCLOSURE %mc352)
+@(LLATOM %mc342 s::(^XCOMP SUBJ) e)
+@(LLATOM %mc343 s::(^ XCOMP SUBJ) e)
+@(LLATOM %mc344 (s::(^ XCOMP) SIT) s)
+@(LLATOM %mc345 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc346 %mc344 %mc345)
+@(LLIMP %mc347 %mc343 %mc346)
+@(LLATOM %mc348 (s::^ SIT) s)
+@(LLATOM %mc349 (s::^ SIT) t)
+@(LLIMP %mc350 %mc348 %mc349)
+@(LLIMP %mc351 %mc347 %mc350)
+@(LLIMP %mc352 %mc342 %mc351)
+@(CONCAT lam `( X `, lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( want `, S `)  `, rel `( arg1 `, S `, X `)  `, cont `( S `, app `( app `( P `, X `)  `, S `)  `)  `]  `)  `)  `)  `)  %mc353)
+@(GLUE-MEANING %mc352 %mc353).
+
+
+believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
+          @(XCOMP-OBJ-PASSIVE-ARGS %arg1 %arg2 %arg3)
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = %arg2
+		  @(LLCLOSURE %mc366)
+@(LLATOM %mc354 s::%arg1 e)
+@(LLATOM %mc355 s::%arg2 e)
+@(LLATOM %mc356 s::(^XCOMP SUBJ) e)
+@(LLATOM %mc357 (s::(^ XCOMP) SIT)  s)
+@(LLATOM %mc358 (s::(^ XCOMP) SIT) t)
+@(LLIMP %mc359 %mc357 %mc358)
+@(LLIMP %mc360 %mc356 %mc359)
+@(LLATOM %mc361 (s::^ SIT) s)
+@(LLATOM %mc362 (s::^ SIT) t)
+@(LLIMP %mc363 %mc361 %mc362)
+@(LLIMP %mc364 %mc360 %mc363)
+@(LLIMP %mc365 %mc355 %mc364)
+@(LLIMP %mc366 %mc354 %mc365)
+@(CONCAT lam `( X `,  lam `( Y `, lam `( P `, lam `( S `, drs `(  `[  `]  `,  `[ pred `( believe `, S `)  `,  rel `( arg1 `, X `, S `)  `,  rel `( arg2 `, Y `, S `)  `,  cont `( S `, app `( app `( P `, Y `)  `, S `)  `)  `]  `)  `)  `)  `)  `)  %mc367)
+@(GLUE-MEANING %mc366 %mc367).
+
+"Intransitives"
+
+did       V-S XLE @(INTRANS-EV %stem).
+
+appear 	  V-S XLE @(INTRANS-EV %stem).
+
+disappear V-S XLE @(INTRANS-EV %stem).
+
+laugh 	  V-S XLE @(INTRANS-EV %stem).
+
+sleep 	  V-S XLE @(INTRANS-EV %stem).
+
+wait 	  V-S XLE { @(INTRANS-EV wait) |
+		@(INTRANS-OBL wait)
+		"this is the non-semantic OBL wait on a customer use"
+		(^ OBL PFORM) =c on
+		(^ PSEM) =c nosem }.
+
+"Optional transitives"
+
+drinks 	  V-S XLE @(OPT-TRANS-EV %stem).
+
+eat 	  V-S XLE @(OPT-TRANS-EV %stem).
+
+escape 	  V-S XLE @(OPT-TRANS-EV %stem).
+
+"Transitives"
+
+become 	  V-S XLE @(TRANS-EV %stem).
+
+devour 	  V-S XLE @(TRANS-EV %stem).
+
+lick 	  V-S XLE @(TRANS-EV %stem).
+
+hate 	  V-S XLE @(TRANS-EV %stem).  "using the morphological analyzer"
+
+hug V-S XLE @(TRANS-EV %stem);ETC.
+
+implement V * @(TRANS see)
+	      @VPRES
+	      @BARE-AGR.
+
+love 	  V-S XLE @(TRANS-EV %stem).
+
+receive   V-S XLE @(TRANS %stem).
+
+see 	  V-S XLE @(TRANS-EV %stem).
+
+"Ditransitives"
+
+give 	  V-S XLE @(DITRANS-EV give).
+
+
+
+"to be"
+
+
+
+
+"MOOD, PERF, PROG, PAST - theres templates for this"
+
+
+
+"present: am(1sg), are(pl, 2sg, all person), is(3sg)  + aux is"
+
+is   V *   @VPRESBE       "template without inf option"
+		   @(PROG -_)
+		   @(PERF -_)
+		   @S-AGR       "3sg"
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)};
+      AUX * @(TENSE pres)
+		    { (^ SUBJ PERS) = 1
+                | (^ SUBJ PERS) = 3
+                }
+                (^ SUBJ NUM) = sg.
+
+am   V *   @VPRESBE
+		   @(PROG -_)
+		   @(PERF -_)
+		   (^SUBJ PERS) = 1
+	       (^SUBJ NUM) = sg
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               "(^SUBJ) = (^ PREDLINK SUBJ)"
+               @(EVENT %stem)}.
+
+are  V *   @VPRESBE
+		   @(PROG -_)
+		   @(PERF -_)
+		   {(^ SUBJ NUM) = pl @(OT-MARK Be-3pl)|
+		     (^ SUBJ PERS) = 2
+	       (^ SUBJ NUM) = sg}
+		   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)}.
+
+
+"past: was(1sg, 3sg), were(pl, 2sg)  + aux was"
+
+was   V *  @VPAST
+		   @(PROG -_)
+		   @(PERF -_)
+		   {@S-AGR @(OT-MARK Be-3pl)
+		   |
+		     (^ SUBJ PERS) = 2
+	       (^ SUBJ NUM) = sg}
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)};
+        AUX * @(TENSE past)
+            { @(PROG -_)
+              @(PERF -_) |
+             (^ TNS-ASP PROG)
+            }
+		{ (^ SUBJ PERS) = 1
+           | (^ SUBJ PERS) = 3
+                }
+                (^ SUBJ NUM) = sg.
+
+
+were   V *  @VPAST
+		   @(PROG -_)
+		   @(PERF -_)
+		   {(^ SUBJ NUM) = pl @(OT-MARK Be-3pl)|
+		     (^ SUBJ PERS) = 2
+	       (^ SUBJ NUM) = sg}
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)}.
+
+
+"be, (being, been??)"
+
+be   V *  (^VFORM) = inf
+		   @(PROG -_)
+		   @(PERF -_)
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               @(EVENT %stem)
+              |
+               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+               (^SUBJ) = (^ PREDLINK SUBJ)
+               @(EVENT %stem)}.
+
+"auxiliaries"
+
+
+
+----

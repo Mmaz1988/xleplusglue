@@ -60,6 +60,7 @@ him 	  PRON * @(PRON he 3 sg pers)
 "expletive"
 There   PRON *   (^PRON-TYPE) = expl_
 	             (^PRON-FORM) = it
+	             "(^PERS) = 3 (^NUM) = sg"  "standard analysis, but some"
 	             "{(^NUM) =sg |(^NUM) = pl}"
 	             "(^NUM)"
 	             "inherit features from subject??".
@@ -150,12 +151,12 @@ Every 	   D * @(SPEC-QUANT-PRED every)
 
 some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
-	      (^ NUM) = pl
+	      "(^ NUM) = pl" "some man and some men both work"
  	      @(QUANT-SCOPE ^ %q).
 
 Some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
-	      (^ NUM) = pl
+	      "(^ NUM) = pl"
  	      @(QUANT-SCOPE ^ %q).
 
 "preliminary semantics for all, copied from every"
@@ -190,6 +191,18 @@ each D *  @(SPEC-QUANT-PRED each)
 	      (^ DEF) = -
 	      (^ NUM) = sg
  	      @(QUANT-SCOPE ^ %q).
+
+
+No D * @(SPEC-QUANT-PRED no)
+       @(SPEC-QUANT-TYPE negative)
+       (^ DEF) = -
+       @(QUANT-SCOPE ^ %q).
+
+no D * @(SPEC-QUANT-PRED no)
+       @(SPEC-QUANT-TYPE negative)
+       (^ DEF) = -
+       @(QUANT-SCOPE ^ %q).
+
 
 
 ----

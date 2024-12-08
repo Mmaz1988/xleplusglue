@@ -1,0 +1,140 @@
+ADJADV ENGLISH LEXICON (1.0)
+
+"adjectives --- should really be done via the morphology, like the nouns"
+"He is a fatter politician than the other guy."
+greatest  A * (^DEGREE) = superlative
+               @(PRED great).
+               "is atype important here?"
+
+
+greater  A *   (^DEGREE) = comparative
+               { @(PRED great)
+               (^ATYPE) = attributive
+               | (^ATYPE) = predicative
+               (^ PRED)='great<(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
+               };
+         ADV * (^DEGREE) = comparative
+               (^ PRED)='great<(^ OBL-COMP)>' "wie man das mit dem optionalen Argument macht? - kann man sich nochmal anschauen"
+               .
+
+great   A * (^DEGREE) = positive
+               { @(PRED great)
+               (^ATYPE) = attributive
+               | (^ATYPE) = predicative
+               (^ PRED)='great<(^OBL-COMP)>'
+               }.
+
+small 	  A * @(PRED small)
+              (^DEGREE) = positive.
+
+smart 	  A * @(PRED smart).
+
+grey 	  A * @(PRED grey).
+
+Italian   A * @(PRED italian); ETC.
+
+fast   A * (^DEGREE) = positive
+               { @(PRED great)
+               (^ATYPE) = attributive
+               | (^ATYPE) = predicative
+               (^ PRED)='fast<(^OBL-COMP)>'
+               };
+       ADV *  { (^ PRED) = 'fast<(^OBL-COMP)>'
+              | @(PRED fast)}.
+
+"not the revised semantics"
+
+big 	  A * @(PRED big)
+	      @(LLCLOSURE %mc6)
+@(LLATOM %mc0 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc1 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc2 %mc0 %mc1)
+@(LLATOM %mc3 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc4 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc5 %mc3 %mc4)
+@(LLIMP %mc6 %mc2 %mc5)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc7)
+@(GLUE-MEANING %mc6 %mc7)
+@(NOSCOPE %mc6).
+
+black 	  A * @(PRED black)
+	      @(LLCLOSURE %mc6)
+@(LLATOM %mc0 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc1 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc2 %mc0 %mc1)
+@(LLATOM %mc3 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc4 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc5 %mc3 %mc4)
+@(LLIMP %mc6 %mc2 %mc5)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc7)
+@(GLUE-MEANING %mc6 %mc7)
+@(NOSCOPE %mc6).
+
+scottish  A * @(PRED scottish)
+	      @(LLCLOSURE %mc6)
+@(LLATOM %mc0 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc1 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc2 %mc0 %mc1)
+@(LLATOM %mc3 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc4 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc5 %mc3 %mc4)
+@(LLIMP %mc6 %mc2 %mc5)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc7)
+@(GLUE-MEANING %mc6 %mc7)
+@(NOSCOPE %mc6).
+
+trustworthy A * @(PRED trustworthy)
+		  @(LLCLOSURE %mc30)
+@(LLATOM %mc24 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc25 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc26 %mc24 %mc25)
+@(LLATOM %mc27 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc28 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc29 %mc27 %mc28)
+@(LLIMP %mc30 %mc26 %mc29)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc31)
+@(GLUE-MEANING %mc30 %mc31)
+@(NOSCOPE %mc30).
+
+alleged   A * @(PRED alleged)
+	      @(LLCLOSURE %mc6)
+@(LLATOM %mc0 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc1 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc2 %mc0 %mc1)
+@(LLATOM %mc3 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc4 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc5 %mc3 %mc4)
+@(LLIMP %mc6 %mc2 %mc5)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc7)
+@(GLUE-MEANING %mc6 %mc7)
+@(NOSCOPE %mc6).
+
+former 	  A * @(PRED former)
+	      @(LLCLOSURE %mc6)
+@(LLATOM %mc0 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc1 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc2 %mc0 %mc1)
+@(LLATOM %mc3 s::(ADJUNCT $ ^) e)
+@(LLATOM %mc4 s::(ADJUNCT $ ^) t)
+@(LLIMP %mc5 %mc3 %mc4)
+@(LLIMP %mc6 %mc2 %mc5)
+@(CONCAT lam `( Q `, lam `( X `, merge `( drs `(  `[  `]  `,  `[ pred `( %stem `, X `)  `]  `)  `, app `( Q `, X `)  `)  `)  `)  %mc7)
+@(GLUE-MEANING %mc6 %mc7)
+@(NOSCOPE %mc6).
+
+
+"adverbs --- should really be done via the morphology, like the nouns"
+
+quickly   ADV * (^ PRED) = 'quick<>(^OBL-COMP)'.
+
+quicker   ADV * (^ DEGREE) = comparative
+                (^ PRED)='quick<>(^OBL-COMP)'.
+
+very 	  ADV * @(PRED very).
+
+
+"measure words/numerals"
+
+ten 	  Num * @(PRED ten).
+
+----

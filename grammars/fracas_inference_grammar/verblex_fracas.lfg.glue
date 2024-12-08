@@ -123,30 +123,27 @@ give 	  V-S XLE @(DITRANS-EV give).
 
 "present: am(1sg), are(pl, 2sg, all person), is(3sg)  + aux is"
 
-is   V *    @VPRESBE       "template without inf option"
+is   V *   @VPRESBE       "template without inf option"
 		   @(PROG -_)
 		   @(PERF -_)
 		   @S-AGR       "3sg"
-
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                @(EVENT %stem)
               |
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
                @(EVENT %stem)};
-
       AUX * @(TENSE pres)
 		    { (^ SUBJ PERS) = 1
                 | (^ SUBJ PERS) = 3
                 }
                 (^ SUBJ NUM) = sg.
 
-am   V *    @VPRESBE
+am   V *   @VPRESBE
 		   @(PROG -_)
 		   @(PERF -_)
 		   (^SUBJ PERS) = 1
 	       (^SUBJ NUM) = sg
-
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                @(EVENT %stem)
               |
@@ -157,10 +154,9 @@ am   V *    @VPRESBE
 are  V *   @VPRESBE
 		   @(PROG -_)
 		   @(PERF -_)
-		   {(^ SUBJ NUM) = pl |
+		   {(^ SUBJ NUM) = pl @(OT-MARK Be-3pl)|
 		     (^ SUBJ PERS) = 2
 	       (^ SUBJ NUM) = sg}
-
 		   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'
                @(EVENT %stem)
               |
@@ -174,24 +170,23 @@ are  V *   @VPRESBE
 was   V *  @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
-		   {@S-AGR  |
+		   {@S-AGR @(OT-MARK Be-3pl)
+		   |
 		     (^ SUBJ PERS) = 2
 	       (^ SUBJ NUM) = sg}
-
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                @(EVENT %stem)
               |
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
                @(EVENT %stem)};
-
         AUX * @(TENSE past)
             { @(PROG -_)
               @(PERF -_) |
              (^ TNS-ASP PROG)
             }
 		{ (^ SUBJ PERS) = 1
-                | (^ SUBJ PERS) = 3
+           | (^ SUBJ PERS) = 3
                 }
                 (^ SUBJ NUM) = sg.
 
@@ -199,10 +194,9 @@ was   V *  @VPAST
 were   V *  @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
-		   {(^ SUBJ NUM) = pl |
+		   {(^ SUBJ NUM) = pl @(OT-MARK Be-3pl)|
 		     (^ SUBJ PERS) = 2
 	       (^ SUBJ NUM) = sg}
-
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                @(EVENT %stem)
               |
@@ -216,7 +210,6 @@ were   V *  @VPAST
 be   V *  (^VFORM) = inf
 		   @(PROG -_)
 		   @(PERF -_)
-
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                @(EVENT %stem)
               |

@@ -68,20 +68,20 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    "FOL + lambda calculus"
    OPT-TRANS(P) = { (^ PRED) = 'P<(^SUBJ)(^OBJ)>' "P is a variable"
-	    @(LLCLOSURE %mc1016)
-@(LLATOM %mc1012 s::(^SUBJ) e)
-@(LLATOM %mc1013 s::(^OBJ) e)
-@(LLATOM %mc1014 s::^ t)
-@(LLIMP %mc1015 %mc1013 %mc1014)
-@(LLIMP %mc1016 %mc1012 %mc1015)
-@(CONCAT  `[  `/ x `_ e `.  `[  `/ y `_ e `. P `( x `, y `)  `]  `]  %mc1017)
-@(GLUE-MEANING %mc1016 %mc1017)	          | (^ PRED) = 'P<(^SUBJ)>'
-		  @(LLCLOSURE %mc1020)
-@(LLATOM %mc1018 s::(^ SUBJ) e)
-@(LLATOM %mc1019 s::^ t)
-@(LLIMP %mc1020 %mc1018 %mc1019)
-@(CONCAT  `[  `/ x `_ e `. P `( x `)  `]  %mc1021)
-@(GLUE-MEANING %mc1020 %mc1021)		  }.  "this template takes one argument:  P"
+	    @(LLCLOSURE %mc254)
+@(LLATOM %mc250 s::(^SUBJ) e)
+@(LLATOM %mc251 s::(^OBJ) e)
+@(LLATOM %mc252 s::^ t)
+@(LLIMP %mc253 %mc251 %mc252)
+@(LLIMP %mc254 %mc250 %mc253)
+@(CONCAT  `[  `/ x `_ e `.  `[  `/ y `_ e `. P `( x `, y `)  `]  `]  %mc255)
+@(GLUE-MEANING %mc254 %mc255)	          | (^ PRED) = 'P<(^SUBJ)>'
+		  @(LLCLOSURE %mc258)
+@(LLATOM %mc256 s::(^ SUBJ) e)
+@(LLATOM %mc257 s::^ t)
+@(LLIMP %mc258 %mc256 %mc257)
+@(CONCAT  `[  `/ x `_ e `. P `( x `)  `]  %mc259)
+@(GLUE-MEANING %mc258 %mc259)		  }.  "this template takes one argument:  P"
 
    "lambda DRT"
    OPT-TRANS-EV(P) = { @(TRANS-EV P)
@@ -101,15 +101,15 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      (^OBL-AG) = ARG1 |
 	      ~[(^OBL-AG)]
 	      ARG1 = %empty
-	      @(LLCLOSURE %mc1026)
-@(LLATOM %mc1022 s::%empty e)
-@(LLATOM %mc1023 s::^ t)
-@(LLIMP %mc1024 %mc1022 %mc1023)
-@(LLATOM %mc1025 s::^ t)
-@(LLIMP %mc1026 %mc1024 %mc1025)
-@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc1027)
-@(GLUE-MEANING %mc1026 %mc1027)
-@(NOSCOPE %mc1026)	    }
+	      @(LLCLOSURE %mc264)
+@(LLATOM %mc260 s::%empty e)
+@(LLATOM %mc261 s::^ t)
+@(LLIMP %mc262 %mc260 %mc261)
+@(LLATOM %mc263 s::^ t)
+@(LLIMP %mc264 %mc262 %mc263)
+@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc265)
+@(GLUE-MEANING %mc264 %mc265)
+@(NOSCOPE %mc264)	    }
 	    ARG2 = (^ SUBJ)
 	  }.
 
@@ -131,15 +131,15 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      (^OBL-AG) = ARG1 |
 	      ~[(^OBL-AG)]
 	      ARG1 = %empty
-	      @(LLCLOSURE %mc1032)
-@(LLATOM %mc1028 s::%empty e)
-@(LLATOM %mc1029 s::^ t)
-@(LLIMP %mc1030 %mc1028 %mc1029)
-@(LLATOM %mc1031 s::^ t)
-@(LLIMP %mc1032 %mc1030 %mc1031)
-@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc1033)
-@(GLUE-MEANING %mc1032 %mc1033)
-@(NOSCOPE %mc1032)	    }
+	      @(LLCLOSURE %mc270)
+@(LLATOM %mc266 s::%empty e)
+@(LLATOM %mc267 s::^ t)
+@(LLIMP %mc268 %mc266 %mc267)
+@(LLATOM %mc269 s::^ t)
+@(LLIMP %mc270 %mc268 %mc269)
+@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc271)
+@(GLUE-MEANING %mc270 %mc271)
+@(NOSCOPE %mc270)	    }
 	    { 
 	      (^ DATIVE-SHIFT) =c -
 	      ARG2 = (^ SUBJ)
@@ -163,15 +163,15 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      (^OBL-AG) = ARG1 |
 	      ~[(^OBL-AG)]
 	      ARG1 = %empty
-	      @(LLCLOSURE %mc1032)
-@(LLATOM %mc1028 s::%empty e)
-@(LLATOM %mc1029 s::^ t)
-@(LLIMP %mc1030 %mc1028 %mc1029)
-@(LLATOM %mc1031 s::^ t)
-@(LLIMP %mc1032 %mc1030 %mc1031)
-@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc1033)
-@(GLUE-MEANING %mc1032 %mc1033)
-@(NOSCOPE %mc1032)	    }
+	      @(LLCLOSURE %mc270)
+@(LLATOM %mc266 s::%empty e)
+@(LLATOM %mc267 s::^ t)
+@(LLIMP %mc268 %mc266 %mc267)
+@(LLATOM %mc269 s::^ t)
+@(LLIMP %mc270 %mc268 %mc269)
+@(CONCAT lam `( Q `, merge `( drs `(  `[ X `]  `,  `[  `]  `)  `, app `( Q `, X `)  `)  `)  %mc271)
+@(GLUE-MEANING %mc270 %mc271)
+@(NOSCOPE %mc270)	    }
 	    ARG2 = (^ SUBJ)
 	    ARG3 = (^ XCOMP)
 	  }.
@@ -185,6 +185,10 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    @(MOOD indicative)
 	   |
 	    (^VFORM) = inf}.
+
+    VPRESBE = (^VFORM) ~= inf
+	    @(TENSE pres)
+	    @(MOOD indicative).
 
    VPAST = @(TENSE past) 
 	  @(MOOD indicative). 
