@@ -82,6 +82,8 @@ ITEL 	  N * @(PRED ITEL);
 
 APCOM 	  N * @(PRED APCOM).
 
+Pavarotti   N * @(PRED pavarotti).
+
 
 university NMod * .
 

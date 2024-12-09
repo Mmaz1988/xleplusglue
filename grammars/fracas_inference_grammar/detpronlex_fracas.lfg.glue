@@ -55,6 +55,10 @@ Him 	  PRON * @(PRON he 3 sg pers)
 him 	  PRON * @(PRON he 3 sg pers)
 		 @(CASE acc).
 
+Their   PRON * @(POSS-PRON they 3 pl).
+
+their   PRON * @(POSS-PRON they 3 pl).
+
 
 
 "expletive"

@@ -106,7 +106,7 @@ very 	  ADV * @(PRED very).
 
 ten 	  Num * @(PRED ten).
 
-500	  Num * @(PRED 500).
+500	      Num * @(PRED 500).
 
 
 "countries"
@@ -116,5 +116,14 @@ British     A * @(PRED british); ETC.
 German      A * @(PRED german); ETC.
 
 Italian     A * @(PRED italian); ETC.
+
+European    N * @(PRED european)
+                (^NUM) = sg; ETC.
+
+Europeans    N * @(PRED european)
+                (^NUM) = pl.
+
+Europe     N *   @(PRED europe)
+                (^NUM) = sg.
 
 ----
