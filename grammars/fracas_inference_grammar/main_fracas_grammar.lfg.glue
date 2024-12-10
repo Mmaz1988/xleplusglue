@@ -1,18 +1,24 @@
 DEMO   ENGLISH   CONFIG (1.0)
   ROOTCAT   ROOT.  "changed to ROOT from S"
-  FILES common.templates.lfg
-        morph_fracas.lfg
-        templates_fracas.lfg
+  FILES morph_fracas.lfg
         glue_fracas_grammar.lfg
-        modifier_fracas_grammar.lfg
-        verb_fracas_grammar.lfg
-        sentence_fracas_grammar.lfg
-        noun_fracas_grammar.lfg
-        verblex_fracas.lfg
-        functionlex_fracas.lfg
-        detpronlex_fracas.lfg
-        adj_adv_lex_fracas.lfg
-        coord_fracas_grammar.lfg.
+
+        "templates"
+        templates/common.templates.lfg
+        templates/templates_fracas.lfg
+
+        "rules"
+        rules/coord_fracas_grammar.lfg
+        rules/modifier_fracas_grammar.lfg
+        rules/verb_fracas_grammar.lfg
+        rules/sentence_fracas_grammar.lfg
+        rules/noun_fracas_grammar.lfg
+
+        "lexica"
+        lexica/adj_adv_lex_fracas.lfg
+        lexica/verblex_fracas.lfg
+        lexica/functionlex_fracas.lfg
+        lexica/detpronlex_fracas.lfg.
   LEXENTRIES   (DEMO ENGLISH) (MORPH ENGLISH) (VERB ENGLISH) (FUNCTION ENGLISH) (DETPRON ENGLISH) (ADJADV ENGLISH).
   TEMPLATES (DEMO ENGLISH) (GLUE BASIC) (STANDARD COMMON).  "added common ParGram templates"
   RULES   (DEMO ENGLISH)

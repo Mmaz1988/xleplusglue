@@ -3,8 +3,12 @@
 xle/*
 resource_folders_old/*
 frontend/last_running/*
-gramamrs/*.fileindexdir
+grammars/*.fileindexdir
 grammars/.#*
 jars/old_versions/*
 
+*.lfg
+/grammars/*/*.fileindexdir/
 
+
+/grammars/fracas_inference_grammar/main_fracas_grammar.lfg.fileindexdir/
