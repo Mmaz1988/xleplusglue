@@ -103,6 +103,8 @@ very 	  ADV * @(PRED very).
 
 
 "measure words/numerals"
+"EX: ITEL sold 3000 more computers than APCOM."
+"EX: ITEL is faster than 500 MIPS."
 
 ten 	  Num * @(PRED ten).
 
