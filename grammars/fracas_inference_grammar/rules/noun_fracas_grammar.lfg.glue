@@ -25,7 +25,7 @@ NOUN ENGLISH RULES (1.0)
 	    "EX: He is a fatter politician than him."
  	    (CPComp: (%LOCAL OBL-COMP)=!
  	            (^ ADJUNCT $)=%LOCAL
- 	             %LOCAL $ (^ ADJUNCT))
+ 	             %LOCAL $ (^ ADJUNCT?))
 
 
  	    (CPrel: ! $ (^ ADJUNCT))

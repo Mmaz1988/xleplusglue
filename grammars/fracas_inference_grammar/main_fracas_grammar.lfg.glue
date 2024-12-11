@@ -1,11 +1,11 @@
 DEMO   ENGLISH   CONFIG (1.0)
   ROOTCAT   ROOT.  "changed to ROOT from S"
   FILES morph_fracas.lfg
-        glue_fracas_grammar.lfg
 
         "templates"
         templates/common.templates.lfg
         templates/templates_fracas.lfg
+        templates/glue_fracas_grammar.lfg
 
         "rules"
         rules/coord_fracas_grammar.lfg
