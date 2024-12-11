@@ -14,7 +14,7 @@ GLUE   BASIC   TEMPLATES (1.0)
   NOSCOPE(G) = (G NOSCOPE) = +.
 
    NAME-SCOPE(UP NAME) =
-   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | ADJUNCT | PREDLINK | $}+ ^)
+   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | $}+ ^)
    (%name FIN) =c +
    NAME  = (s::%name SIT)
    (s::^ QUANT-SCOPE) = NAME.

@@ -1,12 +1,14 @@
 NOUN ENGLISH RULES (1.0)
 
    NP --> "either a full NP or a PRON"
- 	  { 
-
+ 	  {
 	    "optional determiner"
  	    ( { D: ^=!
  	     | PRON
- 	     | (Num: ! $ (^ ADJUNCT)) DComp
+ 	     |
+ 	        (Num: %local = (^ ADJUNCT)
+ 	              ! $ (%local ADJUNCT))
+ 	         DComp: ! $ (^ ADJUNCT)
  	     } )
 
 
