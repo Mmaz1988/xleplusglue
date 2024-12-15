@@ -124,6 +124,8 @@ An 	  D * @(SPEC-DET-PRED a)
 
 
 
+
+
 more 	  DComp * (^ PRED)='more<>(^ OBL-COMP)'
                 (^DEF) = - "this indefinite only marks plurals"
                 @(SPEC-QUANT-TYPE comparative)
@@ -132,14 +134,29 @@ more 	  DComp * (^ PRED)='more<>(^ OBL-COMP)'
 
 More 	  DComp * (^DEF) = - "this indefinite only marks plurals"
                 @(SPEC-QUANT-TYPE comparative)
-		  (^NUM) = pl
-		  (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
+		        (^NUM) = pl
+		        (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
+
 
 many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
                  (^DEF) = - "this indefinite only marks plurals"
          		 (^NUM) = pl
          		 (^DEGREE) ~= comparative
-         		 (^DEGREE) ~= superlative. "marks the NP as comparative to allow CPComps to apply"
+         		 (^DEGREE) ~= superlative; "marks the NP as comparative to allow CPComps to apply"
+         D * @(SPEC-AQUANT-PRED many)
+             (^ DEF) = -
+	         (^ NUM) = pl
+ 	        @(QUANT-SCOPE ^ %q).
+
+Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
+                 (^DEF) = - "this indefinite only marks plurals"
+         		 (^NUM) = pl
+         		 (^DEGREE) ~= comparative
+         		 (^DEGREE) ~= superlative; "marks the NP as comparative to allow CPComps to apply"
+         D * @(SPEC-AQUANT-PRED many)
+             (^ DEF) = -
+	         (^ NUM) = pl
+ 	        @(QUANT-SCOPE ^ %q).
 
 
 "changed to spec-quant"
@@ -276,6 +293,13 @@ few D*      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q).
+
+"partitives"
+
+A` few    D * @(SPEC-QUANT-PRED A` few)
+	      (^ DEF) = -
+	      (^ NUM) = pl
+ 	      @(QUANT-SCOPE ^ %q).
 
 
 "very preliminary any"

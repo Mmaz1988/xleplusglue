@@ -6,6 +6,18 @@ P!tokenizers/basic-parse-tok.fst G!tokenizers/default-gen-tokenizer.fst
 ANALYZE:
 tokenizers/english.infl.patch.full.fst
 
+#P!tokenizers/english.infl.lower.full.fst G!tokenizers/english.infl.patch.full.fst
+
+#mwe's must exist in the lexicon:
+BuildMultiwordsFromLexicon:
+
+
+BuildMultiwordsFromMorphology:
+
+
+MULTIWORD:
+P!tokenizers/multiwordcapmarks.fst
+
 ----
 
 MORPH   ENGLISH   RULES (1.0)

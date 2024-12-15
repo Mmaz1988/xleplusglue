@@ -1,39 +1,59 @@
-((1) (0 0.006 0) (7 words))
-((2) (1 0.003 36) (6 words))
-((3) (0 0.005 0) (10 words))
-((4) (8 0.003 53) (9 words))
-((5) (6 0.004 50) (9 words))
-((6) (2 0.004 37) (6 words))
-((7) (36 0.008 65) (11 words))
-((8) (6 0.004 50) (9 words))
-((9) (3 0.004 40) (7 words))
-((10) (2 0.004 29) (5 words))
-((11) (12 0.004 62) (9 words))
-((12) (4 0.004 46) (6 words))
-((13) (64 0.004 66) (8 words))
+((1) (1 0.015 36) (6 words))
+((2) (2+2 0.007 46) (9 words))
+((3) (6 0.009 45) (9 words))
+((4) (1 0.005 30) (6 words))
+((5) (3+3 0.007 53) (11 words))
+((6) (6 0.005 45) (9 words))
+((7) (3 0.006 35) (7 words))
+((8) (1 0.006 22) (5 words))
+((9) (1+1 0.009 50) (9 words))
+((10) (2 0.005 39) (6 words))
+((11) (2+2 0.004 52) (8 words))
+((12) (1 0.005 30) (6 words))
+((13) (1+1 0.005 43) (8 words))
+((14) (1 0.006 27) (5 words))
+((15) (1+1 0.004 35) (7 words))
+((16) (2 0.006 34) (5 words))
+((17) (2+2 0.007 44) (7 words))
+((18) (1 0.004 22) (5 words))
+((19) (1+1 0.005 35) (7 words))
+((20) (2 0.005 31) (5 words))
+((21) (2+2 0.005 44) (7 words))
+((22) (1 0.009 40) (7 words))
+((23) (1 0.005 40) (6 words))
+((24) (1+1 0.004 48) (8 words))
+((25) (2 0.007 34) (5 words))
+((26) (2+2 0.008 47) (7 words))
+((27) (1 0.005 25) (5 words))
+((28) (1 0.006 33) (7 words))
+((29) (1 0.004 22) (5 words))
+((30) (1 0.006 32) (5 words))
+((31) (0 0.007 0) (7 words))
+((32) (1 0.005 47) (8 words))
+((33) (1 0.006 21) (5 words))
 
 XLE release of Mar 17, 2017 21:12.
 Grammar = /mnt/c/Users/kakru/IdeaProjects/xleplusglue/grammars/fracas_inference_grammar/main_fracas_grammar.lfg.
-Grammar last modified on Dec 02, 2024 21:41.
+Grammar last modified on Dec 15, 2024 22:42.
 Host machine is Swifti-thrii.
-13 sentences, 0 errors, 0 mismatches
-2 sentences had 0 parses
-11 good sentences
-1 sentence had exactly one grammatical parse
+33 sentences, 0 errors, 0 mismatches
+1 sentence had 0 parses
+32 good sentences
+19 sentences had exactly one grammatical parse
 timeout = 15
 max_xle_scratch_storage = 100 MB
 prune_subtree_location = 1
 max_new_events_per_graph_when_skimming = 500
-maximum raw subtrees per sentence = 325 (#7)
-maximum event count per sentence = 7565
-average event count per graph = 90.120
-tokens = 1.9%, morph = 0.0%, multiword = 0.0%, lex = 64.9%, chart = 0.0%,
-unifier = 33.2%, completer = 0.0%, solver = 0.0%, output = 0.0%
-max_alloc_mem = 701.25 MB
-0.056 CPU secs total, 0.008 CPU secs max
-elapsed time = 2 seconds
+maximum raw subtrees per sentence = 310 (#5)
+maximum event count per sentence = 7447
+average event count per graph = 94.467
+tokens = 0.0%, morph = 2.1%, multiword = 8.0%, lex = 64.8%, chart = 6.2%,
+unifier = 18.9%, completer = 0.0%, solver = 0.0%, output = 0.0%
+max_alloc_mem = 1016.02 MB
+0.203 CPU secs total, 0.015 CPU secs max
+elapsed time = 6 seconds
   range parsed failed  words   seconds  subtrees     optimal
-   1-10     10      2   7.40     0.004     46.90       10.80
-  11-20      1      0  11.00     0.008     65.00       36.00
-    all     11      2   7.73     0.004     48.55       13.09
-0.13 of the variance in seconds is explained by the number of subtrees
+   1-10     31      1   6.58     0.006     36.58        1.68
+  11-20      1      0  11.00     0.007     53.00        3.00
+    all     32      1   6.72     0.006     37.09        1.72
+0.05 of the variance in seconds is explained by the number of subtrees
