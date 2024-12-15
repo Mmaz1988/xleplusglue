@@ -88,6 +88,12 @@ escape 	  V-S XLE @(OPT-TRANS-EV %stem).
 
 win       V-S XLE @(OPT-TRANS-EV %stem).
 
+lose      V-S XLE @(OPT-TRANS-EV %stem).
+
+sell      V-S XLE @(OPT-TRANS-EV %stem).
+
+do        V-S XLE @(OPT-TRANS-EV %stem).
+
 "Transitives"
 
 like      V-S XLE @(TRANS-EV %stem).

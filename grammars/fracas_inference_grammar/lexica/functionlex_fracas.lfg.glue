@@ -80,7 +80,8 @@ MIPS 	  N * @(PRED MIPS).
 ITEL 	  N * @(PRED ITEL);
 	  NMod * .
 
-APCOM 	  N * @(PRED APCOM).
+APCOM 	  N * @(PRED APCOM);
+      NMod * .
 
 Pavarotti   N * @(PRED pavarotti).
 

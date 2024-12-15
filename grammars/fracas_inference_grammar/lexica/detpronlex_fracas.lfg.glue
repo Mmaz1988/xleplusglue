@@ -135,6 +135,12 @@ More 	  DComp * (^DEF) = - "this indefinite only marks plurals"
 		  (^NUM) = pl
 		  (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
+many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
+                 (^DEF) = - "this indefinite only marks plurals"
+         		 (^NUM) = pl
+         		 (^DEGREE) ~= comparative
+         		 (^DEGREE) ~= superlative. "marks the NP as comparative to allow CPComps to apply"
+
 
 "changed to spec-quant"
 every 	  D * @(SPEC-QUANT-PRED every)
@@ -270,4 +276,11 @@ few D*      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q).
+
+
+"very preliminary any"
+any D * @(SPEC-QUANT-PRED some)
+        (^ DEF) = -
+        @(QUANT-SCOPE ^ %q).
+
 ----

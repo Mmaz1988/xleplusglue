@@ -110,6 +110,9 @@ ten 	  Num * @(PRED ten).
 
 500	      Num * @(PRED 500).
 
+3000      Num * @(PRED 3000).
+
+2500      Num * @(PRED 2500).
 
 "countries"
 
