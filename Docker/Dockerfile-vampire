@@ -29,6 +29,8 @@ COPY inference/eprover.p /vampire/
 COPY inference/comsemPredicates.pl /vampire/
 COPY inference/fol2tptp.pl /vampire/
 COPY inference/drs2fol.pl /vampire/
+COPY inference/mergeDRT.pl /vampire/
+COPY inference/printDrs.pl /vampire/
 
 
 # Install the required Python libraries
@@ -38,7 +40,6 @@ RUN pip install -r requirements.txt
 RUN sudo sysctl -w kernel.perf_event_paranoid=-1 || echo "Ignoring sysctl failure, needs privileged mode."
 
 # Set the command to run the Python script
-CMD ["bin/vampire", "eprover.p"]
 #CMD ["python", "run_vampire.py"]
 CMD ["uvicorn", "run_vampire:app", "--host", "0.0.0.0", "--port", "8082", "--reload"]
 #CMD ["fastapi", "run", "run_vampire.py", "--port", "8082"]

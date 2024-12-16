@@ -13,12 +13,22 @@ def bloodsucking(history,premises):
     with open(newfilepath, 'a') as file:
         file.write(premises)
     vampResult = subprocess.run(['bin/vampire', 'inputpremises.p'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    #if "Termination reason: Satisfiable" in vampResult:
-    #    history = history + premises
-    resultList = [history, premises, vampResult]
+    modelResult = subprocess.run(['bin/vampire', '--saturation_algorithm', 'fmb', 'inputpremises.p'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    print(modelResult)
+    resultList = [history, premises, vampResult,modelResult]
     if os.path.exists("inputpremises.p"):
         os.remove("inputpremises.p")
     return resultList
+
+#merge two DRSs
+def mergeIfTrue(firstOne,secondOne):
+    callToMerge = "mergeDRT:printMerged(" + firstOne + "," + secondOne + ",'mergedRes.txt')."
+    useProlog('[mergeDRT].',callToMerge)
+    filepath = 'mergedRes.txt'
+    mergedRes = open(filepath, 'r').read()
+    if os.path.exists('mergedRes.txt'):
+        os.remove('mergedRes.txt')
+    return mergedRes
 
 #convert drs to fol to tptp and get the vampire output from that
 def conversion(formula):
@@ -41,8 +51,7 @@ def conversion(formula):
         os.remove("folly.txt")
     newstring = inputToFof(data)
     # get vampire to work on the final formula
-    newblood = bloodsucking(newstring,"")
-    return newblood
+    return newstring
 
 # manipulate a string to be readable by vampire
 def inputToFof(inputstring):
@@ -71,17 +80,25 @@ def useProlog(knowledgeBase,inputString):
     if stderr:
         print("Prolog Errors:", stderr)
 
-
-
+#print boxer output
+def printDRS(Drs):
+    inputDrs = "printDrs:saveToFile(" + Drs + ",'boxing.txt')."
+    useProlog("[printDrs].",inputDrs)
+    filepath = "boxing.txt"
+    boxed = open(filepath, 'r').read()
+    if os.path.exists("boxing.txt"):
+        os.remove("boxing.txt")
+    return boxed
 
 #what the input item should look like
 class Item(BaseModel):
+    discourseSoFar: str
     axioms: str
-    premises: str
 
 #what a DRT input should look like
-class Formula(BaseModel):
-    formula: str
+#class Formula(BaseModel):
+#    formula: str
+ #   newformula: str
 
 app = FastAPI()
 
@@ -92,15 +109,25 @@ def root():
 # where 'pure' proving happens
 @app.post("/prove")
 def proving(request: Item):
-    histresult = str(request.axioms)
-    newresult = str(request.premises)
+    histresult = str(request.discourseSoFar)
+    newresult = str(request.axioms)
     return bloodsucking(histresult, newresult)
 
 # where conversion to TPTP and then proving happens
 @app.post("/convert")
-def proving(request: Formula):
-    discourse = str(request.formula)
-    return conversion(discourse)
+def proving(request: Item):
+    discourse = str(request.discourseSoFar)
+    newdiscourse = str(request.axioms)
+    convertedForm = conversion(discourse)
+    convertedNewform = conversion(newdiscourse)
+    resultList = bloodsucking(convertedForm,convertedNewform)
+    # check if vampire concludes satisfiability/consistency
+    if "Termination reason: Satisfiable" in resultList[2]:
+        newDRS = mergeIfTrue(discourse,newdiscourse)
+        resultList.append(newDRS)
+        boxedDrs = printDRS(newDRS)
+        resultList.append(boxedDrs)
+    return resultList
 
 
 #Otter commands to potentially execute

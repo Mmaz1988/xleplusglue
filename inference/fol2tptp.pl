@@ -32,7 +32,7 @@
 
 fol2tptp(Formula,Input):-
    open(Input,append,Stream),
-   write(Stream,'input_formula(comsem,conjecture,'),
+   write(Stream,'input_formula(comsem,axiom,'),
    \+ \+ ( numbervars(Formula,0,_),printTptp(Formula,Stream) ),
    write(Stream,').'),
    nl(Stream),
