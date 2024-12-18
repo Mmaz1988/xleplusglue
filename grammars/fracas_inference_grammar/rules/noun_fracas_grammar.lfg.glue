@@ -5,6 +5,7 @@ NOUN ENGLISH RULES (1.0)
 	    "optional determiner"
  	    ( { D: ^=!
  	     | PRON
+ 	     | NUMBERP
  	     |
  	        (Num: %local = (^ ADJUNCT)
  	              ! $ (%local ADJUNCT))
@@ -21,7 +22,13 @@ NOUN ENGLISH RULES (1.0)
 
 	    "head of NP"
  	    N: ^=!;
- 
+
+
+        (CPrel: ! $ (^ ADJUNCT))
+
+        (PP: (^OBL-PART)=!
+             (! PTYPE) =c sem
+             (^ NTYPE NSEM COMMON) =c partitive)
 
 	    "comparison with whole NPs"
 	    "EX: He is a fatter politician than him."
@@ -31,8 +38,6 @@ NOUN ENGLISH RULES (1.0)
  	              |
  	              %LOCAL = ^})
 
-
- 	    (CPrel: ! $ (^ ADJUNCT))
 
 
 

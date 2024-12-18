@@ -10,6 +10,7 @@
  	  VP
  	  EXCL.  "obligatory exclamation mark"
 
+
    S --> NP: (^ SUBJ)=!
 	     (! CASE)=nom;
  	 VP: (^ TNS-ASP TENSE) "require that sentences have tense"

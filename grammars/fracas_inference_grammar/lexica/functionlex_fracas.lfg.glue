@@ -28,6 +28,8 @@ in 	  P * @(PREP in).
 with 	  P * @(PREP with)
 	  @(PREP-SEM with).
 
+of      P * @(PREP of).
+
 
 
 "complementizers"

@@ -296,10 +296,37 @@ few D*      @(SPEC-AQUANT-PRED few)
 
 "partitives"
 
-A` few    D * @(SPEC-QUANT-PRED A` few)
-	      (^ DEF) = -
-	      (^ NUM) = pl
- 	      @(QUANT-SCOPE ^ %q).
+A` few    D * @(SPEC-QUANT-PRED a` few)
+	            (^ DEF) = -
+	            (^ NUM) = pl
+ 	            @(QUANT-SCOPE ^ %q);
+ 	      N *     (^PRED) = 'a` few<(^OBL-PART)>'
+ 	             "@(SPEC-QUANT-PRED a` few)"
+	            (^NTYPE NSEM COMMON) = partitive.
+
+
+"numbers/measure words/numerals"
+One     NUMBER *     @(SPEC-NUMBER-PRED one)
+                (^ DEF) = -
+	             (^ NUM) = sg;
+	    N *     (^PRED) = 'one <(^OBL-PART)>'
+	            (^NUMBER-TYPE) = cardinal
+	            (^NTYPE NSEM COMMON) = partitive.
+
+
+
+"EX: ITEL sold 3000 more computers than APCOM."
+"EX: ITEL is faster than 500 MIPS."
+
+ten 	  Num * @(PRED ten).
+
+500	      Num * @(PRED 500).
+
+3000      Num * @(PRED 3000).
+
+2500      Num * @(PRED 2500).
+
+
 
 
 "very preliminary any"
