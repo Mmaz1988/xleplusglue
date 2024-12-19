@@ -2,14 +2,14 @@
 
 #An Italian became the world's greatest tenor.
 
-An Italian became the greatest tenor. (1 0.015 36)
+An Italian became the greatest tenor. (1 0.004 36)
 
 
 # 2 - 4sol  There pers, scope of CPrel
 
 #There was an Italian who became the world's greatest tenor.
 
-There was an Italian who became the greatest tenor. (2+2 0.007 46)
+There was an Italian who became the greatest tenor. (2+2 0.006 46)
 
 #There was an Italian.
 
@@ -24,7 +24,7 @@ There was an Italian who became the greatest tenor. (2+2 0.007 46)
 
 # 3 - 6sol scope of wants to be
 
-Every Italian man wants to be a great tenor. (6 0.009 45)
+Every Italian man wants to be a great tenor. (6 0.004 45)
 
 #An Italian man wants to be a great tenor.
 
@@ -42,14 +42,14 @@ Every Italian man wants to be a great tenor. (6 0.009 45)
 
 # 4
 
-Some Italian men are great tenors. (1 0.005 30)
+Some Italian men are great tenors. (1 0.003 30)
 
 #Some Italian men hate great tenors.
 
 
 # 5 - 12 sol, there features, tnsasp be, scope
 
-There are Italian men who want to be a great tenor. (3+3 0.007 53)
+There are Italian men who want to be a great tenor. (3+3 0.002 53)
 
 #There is an Italian man who wants to be a great tenor.
 
@@ -57,41 +57,41 @@ There are Italian men who want to be a great tenor. (3+3 0.007 53)
 
 # 6 - 6 sol scope
 
-All Italian men want to be a great tenor. (6 0.005 45)
+All Italian men want to be a great tenor. (6 0.003 45)
 
 # 7 - 3 scope
 
-Each Italian tenor wants to be great. (3 0.006 35)
+Each Italian tenor wants to be great. (3 0.003 35)
 
 # 8
 
-Some Italian tenors are great. (1 0.006 22)
+Some Italian tenors are great. (1 0.002 22)
 
 # 9 - 4 sol, there features, want +inf or -inf
 
-There are Italian tenors who want to be great. (1+1 0.009 50)
+There are Italian tenors who want to be great. (1+1 0.002 50)
 
 # There are Italian tenors who try to be great
 
 # 10 - 2 sol, N vs Adj "Italian"
 
-The really ambitious tenors are Italian. (2 0.005 39)
+The really ambitious tenors are Italian. (2 0.003 39)
 
 # 11 - 4 there features, N vs Adj "Italian"
 
-There are really ambitious tenors who are Italian. (2+2 0.004 52)
+There are really ambitious tenors who are Italian. (2+2 0.002 52)
 
 # 12
 
-No really great tenors are modest. (1 0.005 30)
+No really great tenors are modest. (1 0.003 30)
 
 # 13 - 2 there features
 
-There are really great tenors who are modest. (1+1 0.005 43)
+There are really great tenors who are modest. (1+1 0.004 43)
 
 # 14
 
-Some great tenors are Swedish. (1 0.006 27)
+Some great tenors are Swedish. (1 0.004 27)
 
 # 15 - 2 there features
 
@@ -99,11 +99,11 @@ There are great tenors who are Swedish. (1+1 0.004 35)
 
 # 16
 
-Many great tenors are German. (2 0.006 34)
+Many great tenors are German. (2 0.003 34)
 
 # 17
 
-There are great tenors who are German. (2+2 0.007 44)
+There are great tenors who are German. (2+2 0.002 44)
 
 # 18
 
@@ -111,45 +111,45 @@ Several great tenors are British. (1 0.004 22)
 
 # 19
 
-There are great tenors who are British. (1+1 0.005 35)
+There are great tenors who are British. (1+1 0.002 35)
 
 # 20 - 2 "Italian"
 
-Most great tenors are Italian. (2 0.005 31)
+Most great tenors are Italian. (2 0.004 31)
 
 # 21 - 2 "Italian"
 
-There are great tenors who are Italian. (2+2 0.005 44)
+There are great tenors who are Italian. (2+2 0.004 44)
 
 # 22
 
-A few great tenors sing popular music. (1 0.009 40)
+A few great tenors sing popular music. (1 0.002 40)
 
 # Several great tenors sing popular music.
 
 # 23
 
-Some great tenors like popular music. (1 0.005 40)
+Some great tenors like popular music. (1 0.003 40)
 
 # 24
 
-There are great tenors who sing popular music. (1+1 0.004 48)
+There are great tenors who sing popular music. (1+1 0.002 48)
 
 # 25 - 2sol N vs Adj
 
-Few great tenors are poor. (2 0.007 34)
+Few great tenors are poor. (2 0.003 34)
 
 # 26 - 2sol N vs Adj
 
-There are great tenors who are poor. (2+2 0.008 47)
+There are great tenors who are poor. (2+2 0.002 47)
 
 # 27 - leading is in lexicon
 
-Both leading tenors are excellent. (1 0.005 25)
+Both leading tenors are excellent. (1 0.003 25)
 
 # 28
 
-Leading tenors who are excellent are indispensable. (1 0.006 33)
+Leading tenors who are excellent are indispensable. (1 0.004 33)
 
 # 29
 
@@ -157,17 +157,17 @@ Both leading tenors are indispensable. (1 0.004 22)
 
 # 30 -
 
-Neither leading tenor comes cheap. (1 0.006 32)
+Neither leading tenor comes cheap. (1 0.004 32)
 
 #Neither leading tenor appeared.
 
 # 31 - not yet
 
-One of the leading tenors is Pavarotti. (0 0.007 0)
+One of the leading tenors is Pavarotti. (1 0.004 33)
 
 # 32
 
-Pavarotti is a leading tenor who comes cheap. (1 0.005 47)
+Pavarotti is a leading tenor who comes cheap. (1 0.002 47)
 
 # 33
 
@@ -199,7 +199,7 @@ Pavarotti is a leading tenor who comes cheap. (1 0.005 47)
 
 # 40
 
-Every European is a person. (1 0.006 21)
+Every European is a person. (1 0.003 21)
 
 # 41
 
@@ -297,43 +297,43 @@ Every European is a person. (1 0.006 21)
 
 #All committee members are people.
 
-#
+# 65
 
 #All people who are from Sweden are from Scandinavia.
 
-#
+# 66
 
 #At least a few committee members are from Scandinavia.
 
-#
+# 67
 
 # Few committee members are from Portugal.
 
-#
+# 68
 
 #All people who are from Portugal are from southern Europe.
 
-#
+# 69
 
 #There are few committee members from southern Europe.
 
-#
+# 70
 
 #Both commissioners used to be leading businessmen.
 
-#
+# 71
 
 #Both commissioners used to be businessmen.
 
-#
+# 72
 
 # Neither commissioner spends a lot of time at home.
 
-#
+# 73
 
 #Neither commissioner spends time at home.
 
-#
+# 74
 
 #At least three commissioners spend a lot of time at home.
 
@@ -360,77 +360,149 @@ Every European is a person. (1 0.006 21)
 #
 
 #A few committee members are from Scandinavia.
+
 #
+
 #At least a few committee members are from Sweden.
+
 #
+
 # Few committee members are from southern Europe.
+
 #
+
 #There are few committee members from Portugal.
+
 #
+
 # A Swede won a Nobel prize.
+
 #
+
 #Every Swede is a Scandinavian.
+
 #
+
 #A Scandinavian won a Nobel prize.
+
 #
+
 #Every Canadian resident is a resident of the North American continent.
+
 #
+
 #The residents of major western countries can travel freely within Europe.
+
 #
+
 #The residents of western countries have the right to live in Europe.
+
 #
+
 #No Scandinavian delegate finished the report on time.
+
 #
+
 #Some delegate finished the report on time.
+
 #
+
 #Most Europeans who are resident in Europe can travel freely within Europe.
+
 #
+
 #A few female committee members are from Scandinavia.
+
 #
+
 #Both female commissioners used to be in business.
+
 #
+
 # Both commissioners used to be in business.
+
 #
+
 #Neither female commissioner spends a lot of time at home.
+
 #
+
 #One of the commissioners spends a lot of time at home.
+
 #
+
 # At least three female commissioners spend time at home.
+
 #
+
 #At most ten female commissioners spend time at home.
+
 #
+
 #Every resident of the North American continent can travel freely within Europe.
+
 #
+
 #Every Canadian resident can travel freely within Europe 	.
+
 #
+
 # All residents of the North American continent can travel freely within Europe.
+
 #
+
 #All Canadian residents can travel freely within Europe.
+
 #
+
 # Each resident of the North American continent can travel freely within Europe.
+
 #
+
 #Each Canadian resident can travel freely within Europe.
+
 #
+
 #The residents of western countries can travel freely within Europe.
+
 #
+
 #All residents of major western countries are residents of western countries.
+
 #
+
 #The residents of major western countries have the right to live in Europe.
+
 #
+
 #Some Scandinavian delegate finished the report on time.
+
 #
+
 #Some Irish delegates finished the survey on time.
+
 #
+
 #Many British delegates obtained interesting results from the survey.
+
 #
+
 #Several Portuguese delegates got the results published in major national newspapers.
+
 #
+
 # Most Europeans who are resident outside Europe can travel freely within Europe.
+
 #
+
 # At least a few female committee members are from Scandinavia.
+
 #
+
 # One of the female commissioners spends a lot of time at home.
+
 #
+
 # At least three male commissioners spend time at home.
 
-# 33 sentences, 0.203 CPU secs total, 0.015 CPU secs max (12/15/24)
+# 33 sentences, 0.104 CPU secs total, 0.006 CPU secs max (12/18/24)

@@ -296,24 +296,34 @@ few D*      @(SPEC-AQUANT-PRED few)
 
 "partitives"
 
-A` few    D * @(SPEC-QUANT-PRED a` few)
+"A few of the men appeared"
+"At least a few of the men appeared"
+
+
+A` few    NUMBER * {@(SPEC-QUANT-PRED a` few)
 	            (^ DEF) = -
 	            (^ NUM) = pl
- 	            @(QUANT-SCOPE ^ %q);
- 	      N *     (^PRED) = 'a` few<(^OBL-PART)>'
+ 	            "@(QUANT-SCOPE ^ %q)"
+ 	            |
+ 	           (^PRED) = 'a` few<(^OBL-PART)>'
  	             "@(SPEC-QUANT-PRED a` few)"
-	            (^NTYPE NSEM COMMON) = partitive.
+	            (^NTYPE NSEM COMMON) = partitive}.
 
 
 "numbers/measure words/numerals"
-One     NUMBER *     @(SPEC-NUMBER-PRED one)
-                (^ DEF) = -
-	             (^ NUM) = sg;
-	    N *     (^PRED) = 'one <(^OBL-PART)>'
-	            (^NUMBER-TYPE) = cardinal
-	            (^NTYPE NSEM COMMON) = partitive.
+One     NUMBER *  {@(SPEC-NUMBER-PRED one)
+                   (^ DEF) = -
+	               (^ NUM) = sg
+	               |
+	               (^PRED) = 'one <(^OBL-PART)>'
+	               (^NUMBER-TYPE) = cardinal
+	               (^NTYPE NSEM COMMON) = partitive }.
 
 
+At` least  ADV * (^ADV-TYPE) = num.  "eh"
+
+
+"Mary sold One more computer than John."
 
 "EX: ITEL sold 3000 more computers than APCOM."
 "EX: ITEL is faster than 500 MIPS."
