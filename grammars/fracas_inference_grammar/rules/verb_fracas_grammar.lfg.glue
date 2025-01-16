@@ -45,8 +45,6 @@ VERB ENGLISH RULES (1.0)
 	  "somewhat preliminary, should not be 'predicative', works for the moment though"
  	  "(AP[predicative]: ! $ (^ ADJUNCT))."
 
-
-
    VPinf --> PARTinf VP.
 
 

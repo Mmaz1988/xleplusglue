@@ -208,6 +208,10 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    DEF = (^ DEF).
 
+"templates for partitives"
+    PARTITIVE(P)=   (^PRED) = 'P <(^OBL-PART)>'
+	                (^NTYPE NSEM COMMON) = partitive.
+
 "template for adjectives"
 
    ADJ-POS(P) = (^ DEGREE) = positive

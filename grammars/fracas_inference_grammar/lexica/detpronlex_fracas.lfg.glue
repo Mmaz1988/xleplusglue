@@ -299,28 +299,41 @@ few D*      @(SPEC-AQUANT-PRED few)
 "A few of the men appeared"
 "At least a few of the men appeared"
 
+"At least - literature"
 
-A` few    NUMBER * {@(SPEC-QUANT-PRED a` few)
+
+A` few    D * {@(SPEC-QUANT-PRED a` few)
 	            (^ DEF) = -
 	            (^ NUM) = pl
  	            "@(QUANT-SCOPE ^ %q)"
  	            |
- 	           (^PRED) = 'a` few<(^OBL-PART)>'
- 	             "@(SPEC-QUANT-PRED a` few)"
-	            (^NTYPE NSEM COMMON) = partitive}.
+ 	            @(PARTITIVE a` few)}.
 
+a` few    D * {@(SPEC-QUANT-PRED a` few)
+	            (^ DEF) = -
+	            (^ NUM) = pl
+ 	            "@(QUANT-SCOPE ^ %q)"
+ 	            |
+ 	           @(PARTITIVE a` few)}.
 
 "numbers/measure words/numerals"
 One     NUMBER *  {@(SPEC-NUMBER-PRED one)
                    (^ DEF) = -
 	               (^ NUM) = sg
 	               |
-	               (^PRED) = 'one <(^OBL-PART)>'
-	               (^NUMBER-TYPE) = cardinal
-	               (^NTYPE NSEM COMMON) = partitive }.
+	               @(PARTITIVE one)
+	               (^NUMBER-TYPE) = cardinal}.
+
+one     NUMBER *  {@(SPEC-NUMBER-PRED one)
+                   (^ DEF) = -
+	               (^ NUM) = sg
+	               |
+	               @(PARTITIVE one)
+	               (^NUMBER-TYPE) = cardinal}.
 
 
-At` least  ADV * (^ADV-TYPE) = num.  "eh"
+At` least  ADV * (^PRED) = 'at` least'
+                 (^ADV-TYPE) = num.  "eh"
 
 
 "Mary sold One more computer than John."

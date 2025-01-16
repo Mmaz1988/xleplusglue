@@ -1,61 +1,58 @@
 NOUN ENGLISH RULES (1.0)
 
 
-    NUMBERP --> (ADV: ! $ (^ ADJUNCT)
-                        (^ADV-TYPE) =c num)
-                 NUMBER: ^=!
-                 "; (Dcomp: ! $ (^ ADJUNCT))".
+NP --> "either a full NP or a PRON"
 
-   NP --> "either a full NP or a PRON"
- 	  {
-	    "optional determiner"
- 	    ( { D: ^=!
- 	     | PRON
- 	     | NUMBERP  "eg. One man appeared"
- 	     |
- 	        (Num: %local = (^ ADJUNCT)
- 	              ! $ (%local ADJUNCT))
- 	         DComp: ! $ (^ ADJUNCT)
- 	     } )
-
-
- 	    AP[attributive]*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
-
-        "hardcoding of MWEs"
-        "should be done more elegantly in the end"
-        "hardcoded words can be found in the functionlex_fracas"
-        (NMod)
-
-	    "head of NP"
- 	    N: ^=!;
+    (ADV: ! $  (^ ADJUNCT)
+          (^ADJUNCT ADV-TYPE) =c num ) "%adj = (^ ADJUNCT) ! $ %adj SPEC {NUMBER|QUANT|AQUANT}  (^ADV-TYPE) =c num eg at least several men"
+            "adjunct in the specifier, but should technically also be able to be adjunct at other levels"
+  {
+    "optional determiner"
+    ( { D: ^=!
+     | PRON
+     | NUMBER  "eg. One man appeared"
+     |
+        (Num: %local = (^ ADJUNCT)
+              ! $ (%local ADJUNCT))
+         DComp: ! $ (^ ADJUNCT)
+     } )
 
 
-        (CPrel: ! $ (^ ADJUNCT))
+    AP[attributive]*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
 
-	    "comparison with whole NPs"
-	    "EX: He is a fatter politician than him."
- 	    (CPComp: (%LOCAL OBL-COMP)=!
- 	            {(^ ADJUNCT $)=%LOCAL
- 	             %LOCAL $ (^ ADJUNCT)
- 	              |
- 	              %LOCAL = ^})
+    "hardcoding of MWEs"
+    "should be done more elegantly in the end"
+    "hardcoded words can be found in the functionlex_fracas"
+    (NMod)
 
+    "head of NP"
+    N: ^=!;
+
+
+    (CPrel: ! $ (^ ADJUNCT))
+
+    "comparison with whole NPs"
+    "EX: He is a fatter politician than him."
+    (CPComp: (%LOCAL OBL-COMP)=!
+            {(^ ADJUNCT $)=%LOCAL
+             %LOCAL $ (^ ADJUNCT)
+              |
+              %LOCAL = ^})
 
 
 
- 	    PP*: ! $ (^ ADJUNCT) "PPs modifying NPs"
-		 (! PTYPE) =c sem "have to be semantic"
-		 "@(OT-MARK PPattach)" "prefer PPs attached to NPs"
+    PP*: ! $ (^ ADJUNCT) "PPs modifying NPs"
+     (! PTYPE) =c sem "have to be semantic"
+     "@(OT-MARK PPattach)" "prefer PPs attached to NPs"
 
- 	  | PRON
- 	  | NUMBERP: ^=!; "One of the men appeared"
+  | PRON "eg. I appeared"
+  | {NUMBER: ^=! |D: ^=!} ";" "One of the men appeared"
 
- 	    PP: (^OBL-PART)=!
-           (! PTYPE) =c sem
-           (^ NTYPE NSEM COMMON) =c partitive
-
-      }.
-
+    PP: (^OBL-PART)=!
+       (! PTYPE) =c sem
+       (^ NTYPE NSEM COMMON) =c partitive
+       (! OBJ NUM) =c pl
+  }.
 
 
 ----

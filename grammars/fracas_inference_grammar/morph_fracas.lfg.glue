@@ -6,7 +6,9 @@ P!tokenizers/basic-parse-tok.fst G!tokenizers/default-gen-tokenizer.fst
 ANALYZE:
 tokenizers/english.infl.patch.full.fst
 
-#P!tokenizers/english.infl.lower.full.fst G!tokenizers/english.infl.patch.full.fst
+#ANALYZE USEALL:
+#P!tokenizers/english.infl.lower.fst P!tokenizers/english.infl.patch.full.fst
+
 
 #mwe's must exist in the lexicon:
 BuildMultiwordsFromLexicon:
