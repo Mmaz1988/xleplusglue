@@ -41,10 +41,10 @@ set solutionOnly 0
 set prover 1
 
 # activate semantic parser (0: no parsing / 1: semantic Parsing / 2: Prolog)
-set semParser 0
+set semParser 2
 
 # activate DRT mode (1/0); requires Prolog parsing! 
-set processDRT 0
+set processDRT 1
 
 # Choose between Prolog-encoding (0) and String-encoding (1) for MCs
 set mcEncoding 1
