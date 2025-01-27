@@ -38,7 +38,8 @@ DEMO   ENGLISH   RULES (1.0)
                SCONJ
                Sans.
 
-   Sans --> e: (^ ANSWER) = (^ QEUSTION)\PRON-INT\SUBJ;
+   Sans --> e:  (^ ANSWER PRED) = (^ QUESTION PRED)
+                (^ ANSWER) = (^ QUESTION)\PRON-INT\SUBJ;
             NP: (^ ANSWER SUBJ) = !.
 
   Simp --> e: (^ SUBJ PRED) = 'pro'
