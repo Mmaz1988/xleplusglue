@@ -70,6 +70,8 @@ laugh 	  V-S XLE @(INTRANS-EV %stem).
 
 sleep 	  V-S XLE @(INTRANS-EV %stem).
 
+live       V-S XLE @(INTRANS-EV %stem).
+
 wait 	  V-S XLE { @(INTRANS-EV wait) |
 		@(INTRANS-OBL wait)
 		"this is the non-semantic OBL wait on a customer use"
@@ -123,6 +125,8 @@ have      V-S XLE @(TRANS-EV %stem).
 "Ditransitives"
 
 give 	  V-S XLE @(DITRANS-EV give).
+
+contribute V-S XLE @(DITRANS-EV contribute).
 
 
 "comes: eg. 'comes cheap'"
@@ -200,10 +204,10 @@ was   V *  @VPAST
               @(PERF -_) |
              (^ TNS-ASP PROG)
             }
-		{ (^ SUBJ PERS) = 1
-           | (^ SUBJ PERS) = 3
-                }
-                (^ SUBJ NUM) = sg.
+            { (^ SUBJ PERS) = 1
+               | (^ SUBJ PERS) = 3
+            }
+            (^ SUBJ NUM) = sg.
 
 
 were   V *  @VPAST
@@ -218,6 +222,16 @@ were   V *  @VPAST
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
                @(EVENT %stem)}.
+
+"future"
+
+will    AUX * @VFUT "@(TENSE past)"
+              "@(PROG -_)
+              @(PERF -_)"
+              (^ SUBJ NUM)
+              (^ SUBJ PERS)
+              (^ FIN) = +
+              @(EVENT %stem). "semantics don't work here"
 
 
 "be, (being, been??)"

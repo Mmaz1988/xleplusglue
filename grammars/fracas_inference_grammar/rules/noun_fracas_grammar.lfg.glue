@@ -12,9 +12,8 @@ NP --> "either a full NP or a PRON"
      | PRON
      | NUMBER  "eg. One man appeared"
      |
-        (Num: %local = (^ ADJUNCT)
-              ! $ (%local ADJUNCT))
-         DComp: ! $ (^ ADJUNCT)
+        (NUMBER)                    "or AQUANTS"
+         DComp: ! $ (^ ADJUNCT)         "ITEL sold 3000 more computers than APCOM- how can this go with NUMBER?"
      } )
 
 
@@ -37,7 +36,7 @@ NP --> "either a full NP or a PRON"
             {(^ ADJUNCT $)=%LOCAL
              %LOCAL $ (^ ADJUNCT)
               |
-              %LOCAL = ^})
+              %LOCAL = ^})  "the greater dog than the cat"
 
 
 
@@ -46,12 +45,14 @@ NP --> "either a full NP or a PRON"
      "@(OT-MARK PPattach)" "prefer PPs attached to NPs"
 
   | PRON "eg. I appeared"
+
   | {NUMBER: ^=! |D: ^=!} ";" "One of the men appeared"
 
     PP: (^OBL-PART)=!
        (! PTYPE) =c sem
        (^ NTYPE NSEM COMMON) =c partitive
        (! OBJ NUM) =c pl
+       "rule out a comparative CP"
   }.
 
 

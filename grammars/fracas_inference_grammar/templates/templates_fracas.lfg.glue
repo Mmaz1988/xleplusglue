@@ -161,7 +161,10 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    @(MOOD indicative).
 
    VPAST = @(TENSE past) 
-	  @(MOOD indicative). 
+	  @(MOOD indicative).
+
+   VFUT =   @(TENSE fut)
+            @(MOOD indicative).
 
    VPROG = (^ TNS-ASP PROG) = +_.
 
