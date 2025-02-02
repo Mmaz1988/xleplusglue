@@ -161,7 +161,7 @@ Neither leading tenor comes cheap.
 
 #Neither leading tenor appeared.
 
-# 31 - not yet
+# 31
 
 One of the leading tenors is Pavarotti.
 
@@ -169,37 +169,45 @@ One of the leading tenors is Pavarotti.
 
 Pavarotti is a leading tenor who comes cheap.
 
-# 33
+# 33 0 take part as one word?
 
 #At least three tenors will take part in the concert.
 
-# 34
+At least three tenors will appear in the concert.
+
+# 34 0    alternative: 4+4???
 
 #There are tenors who will take part in the concert.
 
+There are tenors who will appear in the concert.
+
 # 35
 
-#At most two tenors will contribute their fees to charity.
+At most two tenors will contribute their fees to charity.
 
 # 36
 
-#There are tenors who will contribute their fees to charity.
+There are tenors who will contribute their fees to charity.
 
-# 37
+# 37 2 - "for" attachment position
 
-#An Irishman won the Nobel prize for literature.
+An Irishman won the Nobel prize for literature.
 
 # 38
 
-#An Irishman won a Nobel prize.
+An Irishman won a Nobel prize.
 
-# 39
+# 39: add a VP into the NP??
 
 #Every European has the right to live in Europe.
 
+Every European has the right.
+
+Every European lives in Europe.
+
 # 40
 
-Every European is a person.
+#Every European is a person.
 
 # 41
 
@@ -337,170 +345,170 @@ Every European is a person.
 
 #At least three commissioners spend a lot of time at home.
 
-#
+# 75
 
 # At least three commissioners spend time at home.
 
-#
+# 76
 
 #At most ten commissioners spend a lot of time at home.
 
-#
+# 77
 
 #At most ten commissioners spend time at home.
 
-#
+# 78
 
 #Every individual who has the right to live anywhere in Europe can travel freely within Europe.
 
-#
+# 79
 
 #The residents of member states have the right to live anywhere in Europe.
 
-#
+# 80
 
 #A few committee members are from Scandinavia.
 
-#
+# 81
 
 #At least a few committee members are from Sweden.
 
-#
+# 82
 
 # Few committee members are from southern Europe.
 
-#
+# 83
 
 #There are few committee members from Portugal.
 
-#
+# 84
 
 # A Swede won a Nobel prize.
 
-#
+# 85
 
 #Every Swede is a Scandinavian.
 
-#
+# 86
 
 #A Scandinavian won a Nobel prize.
 
-#
+# 87
 
 #Every Canadian resident is a resident of the North American continent.
 
-#
+# 88
 
 #The residents of major western countries can travel freely within Europe.
 
-#
+# 89
 
 #The residents of western countries have the right to live in Europe.
 
-#
+# 90
 
 #No Scandinavian delegate finished the report on time.
 
-#
+# 91
 
 #Some delegate finished the report on time.
 
-#
+# 92
 
 #Most Europeans who are resident in Europe can travel freely within Europe.
 
-#
+# 93
 
 #A few female committee members are from Scandinavia.
 
-#
+# 94
 
 #Both female commissioners used to be in business.
 
-#
+# 95
 
 # Both commissioners used to be in business.
 
-#
+# 96
 
 #Neither female commissioner spends a lot of time at home.
 
-#
+# 97
 
 #One of the commissioners spends a lot of time at home.
 
-#
+# 98
 
 # At least three female commissioners spend time at home.
 
-#
+# 99
 
 #At most ten female commissioners spend time at home.
 
-#
+# 100
 
 #Every resident of the North American continent can travel freely within Europe.
 
-#
+# 101
 
 #Every Canadian resident can travel freely within Europe 	.
 
-#
+# 102
 
 # All residents of the North American continent can travel freely within Europe.
 
-#
+# 103
 
 #All Canadian residents can travel freely within Europe.
 
-#
+# 104
 
 # Each resident of the North American continent can travel freely within Europe.
 
-#
+# 105
 
 #Each Canadian resident can travel freely within Europe.
 
-#
+# 106
 
 #The residents of western countries can travel freely within Europe.
 
-#
+# 107
 
 #All residents of major western countries are residents of western countries.
 
-#
+# 108
 
 #The residents of major western countries have the right to live in Europe.
 
-#
+# 109
 
 #Some Scandinavian delegate finished the report on time.
 
-#
+# 110
 
 #Some Irish delegates finished the survey on time.
 
-#
+# 111
 
 #Many British delegates obtained interesting results from the survey.
 
-#
+# 112
 
 #Several Portuguese delegates got the results published in major national newspapers.
 
-#
+# 113
 
 # Most Europeans who are resident outside Europe can travel freely within Europe.
 
-#
+# 114
 
 # At least a few female committee members are from Scandinavia.
 
-#
+# 115
 
 # One of the female commissioners spends a lot of time at home.
 
-#
+# 116
 
 # At least three male commissioners spend time at home.

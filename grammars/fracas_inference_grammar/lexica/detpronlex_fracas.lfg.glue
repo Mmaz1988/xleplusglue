@@ -284,12 +284,12 @@ most    D* @(SPEC-AQUANT-PRED most)
  	        @(QUANT-SCOPE ^ %q).
 
 
-Few D*      @(SPEC-AQUANT-PRED few)
+Few D *      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q).
 
-few D*      @(SPEC-AQUANT-PRED few)
+few D *      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q).
@@ -331,26 +331,49 @@ one     NUMBER *  {@(SPEC-NUMBER-PRED one)
 	               @(PARTITIVE one)
 	               (^NUMBER-TYPE) = cardinal}.
 
+two     NUMBER *  {@(SPEC-NUMBER-PRED twp)
+                   (^ DEF) = -
+	               (^ NUM) = pl
+	               |
+	               @(PARTITIVE two)
+	               (^NUMBER-TYPE) = cardinal}.
+
+three     NUMBER *  {@(SPEC-NUMBER-PRED three)
+                   (^ DEF) = -
+	               (^ NUM) = pl
+	               |
+	               @(PARTITIVE three)
+	               (^NUMBER-TYPE) = cardinal}.
+
 
 At` least  ADV * (^PRED) = 'at` least'
-                 (^ADV-TYPE) = num.  "eh"
+                 (^ADV-TYPE) = num.
 
+At` most  ADV * (^PRED) = 'at` most'
+                 (^ADV-TYPE) = num.
 
 "Mary sold One more computer than John."
 
 "EX: ITEL sold 3000 more computers than APCOM."
 "EX: ITEL is faster than 500 MIPS."
 
-ten 	  Num * @(PRED ten).
+ten 	  NUMBER *  @(SPEC-NUMBER-PRED ten)
+                    (^ DEF) = -
+	                (^ NUM) = pl.
 
-500	      Num * @(PRED 500).
+500	      NUMBER *  @(SPEC-NUMBER-PRED 500)
+                   (^ DEF) = -
+	               (^ NUM) = pl.
 
-3000      Num * @(PRED 3000).
+3000      NUMBER * @(SPEC-NUMBER-PRED 3000).
 
-2500      Num * @(PRED 2500).
+2500      NUMBER *  @(SPEC-NUMBER-PRED 2500)
+                   (^ DEF) = -
+	               (^ NUM) = pl.
 
 
-
+"exactly    does not work"
+"what about     twice?"
 
 "very preliminary any"
 any D * @(SPEC-QUANT-PRED some)

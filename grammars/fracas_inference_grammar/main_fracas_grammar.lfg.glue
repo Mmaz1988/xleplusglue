@@ -51,6 +51,9 @@ New` York N * (^ PRED)='New` York'.
 
 Nobel` prize N * (^ PRED)='Nobel` prize'.
 
+"nouns that can take an XCOMP" "eg. the right to appear"
+
+right	  N * (^PRED) = 'right<(^XCOMP)>' ; ETC.
 
 
 "hardcoded words"
