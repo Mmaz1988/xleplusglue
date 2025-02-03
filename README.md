@@ -26,15 +26,16 @@ The system is fully integrated in XLE and is accessible when starting XLE.
 
 ## Recommended settings (to be set in the xlerc file)
 
-| Configuration      | Prover | semParser | processDRT | mcEncoding | transfer |
-|--------------------|--------|-----------|------------|------------|----------|
-| glue-basic         | any    | 1         | 0          | 1          | 0        |
-| hybrid-basic       | any    | 2         | 1          | 1          | 1        |
-| multistage-basic   | 3      | 1         | 0          | 1          | 0        |
+| Grammar          | Prover | semParser | processDRT | mcEncoding | transfer |
+|------------------|--------|-----------|------------|------------|----------|
+| glue-basic       | any    | 1         | 0          | 1          | 0        |
+| hybrid-basic     | any    | 2         | 1          | 1          | 1        |
+| multistage-basic | 3      | 1         | 0          | 1          | 0        |
+
+These are the settings intended for the different grammars. Using different settings might cause problems. 
 
 ## Known bugs
 
-- Output only not working for multistage proving
-- Output only still prints: "Proof:"
+- Output only prints: "Proof:"
 
 
