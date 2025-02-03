@@ -1,5 +1,6 @@
 # ignore xle folder
 
+frontend/*
 xle/*
 resource_folders_old/*
 frontend/last_running/*
