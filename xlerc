@@ -24,7 +24,7 @@ set defaultGlueTCL [relpath src/glue.tcl]
 
 #Here the grammar is loadedd-drt-tense
 # set defaultGlueParser [relpath grammars/hybrid-basic/hybrid-drt-tense.lfg.glue]
-# set defaultGlueParser [relpath grammars/multistage-proving/multistage_xle_adj.lfg.glue]
+# set defaultGlueParser [relpath grammars/multistage-basic/multistage_xle_adj.lfg.glue]
 set defaultGlueParser [relpath grammars/glue-basic/glue-basic.lfg.glue]
 
 #Set LiGER rule file

@@ -23,6 +23,15 @@ This repository contains:
 
 The system is fully integrated in XLE and is accessible when starting XLE.
 
+
+## Recommended settings (to be set in the xlerc file)
+
+| Configuration      | Prover | semParser | processDRT | mcEncoding | transfer |
+|--------------------|--------|-----------|------------|------------|----------|
+| glue-basic         | any    | 1         | 0          | 1          | 0        |
+| hybrid-basic       | any    | 2         | 1          | 1          | 1        |
+| multistage-basic   | 3      | 1         | 0          | 1          | 0        |
+
 ## Known bugs
 
 - Output only not working for multistage proving
