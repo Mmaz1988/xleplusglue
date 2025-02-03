@@ -19,14 +19,16 @@ proc relpath {path} {
      return [file normalize [file join $home $path]]
 }
 
-
 #Loads the corresponding Glue tcl file.
 set defaultGlueTCL [relpath src/glue.tcl]
 
-#Here the grammar is loaded
-set defaultGlueParser [relpath grammars/multistage-proving/multistage_xle_adj.lfg.glue]
+#Here the grammar is loadedd-drt-tense
+# set defaultGlueParser [relpath grammars/hybrid-basic/hybrid-drt-tense.lfg.glue]
+# set defaultGlueParser [relpath grammars/multistage-proving/multistage_xle_adj.lfg.glue]
+set defaultGlueParser [relpath grammars/glue-basic/glue-basic.lfg.glue]
 
-proc t {} {parse-testfile [relpath testsuites/basic-test.lfg] }
+#Set LiGER rule file
+set transferRuleFile [relpath liger_resources/test_rules.txt]
 
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
@@ -38,10 +40,10 @@ source $defaultGlueTCL
 set solutionOnly 0
 
 # choose prover  (0: HEPPLE, 1: LEV, 2: LEV-altered, 3: Multistage proving)
-set prover 3
+set prover 1
 
 # activate semantic parser (0: no parsing / 1: semantic Parsing / 2: Prolog)
-set semParser 0
+set semParser 1
 
 # activate DRT mode (1/0); requires Prolog parsing! 
 set processDRT 0
@@ -51,6 +53,9 @@ set mcEncoding 1
 
 # activate debug mode (1/0)
 set transferDebug 1
+
+# activate rewrite with LiGER (1/0)
+set transfer 0
 
 #set font
 set outputfont Courir
@@ -65,3 +70,5 @@ proc clean {} {
     exec sh -c $command
     puts "Cleaned up the grammars directory."
 }
+
+proc t {} {parse-testfile [relpath testsuites/basic-test.lfg] }

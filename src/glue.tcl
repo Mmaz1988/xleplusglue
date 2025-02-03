@@ -54,7 +54,7 @@ proc init-glue {{compiled 0}} {
     #Add Glue menus to XLE GUI. Specified below. 
     create-glue-menus
 
-    #COmment in when working with Sicstus-Prolog; not recommended    
+    #Comment in when working with Sicstus-Prolog; not recommended
     #foreach prologFile $defaultPrologFiles {
     #prolog "load_files('$prologFile')."}
 
@@ -103,12 +103,12 @@ proc fswindow-to-premises {displaywindow window displaymode position} {
    
     global defaultTmpDir prover semParser \
     transferDebug processDRT solutionOnly \
-    mcEncoding outputfont fontsize
+    mcEncoding outputfont fontsize \
+    transferRuleFile transfer
 	
     
     #For Sicstus Prolog
     #global defaultPrologFiles
-
 
     file delete -force tmp
    
@@ -145,11 +145,11 @@ proc fswindow-to-premises {displaywindow window displaymode position} {
     
     #Set path of liger
     set ligerpath "jars/liger.jar"
+
     set prologPath [relpath $prologfile]
     set outputPath [relpath $outputfile]
-    set command "-fs2mcs $mcEncoding $prologPath $outputPath"
+    set command "-gf $mcEncoding -i $prologPath -o $outputPath -mc"
 
-    
     #Set up the command to call LIGER in accordance with the parameters set in xlerc
     set fs2glue exec
     lappend fs2glue java
@@ -158,6 +158,12 @@ proc fswindow-to-premises {displaywindow window displaymode position} {
     if {$prover == 3} {
     lappend fs2glue "-multi"
     }
+
+    if {$transfer == 1} {
+    lappend fs2glue -rf
+    lappend fs2glue $transferRuleFile
+    }
+
     set fs2glue [concat $fs2glue $command]
 
     puts "Executing command $fs2glue"
