@@ -24,9 +24,9 @@ proc relpath {path} {
 set defaultGlueTCL [relpath src/glue.tcl]
 
 #Here the grammar is loaded
-set defaultGlueParser [relpath grammars/fracas_inference_grammar/main_fracas_grammar.lfg.glue]
+set defaultGlueParser [relpath grammars/multistage-proving/multistage_xle_adj.lfg.glue]
 
-proc t {} {parse-testfile [relpath testsuites/fracas_quantifiers_testsuite.lfg] }
+proc t {} {parse-testfile [relpath testsuites/basic-test.lfg] }
 
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
@@ -38,17 +38,16 @@ source $defaultGlueTCL
 set solutionOnly 0
 
 # choose prover  (0: HEPPLE, 1: LEV, 2: LEV-altered, 3: Multistage proving)
-set prover 1
+set prover 3
 
 # activate semantic parser (0: no parsing / 1: semantic Parsing / 2: Prolog)
-set semParser 2
+set semParser 0
 
 # activate DRT mode (1/0); requires Prolog parsing! 
-set processDRT 1
+set processDRT 0
 
 # Choose between Prolog-encoding (0) and String-encoding (1) for MCs
 set mcEncoding 1
-
 
 # activate debug mode (1/0)
 set transferDebug 1
