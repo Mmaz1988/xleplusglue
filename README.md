@@ -4,8 +4,9 @@ INFO: This branch contains the local version of XLE+Glue without the web interfa
 
 ## Intro
 
-This repository serves to provide a toolset for working with XLE+Glue. Furthermore, it provides the means to create a Docker container for running the components in a virtual environment.
+This repository serves to provide a toolset for working with XLE+Glue. 
 This repository contains:
+
 - XLE+Glue: A simple user interface for using the Glue Semantics Workbench with XLE
 - The latest version of the Glue Semantics Workbench
 - The latest version of LiGER (Linguistic Graph Expansion and Rewriting)
@@ -15,13 +16,14 @@ This repository contains:
 
 - XLE installed on your machine (distributed via the **[University of Konstanz](https://ling.sprachwiss.uni-konstanz.de/pages/xle/index.html)**, requires signing a license with PARC)
 - **[Java LTS (compiled for version 11)](https://www.docker.com/)**
-- - **[SWI-Prolog LTS or version > v6.xx (development with version 9.04)](https://www.docker.com/)**
+- **[SWI-Prolog LTS or version > v6.xx (development with version 9.04)](https://www.docker.com/)**
 
 
 
 ## Running the system 
 
-The system is fully integrated in XLE and is accessible when starting XLE.
+The system is fully integrated in XLE and is accessible when starting XLE from the main directory (/xleplusglue).
+It is recommended that grammars are stored in separate folders in the /grammars directory.
 
 
 ## Recommended settings (to be set in the xlerc file)
