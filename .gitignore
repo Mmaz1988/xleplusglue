@@ -1,5 +1,6 @@
 # ignore xle folder
 
+documentation/*
 frontend/*
 xle/*
 resource_folders_old/*
