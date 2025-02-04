@@ -22,7 +22,7 @@ proc relpath {path} {
 #Loads the corresponding Glue tcl file.
 set defaultGlueTCL [relpath src/glue.tcl]
 
-#Here the grammar is loadedd-drt-tense
+#Here the grammar is loaded
 # set defaultGlueParser [relpath grammars/hybrid-basic/hybrid-drt-tense.lfg.glue]
 # set defaultGlueParser [relpath grammars/multistage-basic/multistage_xle_adj.lfg.glue]
 set defaultGlueParser [relpath grammars/glue-basic/glue-basic.lfg.glue]
@@ -37,7 +37,7 @@ set defaultTmpDir /tmp
 source $defaultGlueTCL
 
 #detailed output
-set solutionOnly 0
+set solutionOnly 1
 
 # choose prover  (0: HEPPLE, 1: LEV, 2: LEV-altered, 3: Multistage proving)
 set prover 1
