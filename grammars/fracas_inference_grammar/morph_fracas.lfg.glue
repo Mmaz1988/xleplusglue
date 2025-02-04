@@ -43,7 +43,8 @@ The sublexcial items are the POS assigned to the various tags in morph-lex.lfg"
  	 N-NUM_BASE.
 
    A --> ADJ-S_BASE
- 	 ADJ-POS_BASE.
+ 	 ADJ-POS_BASE
+ 	 GRAD_BASE.
 	 
    ADV --> ADV-S_BASE
  	  ADV-POS_BASE.
@@ -127,6 +128,10 @@ MORPH   ENGLISH   LEXICON (1.0)
 "other"
 
 +Adj 	  ADJ-POS XLE .
+
++Comp     GRAD XLE @(ADJ-COMP %stem).
+
++Sup      GRAD XLE @(ADJ-SUP %stem).
 
 +Adv 	  ADV-POS XLE .
 

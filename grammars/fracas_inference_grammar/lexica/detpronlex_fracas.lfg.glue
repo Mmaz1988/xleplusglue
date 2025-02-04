@@ -140,6 +140,7 @@ More 	  DComp * (^DEF) = - "this indefinite only marks plurals"
 
 many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
                  (^DEF) = - "this indefinite only marks plurals"
+                 @(SPEC-QUANT-TYPE positive)
          		 (^NUM) = pl
          		 (^DEGREE) ~= comparative
          		 (^DEGREE) ~= superlative; "marks the NP as comparative to allow CPComps to apply"
