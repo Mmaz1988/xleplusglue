@@ -17,9 +17,29 @@ From this, four files are generated for each row of the table. They correspond t
 informativity checks:
 
 ```
-        'pos_info_check': 'fof(single_formula, axiom, (w => p)).\n',
-        'neg_info_check': 'fof(single_formula, axiom, ~(w => p)).\n',
-        'pos_cons_check': 'fof(single_formula, axiom, (q & p)).\n',
-        'neg_cons_check': 'fof(single_formula, axiom, q => ~p).\n'
+        'info_pos_check': 'fof(single_formula, axiom, (q => p)).\n',
+        'info_neg_check': 'fof(single_formula, axiom, ~(q => p)).\n',
+        'cons_pos_check': 'fof(single_formula, axiom, (q & p)).\n',
+        'cons_neg_check': 'fof(single_formula, axiom, q => ~p).\n'
 ```
 
+
+| Consistent | Informative | NLI Status     |
+|------------|-------------|----------------|
+| Yes        | Yes         | Neutral        |
+| Yes        | No          | Entailment     |
+| No         | N/A         | Contradiction  |
+| No         | N/A         | Contradiction  |
+
+Natural language inference follows this simple decision tree for general predicate logic
+
+```
+         /\
+        /  \
+      -C   +C
+       |    /\
+      Con  /  \
+         -I   +I
+          |    |
+         Ent  Neu
+```
