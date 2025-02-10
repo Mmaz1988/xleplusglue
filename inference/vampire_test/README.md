@@ -1,5 +1,15 @@
 This folder contests some tests for the vampire theorem prover concerning
-proof search and finite model building. To run the test:
+proof search and finite model building. Before running:
+
+Set up a virtual environment (on Linux as Vampire is compiled for Linux; wsl works, too):
+
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+To run the test:
 
 ```
 tptp_testsuite.py
@@ -43,3 +53,10 @@ Natural language inference follows this simple decision tree for general predica
           |    |
          Ent  Neu
 ```
+
+To determine informativity and consistency run:
+
+```
+vampire_subprocess.py
+```
+

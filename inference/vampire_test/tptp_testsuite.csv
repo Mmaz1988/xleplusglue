@@ -12,3 +12,6 @@ id;q;p;consistent;informative;notes
 11;?[X]:(woman(X) & ![Y]:(man(Y) => love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));![Y]:(boxer(Y) => ?[X]:(woman(X) & love(X,Y)));1;0;
 12;![Y]:(man(Y) => ?[X]:(woman(X) & love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));?[X]:(woman(X) & ![Y]:(boxer(Y) => love(X,Y))) ;1;1;should be informative because inverse scope < surface scope. This makes explicit that the surface scope reading is meant.
 13;![Y]:(man(Y) => ?[X]:(woman(X) & love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));![Y]:(boxer(Y) => ?[X]:(woman(X) & love(X,Y)));1;0;
+14;(![X]:(robber(X) => customer(X)) & robber(mia)) ;customer(mia);1;0;
+15;dance(mia);~dance(mia);0;-1;
+;dance(mia);dance(mia);1;0;
