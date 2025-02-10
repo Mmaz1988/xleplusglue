@@ -1,14 +1,14 @@
-id;q;p
-1;![X]:(boxer(X) => slow(X)) & boxer(butch);~slow(butch)
-2;?[X]: (big(X) & black(X) & dog(X) & appear(X));?[X]: (dog(X) & appear(X))
-3;?[X]: (big(X) & black(X) & dog(X) & appear(X));?[X]: (cat(X) & meow(X))
-4;![X]:(boxer(X) => slow(X)) & boxer(butch);like(mia,butch)
-5;?[X]:(man(X) & X = vincent) & ![Y]:(man(Y) => like(mia,Y)) ;~(like(mia,vincent))
-6;dance(mia) & dance(jody);?[X,Y]:(X = mia & Y = jody & ~(X=Y))
-7;![X]:(boxer(X) => know(vincent,X)) & boxer(butch) ;know(vincent,butch) 
-8;(snort(mia) => smoke(Vincent)) & smoke(vincent) ;snort(mia)
-9;(snort(mia) => smoke(Vincent)) & smoke(vincent) ;~snort(mia)
-10;?[X]:(woman(X) & ![Y]:(man(Y) => love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));?[X]:(woman(X) & ![Y]:(boxer(Y) => love(X,Y))) 
-11;?[X]:(woman(X) & ![Y]:(man(Y) => love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));![Y]:(boxer(Y) => ?[X]:(woman(X) & love(X,Y)))
-12;![Y]:(man(Y) => ?[X]:(woman(X) & love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));?[X]:(woman(X) & ![Y]:(boxer(Y) => love(X,Y))) 
-13;![Y]:(man(Y) => ?[X]:(woman(X) & love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));![Y]:(boxer(Y) => ?[X]:(woman(X) & love(X,Y)))
+id;q;p;consistent;informative;notes
+1;![X]:(boxer(X) => slow(X)) & boxer(butch);~slow(butch);0;-1;
+2;?[X]: (big(X) & black(X) & dog(X) & appear(X));?[X]: (dog(X) & appear(X));1;0;
+3;?[X]: (big(X) & black(X) & dog(X) & appear(X));?[X]: (cat(X) & meow(X));1;1;
+4;![X]:(boxer(X) => slow(X)) & boxer(butch);like(mia,butch);1;1;
+5;?[X]:(man(X) & X = vincent) & ![Y]:(man(Y) => like(mia,Y)) ;~(like(mia,vincent));0;-1;
+6;dance(mia) & dance(jody);?[X,Y]:(X = mia & Y = jody & ~(X=Y));1;1;
+7;![X]:(boxer(X) => know(vincent,X)) & boxer(butch) ;know(vincent,butch) ;1;0;
+8;(snort(mia) => smoke(Vincent)) & smoke(vincent) ;snort(mia);1;1;
+9;(snort(mia) => smoke(Vincent)) & smoke(vincent) ;~snort(mia);1;1;
+10;?[X]:(woman(X) & ![Y]:(man(Y) => love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));?[X]:(woman(X) & ![Y]:(boxer(Y) => love(X,Y))) ;1;0;
+11;?[X]:(woman(X) & ![Y]:(man(Y) => love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));![Y]:(boxer(Y) => ?[X]:(woman(X) & love(X,Y)));1;0;
+12;![Y]:(man(Y) => ?[X]:(woman(X) & love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));?[X]:(woman(X) & ![Y]:(boxer(Y) => love(X,Y))) ;1;1;should be informative because inverse scope < surface scope. This makes explicit that the surface scope reading is meant.
+13;![Y]:(man(Y) => ?[X]:(woman(X) & love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));![Y]:(boxer(Y) => ?[X]:(woman(X) & love(X,Y)));1;0;

@@ -19,10 +19,10 @@ def generate_tptp_files(csv_path, output_folder, separator=';'):
 
     # Define TPTP templates with placeholders for p and q
     templates = {
-        'pos_info_check': 'fof(single_formula, axiom, (({}) => ({}))).\n',
-        'neg_info_check': 'fof(single_formula, axiom, ~(({}) => ({}))).\n',
-        'pos_cons_check': 'fof(single_formula, axiom, ({} & {})).\n',
-        'neg_cons_check': 'fof(single_formula, axiom, ({}) => ~({})).\n'
+        'info_pos_check': 'fof(single_formula, axiom, (({}) => ({}))).\n',
+        'info_neg_check': 'fof(single_formula, axiom, ~(({}) => ({}))).\n',
+        'cons_pos_check': 'fof(single_formula, axiom, ({} & {})).\n',
+        'cons_neg_check': 'fof(single_formula, axiom, ({}) => ~({})).\n'
     }
 
     # Iterate over each row in the DataFrame

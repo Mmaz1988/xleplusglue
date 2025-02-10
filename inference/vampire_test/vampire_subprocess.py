@@ -126,7 +126,7 @@ def massacer(folder_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path ="
 
 
 # Modes
-casc = ["--mode", "casc_sat"]
+casc = ["--mode", "casc"]
 model_builder = ["-sa", "fmb"]
 vampire_path ="../../vampire_build/vampire/bin/"
 
@@ -135,7 +135,11 @@ if __name__ == "__main__":
     folder = "generated_testfiles/"  # Update this with your actual folder path
     vampire_results_df = massacer(folder, mode=model_builder,vampire_path=vampire_path)
 
-    print(vampire_results_df.head())
-    vampire_results_df.to_csv("vampire_testsuite_results2.csv", index=False) 
+    # print(vampire_results_df.head())
+    vampire_results_df.to_csv("vampire_testsuite_results_model_builder.csv", index=False)
+    vampire_results_df = massacer(folder, mode=casc,vampire_path=vampire_path)
+
+    # print(vampire_results_df.head())
+    vampire_results_df.to_csv("vampire_testsuite_results_casc.csv", index=False)
 
 #testsuite until scrupulousCurt (BB book) 
