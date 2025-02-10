@@ -14,4 +14,4 @@ id;q;p;consistent;informative;notes
 13;![Y]:(man(Y) => ?[X]:(woman(X) & love(X,Y))) & ![X]:(boxer(X) => ?[Y]:(man(Y) & X = Y));![Y]:(boxer(Y) => ?[X]:(woman(X) & love(X,Y)));1;0;
 14;(![X]:(robber(X) => customer(X)) & robber(mia)) ;customer(mia);1;0;
 15;dance(mia);~dance(mia);0;-1;
-;dance(mia);dance(mia);1;0;
+16;dance(mia);dance(mia);1;0;
