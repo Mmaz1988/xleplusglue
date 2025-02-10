@@ -16,8 +16,14 @@
 	  "EX1: The tree is greater than the plant."
 	  "EX2: The tree is (as) great (as the plant)."
  	  (CPComp: _type = predicative
-		   { (^ OBL-COMP) = !
-		   | (^ ADJUNCT) = !})
+           (^ (ADJUNCT $) OBL-COMP)=!
+
+           """(^ ADJUNCT $) = %LOCAL
+           ! $ (%LOCAL ADJUNCT)
+           (%LOCAL PRED FN)=c more
+           (^ DEGREE)=c comparative""" "./index/english-rules-mod.lfg:52"
+		   """{ (^ OBL-COMP) = !
+		      | (^ ADJUNCT) = !})""")
 
  	  (COMMA).
 

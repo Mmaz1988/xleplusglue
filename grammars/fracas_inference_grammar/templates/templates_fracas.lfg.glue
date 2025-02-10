@@ -224,14 +224,27 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    (^ PRED)='P<(^OBL-COMP)>'
 	  }.
 
-   ADJ-COMP(P) = (^ DEGREE) = comparative
+   ADJ-COMP(P) = (^ DEGREE) = positive
+          "inspiriert von english-2009-11-25/index/english-templatex.lfg:103"
 	  { @(PRED P)
 	    (^ATYPE) = attributive
-	  | (^ATYPE) = predicative
-	    (^ PRED)='P<(^OBL-COMP)>'
+	    %LOCAL $ (^ ADJUNCT)
+	    (%LOCAL PRED)='more'
+	    (%LOCAL DEGREE) = comparative
+	   |
+	    @(PRED P)
+	    (^ATYPE) = predicative
+	    %LOCAL $ (^ ADJUNCT)
+	    (%LOCAL PRED)='more<(%LOCAL OBL-COMP)>'
+	    (%LOCAL DEGREE)= comparative
+	    (%LOCAL OBL-COMP PRED FN)=c than
 	  }.
+	  """ hier stimmt etwas noch nicht ganz mit dem ATYPE
+          im Moment ist es so, dass der ATYPE constraint, ob eine than-clasue kommen kann
+          Problem ist aber, dass As ohne than-clause als attributive analysiert werden"""
 
-   ADJ-SUP(P) = (^DEGREEREE) = superlative
-	  @(PRED great).
+
+   ADJ-SUP(P) = (^DEGREE) = superlative
+	  @(PRED P).
 
    ----

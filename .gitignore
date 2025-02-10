@@ -12,4 +12,5 @@ jars/old_versions/*
 /grammars/*/*.fileindexdir/
 
 
-/grammars/fracas_inference_grammar/main_fracas_grammar.lfg.fileindexdir/
+/grammars/fracas_inference_grammar/main_fracas_grammar.lfg.fileindexdir/*.lfg
+
