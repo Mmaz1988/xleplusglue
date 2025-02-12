@@ -6,7 +6,7 @@ greatest  A * @(ADJ-SUP great).
                "is atype important here?"
 
 
-greater   A * @(ADJ-COMP great);
+greater   A * @(ADJ-COMP);
 	      ADV * (^DEGREE) = comparative
 		        (^ PRED)='great<(^ OBL-COMP)>'
 		.
@@ -49,7 +49,7 @@ fatter	  A * @(ADJ-COMP fat).
 
 clever	  A * @(ADJ-POS clever).
 
-cleverer  A * @(ADJ-COMP cleverer).
+cleverer  A * @(ADJ-COMP clever).
 
 four-legged A * @(ADJ-POS four-legged).
 
