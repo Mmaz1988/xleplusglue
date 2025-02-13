@@ -3,6 +3,16 @@
 # Allow the user to specify the Python command (default: python3)
 PYTHON_CMD=${1:-python3}
 
+# Define script and argument variables for easy modification
+TPTP_CSV="tptp_testsuite_adj.csv"
+OUTPUT_DIR="generated_testfiles_adj"
+AXIOMS_FILE="degree_axioms.txt"
+LOGIC_TYPE="tff"
+
+VAMPIRE_MODE="--mode casc"
+VAMPIRE_PATH=""
+RESULT_FILE="results.csv"
+
 # Check if virtual environment already exists
 if [ ! -d "venv" ]; then
     echo "Creating virtual environment..."
@@ -25,10 +35,10 @@ else
 fi
 
 # Run the first script to generate TPTP files
-$PYTHON_CMD generate_tptp.py tptp_testsuite_adj.csv generated_testfiles_adj --axioms_file degree_axioms.txt --logic tff
+$PYTHON_CMD generate_tptp.py "$TPTP_CSV" "$OUTPUT_DIR" --axioms_file "$AXIOMS_FILE" --logic "$LOGIC_TYPE"
 
 # Run the second script to process with Vampire
-$PYTHON_CMD vampire_subprocess.py generated_testfiles_adj --mode "--mode casc" --vampire_path "" --result "results.csv"
+$PYTHON_CMD vampire_subprocess.py "$OUTPUT_DIR" --mode "$VAMPIRE_MODE" --vampire_path "$VAMPIRE_PATH" --result "$RESULT_FILE"
 
 # Deactivate virtual environment
 deactivate
