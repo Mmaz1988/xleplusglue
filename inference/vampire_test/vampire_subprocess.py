@@ -112,9 +112,12 @@ def massacer(folder_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path ="
         print(f"Error: Folder '{folder_path}' does not exist.")
         return pd.DataFrame()
 
+    file_list = sorted(os.listdir(folder_path))
     # Iterate over all .p files in the folder
-    for filename in sorted(os.listdir(folder_path)):
+    for i,filename in enumerate(file_list):
         if filename.endswith(".p"):
+            # print file being analyzed and flush stdout to see progress
+            print(f"Analyzing {filename}...({i+1}/{len(file_list)})", end="\r", flush=True)
             file_path = os.path.join(folder_path, filename)
             result = bloodsuck(file_path, mode, timeout, vampire_path)
             results.append(result)
@@ -126,23 +129,43 @@ def massacer(folder_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path ="
 
 
 # Modes
-casc = ["--mode", "casc"]
-casc_sat = ["--mode", "casc_sat"]
-model_builder = ["-sa", "fmb"]
-# Compiled version: vampire_path ="../../vampire_build/vampire/bin/"
-# Local version:
-vampire_path =""
+# casc = ["--mode", "casc"]
+# casc_sat = ["--mode", "casc_sat"]
+# model_builder = ["-sa", "fmb"]
+# # Compiled version: vampire_path ="../../vampire_build/vampire/bin/"
+# # Local version:
+# vampire_path =""
+#
+# # Example usage
+# if __name__ == "__main__":
+#     folder = "generated_testfiles_adj/"  # Update this with your actual folder path
+#
+#     vampire_results_df = massacer(folder, mode=model_builder,vampire_path=vampire_path)
+#     # print(vampire_results_df.head())
+#     vampire_results_df.to_csv("vampire_testsuite_results_model_builder_adj.csv", index=False)
+#
+#     vampire_results_df = massacer(folder, mode=casc,vampire_path=vampire_path)
+#     # print(vampire_results_df.head())
+#     vampire_results_df.to_csv("vampire_testsuite_results_casc_adj.csv", index=False)
 
-# Example usage
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description="Run massacer on a folder with Vampire in different modes.")
+    parser.add_argument("folder", type=str, help="Path to the folder containing test files.")
+    parser.add_argument("--mode", type=str, required=True, help="Mode for Vampire execution (e.g., 'casc', 'casc_sat', '-sa fmb').")
+    parser.add_argument("--vampire_path", type=str, default="", help="Path to the Vampire executable (default: empty).")
+    parser.add_argument("--result", type=str, default="vampire_testsuite_results.csv", help="Path to result csv.")
+
+    args = parser.parse_args()
+
+    mode_list = args.mode.split()  # Convert mode string to list
+    result = args.result
+    vampire_results_df = massacer(args.folder, mode=mode_list, vampire_path=args.vampire_path)
+
+    vampire_results_df.to_csv(result, index=False)
+
 if __name__ == "__main__":
-    folder = "generated_testfiles_adj/"  # Update this with your actual folder path
-
-    vampire_results_df = massacer(folder, mode=model_builder,vampire_path=vampire_path)
-    # print(vampire_results_df.head())
-    vampire_results_df.to_csv("vampire_testsuite_results_model_builder_adj.csv", index=False)
-
-    vampire_results_df = massacer(folder, mode=casc,vampire_path=vampire_path)
-    # print(vampire_results_df.head())
-    vampire_results_df.to_csv("vampire_testsuite_results_casc_adj.csv", index=False)
+    main()
 
 #testsuite until scrupulousCurt (BB book) 

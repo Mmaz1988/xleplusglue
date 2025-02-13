@@ -25,8 +25,12 @@ def generate_tptp_files(csv_path, output_folder, separator=';', axioms_file="", 
         'cons_neg_check': '{}(single_formula, axiom, ({}) => ~({})).\n'
     }
 
+    generated_files = 0
+    processed_items = 0
+
     # Iterate over each row in the DataFrame
     for _, row in df.iterrows():
+        processed_items += 1
         formula_id = row['id']
         p = row['p']
         q = row['q']
@@ -46,8 +50,23 @@ def generate_tptp_files(csv_path, output_folder, separator=';', axioms_file="", 
             file_path = os.path.join(output_folder, filename)
             with open(file_path, mode='w') as file:
                 file.write(tptp_content)
-            print(f"Generated {file_path}")
+            generated_files += 1
 
-# Example usage:
-generate_tptp_files('tptp_testsuite_adj.csv', 'generated_testfiles_adj',axioms_file="degree_axioms.txt", logic="tff")
+    print(f"Generated {generated_files} TPTP files for {processed_items} item(s) in '{output_folder}'.")
 
+
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate TPTP test files from a CSV file.")
+    parser.add_argument("csv_file", type=str, help="Path to the CSV file containing test cases.")
+    parser.add_argument("output_dir", type=str, help="Directory where generated test files will be stored.")
+    parser.add_argument("--axioms_file", type=str, default=None, help="Path to the axioms file (optional).")
+    parser.add_argument("--logic", type=str, default="tff", help="Logic type (default: tff).")
+
+    args = parser.parse_args()
+
+    generate_tptp_files(args.csv_file, args.output_dir, axioms_file=args.axioms_file, logic=args.logic)
+
+if __name__ == "__main__":
+    main()
