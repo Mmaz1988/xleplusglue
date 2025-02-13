@@ -2,7 +2,7 @@ import os
 import csv
 import pandas as pd
 
-def generate_tptp_files(csv_path, output_folder, separator=';'):
+def generate_tptp_files(csv_path, output_folder, separator=';', axioms_file="", logic="fof"):
     """
     Generates TPTP files from a CSV file containing formulas p and q, including comments with the original formulas.
 
@@ -19,10 +19,10 @@ def generate_tptp_files(csv_path, output_folder, separator=';'):
 
     # Define TPTP templates with placeholders for p and q
     templates = {
-        'info_pos_check': 'fof(single_formula, axiom, (({}) => ({}))).\n',
-        'info_neg_check': 'fof(single_formula, axiom, ~(({}) => ({}))).\n',
-        'cons_pos_check': 'fof(single_formula, axiom, ({} & {})).\n',
-        'cons_neg_check': 'fof(single_formula, axiom, ({}) => ~({})).\n'
+        'info_pos_check': '{}(single_formula, axiom, (({}) => ({}))).\n',
+        'info_neg_check': '{}(single_formula, axiom, ~(({}) => ({}))).\n',
+        'cons_pos_check': '{}(single_formula, axiom, ({} & {})).\n',
+        'cons_neg_check': '{}(single_formula, axiom, ({}) => ~({})).\n'
     }
 
     # Iterate over each row in the DataFrame
@@ -33,8 +33,15 @@ def generate_tptp_files(csv_path, output_folder, separator=';'):
 
         # Generate and write TPTP files for each template
         for suffix, template in templates.items():
-            tptp_content = f"% p = {q}\n% q = {p}\n"  # Add comments with p and q
-            tptp_content += template.format(q, p)
+            tptp_content = ""
+            # read in axioms_file
+            if axioms_file:
+                with open(axioms_file, 'r') as file:
+                    axioms = file.read()
+                tptp_content += f"{axioms}\n\n"
+
+            tptp_content += f"% p = {q}\n% q = {p}\n"  # Add comments with p and q
+            tptp_content += template.format(logic,q,p)
             filename = f"{formula_id}_{suffix}.p"
             file_path = os.path.join(output_folder, filename)
             with open(file_path, mode='w') as file:
@@ -42,5 +49,5 @@ def generate_tptp_files(csv_path, output_folder, separator=';'):
             print(f"Generated {file_path}")
 
 # Example usage:
-generate_tptp_files('tptp_testsuite.csv', 'generated_testfiles')
+generate_tptp_files('tptp_testsuite_adj.csv', 'generated_testfiles_adj',axioms_file="degree_axioms.txt", logic="tff")
 

@@ -39,7 +39,7 @@ def extract_vampire_info(output):
 
     return termination_reason, termination_phase, finite_model_found, szs_status
 
-def bloodsuck(file_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path=""):
+def bloodsuck(file_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path="",axioms_path = ""):
     """
     Runs Vampire theorem prover on a single .p file and extracts relevant information.
 
@@ -127,6 +127,7 @@ def massacer(folder_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path ="
 
 # Modes
 casc = ["--mode", "casc"]
+casc = ["--mode", "casc_sat"]
 model_builder = ["-sa", "fmb"]
 # Compiled version: vampire_path ="../../vampire_build/vampire/bin/"
 # Local version:
@@ -134,14 +135,14 @@ vampire_path =""
 
 # Example usage
 if __name__ == "__main__":
-    folder = "generated_testfiles/"  # Update this with your actual folder path
+    folder = "generated_testfiles_adj/"  # Update this with your actual folder path
+
     vampire_results_df = massacer(folder, mode=model_builder,vampire_path=vampire_path)
-
     # print(vampire_results_df.head())
-    vampire_results_df.to_csv("vampire_testsuite_results_model_builder.csv", index=False)
+    vampire_results_df.to_csv("vampire_testsuite_results_model_builder_adj.csv", index=False)
+
     vampire_results_df = massacer(folder, mode=casc,vampire_path=vampire_path)
-
     # print(vampire_results_df.head())
-    vampire_results_df.to_csv("vampire_testsuite_results_casc.csv", index=False)
+    vampire_results_df.to_csv("vampire_testsuite_results_casc_adj.csv", index=False)
 
 #testsuite until scrupulousCurt (BB book) 

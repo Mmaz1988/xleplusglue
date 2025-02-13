@@ -1,0 +1,30 @@
+%Declare predicate to identify heights
+tff(height_type, type, height: ($i * $int) > $o).
+
+%possibly optional (taken from Haruta, et al. Github)
+tff(downward_monotonicity_height, axiom,
+    ![X: $i, Delta1: $int]:
+    (height(X, Delta1) <=>
+         ![Delta2: $int]:
+             ($lesseq(Delta2,Delta1) => height(X, Delta2))
+        )
+).
+
+%consistency postulate, p. 148, Haruta, et al. 2022
+tff(consistency_axiom, axiom,
+    ![X: $i, Y: $i]:
+        (? [D: $int]: (height(X, D) & ~height(Y, D))
+         =>
+         ![D2: $int]: (height(Y, D2) => height(X, D2)))
+).
+
+%supremum, p. 149, Haruta, et al. 2022
+tff(existence_of_maximal_height, axiom,
+    ![X: $i]:(
+        ?[Delta1: $int]:
+             ( height(X, Delta1) &
+             ~?[Delta2: $int]:
+                 ($greater(Delta2,Delta1) & height(X, Delta2))
+            )
+    )
+).

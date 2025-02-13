@@ -1,0 +1,2 @@
+id;q;p;consistent;informative;notes
+1;?[X: $i, Y: $i]: (X = jordan & Y = sam & ![Delta: $int]: (height(X,Delta)  => height(Y,$sum(Delta,2))));?[Delta: $int]: (height(sam,Delta) & ~ height(jordan,Delta));1;0;
