@@ -17,25 +17,25 @@ def extract_vampire_info(output):
     - finite_model_found (str): "True" if a finite model was found, "False" if explicitly stated otherwise, "Unknown" if no information is provided.
     - szs_status (str): The SZS status (e.g., "Satisfiable", "Theorem", "CounterSatisfiable", "Timeout").
     """
-    # Extract termination reason
-    termination_match = re.search(r"% Termination reason: (.+)", output)
-    termination_reason = termination_match.group(1).strip() if termination_match else "Unknown"
+    # Extract the last termination reason
+    termination_matches = re.findall(r"% Termination reason: (.+)", output)
+    termination_reason = termination_matches[-1].strip() if termination_matches else "Unknown"
 
-    # Extract termination phase (if available)
-    termination_phase_match = re.search(r"% Termination phase: (.+)", output)
-    termination_phase = termination_phase_match.group(1).strip() if termination_phase_match else "Unknown"
+    # Extract the last termination phase (if available)
+    termination_phase_matches = re.findall(r"% Termination phase: (.+)", output)
+    termination_phase = termination_phase_matches[-1].strip() if termination_phase_matches else "Unknown"
 
-    # Check for explicit mention of finite model presence or absence
-    if "Finite Model Found!" in output:
-        finite_model_found = "True"
-    elif "finite model not found" in output:
-        finite_model_found = "False"
+    # Extract all finite model mentions and take the last relevant occurrence
+    finite_model_matches = re.findall(r"(Finite Model Found!|finite model not found)", output)
+    if finite_model_matches:
+        last_mention = finite_model_matches[-1]
+        finite_model_found = "True" if last_mention == "Finite Model Found!" else "False"
     else:
         finite_model_found = "Unknown"
 
-    # Extract SZS status
-    szs_match = re.search(r"% SZS status (\w+) for", output)
-    szs_status = szs_match.group(1).strip() if szs_match else "Unknown"
+    # Extract the last SZS status
+    szs_matches = re.findall(r"% SZS status (\w+) for", output)
+    szs_status = szs_matches[-1].strip() if szs_matches else "Unknown"
 
     return termination_reason, termination_phase, finite_model_found, szs_status
 
@@ -127,7 +127,7 @@ def massacer(folder_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path ="
 
 # Modes
 casc = ["--mode", "casc"]
-casc = ["--mode", "casc_sat"]
+casc_sat = ["--mode", "casc_sat"]
 model_builder = ["-sa", "fmb"]
 # Compiled version: vampire_path ="../../vampire_build/vampire/bin/"
 # Local version:
