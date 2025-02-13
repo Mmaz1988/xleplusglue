@@ -10,6 +10,8 @@ AXIOMS_FILE="degree_axioms.txt"
 LOGIC_TYPE="tff"
 
 VAMPIRE_MODE="--mode casc"
+# Default for using project internal vampire build (only on LINUX)
+# VAMPIRE_PATH=="../../vampire_build/vampire/bin/"
 VAMPIRE_PATH=""
 RESULT_FILE="results.csv"
 
