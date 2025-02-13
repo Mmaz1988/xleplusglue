@@ -128,7 +128,9 @@ def massacer(folder_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path ="
 # Modes
 casc = ["--mode", "casc"]
 model_builder = ["-sa", "fmb"]
-vampire_path ="../../vampire_build/vampire/bin/"
+# Compiled version: vampire_path ="../../vampire_build/vampire/bin/"
+# Local version:
+vampire_path =""
 
 # Example usage
 if __name__ == "__main__":
