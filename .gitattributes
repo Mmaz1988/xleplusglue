@@ -1,0 +1,3 @@
+# Determine eol for files
+*.glue   eol=lf
+*.lfg    eol=lf
