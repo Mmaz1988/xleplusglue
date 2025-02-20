@@ -6,9 +6,15 @@ NOUN ENGLISH LEXICON (1.0)
 
 
 
-New` York N * (^ PRED)='New` York'.
+New` York N *   (^ PRED)='New` York'
+                (^NUM)=sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location.
 
-Nobel` prize N * (^ PRED)='Nobel` prize'.
+Nobel` prize N * (^ PRED)='Nobel` prize'
+                 (^NUM)=sg
+                 (^NTYPE NSYN) = proper
+                 "(^NTYPE NSEM COMMON) = count".
 
 "nouns that can take an XCOMP" "eg. the right to appear"
 
@@ -19,44 +25,82 @@ right	  N * (^PRED) = 'right<(^XCOMP)>'
 
 
 Swede      N * @(PRED swede)
-                (^NUM) = sg.
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count.
 
 European    N * @(PRED european)
-                (^NUM) = sg; ETC.
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count; ETC.
 
 Europeans    N * @(PRED european)
-                (^NUM) = pl.
+                (^NUM) = pl
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count.
 
 Europe     N *   @(PRED europe)
-                (^NUM) = sg.
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location.
 
 
 
 "hardcoded words"
 
-Dumbo 	  N * @(PRED Dumbo).
+Dumbo 	  N *   @(PRED Dumbo)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = name.
 
 "Bill 	  N * @(PRED Bill)."
 
-Fido 	  N * @(PRED Fido).
+Fido 	  N *   @(PRED Fido)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = name.
 
-PC-6082   N * @(PRED PC-6082).
+PC-6082   N *   @(PRED PC-6082)
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count.
 
-ITEL-XZ   N * @(PRED ITEL-XZ).
+ITEL-XZ   N *   @(PRED ITEL-XZ)
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count.
 
-ITEL-ZY   N * @(PRED ITEL-ZY).
+ITEL-ZY   N *   @(PRED ITEL-ZY)
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count.
 
-ITEL-ZX   N * @(PRED ITEL-ZX).
+ITEL-ZX   N *   @(PRED ITEL-ZX)
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count.
 
-MIPS 	  N * @(PRED MIPS).
+MIPS 	  N *   @(PRED MIPS)
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count.
 
-ITEL 	  N * @(PRED ITEL);
-	  NMod * .
+ITEL 	N *   @(PRED ITEL)
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count;
+	    NMod * .
 
-APCOM 	  N * @(PRED APCOM);
-      NMod * .
+APCOM   N *     @(PRED APCOM)
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count;
+        NMod * .
 
-Pavarotti   N * @(PRED pavarotti).
+Pavarotti   N * @(PRED pavarotti)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = name.
 
 
 ----
