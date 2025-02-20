@@ -80,6 +80,8 @@ wait 	  V-S XLE { @(INTRANS-EV wait) |
 
 "Optional transitives"
 
+travel    V-S XLE @(OPT-TRANS-EV %stem).
+
 sing      V-S XLE @(OPT-TRANS-EV %stem).
 
 drinks 	  V-S XLE @(OPT-TRANS-EV %stem).
@@ -248,6 +250,14 @@ be   V *  (^VFORM) = inf
 
 "auxiliaries"
 
+
+can    AUX * @VPRES
+              "@(PROG -_)
+              @(PERF -_)"
+              (^ SUBJ NUM)
+              (^ SUBJ PERS)
+              (^ FIN) = +
+             @(EVENT %stem). "  semantics don't work here"
 
 
 ----

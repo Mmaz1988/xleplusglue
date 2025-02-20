@@ -1,0 +1,62 @@
+NOUN ENGLISH LEXICON (1.0)
+
+
+"nouns"
+"most names and nouns because they are now handled via the morphology"
+
+
+
+New` York N * (^ PRED)='New` York'.
+
+Nobel` prize N * (^ PRED)='Nobel` prize'.
+
+"nouns that can take an XCOMP" "eg. the right to appear"
+
+right	  N * (^PRED) = 'right<(^XCOMP)>'
+              "(^NUM) = pl  (^NTYPE)=count"; ETC.
+
+"countries"
+
+
+Swede      N * @(PRED swede)
+                (^NUM) = sg.
+
+European    N * @(PRED european)
+                (^NUM) = sg; ETC.
+
+Europeans    N * @(PRED european)
+                (^NUM) = pl.
+
+Europe     N *   @(PRED europe)
+                (^NUM) = sg.
+
+
+
+"hardcoded words"
+
+Dumbo 	  N * @(PRED Dumbo).
+
+"Bill 	  N * @(PRED Bill)."
+
+Fido 	  N * @(PRED Fido).
+
+PC-6082   N * @(PRED PC-6082).
+
+ITEL-XZ   N * @(PRED ITEL-XZ).
+
+ITEL-ZY   N * @(PRED ITEL-ZY).
+
+ITEL-ZX   N * @(PRED ITEL-ZX).
+
+MIPS 	  N * @(PRED MIPS).
+
+ITEL 	  N * @(PRED ITEL);
+	  NMod * .
+
+APCOM 	  N * @(PRED APCOM);
+      NMod * .
+
+Pavarotti   N * @(PRED pavarotti).
+
+
+----

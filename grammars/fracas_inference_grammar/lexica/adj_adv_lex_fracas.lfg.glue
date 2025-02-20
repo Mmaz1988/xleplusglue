@@ -94,18 +94,6 @@ alleged   A * @(PRED alleged)
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
 
 
-"adverbs --- should really be done via the morphology, like the nouns"
-
-quickly   ADV * (^ PRED) = 'quick<>(^OBL-COMP)'.
-
-quicker   ADV * (^ DEGREE) = comparative
-                (^ PRED)='quick<>(^OBL-COMP)'.
-
-very 	  ADV * @(PRED very).
-
-
-
-
 "countries"
 
 British     A * @(PRED british); ETC.
@@ -114,13 +102,19 @@ German      A * @(PRED german); ETC.
 
 Italian     A * @(PRED italian); ETC.
 
-European    N * @(PRED european)
-                (^NUM) = sg; ETC.
 
-Europeans    N * @(PRED european)
-                (^NUM) = pl.
 
-Europe     N *   @(PRED europe)
-                (^NUM) = sg.
+"adverbs --- should really be done via the morphology, like the nouns"
+
+quickly   ADV * (^ PRED) = 'quick<>(^OBL-COMP)'.
+
+quicker   ADV * (^ DEGREE) = comparative
+                (^ PRED)='quick<>(^OBL-COMP)'.
+
+
+very 	  ADV * @(PRED very).
+
+
+
 
 ----

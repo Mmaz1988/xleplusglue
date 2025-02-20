@@ -28,7 +28,11 @@ NP --> "either a full NP or a PRON"
     N: ^=!;
 
 
-    (CPrel: ! $ (^ ADJUNCT))
+    ({CPrel: ! $ (^ ADJUNCT)
+    |VPinf: (!SUBJ) = ^  "eg. 'the right to appear': 'appear' takes 'right' as an argument"
+            (^XCOMP) = !
+		    (! FIN) = -
+		    (! VFORM) = inf})
 
     "comparison with whole NPs"
     "EX: He is a fatter politician than him."

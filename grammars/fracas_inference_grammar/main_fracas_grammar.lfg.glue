@@ -18,8 +18,15 @@ DEMO   ENGLISH   CONFIG (1.0)
         lexica/adj_adv_lex_fracas.lfg
         lexica/verblex_fracas.lfg
         lexica/functionlex_fracas.lfg
-        lexica/detpronlex_fracas.lfg.
-  LEXENTRIES   (DEMO ENGLISH) (MORPH ENGLISH) (VERB ENGLISH) (FUNCTION ENGLISH) (DETPRON ENGLISH) (ADJADV ENGLISH).
+        lexica/detpronlex_fracas.lfg
+        lexica/nounlex_fracas.lfg.
+  LEXENTRIES   (DEMO ENGLISH)
+               (MORPH ENGLISH)
+               (VERB ENGLISH)
+               (FUNCTION ENGLISH)
+               (DETPRON ENGLISH)
+               (NOUN ENGLISH)
+               (ADJADV ENGLISH).
   TEMPLATES (DEMO ENGLISH) (GLUE BASIC) (STANDARD COMMON).  "added common ParGram templates"
   RULES   (DEMO ENGLISH)
           (MORPH ENGLISH)
@@ -43,44 +50,6 @@ DEMO   ENGLISH   RULES (1.0)
 ----
 
 DEMO ENGLISH LEXICON (1.0)
-
-"nouns"
-"took out all names and nouns because they are now handled via the morphology"
-
-New` York N * (^ PRED)='New` York'.
-
-Nobel` prize N * (^ PRED)='Nobel` prize'.
-
-"nouns that can take an XCOMP" "eg. the right to appear"
-
-right	  N * (^PRED) = 'right<(^XCOMP)>' ; ETC.
-
-
-"hardcoded words"
-
-Dumbo 	  N * @(PRED Dumbo).
-
-"Bill 	  N * @(PRED Bill)."
-
-Fido 	  N * @(PRED Fido).
-
-PC-6082   N * @(PRED PC-6082).
-
-ITEL-XZ   N * @(PRED ITEL-XZ).
-
-ITEL-ZY   N * @(PRED ITEL-ZY).
-
-ITEL-ZX   N * @(PRED ITEL-ZX).
-
-MIPS 	  N * @(PRED MIPS).
-
-ITEL 	  N * @(PRED ITEL);
-	  NMod * .
-
-APCOM 	  N * @(PRED APCOM);
-      NMod * .
-
-Pavarotti   N * @(PRED pavarotti).
 
 ----
 
