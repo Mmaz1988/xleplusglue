@@ -4,13 +4,13 @@
 PYTHON_CMD=${1:-python3}
 
 # Define script and argument variables for easy modification
-TPTP_CSV="tptp_testsuite_adj.csv"
+TPTP_CSV="tptp_testsuite_speed.csv"
 OUTPUT_DIR="generated_testfiles_speed"
 AXIOMS_FILE="degree_axioms_speed.txt"
 LOGIC_TYPE="tff"
 
 # Modes: --mode casc, --mode casc_sat, -sa fmb
-VAMPIRE_MODE="--mode casc_sat"
+VAMPIRE_MODE="--mode casc"
 VAMPIRE_PATH=""
 RESULT_FILE="results_speed.csv"
 

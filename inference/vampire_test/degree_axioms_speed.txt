@@ -1,6 +1,16 @@
-%Declare predicate to identify speed
+%Declare predicate to identify fast
 tff(fast_type, type, fast: ($i * $int) > $o).
 tff(kind_type, type, kind: ($i * $i) > $o).
+
+
+%possibly optional (taken from Haruta, et al. Github)
+tff(downward_monotonicity_fast, axiom,
+    ![X: $i, Delta1: $int]:
+    (fast(X, Delta1) <=>
+         ![Delta2: $int]:
+             ($lesseq(Delta2,Delta1) => fast(X, Delta2))
+        )
+).
 
 %consistency postulate, p. 148, Haruta, et al. 2022
 tff(consistency_axiom, axiom,
@@ -10,3 +20,13 @@ tff(consistency_axiom, axiom,
          ![D2: $int]: (fast(Y, D2) => fast(X, D2)))
 ).
 
+%supremum, p. 149, Haruta, et al. 2022
+tff(existence_of_maximal_fast, axiom,
+    ![X: $i]:(
+        ?[Delta1: $int]:
+             ( fast(X, Delta1) &
+             ~?[Delta2: $int]:
+                 ($greater(Delta2,Delta1) & fast(X, Delta2))
+            )
+    )
+).

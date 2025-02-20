@@ -1,5 +1,6 @@
 %Declare predicate to identify heights
 tff(height_type, type, height: ($i * $int) > $o).
+tff(max_height, type, max_height: ($i * $int) > $o).
 
 
 
@@ -30,3 +31,6 @@ tff(existence_of_maximal_height, axiom,
             )
     )
 ).
+
+tff(max_height,axiom, ![X: $i,D: $int]:( max_height(X,D) <=> ~?[D1: $int]:( height(X,D1) & $greater(D1,D)))
+       ).

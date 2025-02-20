@@ -1,0 +1,5 @@
+id;q;p;consistent;informative;notes
+1;?[X: $i, Y: $i]: (X = jordan & Y = sam & ![Delta: $int]: (height(X,Delta)  => height(Y,$sum(Delta,2))));?[Delta: $int]: (height(sam,Delta) & ~ height(jordan,Delta));1;0;
+2;?[Delta1: $int]: (height(sam,Delta1) & ~ height(jordan,Delta1)) & ?[Delta2: $int]: (height(alex,Delta2) & ~ height(sam,Delta2)) & ~(sam = alex) & ~(alex = jordan) & ~(sam = jordan);?[Delta3: $int]: (height(alex,Delta3) & ![X: $i]: (~(X = alex) => (?[Delta: $int]:(height(X,Delta)) & ~height(X,Delta3))));1;0;
+3;?[Delta1: $int]: (height(sam,Delta1) & ~ height(jordan,Delta1)) & ?[Delta2: $int]: (height(alex,Delta2) & ~ height(sam,Delta2)) & ~(sam = alex) & ~(alex = jordan) & ~(sam = jordan);?[Delta3: $int]: (height(alex,Delta3) & ![X: $i]: ((~(X = alex) & ?[Delta: $int]:(height(X,Delta))) => ~height(X,Delta3)));1;0;
+4;?[X: $i, Y: $i]:(X = sam & Y = jordan & max_height(X,5) & max_height(Y,10));?[D: $int, X: $i, Y: $i]:(X = sam & Y = jordan & height(Y,D) & ~height(X,D));1;0;

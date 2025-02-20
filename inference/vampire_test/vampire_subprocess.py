@@ -64,7 +64,7 @@ def bloodsuck(file_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path="",
     vampire_path = os.path.join(vampire_path, "vampire")
     command = [str(vampire_path), file_path, "-t", str(timeout)] + mode
 
-a    # print("Executing: ", " ".join(command), "\r", flush=True)
+    # print("Executing: ", " ".join(command), "\r", flush=True)
 
     try:
         # Run Vampire with timeout
