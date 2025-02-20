@@ -64,6 +64,8 @@ def bloodsuck(file_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path="",
     vampire_path = os.path.join(vampire_path, "vampire")
     command = [str(vampire_path), file_path, "-t", str(timeout)] + mode
 
+a    # print("Executing: ", " ".join(command), "\r", flush=True)
+
     try:
         # Run Vampire with timeout
         completed_process = subprocess.run(
@@ -76,6 +78,7 @@ def bloodsuck(file_path, mode=["--mode", "casc_sat"], timeout=7,vampire_path="",
 
         # Extract information from the output
         output = completed_process.stdout
+        # print(output)
         termination_reason, termination_phase, finite_model_found, szs_status = extract_vampire_info(output)
 
         # Update the result dictionary

@@ -1,0 +1,12 @@
+%Declare predicate to identify speed
+tff(fast_type, type, fast: ($i * $int) > $o).
+tff(kind_type, type, kind: ($i * $i) > $o).
+
+%consistency postulate, p. 148, Haruta, et al. 2022
+tff(consistency_axiom, axiom,
+    ![X: $i, Y: $i]:
+        (? [D: $int]: (fast(X, D) & ~fast(Y, D))
+         =>
+         ![D2: $int]: (fast(Y, D2) => fast(X, D2)))
+).
+

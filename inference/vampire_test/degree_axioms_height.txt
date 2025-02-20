@@ -1,6 +1,8 @@
 %Declare predicate to identify heights
 tff(height_type, type, height: ($i * $int) > $o).
 
+
+
 %possibly optional (taken from Haruta, et al. Github)
 tff(downward_monotonicity_height, axiom,
     ![X: $i, Delta1: $int]:

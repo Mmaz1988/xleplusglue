@@ -1,2 +1,5 @@
 id;q;p;consistent;informative;notes
 1;?[X: $i, Y: $i]: (X = jordan & Y = sam & ![Delta: $int]: (height(X,Delta)  => height(Y,$sum(Delta,2))));?[Delta: $int]: (height(sam,Delta) & ~ height(jordan,Delta));1;0;
+2; (? [X: $i, D: $int] : (X = pc_6082 & ! [Y: $i] : ( kind(Y,itel) => ( fast(X, D) & ~fast(Y,D) )))) & (? [X: $i] : (X = itel_xz & kind(X, itel))); ? [X: $i, Y: $i, D: $int] : (X = pc_6082 & Y = itel_xz & fast(X, D) & ~fast(Y, D));1;0;
+3; (? [X: $i, D: $int] : (X = pc_6082 & ! [Y: $i] : ( kind(Y,itel) => ( fast(X, D) & ~fast(Y,D) )))); ? [X: $i, Y: $i, D: $int] : (X = pc_6082 & Y = itel_xz & fast(X, D) & ~fast(Y, D));1;1;
+4; (? [X: $i, D: $int] : (X = pc_6082 & ! [Y: $i] : ( kind(Y,itel) => ( fast(X, D) & ~fast(Y,D) )))) & (? [X: $i] : (X = itel_xz & kind(X, itel))); ? [X: $i, Y: $i, D: $int] : (X = pc_6082 & Y = itel_xz & fast(Y, D) & ~fast(X, D));0;0;

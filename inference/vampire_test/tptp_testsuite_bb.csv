@@ -15,3 +15,4 @@ id;q;p;consistent;informative;notes
 14;(![X]:(robber(X) => customer(X)) & robber(mia)) ;customer(mia);1;0;
 15;dance(mia);~dance(mia);0;-1;
 16;dance(mia);dance(mia);1;0;
+17;?[X,Y]:(swedish(X) & person(X) & prize(Y) & win(X,Y)) & ![X]:((swedish(X) & person(X))=>scandinavian(X));?[X,Y]:(scandinavian(X) & prize(Y) & win(X,Y));1;0;
