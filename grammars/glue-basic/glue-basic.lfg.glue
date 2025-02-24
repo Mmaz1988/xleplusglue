@@ -59,9 +59,9 @@ DEMO   ENGLISH   RULES (1.0)
 	       "example of a constraining equation: require a value with =c"
 	       (! PFORM) =c by )
  	  ({ CP: (^ COMP) = !
-	      t::(^ COMP) = t::^;
+	      t::(^ COMP) = t::^
  	   | VPinf: (^XCOMP) = !
-		    (^ VFORM) = inf}).  
+		    (! VFORM) = inf}).
 
    CP -->  C
 	   S. 
@@ -259,20 +259,15 @@ ensure 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
 convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
 		  (^ XCOMP SUBJ) = (^OBJ). 
 
-try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
-		  (^ XCOMP SUBJ) = (^SUBJ).
-
-seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
-		  (^ XCOMP SUBJ) = (^SUBJ).
 
 try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  (^ XCOMP SUBJ) = (^SUBJ)
 		  :$ [/x_e.[/P_<e,t>.try(x,P(x))]] :
-		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o (s::(^ XCOMP) SIT)_t) -o (s::^ SIT)_t)).
+		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o s::(^ XCOMP)_t) -o s::^_t)).
 
-seem 	  V-S XLE (^PRED) = '%stem<(^COMP)>(^SUBJ)'
+seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ [/P_<e,t>.try(P(x))] :
+		  :$ [/P_t.seem(P)]] :
 		  (s::(^ XCOMP)_t -o s::^_t).
 
 "Intransitives"
@@ -283,12 +278,8 @@ disappear V-S XLE @(INTRANS %stem).
 
 laugh 	  V-S XLE @(INTRANS %stem).
 
-meowed 	  V * @(INTRANS meow)
-	      { @VPAST | @PASTP }
-	      @(PROG -_)
-	      @(PERF -_).
-	       
-	       
+meow 	  V-S XLE @(INTRANS meow).
+
 	       "ate V * @(OPT-TRANS eat) optionally transitive verbs"
 	       "VPAST."
 	       
@@ -355,13 +346,14 @@ former 	  A * @(PRED former)
 by 	  P * @(PREP by). 
 
 to 	  P * @(PREP to); 
-	  PARTinf * (^ VFORM) =c inf. 
+	  PARTinf * (^ VFORM) =c inf.
 
 on 	  P * @(PREP on). 
 
 in 	  P * @(PREP in). 
 
-with 	  P * @(PREP with). 
+with 	  P * @(PREP with)
+              @(PREP-SEM with).
 
 
 "auxiliaries"
@@ -549,22 +541,26 @@ GLUE   BASIC   TEMPLATES (1.0)
   NOSCOPE(G) = (G NOSCOPE) = +.  
 
    QUANT-SCOPE(UP NAME) =
-	  NAME = s::({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ ^).
+	  NAME = s::({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ UP).
 
    PREP-SEM(P) =
              {
+         ((ADJUNCT ^) TNS-ASP)
 	     %scope = s::(ADJUNCT ^)
-	     (f::%scope TNS-ASP TENSE)
-	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
-	    ((%scope_v -o s::^_t) -o ((%scope_v -o %scope_t) -o (%scope_v -o %scope_t))),
-	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (%scope_v -o s::^_t)),
+	     %ppscope = (ADJUNCT ^)
+	    :$ [/U_<e,t>.[/V_<e,t>.[/x_e.(U(x) & V(x))]]] :
+	    ((s::(%ppscope SUBJ)_e -o s::^_t) -o ((s::(%ppscope SUBJ)_e -o s::%ppscope_t) -o (s::(%ppscope SUBJ)_e -o s::%ppscope_t))) || noscope,
+	    :$ [/x_e.[/y_e.with(x,y)]] : (s::(%ppscope SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
 	    |
+	    ((ADJUNCT ^) NTYPE)
 	    %scope = s::(ADJUNCT ^)
-	    (%scope TYPE) =c entity
-	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
-	    ((s::(ADJUNCT ^)_e -o s::^_t) -o ((s::(ADJUNCT ^)_e -o %scope_t) -o (s::(ADJUNCT ^)_e -o %scope_t))) || noscope,
-	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (s::(ADJUNCT ^)_e -o s::^_t)),
+	    %ppscope = ({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ ADJUNCT ^)
+	    :$ [/U_<e,t>.[/V_<e,t>.[/x_e.(U(x) & V(x))]]] :
+	    ((%scope_e -o s::^_t) -o ((s::(%ppscope OBJ)_e -o s::%ppscope_t) -o (s::(%ppscope OBJ)_e -o s::%ppscope_t))) || noscope,
+	    :$ [/x_e.[/y_e.with(x,y)]] : (%scope_e -o (s::(^OBJ)_e -o s::^_t)),
 	     }.
+
+
 
 
 ----
