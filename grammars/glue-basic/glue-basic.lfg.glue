@@ -93,98 +93,8 @@ DEMO   ENGLISH   RULES (1.0)
  	  }. 
 
 
-
-  METARULEMACRO(_CAT _BASECAT _RHS) = "applies to all rules in the grammar"
-
-    { "just use the rule as stated"
-      "don't do anything to it; ALWAYS include this option"
-
-      _RHS
-
-     |"if it is an NP or an N, pass it to the NP
-      coordination rule"
-      "COM{EX RULE NP: the girl and the boy}"
-
-      e: _CAT $c { NP N };
-      @(NPCOORD _CAT)
-
-     |"if it is any other category, pass it to
-      the same category coordination rule"
-      "COM{EX RULE S: the girl sleeps and walks.}"
-      "COM{EX RULE PP: with the girl and in the park}"
-
-      e: _CAT ~$ { NP N };
-      @(SCCOORD _CAT)
-
-     |"allow bracketing around any category"
-      "COM{EX RULE S: [the girl] sleeps.}"
-      "COM{EX RULE S: boys baked [the bananas in the cake].}"
-
-      LB: @(OT-MARK GenBadPunct); "preceding quote mark"
-                                  "disprefer in generation"
-      _CAT: @PUSHUP; "this pushes the quotes to the top
-                      to avoid vacuous ambiguity for things like:
-                      COM{EX RULES NP: [cakes])"
-      RB "following quote mark"}.
-
-"Coordination rules"
-
-NPCOORD(_CAT) = "coordination of nominals"
-   "COM{EX RULE NP: girls and boys}"
-   "This differs from SCCOORD in that the conjunction provides NUM pl to
-   the resulting coordinated f-structure and the person features are
-   resolved for the noun phrase."
-
-   _CAT: @IN-SET  "first nominal"
-         @NP-CONJUNCT; "calls person resolution template"
-
-   CONJnp: @PUSHUP; "conjunction"
-           "PUSHUP avoids vacuous ambiguity in constructions like:
-            COM{EX RULES NP: girls and boys}"
-
-   _CAT: @IN-SET "second nominal"
-         @NP-CONJUNCT.
-
-SCCOORD(_CAT) = "coordination of non-nominals"
-  "COM{EX RULES PP: with girls and with boys}"
-  "COM{EX RULES S: girls sleep and boys sleep.}"
-  "no features other than a COORD-FORM are provided to the coordinated
-  f-structure."
-
-   _CAT: @IN-SET; "first constituent"
-   (COMMA: @(OT-MARK GenBadPunct)) "optional comma; 
-                                    disprefered in generation"
-                       "COM{EX RULES S: girls sleep, and boys sleep.}"
-
-   CONJ: @PUSHUP; "conjunction"
-         "PUSHUP avoids vacuous ambiguity in constructions like:
-         COM{EX RULES S: boys walk and sleep.}" 
-
-   _CAT: @IN-SET "second constituent".
-
-
-
 ----
 DEMO   ENGLISH   TEMPLATES (1.0)
-
-   NP-CONJUNCT = "provides person resolution features for nominal
-	  coordination" 
-	  
-	  { "if either conjunct is 1st person; the whole NP is"
-	    "EX: the boys and me}"
-	    (! PERS)=c 1
-	    (^ PERS)=1
-	   |"if a conjunct is 2nd person and the NP is not
-	    already 1st person, make it 2nd person"
-	    (! PERS)=c 2
-	    { (^ PERS)=c 1 "one conjunct was 1st person"
-	      "EX: you and I}"
-	     |(^ PERS)=2 } "else assign 2nd person"
-	    "EX: you and the boys}"
-	   |"otherwise, the NP is 3rd person"
-	    "EX: the boys and her}"
-	    (^ PERS)=3}.
-
 
    OT-MARK(_mark) = "assigns an OT mark, from common templates"
 	  _mark $ o::*.
@@ -218,7 +128,14 @@ DEMO   ENGLISH   TEMPLATES (1.0)
    	  @(TRANS-PASSIVE-ARGS %arg1 %arg2)
 	  :$ [/x_e.[/y_e.P(x,y)]] : (s::%arg1_e -o (s::%arg2_e -o s::^_t)).
 
+   INTRANS(P) = (^ PRED) = 'P<(^SUBJ)>'
+	  :$ [/x_e.P(x)] : (s::(^ SUBJ)_e -o s::^_t).
 
+   OPT-TRANS(P) = { @(TRANS P) |
+		  @(INTRANS P)
+		  }.  "this template takes one argument:  P"
+
+   "Mapping arguments to GFs (for passive and dative shift)"
    TRANS-PASSIVE-ARGS(ARG1 ARG2) = { 
 	    (^ PASSIVE) =c - 
 	    ARG1 = (^ SUBJ)
@@ -227,6 +144,7 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    (^ PASSIVE) =c +
 	    { 
 	      (^OBL-AG) = ARG1 |
+	      ~(^OBL-AG)
 	      ARG1 = %empty
 	      :$ [/P_<e,t>.Ex_e[P(x)]] : ((s::%empty_e -o s::^_t) -o s::^_t),
 	      }
@@ -262,21 +180,10 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	      ARG3 = (^ SUBJ)
 	    } 
 	    }.
-  
-
-   INTRANS(P) = (^ PRED) = 'P<(^SUBJ)>'
-	  :$ [/x_e.P(x)] : (s::(^ SUBJ)_e -o s::^_t).
-
-   INTRANS-OBL(P) = (^ PRED) = 'P<(^SUBJ)(^OBL)>'.
-             
 
 
-   OPT-TRANS(P) = { (^ PRED) = 'P<(^SUBJ)(^OBJ)>' "P is a variable"
-	    :$ [/x_e.[/y_e.P(x,y)]] : (s::(^SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
-	          | (^ PRED) = 'P<(^SUBJ)>'
-		  :$ [/x_e.P(x)] : (s::(^ SUBJ)_e -o s::^_t),
-		  }.  "this template takes one argument:  P"
-	  
+   "Features"
+
    TENSE(T) = (^ TENSE) = T.  "the more general case"
 
    CASE(C) = (^ CASE) = C.   
@@ -355,6 +262,19 @@ convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
 try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  (^ XCOMP SUBJ) = (^SUBJ).
 
+seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  (^ XCOMP SUBJ) = (^SUBJ).
+
+try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  :$ [/x_e.[/P_<e,t>.try(x,P(x))]] :
+		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o (s::(^ XCOMP) SIT)_t) -o (s::^ SIT)_t)).
+
+seem 	  V-S XLE (^PRED) = '%stem<(^COMP)>(^SUBJ)'
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  :$ [/P_<e,t>.try(P(x))] :
+		  (s::(^ XCOMP)_t -o s::^_t).
+
 "Intransitives"
 
 appear 	  V-S XLE @(INTRANS %stem).
@@ -378,12 +298,6 @@ meowed 	  V * @(INTRANS meow)
 
 sleep 	  V-S XLE * @(INTRANS sleep).
 
-wait 	  V-S XLE { @(INTRANS wait) | 
-		@(INTRANS-OBL wait) 
-		"this is the non-semantic OBL wait on a customer use"
-		(^ OBL PFORM) =c on
-		(^ PSEM) =c nosem }.
-
 "Optional transitives"
 
 drinks 	  V-S XLE @(OPT-TRANS drink).
@@ -398,9 +312,7 @@ devour 	  V-S XLE @(TRANS devour).
 
 hate 	  V-S XLE @(TRANS %stem).  "using the morphological analyzer"
 
-implement V * @(TRANS see)
-	      @VPRES
-	      @BARE-AGR. 
+implement V-S XLE @(TRANS %stem).
 
 love 	  V-S XLE @(TRANS %stem).
 
@@ -420,12 +332,6 @@ cat 	  N * (^PRED) = 'cat'
 
 "adjectives --- should really be done via the morphology, like the nouns"
 
-small 	  A * @(PRED small). 
-
-smart 	  A * @(PRED smart). 
-
-grey 	  A * @(PRED grey).
-
 big 	  A * @(PRED big)
 	      :$ [/P_<e,t>.[/x_e.(big(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)) || noscope.
 
@@ -443,14 +349,6 @@ alleged   A * @(PRED alleged)
 
 former 	  A * @(PRED former)
 	      :$ [/P_<e,t>.[/x_e.former(P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)) || noscope.
-
-
-"adverbs --- should really be done via the morphology, like the nouns"
-
-quickly   ADV * @(PRED quickly). 
-
-very 	  ADV * @(PRED very). 
-
 
 "prepositions"
 
@@ -474,58 +372,6 @@ was 	  AUX * @(TENSE past)
                 }
                 (^ SUBJ NUM) = sg. 
 
-"pronouns (not complete)"
-
-I 	  PRON * @(PRON I 1 sg pers) 
-		 @(CASE nom).
-
-You	PRON * {@(PRON you 2 sg pers)
-	       |@(PRON you 2 pl pers)}.
-
-you	PRON * {@(PRON you 2 sg pers)
-	       |@(PRON you 2 pl pers)}.
-
-He 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE nom).
-
-he 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE nom).
-
-She 	  PRON * @(PRON she 3 sg pers)
-		 @(CASE nom).
-
-she 	  PRON * @(PRON she 3 sg pers)
-		 @(CASE nom).
-
-it	  PRON * @(PRON it 3 sg pers). 
-
-We 	  PRON * @(PRON we 1 pl pers)
-		 @(CASE nom).
-
-we 	  PRON * @(PRON we 1 pl pers)
-		 @(CASE nom).
-
-They 	  PRON * @(PRON they 3 pl pers) 
-		 @(CASE nom). 
-
-they 	  PRON * @(PRON they 3 pl pers)
-		 @(CASE nom). 
-
-My 	  PRON * @(PRON my 1 sg poss). 
-
-my 	  PRON * @(PRON my 1 sg poss).
-
-Her 	  PRON * @(PRON her 3 sg poss).
-
-her 	  PRON * @(PRON her 3 sg poss).
-
-Him 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE acc).
-
-him 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE acc).
-
-
 "determiners"
 
 the 	  D * (^DEF) = +
@@ -539,7 +385,8 @@ a 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
 	      (^ NUM) = sg
 	      @(QUANT-SCOPE ^ %q) 
-	      :$ [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) & Q(x)]]] : (((s::^ VAR)_e -o (s::^ RESTR)_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      :$ [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) & Q(x)]]] :
+	      (((s::^ VAR)_e -o (s::^ RESTR)_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 an 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars" 
@@ -703,6 +550,22 @@ GLUE   BASIC   TEMPLATES (1.0)
 
    QUANT-SCOPE(UP NAME) =
 	  NAME = s::({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ ^).
+
+   PREP-SEM(P) =
+             {
+	     %scope = s::(ADJUNCT ^)
+	     (f::%scope TNS-ASP TENSE)
+	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
+	    ((%scope_v -o s::^_t) -o ((%scope_v -o %scope_t) -o (%scope_v -o %scope_t))),
+	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (%scope_v -o s::^_t)),
+	    |
+	    %scope = s::(ADJUNCT ^)
+	    (%scope TYPE) =c entity
+	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
+	    ((s::(ADJUNCT ^)_e -o s::^_t) -o ((s::(ADJUNCT ^)_e -o %scope_t) -o (s::(ADJUNCT ^)_e -o %scope_t))) || noscope,
+	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (s::(ADJUNCT ^)_e -o s::^_t)),
+	     }.
+
 
 ----
 
