@@ -59,7 +59,6 @@ DEMO   ENGLISH   RULES (1.0)
 	       "example of a constraining equation: require a value with =c"
 	       (! PFORM) =c by )
  	  ({ CP: (^ COMP) = !
-	      t::(^ COMP) = t::^
  	   | VPinf: (^XCOMP) = !
 		    (! VFORM) = inf}).
 
@@ -258,7 +257,6 @@ ensure 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
 
 convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
 		  (^ XCOMP SUBJ) = (^OBJ). 
-
 
 try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  (^ XCOMP SUBJ) = (^SUBJ)
@@ -550,14 +548,14 @@ GLUE   BASIC   TEMPLATES (1.0)
 	     %ppscope = (ADJUNCT ^)
 	    :$ [/U_<e,t>.[/V_<e,t>.[/x_e.(U(x) & V(x))]]] :
 	    ((s::(%ppscope SUBJ)_e -o s::^_t) -o ((s::(%ppscope SUBJ)_e -o s::%ppscope_t) -o (s::(%ppscope SUBJ)_e -o s::%ppscope_t))) || noscope,
-	    :$ [/x_e.[/y_e.with(x,y)]] : (s::(%ppscope SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
+	    :$ [/x_e.[/y_e.P(x,y)]] : (s::(%ppscope SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
 	    |
 	    ((ADJUNCT ^) NTYPE)
 	    %scope = s::(ADJUNCT ^)
 	    %ppscope = ({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ ADJUNCT ^)
 	    :$ [/U_<e,t>.[/V_<e,t>.[/x_e.(U(x) & V(x))]]] :
 	    ((%scope_e -o s::^_t) -o ((s::(%ppscope OBJ)_e -o s::%ppscope_t) -o (s::(%ppscope OBJ)_e -o s::%ppscope_t))) || noscope,
-	    :$ [/x_e.[/y_e.with(x,y)]] : (%scope_e -o (s::(^OBJ)_e -o s::^_t)),
+	    :$ [/x_e.[/y_e.P(x,y)]] : (%scope_e -o (s::(^OBJ)_e -o s::^_t)),
 	     }.
 
 
