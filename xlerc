@@ -37,7 +37,7 @@ set defaultTmpDir /tmp
 source $defaultGlueTCL
 
 #detailed output
-set solutionOnly 1
+set solutionOnly 0
 
 # choose prover  (0: HEPPLE, 1: LEV, 2: LEV-altered, 3: Multistage proving)
 set prover 1
@@ -51,11 +51,18 @@ set processDRT 0
 # Choose between Prolog-encoding (0) and String-encoding (1) for MCs
 set mcEncoding 1
 
+# activate rewrite with LiGER (1/0)
+set transfer 0
+
+
 # activate debug mode (1/0)
 set transferDebug 1
 
-# activate rewrite with LiGER (1/0)
-set transfer 0
+# Prints premise IDs in the output
+set printIndex 0
+
+# Adds additional info to the output
+set explainFail 0
 
 #set font
 set outputfont Courir

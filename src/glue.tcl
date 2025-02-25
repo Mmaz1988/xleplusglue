@@ -104,7 +104,8 @@ proc fswindow-to-premises {displaywindow window displaymode position} {
     global defaultTmpDir prover semParser \
     transferDebug processDRT solutionOnly \
     mcEncoding outputfont fontsize \
-    transferRuleFile transfer
+    transferRuleFile transfer \
+    printIndex explainFail
 	
     
     #For Sicstus Prolog
@@ -211,6 +212,14 @@ if {$processDRT == 1} {
 }
 if {$solutionOnly == 1} {
     lappend gswb "-s"
+}
+
+if {$printIndex == 1} {
+    lappend gswb "-printIndex"
+}
+
+if {$explainFail == 1} {
+lappend gswb "-explainFail"
 }
 
 puts "Executing command: [join $gswb { }]"
