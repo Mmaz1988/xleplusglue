@@ -61,7 +61,7 @@ set transferDebug 1
 # Prints premise IDs in the output
 set printIndex 0
 
-# Adds additional info to the output
+# Adds additional info to the output (particularly when the proof fails)
 set explainFail 0
 
 #set font
@@ -72,10 +72,10 @@ set fontsize 18
 # Load in the specified rules:
 init-glue
 
-proc clean {} {
-    set command {find grammars -type f -name "*.lfg" -delete}
-    exec sh -c $command
-    puts "Cleaned up the grammars directory."
-}
+# proc clean {} {
+#    set command {find grammars -type f -name "*.lfg" -delete}
+#    exec sh -c $command
+#    puts "Cleaned up the grammars directory."
+# }
 
 proc t {} {parse-testfile [relpath testsuites/basic-test.lfg] }
