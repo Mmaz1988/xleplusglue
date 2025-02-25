@@ -54,7 +54,6 @@ set mcEncoding 1
 # activate rewrite with LiGER (1/0)
 set transfer 0
 
-
 # activate debug mode (1/0)
 set transferDebug 1
 
