@@ -3,6 +3,9 @@ FROM python:3.9-slim
 
 EXPOSE 8082
 
+# Set an environment variable for the helper files
+ENV BOXER_PATH="boxer"
+
 # Install only required system dependencies (minimal setup)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -24,17 +27,16 @@ RUN pip install -U pyswip
 
 # Copy the inference Python script and related files
 COPY inference/run_vampire.py /vampire/
-COPY inference/requirements.txt /vampire/
-COPY inference/eprover.p /vampire/
-COPY inference/comsemPredicates.pl /vampire/
-COPY inference/fol2tptp.pl /vampire/
-COPY inference/drs2fol.pl /vampire/
-COPY inference/mergeDRT.pl /vampire/
-COPY inference/printDrs.pl /vampire/
+COPY inference/vampire_call.py /vampire/
+COPY inference/vampire_models.py /vampire/
 
+COPY inference/requirements.txt /vampire/
 
 # Install the required Python libraries
 RUN pip install -r requirements.txt
+
+# copy boxer files to vampire
+COPY gswb_resources/boxer /vampire/boxer
 
 # Run the sysctl command to modify kernel settings (this works only in privileged mode)
 RUN sudo sysctl -w kernel.perf_event_paranoid=-1 || echo "Ignoring sysctl failure, needs privileged mode."

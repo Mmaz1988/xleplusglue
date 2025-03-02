@@ -23,6 +23,7 @@
 
 :- module(comsemPredicates,
           [appendLists/3,
+              basicFormula/1,
            compose/3,
 	   concatStrings/2,
 	   executeCommand/1,
@@ -450,3 +451,16 @@ printExtensions([]).
 printExtensions([X|L]):-
    tab(2), write(X), nl,
    printExtensions(L).
+
+
+/*========================================================================
+   Basic Formula Syntax
+========================================================================*/
+
+basicFormula(F):-
+   var(F), !, fail.
+
+basicFormula(F):-
+   compose(F,Symbol,Args),
+   \+ memberList(Symbol,[not,and,imp,app,or,some,all,lam,eq]),
+   simpleTerms(Args).

@@ -23,6 +23,12 @@ drs2fol(+Drs,?F)
 
 ========================================================================*/
 
+printfol(Drs,Filename):-
+    open(Filename,write,Stream),
+    drs2fol(Drs,Formula),
+    write(Stream,Formula),
+    close(Stream).
+
 drs2fol(drs([],[Cond]),Formula):-
    cond2fol(Cond,Formula).
 

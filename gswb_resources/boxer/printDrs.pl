@@ -49,6 +49,12 @@ embeddingPredicate(X) :- member(X,[think,say,try,seem,ensure,convince]).
      Print Predicates
 ========================================================================*/
 
+saveToFile(Drs,Filename):-
+    tell(Filename),
+    printDrs(Drs),
+    told.
+
+
 printDrs(Drs):- 
    retract(counter(_)), 
    assert(counter(1)),
