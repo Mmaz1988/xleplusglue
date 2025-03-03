@@ -23,7 +23,7 @@ def mergeDrs(firstOne,secondOne):
     logger.info("Merging DRSs: %s, %s", firstOne, secondOne)
     callToMerge = "presupDRT:printMerged(" + firstOne + "," + secondOne + ",'mergedRes.txt')."
     useProlog(f"[{os.path.join(BOXER,'presupDRT')}].",callToMerge)
-    time.sleep(0.5)
+
     filepath = 'mergedRes.txt'
     mergedRes = open(filepath, 'r').read()
     if os.path.exists('mergedRes.txt'):
@@ -81,8 +81,6 @@ def printDRS(Drs):
 
     inputDrs = "printDrs:saveToFile(" + Drs + ",'tmp/boxing.txt')."
     useProlog(f"[{os.path.join(BOXER,'printDrs')}].",inputDrs)
-
-    time.sleep(0.5)
 
     filepath = "tmp/boxing.txt"
     boxed = open(filepath, 'r').read()
@@ -269,8 +267,6 @@ def conversion(formula):
     useProlog(f"[{os.path.join(BOXER,'drs2fol')}].",betterformula)
     logger.info(f"Loading knowledge base [{os.path.join(BOXER,'drs2fol')}].")
 
-    time.sleep(0.5)
-
     newfol = open(drs2fol_file, 'r').read()
     logger.info("Function conversion generated following formula: ", newfol)
     #now get TPTP string from Prolog
@@ -279,8 +275,6 @@ def conversion(formula):
 
     logger.info("Calling Prolog to convert FOL to TPTP: %s", betterfol)
     useProlog(f"[{os.path.join(BOXER,'fol2tptp')}].",betterfol)
-
-    time.sleep(0.5)
 
     data = open(fof_file, 'r').read()
     data = inputToFof(data)
