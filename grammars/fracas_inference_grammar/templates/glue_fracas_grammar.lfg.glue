@@ -44,12 +44,7 @@ GLUE   BASIC   TEMPLATES (1.0)
 	  (s::^ EV TYPE) = eventuality
 	  (s::^ SIT) = %s
 	  :$ lam(V,drs([],[pred(REL,V)])) : ((s::^ EV)_v -o (s::^ EV)_t),
-	  :$ lam(V,lam(S,merge(drs([E],[rel(partOf,E,S)]),app(V,E)))) : (((s::^ EV)_v -o (s::^ EV)_t) -o (%s_s -o %s_t)),
-	  {
-	    (^ ROOT)
-	    @TENSE-CLOSURE
-	   |
-	    ~[(^ ROOT)]}.
+	  :$ lam(V,merge(drs([E],[]),app(V,E))) : (((s::^ EV)_v -o (s::^ EV)_t) -o %s_t).
 
    PREP-SEM(P) =
              {
@@ -66,8 +61,10 @@ GLUE   BASIC   TEMPLATES (1.0)
 	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (s::(ADJUNCT ^)_e -o s::^_t)),
 	     }.
 
+"
  TENSE-CLOSURE = %tense = (s::^ TEMP-REF EVAL)
  :$ lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((%tense_s -o %tense_t) -o s::^_t).
+"
 
    "Templates for argument structure. Need to be separate to avoid trouble with local names"
    ARG1(ARG) =
