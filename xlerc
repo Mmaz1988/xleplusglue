@@ -71,6 +71,7 @@ set fontsize 18
 # Load in the specified rules:
 init-glue
 
+# BE CAREFUL WHEN USING THIS. THIS WILL DELETE EVERY LFG FILE
 # proc clean {} {
 #    set command {find grammars -type f -name "*.lfg" -delete}
 #    exec sh -c $command
