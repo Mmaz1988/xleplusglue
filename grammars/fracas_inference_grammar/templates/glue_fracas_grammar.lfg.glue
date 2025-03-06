@@ -16,13 +16,13 @@ GLUE   BASIC   TEMPLATES (1.0)
    NAME-SCOPE(UP NAME) =
    %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART | $}+ ^)
    (%name FIN) =c +
-   NAME  = (s::%name SIT)
+   NAME  = s::%name
    (s::^ QUANT-SCOPE) = NAME.
 
      QUANT-SCOPE(UP NAME) =
   	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL-COMP | OBL | ADJUNCT | PREDLINK | OBL-PART | $}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
   	  (s::%name EV TYPE) =c eventuality
-  	  NAME = (s::%name SIT)
+  	  NAME = s::%name
   	  (s::^ QUANT-SCOPE) = NAME.
 " Why does the below not work?
    QUANT-SCOPE(UP NAME) =
@@ -32,19 +32,13 @@ GLUE   BASIC   TEMPLATES (1.0)
 	  "
 
    ATTITUDE = (s::^ SIT) = %s
-   	      (s::^ EV TYPE) = eventuality
-	  {
-	    (^ ROOT)
-	    @TENSE-CLOSURE
-	   |
-	    ~[(^ ROOT)]
-	    }.
+   	      (s::^ EV TYPE) = eventuality.
 
    EVENT(REL) =
 	  (s::^ EV TYPE) = eventuality
 	  (s::^ SIT) = %s
 	  :$ lam(V,drs([],[pred(REL,V)])) : ((s::^ EV)_v -o (s::^ EV)_t),
-	  :$ lam(V,merge(drs([E],[]),app(V,E))) : (((s::^ EV)_v -o (s::^ EV)_t) -o %s_t).
+	  :$ lam(V,merge(drs([E],[]),app(V,E))) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
 
    PREP-SEM(P) =
              {
