@@ -1,6 +1,9 @@
 --replace(true);
 
-#a TNS-ASP #b & #a s:: #c SIT #d  ==> #c TEMP-REF #e & #e T-REF 'undefined'.
+#a TNS-ASP #b & #a s:: #c SIT #d & #c EV #v  ==>
+#c TEMP-REF #e &
+#e T-REF 'undefined' &
+#d GLUE lam(V,lam(S,lam(E,merge(drs([],[rel(partOf,E,S)]),app(V,E))))) : ((#v_v -o #v_t) -o (#d_s -o (#v_v -o #v_t))).
 
 //Tier 1 rules
 #a TNS-ASP #b TENSE 'past' & #a s:: #c TEMP-REF #d & #d T-REF 'undefined' ==>  #d T-REF 'past' & #d CHECK '-'.
@@ -120,3 +123,6 @@
 //unspec absolute closure
 #a s:: #b TEMP-REF #c T-REF %a & %a == 'undefined' & #c EVAL #d
 ==> #c GLUE lam(P,lam(S,merge(app(P,S),drs([],[])))) : ((#c_s -o #b_t) -o (#d_s -o #b_t)).
+
+#a EVAL #b & #a CHECK '-'
+==> #b GLUE lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((#b_s -o #b_t) -o #b_t).
