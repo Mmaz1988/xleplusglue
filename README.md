@@ -1,5 +1,12 @@
 # XLE+Glue toolset
 
+# Current TODOs
+
+- Add noun semantics to Multiword expressions Lexicon (Can be copied from noun semantics in the morphology)
+- Fix semantics of the other COMP verbs to work both independently and with LiGER 
+- Fix XCOMP semantics in parallel with COMP semantics
+- Implement negation to get an easy example with contradiction for inference
+
 ## Intro
 
 This repository serves to provide a toolset for working with XLE+Glue. Furthermore, it provides the means to create a Docker container for running the components in a virtual environment.
