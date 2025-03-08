@@ -31,12 +31,17 @@ GLUE   BASIC   TEMPLATES (1.0)
 	  (s::^ QUANT-SCOPE) = (NAME SIT).
 	  "
 
+"
    ATTITUDE = (s::^ SIT) = %s
    	      (s::^ EV TYPE) = eventuality.
+"
+
+"In principle, the identity function is not necessary but it makes interaction with LiGER simpler"
 
    EVENT(REL) =
 	  (s::^ EV TYPE) = eventuality
-	  (s::^ SIT) = %s
+	  (s::^ SIT) = %sit
+	  :$ lam(P,P) : (s::^_t -o %sit_t),
 	  :$ lam(V,drs([],[pred(REL,V)])) : ((s::^ EV)_v -o (s::^ EV)_t),
 	  :$ lam(V,merge(drs([E],[]),app(V,E))) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
 

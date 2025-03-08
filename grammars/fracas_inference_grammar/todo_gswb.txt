@@ -1,3 +1,4 @@
+// This is done
 {
 //Liger
 lam(S,lam(T,drs([],[rel(bounded,T,S)]))) : (137_s -o (138_s -o 136_t))
@@ -18,4 +19,19 @@ lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((14_s -o 14_t) -o 11_t)
 lam(V,lam(S,lam(E,merge(drs([],[rel(partOf,E,S)]),app(V,E))))) : ((12_v -o 12_t) -o (5_s -o (12_v -o 12_t)))
 //Existential closure -- if liger fails, we get plain event semantics
 lam(V,merge(drs([E],[]),app(V,E))) : ((12_v -o 12_t) -o 5_t)
+}
+
+//Next step
+{
+//Grammar
+kim : 14_e
+past : ((2_s -o 16_t) -o 16_t)
+sit : ((15_v -o 15_t) -o (2_s -o (15_v -o 15_t)))
+event : ((15_v -o 15_t) -o 16_t)
+think : (6_t -o (14_e -o (15_v -o 15_t)))
+think_inj : ((6_t -o (14_e -o (15_v -o 15_t))) -o ((1_s -o 6_t) -o (14_e -o (15_v -o 15_t))))
+appear : (7_v -o 7_t)
+sit : ((7_v -o 7_t) -o (1_s -o (7_v -o 7_t)))
+past : ((1_s -o 6_t) -o (1_s -o 6_t))
+event : ((7_v -o 7_t) -o 6_t)
 }
