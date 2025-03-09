@@ -29,20 +29,33 @@ ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
           %s = (s::(^ COMP) TEMP-REF EVAL)
 	      :$ lam(P,lam(X,lam(S,merge(drs([],[pred(ensure,S),rel(arg1,S,X)]),drs([],[cont(S,app(P,S))]))))) :
 	      ((%s_s -o %s_t) -o (s::(^ SUBJ)_e -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+"
+
+"
+convince can be both COMP or XCOMP
+"
+
+convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^COMP)>'
+          @(EVENT %stem)
+                    @(ARG1 (^SUBJ))
+                    @(ARG2 (^OBJ))
+          	      %s = s::(^ COMP)
+          	      :$ lam(P,P) : (%s_t -o (%s SIT)_t),
+          	      :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
+                    (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))).
 
 
-convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
-          @ATTITUDE
-		  (^ XCOMP SUBJ) = (^OBJ)
-		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(convince,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
-		  (s:: (^SUBJ)_e -o (s::(^OBJ)_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
+"
+((4_e -o (14_v -o 14_t)) -o ((4_e -o 12_t) -o (4_e -o (14_v -o 14_t))))
 "
 
 try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
-		  @ATTITUDE
+		  @(EVENT %stem)
+		  @(ARG1 (^SUBJ))
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ lam(X,lam(P,lam(S,drs([],[pred(try,S),rel(arg1,S,X),cont(S,app(app(P,X),S))])))) :
-		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+		  %s = s::(^ XCOMP)
+		  :$ lam(V,lam(P,lam(X,lam(E,merge(app(app(V,X),E),drs([],[cont(E,app(P,X))])))))) :
+		  ((s::(^SUBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)) -o ((s::(^ XCOMP SUBJ)_e -o (%s SIT)_t) -o (s::(^SUBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)))).
 
 seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
           @ATTITUDE

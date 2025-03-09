@@ -30,13 +30,15 @@ VERB ENGLISH RULES (1.0)
 	       "example of a constraining equation: require a value with =c"
 	       (! PFORM) =c by
 	       @(OT-MARK PPpassiv))
- 	  ({ CP: (^ COMP) = !
+ 	  (
+ 	    {
+ 	     CP: (^ COMP) = !
  	    |
  	     VPinf: (^XCOMP) = !
 		    (! FIN) = -
 		    (! VFORM) = inf
-		    (s::^ TEMP-REF) = (s::(^XCOMP) EVAL)}
- 	   )
+		 }
+ 	  )
 
  	  (ADVP: ! $ (^ ADJUNCT)).
 

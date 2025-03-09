@@ -7,7 +7,7 @@
 #d GLUE lam(V,lam(S,lam(E,merge(drs([],[rel(partOf,E,S)]),app(V,E))))) : ((#v_v -o #v_t) -o (#d_s -o (#v_v -o #v_t))).
 
 //Consumption
-
+x
 //Tier 1 rules
 #a TNS-ASP #b TENSE 'past' & #a s:: #c TEMP-REF #d & #d T-REF 'undefined' ==>  #d T-REF 'past' & #d CHECK '-'.
 #a TNS-ASP #b TENSE 'pres' & #a s:: #c TEMP-REF #d & #d T-REF 'undefined' ==>  #d T-REF 'pres' & #d CHECK '-'.
@@ -29,17 +29,17 @@
 ==> #a T-REF 'non-past' & #c CHECK '+' & #c EVAL #a.
 
 
-//Relative tense rules
-#a T-REF 'undefined' &
-#a ^(TEMP-REF>s::>XCOMP) #b & #b !(s::>TEMP-REF) #c ==> #a EVAL #c.
+//Adding evals
+#a T-REF %a ==> #a EVAL #b.
 
-#a T-REF %a & %a != 'undefined' & #a CHECK '-' ==> #a EVAL #b.
-
-//COMP INJECTION
+//COMP and XCOMP INJECTION
 #m COMP #a TNS-ASP #b & #a s:: #c TEMP-REF #e EVAL #f &
 #m s:: #n EV #v & #n SIT #d
 ==> #d GLUE lam(V,lam(S,lam(E,merge(drs([],[rel(partOf,E,S)]),app(app(V,S),E))))) : ((#f_s -o (#v_v -o #v_t)) -o (#d_s -o (#v_v -o #v_t))).
 
+#m XCOMP #a TNS-ASP #b & #a s:: #c TEMP-REF #e EVAL #f &
+#m s:: #n EV #v & #n SIT #d
+==> #d GLUE lam(V,lam(S,lam(E,merge(drs([],[rel(partOf,E,S)]),app(app(V,S),E))))) : ((#f_s -o (#v_v -o #v_t)) -o (#d_s -o (#v_v -o #v_t))).
 
 //Aspect rules
 #a TNS-ASP #b PROG '+_' & #a s:: #c ==> #c VIEWPOINT #d & #d ASPECT 'impv' & #d A-RESTR 'ongoing'.
@@ -87,7 +87,7 @@
 #a s:: #b VIEWPOINT #c ASPECT 'undefined' &
 #b TEMP-REF #f &
 #b SIT #g
- ==>  #c GLUE lam(P,lam(S,merge(drs([],[]),app(P,S)))) : ((#g_s -o #b_t) -o (#f_s -o #b_t)).
+ ==>  #c GLUE lam(P,lam(S,merge(drs([],[]),app(P,S)))) : ((#g_s -o #g_t) -o (#f_s -o #f_t)).
 
 //Tense values
 
@@ -131,10 +131,13 @@
 
 //unspec absolute closure
 #a s:: #b TEMP-REF #c T-REF %a & %a == 'undefined' & #c EVAL #d
-==> #c GLUE lam(P,lam(S,merge(app(P,S),drs([],[])))) : ((#c_s -o #b_t) -o (#d_s -o #b_t)).
+==> #c GLUE lam(P,lam(S,merge(app(P,S),drs([],[])))) : ((#c_s -o #c_t) -o (#d_s -o #d_t)).
 
 #a EVAL #b
 ==> #b GLUE lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((#b_s -o #b_t) -o #b_t).
 
 #m COMP #n s:: #o TEMP-REF #a EVAL #b & #o SIT #s
-==> #b GLUE lam(P,P) : ((#b_s -o #b_t) -o (#b_s -o #o_t)).
+==> #b GLUE lam(P,P) : ((#b_s -o #b_t) -o (#b_s -o #s_t)).
+
+#m XCOMP #n s:: #o TEMP-REF #a EVAL #b & #o SIT #s
+==> #b GLUE lam(P,P) : ((#b_s -o #b_t) -o (#b_s -o #s_t)).
