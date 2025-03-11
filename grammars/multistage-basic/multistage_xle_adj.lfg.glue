@@ -9,7 +9,7 @@ DEMO   ENGLISH   CONFIG (1.0)
   SEMANTICFUNCTIONS    ADJUNCT  TOPIC FOCUS POSS STANDARD.
   NONDISTRIBUTIVES   NUM PERS COORD-FORM.
   EPSILON   e.
-  OPTIMALITYORDER NOGOOD  PPadj +PPattach +sg-imp.
+  OPTIMALITYORDER NOGOOD  PPadj +PPattach +sg-imp +PPpassiv.
   GENOPTIMALITYORDER GenBadPunct NOGOOD +Punct.
 
 ----
@@ -61,7 +61,8 @@ DEMO   ENGLISH   RULES (1.0)
 	       (! PFORM) =c to )
  	  (PP: (^ OBL-AG) = ! "oblique agent of passive" 
 	       "example of a constraining equation: require a value with =c"
-	       (! PFORM) =c by )
+	       (! PFORM) =c by
+	       @(OT-MARK PPpassiv))
  	  ({ CP: (^ COMP) = !
 	      t::(^ COMP) = t::^;
  	   | VPinf: (^XCOMP) = !
@@ -87,8 +88,7 @@ DEMO   ENGLISH   RULES (1.0)
    NP --> { (D: ^=!)
  	    NP'
 	    PP*: ! $ (^ ADJUNCT)
-	       (! PTYPE) =c sem 
-	       @(OT-MARK PPattach)
+	       (! PTYPE) =c sem
  	  | PRON}.
 
 
