@@ -99,6 +99,8 @@ disappear V-S XLE @(INTRANS-EV %stem).
 
 laugh 	  V-S XLE @(INTRANS-EV %stem).
 
+meow       V-S XLE @(INTRANS-EV %stem).
+
 sleep 	  V-S XLE @(INTRANS-EV %stem).
 
 live       V-S XLE @(INTRANS-EV %stem).
@@ -143,7 +145,7 @@ hate 	  V-S XLE @(TRANS-EV %stem).  "using the morphological analyzer"
 
 hug V-S XLE @(TRANS-EV %stem);ETC.
 
-implement V-S XLE @(TRANS-EV $stem).
+implement V-S XLE @(TRANS-EV %stem).
 
 love 	  V-S XLE @(TRANS-EV %stem).
 

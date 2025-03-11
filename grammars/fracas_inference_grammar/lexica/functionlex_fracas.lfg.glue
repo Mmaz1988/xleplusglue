@@ -21,7 +21,8 @@ by 	  P * @(PREP by).
 to 	  P * @(PREP to);
 	  PARTinf * (^ VFORM) =c inf.
 
-on 	  P * @(PREP on).
+on 	  P * @(PREP on)
+          @(PREP-SEM on).
 
 in 	  P * @(PREP in).
 

@@ -9,13 +9,10 @@ VERB ENGLISH RULES (1.0)
  	  ({ NP: (^ OBJ)=! "direct object"
 		 (! CASE)=acc |
  	     NP: (^ PREDLINK) = ! "to be + ..."
-
-
-
  	   })
  	  (NP: (^ OBJ2) = !)
 
- 	  AP[predicative]*: (^ PREDLINK) = !;
+ 	  "AP[predicative]*: (^ PREDLINK) = !;"
 
 	  "secondary object"
  	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"
