@@ -9,7 +9,6 @@ say 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
                     @(EVENT %stem)
                     @(ARG1 (^SUBJ))
           	      %s = s::(^ COMP)
-          	      :$ lam(P,P) : (%s_t -o (%s SIT)_t),
           	      :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
                     (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))).
 
@@ -19,7 +18,6 @@ think 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
           @(EVENT %stem)
           @(ARG1 (^SUBJ))
 	      %s = s::(^ COMP)
-	      :$ lam(P,P) : (%s_t -o (%s SIT)_t),
 	      :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
           (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))).
 
@@ -35,19 +33,25 @@ ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
 convince can be both COMP or XCOMP
 "
 
-convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^COMP)>'
+convince  V-S XLE {(^PRED) = '%stem<(^SUBJ)(^OBJ)(^COMP)>'
           @(EVENT %stem)
                     @(ARG1 (^SUBJ))
                     @(ARG2 (^OBJ))
           	      %s = s::(^ COMP)
           	      :$ lam(P,P) : (%s_t -o (%s SIT)_t),
           	      :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
-                    (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))).
+                    (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))),
+            |
+          (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
+		  @(EVENT %stem)
+		  @(ARG1 (^SUBJ))
+		  @(ARG2 (^OBJ))
+		  (^ XCOMP SUBJ) = (^OBJ)
+		  %s = s::(^ XCOMP)
+		  :$ lam(V,lam(P,lam(X,lam(E,merge(app(app(V,X),E),drs([],[cont(E,app(P,X))])))))) :
+		  ((s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)) -o ((s::(^ XCOMP SUBJ)_e -o (%s SIT)_t) -o (s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)))),
+		  }.
 
-
-"
-((4_e -o (14_v -o 14_t)) -o ((4_e -o 12_t) -o (4_e -o (14_v -o 14_t))))
-"
 
 try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  @(EVENT %stem)
@@ -58,25 +62,32 @@ try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  ((s::(^SUBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)) -o ((s::(^ XCOMP SUBJ)_e -o (%s SIT)_t) -o (s::(^SUBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)))).
 
 seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)>(^XCOMP)'
-          @ATTITUDE
+          @(EVENT %stem)
 		  (^ XCOMP SUBJ) = (^SUBJ)
-		  :$ lam(P,lam(S,drs([],[pred(seem,S),cont(S,app(P,S))]))) :
-		  (((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t) -o ((s::^ SIT)_s -o (s::^ SIT)_t)).
+		  %s = s::(^ XCOMP)
+		  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
+		  (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))).
 
-"want is a copy of try"
+
+"
+This still needs fixing
 want	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 		  @ATTITUDE
 		  (^ XCOMP SUBJ) = (^SUBJ)
 		  :$ lam(X,lam(P,lam(S,drs([],[pred(want,S),rel(arg1,S,X),cont(S,app(app(P,X),S))])))) :
 		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT)_s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t))).
+"
 
-
+"
+For future reference to implement active and passive forms for xcomp verbs
 believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
           @(XCOMP-OBJ-PASSIVE-ARGS %arg1 %arg2 %arg3)
 		  @ATTITUDE
 		  (^ XCOMP SUBJ) = %arg2
 		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(believe,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
           (s::%arg1_e -o (s::%arg2_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
+"
+
 
 "Intransitives"
 
@@ -132,13 +143,11 @@ hate 	  V-S XLE @(TRANS-EV %stem).  "using the morphological analyzer"
 
 hug V-S XLE @(TRANS-EV %stem);ETC.
 
-implement V * @(TRANS see)
-	      @VPRES
-	      @BARE-AGR.
+implement V-S XLE @(TRANS-EV $stem).
 
 love 	  V-S XLE @(TRANS-EV %stem).
 
-receive   V-S XLE @(TRANS %stem).
+receive   V-S XLE @(TRANS-EV %stem).
 
 see 	  V-S XLE @(TRANS-EV %stem).
 
@@ -279,5 +288,7 @@ can    AUX * @VPRES
               (^ FIN) = +
              @(EVENT %stem). "  semantics don't work here"
 
+
+did AUX * @VPAST.
 
 ----
