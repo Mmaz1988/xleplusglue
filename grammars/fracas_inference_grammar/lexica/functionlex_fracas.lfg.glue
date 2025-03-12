@@ -65,8 +65,8 @@ or 	  CONJ * @(COORD-FORM %stem);
 
 not   NEG * @(PRED not)
             @(QUANT-SCOPE ^ %q)
-            :$ lam(P,not(P)) :
-            (s::^_t -o s::^_t).
+            :$ lam(P,drs([],[not(P)])) :
+            (%q_t -o %q_t).
 
 
 "nominal modifiers"
