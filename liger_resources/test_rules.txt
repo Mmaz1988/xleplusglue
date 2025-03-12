@@ -7,7 +7,7 @@
 #d GLUE lam(V,lam(S,lam(E,merge(drs([],[rel(partOf,E,S)]),app(V,E))))) : ((#v_v -o #v_t) -o (#d_s -o (#v_v -o #v_t))).
 
 //Consumption
-x
+
 //Tier 1 rules
 #a TNS-ASP #b TENSE 'past' & #a s:: #c TEMP-REF #d & #d T-REF 'undefined' ==>  #d T-REF 'past' & #d CHECK '-'.
 #a TNS-ASP #b TENSE 'pres' & #a s:: #c TEMP-REF #d & #d T-REF 'undefined' ==>  #d T-REF 'pres' & #d CHECK '-'.
