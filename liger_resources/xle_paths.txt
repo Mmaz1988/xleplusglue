@@ -1,5 +1,5 @@
 XLE="/xle"
-grammar="/grammars/glue-basic-drt-tense.lfg.glue"
+grammar="grammars/fracas_inference_grammar/main_fracas_grammar.lfg.glue"
 OS="MAC"
 
 //grammar="/Users/princess_zelda/Projects/xleplusglue/xle-glueworkbench-interface/grammars_concept/glue-basic-drt.lfg"

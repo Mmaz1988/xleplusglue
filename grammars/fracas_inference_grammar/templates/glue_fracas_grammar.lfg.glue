@@ -16,13 +16,13 @@ GLUE   BASIC   TEMPLATES (1.0)
    NAME-SCOPE(UP NAME) =
    %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART | $}+ ^)
    (%name FIN) =c +
-   NAME  = (s::%name SIT)
+   NAME  = s::%name
    (s::^ QUANT-SCOPE) = NAME.
 
      QUANT-SCOPE(UP NAME) =
   	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL-COMP | OBL | ADJUNCT | PREDLINK | OBL-PART | $}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
   	  (s::%name EV TYPE) =c eventuality
-  	  NAME = (s::%name SIT)
+  	  NAME = s::%name
   	  (s::^ QUANT-SCOPE) = NAME.
 " Why does the below not work?
    QUANT-SCOPE(UP NAME) =
@@ -31,25 +31,19 @@ GLUE   BASIC   TEMPLATES (1.0)
 	  (s::^ QUANT-SCOPE) = (NAME SIT).
 	  "
 
+"
    ATTITUDE = (s::^ SIT) = %s
-   	      (s::^ EV TYPE) = eventuality
-	  {
-	    (^ ROOT)
-	    @TENSE-CLOSURE
-	   |
-	    ~[(^ ROOT)]
-	    }.
+   	      (s::^ EV TYPE) = eventuality.
+"
+
+"In principle, the identity function is not necessary but it makes interaction with LiGER simpler"
 
    EVENT(REL) =
 	  (s::^ EV TYPE) = eventuality
-	  (s::^ SIT) = %s
+	  (s::^ SIT) = %sit
+	  :$ lam(P,P) : (s::^_t -o %sit_t),
 	  :$ lam(V,drs([],[pred(REL,V)])) : ((s::^ EV)_v -o (s::^ EV)_t),
-	  :$ lam(V,lam(S,merge(drs([E],[rel(partOf,E,S)]),app(V,E)))) : (((s::^ EV)_v -o (s::^ EV)_t) -o (%s_s -o %s_t)),
-	  {
-	    (^ ROOT)
-	    @TENSE-CLOSURE
-	   |
-	    ~[(^ ROOT)]}.
+	  :$ lam(V,merge(drs([E],[]),app(V,E))) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
 
    PREP-SEM(P) =
              {
@@ -66,8 +60,10 @@ GLUE   BASIC   TEMPLATES (1.0)
 	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (s::(ADJUNCT ^)_e -o s::^_t)),
 	     }.
 
+"
  TENSE-CLOSURE = %tense = (s::^ TEMP-REF EVAL)
  :$ lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((%tense_s -o %tense_t) -o s::^_t).
+"
 
    "Templates for argument structure. Need to be separate to avoid trouble with local names"
    ARG1(ARG) =

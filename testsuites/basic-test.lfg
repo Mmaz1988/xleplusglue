@@ -1,0 +1,49 @@
+#transitive
+
+a big black dog appeared.
+
+#optional transitives
+
+a dog escaped.
+
+a dog escaped the cage.
+
+#transitive
+
+every dog devoured a bone.
+
+#di-transitive
+
+Mary gave a student every grade.
+
+Mary gave a grade to a student.
+
+#COMP-verb
+
+Mary thinks that a cat meowed.
+
+#XCOMPs
+
+a cat seemed to meow.
+
+a dog tried to meow.
+
+#passives
+
+a bone was devoured by a dog.
+
+a program was implemented by a developer.
+
+a solution was implemented.
+
+# The following two sentences need fixing in the basic grammar (clash with OT mark and unwanted semantics)
+
+a grade was given to every student by Mary.
+
+a student was given every grade by Mary.
+
+#PP-attachment
+
+a big black dog appeared on the table.
+
+Peter saw the monkey with the telescope.

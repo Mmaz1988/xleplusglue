@@ -41,6 +41,8 @@
                                 removeFirst/3,
                                 printRepresentations/1]).
 
+:- use_module(alphaConversionDRT,[alphaConvertDRS/2]).
+
 :- use_module(betaConversionDRT,[betaConvert/2]).
 
 :- use_module(mergeDRT,[mergeDrs/2]).
@@ -63,6 +65,16 @@
 
 :- [semRulesDRT].
 
+/*========================================================================
+   file handling
+========================================================================*/
+
+printMerged(Drs1,Drs2,Filename):-
+    alphaConvertDRS(Drs2,Converted),
+    open(Filename,write,Stream),
+    resolveDrs(merge(Drs1,Converted),Formula),
+    write(Stream,Formula),
+    close(Stream).
 
 /*========================================================================
    Driver Predicates

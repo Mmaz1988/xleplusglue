@@ -50,12 +50,14 @@
  	  }.
 
 
+
    ADVP -->
+   "  TODO: this rule does not work with passives --> runs out of memory
  	  { VP: (^ SUBJ PRED) = 'pro'
 		~[(^ TNS-ASP TENSE)]
 		
  	   |
-
+"
  	    (ADVComp: ! $ (^ ADJUNCT))
 
  	    ADV: ^=!;
@@ -66,9 +68,7 @@
 	    "EX2: The tree is (as) great (as the plant)."
  	    (CPComp: (^ OBL-COMP) = !)
 
- 	    (COMMA)
-
- 	  }.
+ 	    (COMMA).
 
 
 

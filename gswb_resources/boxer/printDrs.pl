@@ -49,6 +49,12 @@ embeddingPredicate(X) :- member(X,[think,say,try,seem,ensure,convince]).
      Print Predicates
 ========================================================================*/
 
+saveToFile(Drs,Filename):-
+    tell(Filename),
+    printDrs(Drs),
+    told.
+
+
 printDrs(Drs):- 
    retract(counter(_)), 
    assert(counter(1)),
@@ -189,10 +195,11 @@ formatConds([not(Drs)|Rest],L1-L2,N0-N3):-!,
 
 %prints cont(e,DRS) as thematic role for complements
 formatConds([cont(X,Drs)|Rest],L1-L2,N0-N3):-
+   makeConstant(X,X1),
    formatConds(Rest,L1-Lines,N0-N1),
    formatDrs(Drs,[A,B,C,D|Lines1],N2),
-   string_length(X,Len),
-   string_codes(X,Codes),
+   string_length(X1,Len),
+   string_codes(X1,Codes),
    append(Codes,[44],Codes1),
    appendLists([124,99,111,110,116,40],Codes1,Cond1),
    appendLists(Cond1,D,Cond2),
