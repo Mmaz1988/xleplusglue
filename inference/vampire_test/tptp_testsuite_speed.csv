@@ -2,3 +2,6 @@ id;q;p;consistent;informative;notes
 1; (? [X: $i, D: $int] : (X = pc_6082 & ! [Y: $i] : ( kind(Y,itel) => ( fast(X, D) & ~fast(Y,D) )))) & (? [X: $i] : (X = itel_xz & kind(X, itel))); ? [X: $i, Y: $i, D: $int] : (X = pc_6082 & Y = itel_xz & fast(X, D) & ~fast(Y, D));1;0;
 2; (? [X: $i, D: $int] : (X = pc_6082 & ! [Y: $i] : ( kind(Y,itel) => ( fast(X, D) & ~fast(Y,D) )))); ? [X: $i, Y: $i, D: $int] : (X = pc_6082 & Y = itel_xz & fast(X, D) & ~fast(Y, D));1;1;
 3; (? [X: $i, D: $int] : (X = pc_6082 & ! [Y: $i] : ( kind(Y,itel) => ( fast(X, D) & ~fast(Y,D) )))) & (? [X: $i] : (X = itel_xz & kind(X, itel))); ? [X: $i, Y: $i, D: $int] : (X = pc_6082 & Y = itel_xz & fast(Y, D) & ~fast(X, D));0;0;
+228; (? [X: $i, Y: $i] : (X = pc_6082 & Y = itel_xz & ! [D: $int] : ( fast(X, D) => fast(Y, D)))); ? [X: $i, Y: $i, D: $int] : (X = pc_6082 & Y = itel_xz & fast(X, D) & ~fast(Y, D));;;
+220; (? [X: $i, Y: $i] : (X = pc_6082 & Y = itel_xz & ! [D1: $int] : ( fast(X, D1) & ~fast(Y, D1)) & ! [D2: $int] : (fast( Y, D2)));? [X: $i, D: $int] : (X = pc_6082 & fast(X, D));;;
+223; (? [X: $i, Y: $i] : (X = pc_6082 & Y = itel_xz & ! [D1: $int] : ( fast(X, D1) & ~fast(Y, D1))) & (? [D2: $int] : slow(Y, D2))) ;;;;
