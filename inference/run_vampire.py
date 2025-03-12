@@ -206,7 +206,7 @@ def process_vampire_request(request: VampireRequest):
                             svg_output = generate_svg_glyph(results)
                             check = Check(glyph=svg_output, informative=informative, consistent=consistent)
                             current_checks.append(check)
-                    elif consistent and ctx not in new_context:
+                    elif ctx not in new_context:
                         # Keep old context
                         new_context.append(ctx)
                         svg_output = generate_svg_glyph(results)
