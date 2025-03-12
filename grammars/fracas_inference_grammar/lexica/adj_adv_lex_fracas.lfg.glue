@@ -10,7 +10,6 @@ greater   A * @(ADJ-COMP);
 	      ADV * (^DEGREE) = comparative
 		        (^ PRED)='great<(^ OBL-COMP)>'
 		.
-
 great   A *  @(ADJ-POS great).
 
 small 	  A * @(ADJ-POS small).
@@ -73,9 +72,13 @@ faster 	  A * @(ADJ-COMP fast);
 
 "not the revised semantics"
 
-big 	  A * @(PRED big)
+big 	  A * { @(PRED big)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope,
+	      |
+	       @(INTRANS-EV big)
+	       }.
+
 
 black 	  A * @(PRED black)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
