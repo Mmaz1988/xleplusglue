@@ -227,12 +227,16 @@ each D *  @(SPEC-QUANT-PRED each)
 No D * @(SPEC-QUANT-PRED no)
        @(SPEC-QUANT-TYPE negative)
        (^ DEF) = -
-       @(QUANT-SCOPE ^ %q).
+       @(QUANT-SCOPE ^ %q)
+       :$ lam(P,lam(Q,drs([],[not(merge(drs([X],[]),merge(app(P,X),app(Q,X))))]))) :
+              	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 no D * @(SPEC-QUANT-PRED no)
        @(SPEC-QUANT-TYPE negative)
        (^ DEF) = -
-       @(QUANT-SCOPE ^ %q).
+       @(QUANT-SCOPE ^ %q)
+       :$ lam(P,lam(Q,drs([],[not(merge(drs([X],[]),merge(app(P,X),app(Q,X))))]))) :
+       	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Both D *  @(SPEC-QUANT-PRED both)
 	      (^ DEF) = -
