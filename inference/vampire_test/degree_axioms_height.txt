@@ -3,7 +3,6 @@ tff(height_type, type, height: ($i * $int) > $o).
 tff(max_height, type, max_height: ($i * $int) > $o).
 
 
-
 %possibly optional (taken from Haruta, et al. Github)
 tff(downward_monotonicity_height, axiom,
     ![X: $i, Delta1: $int]:
