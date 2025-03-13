@@ -180,11 +180,12 @@ is   V *   @VPRESBE       "template without inf option"
 		   @(PERF -_)
 		   @S-AGR       "3sg"
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-               @(EVENT %stem)
+               "@(EVENT %stem)"
               |
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem)};
+               "@(EVENT %stem)"
+               };
       AUX * @(TENSE pres)
 		    { (^ SUBJ PERS) = 1
                 | (^ SUBJ PERS) = 3
