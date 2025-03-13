@@ -6,7 +6,7 @@ greatest  A * @(ADJ-SUP great).
                "is atype important here?"
 
 
-greater   A * @(ADJ-COMP);
+"greater   A * @(ADJ-COMP);
 	      ADV * (^DEGREE) = comparative
 		        (^ PRED)='great<(^ OBL-COMP)>'
 		.
@@ -16,7 +16,7 @@ small 	  A * @(ADJ-POS small).
 
 smart 	  A * @(PRED smart).
 
-grey 	  A * @(PRED grey).
+grey 	  A * @(PRED grey)."
 
 indispensable   A * @(PRED indispensable).
 
@@ -40,7 +40,7 @@ former 	  A * (^DEGREE) = positive
 
 successful A * @(ADJ-POS successful).
 
-large 	  A * @(ADJ-POS large).
+"large 	  A * @(ADJ-POS large).
 
 fat	  A * @(ADJ-POS fat).
 
@@ -65,7 +65,7 @@ fast 	  A * @(ADJ-POS fast);
 faster 	  A * @(ADJ-COMP fast);
 	  ADV * { (^ PRED) = 'fast<(^OBL-COMP)>'
 		  (^DEGREE) = comparative
-		| @(PRED fast)}.
+		| @(PRED fast)}."
 
 "still to implement:"
        "four-legged, NEGATION??, "

@@ -71,9 +71,6 @@
  	    (COMMA).
 
 
-
-
-
    CPrel --> NP: (! PRON-TYPE) =c rel
 		 (^ SUBJ) = !
 		 ((ADJUNCT ^) PERS)  = (^SUBJ PERS)

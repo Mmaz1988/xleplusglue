@@ -131,7 +131,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Comp     GRAD XLE @(ADJ-COMP).
 
-+Sup      GRAD XLE @(ADJ-SUP P).
++Sup      GRAD XLE @(ADJ-SUP).
 
 +Adv 	  ADV-POS XLE .
 

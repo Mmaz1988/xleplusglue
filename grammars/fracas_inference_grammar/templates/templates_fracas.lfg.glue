@@ -221,7 +221,6 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	  {
 	    (^ATYPE) = attributive
 	  | (^ATYPE) = predicative
-	    (^ PRED)='P<(^OBL-COMP)>'
 	  }.
 
    ADJ-COMP = (^ DEGREE) = positive
