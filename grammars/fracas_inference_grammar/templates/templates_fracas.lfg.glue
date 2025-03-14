@@ -217,13 +217,9 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
 "template for adjectives"
 
-   ADJ-POS = (^ DEGREE) = positive
-	  {
-	    (^ATYPE) = attributive
-	  | (^ATYPE) = predicative
-	  }.
+   ADJ-POS = (^ DEGREE) = positive.
 
-   ADJ-COMP = (^ DEGREE) = positive
+   ADJ-COMP = (^ DEGREE) = comparative
           "inspiriert von english-2009-11-25/index/english-templatex.lfg:103"
 	  {
 	    (^ATYPE) = attributive

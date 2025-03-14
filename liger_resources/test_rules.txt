@@ -141,3 +141,12 @@
 
 #m XCOMP #n s:: #o TEMP-REF #a EVAL #b & #o SIT #s
 ==> #b GLUE lam(P,P) : ((#b_s -o #b_t) -o (#b_s -o #s_t)).
+
+//Setting up degree semantics
+#a ATYPE 'predicative' & #a SUBJ #b s:: #c &
+#a PRED %a
+==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #c &
+#s GLUE lam(P,lam(D,lam(X,merge(app(P,X),drs([],[rel(strip(%a),X,D)]))))) : ((#c_e -o #c_t) -o (#d_d -o (#c_e -o #c_t))).
+
+#a ATYPE %u & #a DEGREE 'positive' & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
+==> #d GLUE lam(P,merge(drs([D],[]),app(P,D))) : ((#d_d -o #e_t) -o #e_t) || noscope.

@@ -1,0 +1,39 @@
+
+"""
+large 	  A * @(ADJ-POS large).
+
+fat	  A * @(ADJ-POS fat).
+
+fatter	  A * @(ADJ-COMP fat).
+
+clever	  A * @(ADJ-POS clever).
+
+cleverer  A * @(ADJ-COMP clever).
+
+four-legged A * @(ADJ-POS four-legged).
+
+legal 	  A * @(ADJ-POS legal).
+
+slower 	  A * @(ADJ-COMP slow).
+
+more` important A * @(ADJ-COMP important).
+
+fast 	  A * @(ADJ-POS fast);
+	  ADV * { (^ PRED) = 'fast<(^OBL-COMP)>'
+		| @(PRED fast)}.
+
+faster 	  A * @(ADJ-COMP fast);
+	  ADV * { (^ PRED) = 'fast<(^OBL-COMP)>'
+		  (^DEGREE) = comparative
+		| @(PRED fast)}.
+"""
+
+"
+For future reference to implement active and passive forms for xcomp verbs
+believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
+          @(XCOMP-OBJ-PASSIVE-ARGS %arg1 %arg2 %arg3)
+		  @ATTITUDE
+		  (^ XCOMP SUBJ) = %arg2
+		  :$ lam(X, lam(Y,lam(P,lam(S,drs([],[pred(believe,S), rel(arg1,X,S), rel(arg2,Y,S), cont(S,app(app(P,Y),S))]))))) :
+          (s::%arg1_e -o (s::%arg2_e -o ((s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP) SIT) _s -o (s::(^ XCOMP) SIT)_t)) -o ((s::^ SIT)_s -o (s::^ SIT)_t)))).
+"

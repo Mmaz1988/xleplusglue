@@ -40,35 +40,8 @@ former 	  A * (^DEGREE) = positive
 
 successful A * @(ADJ-POS successful).
 
-"large 	  A * @(ADJ-POS large).
-
-fat	  A * @(ADJ-POS fat).
-
-fatter	  A * @(ADJ-COMP fat).
-
-clever	  A * @(ADJ-POS clever).
-
-cleverer  A * @(ADJ-COMP clever).
-
-four-legged A * @(ADJ-POS four-legged).
-
-legal 	  A * @(ADJ-POS legal).
-
-slower 	  A * @(ADJ-COMP slow).
-
-more` important A * @(ADJ-COMP important).
-
-fast 	  A * @(ADJ-POS fast);
-	  ADV * { (^ PRED) = 'fast<(^OBL-COMP)>'
-		| @(PRED fast)}.
-
-faster 	  A * @(ADJ-COMP fast);
-	  ADV * { (^ PRED) = 'fast<(^OBL-COMP)>'
-		  (^DEGREE) = comparative
-		| @(PRED fast)}."
-
-"still to implement:"
-       "four-legged, NEGATION??, "
+"still to implement:
+       four-legged, NEGATION??, "
 
 "not the revised semantics"
 
@@ -76,8 +49,17 @@ big 	  A * { @(PRED big)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope,
 	      |
-	       @(INTRANS-EV big)
+	       @(PRED %stem)
+	       :$ lam(P,lam(X,merge(app(P,X),drs([],[pred(%stem,E)])))) :
+	       ((s::(^SUBJ)_v -o s::(^SUBJ)_t) -o (s::(^SUBJ)_v -o s::(^SUBJ)_t)),
 	       }.
+
+fast 	  ADJ-S XLE { @(PRED %stem)
+         (^ ATYPE) =c attributive
+	      |
+	       (^PRED) = '%stem<(^SUBJ)>'
+	       (^ ATYPE) =c predicative
+	      }.
 
 
 black 	  A * @(PRED black)
@@ -116,8 +98,6 @@ quicker   ADV * (^ DEGREE) = comparative
 
 
 very 	  ADV * @(PRED very).
-
-
 
 
 ----

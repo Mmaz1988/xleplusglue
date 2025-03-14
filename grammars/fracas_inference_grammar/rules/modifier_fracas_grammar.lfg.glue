@@ -2,6 +2,14 @@
 
    AP[_type $ {attributive predicative}] -->
 
+           e: {
+            _type = predicative
+            (^ATYPE) = predicative
+           |
+           _e = attributive
+           (^ATYPE) = attributive
+           };
+
  	  (ADVComp: _type = predicative
 		    ! $ (^ ADJUNCT))
 
