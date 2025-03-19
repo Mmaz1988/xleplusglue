@@ -145,8 +145,14 @@
 //Setting up degree semantics
 #a ATYPE 'predicative' & #a SUBJ #b s:: #c &
 #a PRED %a
-==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #c &
-#s GLUE lam(P,lam(D,lam(X,merge(app(P,X),drs([],[rel(strip(%a),X,D)]))))) : ((#c_e -o #c_t) -o (#d_d -o (#c_e -o #c_t))).
+==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #c & #s DEGREE-PRED #p &
+#p GLUE lam(D,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#c_e -o #p_t)) &
+#s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) : ((#c_e -o #p_t) -o ((#c_e -o #c_t) -o (#c_e -o #c_t))).
 
 #a ATYPE %u & #a DEGREE 'positive' & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE lam(P,merge(drs([D],[]),app(P,D))) : ((#d_d -o #e_t) -o #e_t) || noscope.
+
+#a ATYPE %u & #a DEGREE 'comparative' &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
+==> #d GLUE lam(P,lam(X,lam(Y,merge(drs([D],[]),merge(app(app(P,D),X),drs([],[not(app(app(P,D),Y))])))))) : ((#d_d -o (#e_e -o #p_t)) -o (#e_e -o (#o_e -o #p_t))) || noscope.

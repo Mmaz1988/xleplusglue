@@ -1,0 +1,67 @@
+{
+//Liger
+lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) : ((10_v -o 133_t) -o ((10_v -o 10_t) -o (10_v -o 10_t)))
+lam(D,lam(X,drs([],[rel(fast,X,D)]))) : (132_d -o (10_v -o 133_t))
+lam(P,lam(X,lam(Y,merge(drs([D],[]),merge(app(app(P,D),X),drs([],[not(app(app(P,D),Y))])))))) : ((132_d -o (10_v -o 133_t)) -o (10_v -o (8_e -o 133_t))) || noscope
+//Grammar
+lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) : ((10_v -o 10_t) -o (15_e -o (10_v -o 10_t))) || noscope
+lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) : ((15_e -o 15_t) -o ((15_e -o 9_t) -o 9_t))
+lam(V,drs([],[pred(be,V)])) : (10_v -o 10_t)
+lam(X,drs([],[pred(dog,X)])) : (15_e -o 15_t)
+lam(X,drs([],[pred(cat,X)])) : (8_e -o 8_t)
+lam(P,P) : (9_t -o 11_t)
+lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) : ((8_e -o 8_t) -o ((8_e -o 9_t) -o 9_t))
+lam(V,merge(drs([E],[]),app(V,E))) : ((10_v -o 10_t) -o 9_t)
+}
+
+// These rules produce mixed event modifying predicatives
+--replace(true);
+
+//Setting up degree semantics
+#x PREDLINK #a & #x s:: #y EV #z &
+#a ATYPE 'predicative' & #a SUBJ #b s:: #c &
+#a PRED %a
+==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #z & #s DEGREE-PRED #p &
+#p GLUE lam(D,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#z_v -o #p_t)) &
+#s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) : ((#z_v -o #p_t) -o ((#z_v -o #z_t) -o (#z_v -o #z_t))).
+
+#a ATYPE %u & #a DEGREE 'positive' & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
+==> #d GLUE lam(P,merge(drs([D],[]),app(P,D))) : ((#d_d -o #e_t) -o #e_t) || noscope.
+
+#a ATYPE %u & #a DEGREE 'comparative' &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
+==> #d GLUE lam(P,lam(X,lam(Y,merge(drs([D],[]),merge(app(app(P,D),X),drs([],[not(app(app(P,D),Y))])))))) : ((#d_d -o (#e_v -o #p_t)) -o (#e_v -o (#o_e -o #p_t))) || noscope.
+
+Full event modifying predicatives (attempt)
+
+--replace(true);
+
+//Setting up degree semantics
+#x PREDLINK #a & #x s:: #y EV #z &
+#a ATYPE 'predicative' & #a SUBJ #b s:: #c &
+#a PRED %a
+==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #z & #s DEGREE-PRED #p &
+#p GLUE lam(D,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#z_v -o #p_t)) &
+#s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) : ((#z_v -o #p_t) -o ((#z_v -o #z_t) -o (#z_v -o #z_t))).
+
+#a ATYPE %u & #a DEGREE 'positive' & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
+==> #d GLUE lam(P,merge(drs([D],[]),app(P,D))) : ((#d_d -o #e_t) -o #e_t) || noscope.
+
+#a ATYPE %u & #a DEGREE 'comparative' &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
+==> #d GLUE lam(P,lam(Q,lam(X,lam(Y,merge(drs([D],[]),merge(app(app(P,D),X),drs([],[not(app(app(Q,D),Y))]))))))) : ((#d_d -o (#e_v -o #p_t)) -o ((#d_d -o (#e_v -o #p_t)) -o (#e_v -o (#o_e -o #p_t)))) || noscope.
+
+//example for distributed verb (gapping analysis)
+
+{
+sleep : (c_v -o c_t)
+john : 3_e
+mary : 4_e
+close1 : ((c1_v -o c1_t) -o 1_t)
+close2 : ((c2_v -o c2_t) -o 2_t)
+arg11 : ((c1_v -o c1_t) -o (3_e -o (c1_v -o c1_t)))
+arg12 : ((c2_v -o c2_t) -o (4_e -o (c2_v -o c2_t))) || noscope
+conj : (((c1_v -o c1_t) -o 1_t) -o (((c2_v -o c2_t) -o 2_t) -o ((c_v -o c_t) -o c_t)))
+}

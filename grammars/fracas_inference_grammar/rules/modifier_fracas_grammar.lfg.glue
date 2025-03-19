@@ -6,7 +6,7 @@
             _type = predicative
             (^ATYPE) = predicative
            |
-           _e = attributive
+           _type = attributive
            (^ATYPE) = attributive
            };
 
