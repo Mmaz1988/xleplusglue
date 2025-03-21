@@ -1,13 +1,31 @@
 --replace(true);
 
-//Setting up degree semantics
+//Intersective adjectives
+#x ADJUNCT #n in_set #a & #x s:: #y &
+#a ATYPE 'attributive' & #a SEMTYPE 'intersective' &
+#a PRED %a
+==> #a s:: #s & #s ADJ-PRED #p &
+#p GLUE lam(X,drs([],[pred(strip(%a),X)])) :  (#s_e -o #s_t) &
+#s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+((#s_e -o #s_t) -o ((#y_e -o #y_t) -o (#y_e -o #y_t))) || noscope.
+
+//Degree (gradable) adjectives
 #x PREDLINK #a & #x s:: #y EV #z &
-#a ATYPE 'predicative' & #a SUBJ #b s:: #c &
+#a ATYPE 'predicative' & #a SEMTYPE 'degree' &
+#a SUBJ #b s:: #c &
 #a PRED %a
 ==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #z & #s DEGREE-PRED #p &
 #p GLUE lam(D,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#z_v -o #p_t)) &
 #s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
 ((#z_v -o #p_t) -o ((#z_v -o #z_t) -o (#z_v -o #z_t))).
+
+#x ADJUNCT #n in_set #a & #x s:: #y &
+#a ATYPE 'attributive' & #a SEMTYPE 'degree' &
+#a PRED %a
+==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #y & #s DEGREE-PRED #p &
+#p GLUE lam(D,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#y_e -o #p_t)) &
+#s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+((#y_e -o #p_t) -o ((#y_e -o #y_t) -o (#y_e -o #y_t))).
 
 #a ATYPE %u & #a DEGREE 'positive' & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE lam(P,merge(drs([D],[]),app(P,D))) : ((#d_d -o #e_t) -o #e_t) || noscope.

@@ -217,6 +217,9 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
 "template for adjectives"
 
+
+   ADJ-INT = (^ SEMTYPE) = intersective.
+
    ADJ-POS = (^ DEGREE) = positive.
 
    ADJ-COMP = (^ DEGREE) = comparative

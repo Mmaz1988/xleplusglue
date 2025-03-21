@@ -127,9 +127,11 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 "other"
 
-+Adj 	  ADJ-POS XLE {@ADJ-POS |
-                          (^ DEGREE)
-                        ~[(^ DEGREE) = positive]}.
++Adj 	  ADJ-POS XLE  { @ADJ-INT |
+                        (^ SEMTYPE) =c degree
+                        {@ADJ-POS |
+                        ~[(^ DEGREE) = positive]}
+                        }.
 
 +Comp     GRAD XLE @(ADJ-COMP).
 

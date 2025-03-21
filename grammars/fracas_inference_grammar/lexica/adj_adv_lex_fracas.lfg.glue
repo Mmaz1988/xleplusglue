@@ -59,12 +59,17 @@ fast 	  ADJ-S XLE { @(PRED %stem)
 	      |
 	       (^PRED) = '%stem<(^SUBJ)>'
 	       (^ ATYPE) =c predicative
-	      }.
+	      }
+	      (^SEMTYPE) = degree.
 
 
-black 	  A * @(PRED black)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+black 	  ADJ-S XLE { @(PRED %stem)
+                       (^ ATYPE) =c attributive
+                        |
+                       (^PRED) = '%stem<(^SUBJ)>'
+                       (^ ATYPE) =c predicative
+                    	}
+                    	(^SEMTYPE) = intersective.
 
 scottish  A * @(PRED scottish)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
