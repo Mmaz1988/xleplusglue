@@ -282,13 +282,11 @@ be   V *  (^VFORM) = inf
 "auxiliaries"
 
 
-can    AUX * @VPRES
-              "@(PROG -_)
-              @(PERF -_)"
-              (^ SUBJ NUM)
-              (^ SUBJ PERS)
-              (^ FIN) = +
-             @(EVENT %stem). "  semantics don't work here"
+can    AUX *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
+             (^ XCOMP SUBJ) = (^SUBJ)
+
+              (^ VFORM) = modal
+              @VPRES.
 
 
 did AUX * @VPAST.
