@@ -16,6 +16,7 @@ Nobel` prize N * (^ PRED)='Nobel` prize'
                  (^NTYPE NSYN) = proper
                  "(^NTYPE NSEM COMMON) = count".
 
+
 "nouns that can take an XCOMP" "eg. the right to appear"
 
 right	  N * (^PRED) = 'right<(^XCOMP)>'

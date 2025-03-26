@@ -152,6 +152,12 @@ see 	  V-S XLE @(TRANS-EV %stem).
 
 have      V-S XLE @(TRANS-EV %stem).
 
+obtain    V-S XLE @(TRANS-EV %stem).
+
+finish   V-S XLE @(TRANS-EV %stem).
+
+publish  V-S XLE @(TRANS-EV %stem).
+
 "Ditransitives"
 
 give 	  V-S XLE @(DITRANS-EV give).

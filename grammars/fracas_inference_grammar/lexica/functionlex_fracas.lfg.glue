@@ -35,6 +35,8 @@ within     P * @(PREP within).
 
 of      P * @(PREP of).
 
+from     P * @(PREP from).
+
 
 
 "complementizers"
@@ -74,4 +76,6 @@ not   NEG * @(PRED not)
 university NMod * .
 
 law 	  NMod * .
+
+member	  NMod * .
 ----

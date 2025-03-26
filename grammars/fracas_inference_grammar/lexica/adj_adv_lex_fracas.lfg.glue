@@ -18,6 +18,9 @@ smart 	  A * @(PRED smart).
 
 grey 	  A * @(PRED grey)."
 
+
+interesting A * @(PRED interesting).
+
 indispensable   A * @(PRED indispensable).
 
 genuine   A * (^DEGREE) = positive
