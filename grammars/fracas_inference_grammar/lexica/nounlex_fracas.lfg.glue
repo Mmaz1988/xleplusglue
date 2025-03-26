@@ -6,6 +6,8 @@ NOUN ENGLISH LEXICON (1.0)
 
 
 
+"multiword nouns"
+
 New` York N *   (^ PRED)='New` York'
                 (^NUM)=sg
                 (^NTYPE NSYN) = proper
@@ -30,6 +32,24 @@ Swede      N * @(PRED swede)
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count.
 
+Sweden     N *   @(PRED sweden)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location.
+
+
+Scandinavia N *   @(PRED scandinavia)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location.
+
+
+Portugal   N *   @(PRED portugal)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location.
+
+
 European    N * @(PRED european)
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
@@ -46,8 +66,12 @@ Europe     N *   @(PRED europe)
                 (^NTYPE NSEM PROPER) = location.
 
 
-
 "hardcoded words"
+
+people   N *  @(PRED person)
+                (^NUM) = pl
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count.
 
 Dumbo 	  N *   @(PRED Dumbo)
                 (^NUM) = sg

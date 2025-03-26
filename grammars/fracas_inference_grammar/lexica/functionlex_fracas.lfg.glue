@@ -37,6 +37,7 @@ of      P * @(PREP of).
 
 from     P * @(PREP from).
 
+at	  P * @(PREP at).
 
 
 "complementizers"
@@ -77,5 +78,7 @@ university NMod * .
 
 law 	  NMod * .
 
-member	  NMod * .
+member	  NMod * ; ETC.
+
+committee	  NMod * .
 ----

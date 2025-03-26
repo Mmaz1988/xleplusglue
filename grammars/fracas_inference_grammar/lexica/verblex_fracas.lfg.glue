@@ -158,6 +158,16 @@ finish   V-S XLE @(TRANS-EV %stem).
 
 publish  V-S XLE @(TRANS-EV %stem).
 
+spend    V-S XLE @(TRANS-EV %stem).
+
+
+"use: either 'to use smth' or 'used to xyz'"
+
+use     V-S XLE { @(TRANS-EV %stem) |
+                    (^PRED) = '%stem<(^XCOMP)>(^SUBJ)'
+                    (^ XCOMP SUBJ) = (^SUBJ)
+                    (^TNS-ASP TENSE) =c past}.
+
 "Ditransitives"
 
 give 	  V-S XLE @(DITRANS-EV give).
@@ -260,7 +270,13 @@ were   V *  @VPAST
               |
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem)}.
+               @(EVENT %stem)};
+       AUX * @(TENSE past)
+            { @(PROG -_)
+              @(PERF -_) |
+             (^ TNS-ASP PROG)
+            }
+            (^ SUBJ NUM) = pl.
 
 "future"
 
@@ -290,7 +306,6 @@ be   V *  (^VFORM) = inf
 
 can    AUX *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
              (^ XCOMP SUBJ) = (^SUBJ)
-
               (^ VFORM) = modal
               @VPRES.
 

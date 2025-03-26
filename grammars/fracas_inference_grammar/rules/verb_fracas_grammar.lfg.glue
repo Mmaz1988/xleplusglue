@@ -25,6 +25,9 @@ VERB ENGLISH RULES (1.0)
 	       | (^ OBL) = ! "or a a general oblique"
 	       };
 
+      (PP: (^ PREDLINK) = !
+           (! PTYPE) = nosem )  "argument for to be, eg. Mary is from Sweden"
+
  	  (PP: (^ OBL-TO) = ! "special obl for ditransitives"
 	       "example of a constraining equation: require a value with =c"
 	       (! PFORM) =c to )
