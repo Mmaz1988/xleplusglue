@@ -95,6 +95,13 @@ German      A * @(PRED german); ETC.
 
 Italian     A * @(PRED italian); ETC.
 
+Irish       A * @(PRED irish); ETC.
+
+Canadian     A * @(PRED canadian); ETC.
+
+Portuguese      A * @(PRED portuguese); ETC.
+
+North` American     A * @(PRED north` american); ETC.
 
 
 "adverbs --- should really be done via the morphology, like the nouns"
