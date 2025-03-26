@@ -98,11 +98,16 @@ Italian     A * @(PRED italian); ETC.
 
 quickly   ADV * (^ PRED) = 'quick<>(^OBL-COMP)'.
 
+
+
 quicker   ADV * (^ DEGREE) = comparative
                 (^ PRED)='quick<>(^OBL-COMP)'.
 
 
 very 	  ADV * @(PRED very).
+
+
+freely   ADV * @(PRED free).
 
 
 ----
