@@ -86,6 +86,19 @@ want 	  V-S XLE { (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
           ((s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)) -o ((s::(^ XCOMP SUBJ)_e -o (%s SIT)_t) -o (s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)))),
 		  }.
 
+
+
+get V-S XLE {@(DITRANS-EV %stem) |
+          (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
+          @(EVENT %stem)
+          @(ARG1 (^SUBJ))
+          @(ARG2 (^OBJ))
+          (^ XCOMP SUBJ) = (^OBJ)
+          %s = s::(^ XCOMP)
+          :$ lam(V,lam(P,lam(X,lam(E,merge(app(app(V,X),E),drs([],[cont(E,app(P,X))])))))) :
+          ((s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)) -o ((s::(^ XCOMP SUBJ)_e -o (%s SIT)_t) -o (s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)))),
+		  }.
+
 "Intransitives"
 
 did       V-S XLE @(INTRANS-EV %stem).

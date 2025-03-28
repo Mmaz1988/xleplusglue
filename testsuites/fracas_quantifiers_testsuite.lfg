@@ -11,49 +11,17 @@ An Italian became the greatest tenor.
 
 There was an Italian who became the greatest tenor.
 
-#There was an Italian.
-
-#There is an Italian who became the greatest tenor.
-
-#An Italian who became the greatest tenor appeared.
-
-#There is an Italian.
-
-#Mary is an Italian.
-
-
 # 3 - 6sol scope of wants to be
 
 Every Italian man wants to be a great tenor.
-
-#An Italian man wants to be a great tenor.
-
-#A man wants to be a great tenor.
-
-#Every Italian man wants to hate a great tenor.
-
-#An Italian man wants to hate a great tenor.
-
-#A man wants to hate a great tenor.
-
-#A man wants to hate a great tenor.
-
-#A man wants to appear.
 
 # 4
 
 Some Italian men are great tenors.
 
-#Some Italian men hate great tenors.
-
-
 # 5 - 12 sol, there features, tnsasp be, scope
 
 There are Italian men who want to be a great tenor.
-
-#There is an Italian man who wants to be a great tenor.
-
-#There is an Italian man who wants to hug a great tenor.
 
 # 6 - 6 sol scope
 
@@ -70,8 +38,6 @@ Some Italian tenors are great.
 # 9 - 4 sol, there features, want +inf or -inf
 
 There are Italian tenors who want to be great.
-
-# There are Italian tenors who try to be great
 
 # 10 - 2 sol, N vs Adj "Italian"
 
@@ -125,8 +91,6 @@ There are great tenors who are Italian.
 
 A few great tenors sing popular music.
 
-# Several great tenors sing popular music.
-
 # 23
 
 Some great tenors like popular music.
@@ -158,8 +122,6 @@ Both leading tenors are indispensable.
 # 30 -
 
 Neither leading tenor comes cheap.
-
-#Neither leading tenor appeared.
 
 # 31
 
@@ -196,7 +158,6 @@ An Irishman won the Nobel prize for literature.
 # 38
 
 An Irishman won a Nobel prize.
-
 
 # 39 12 - lots of ambiguity
 
@@ -271,19 +232,11 @@ Many delegates obtained interesting results from the survey.
 
 Many delegates obtained results from the survey.
 
-# 57 0
+# 57
 
-#Several delegates got the results published in major national newspapers.
+Several delegates got the results published in major national newspapers.
 
-#Several delegates got the results published.
-
-Mary got the results published.
-
-#Mary got John to publish the results.
-
-#Several delegates appeared in major national newspapers.
-
-# 58 0
+# 58
 
 Several delegates got the results published.
 
@@ -505,7 +458,7 @@ Some Irish delegates finished the survey on time.
 
 Many British delegates obtained interesting results from the survey.
 
-# 112  - 0
+# 112
 
 Several Portuguese delegates got the results published in major national newspapers.
 

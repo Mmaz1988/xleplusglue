@@ -40,8 +40,9 @@ VERB ENGLISH RULES (1.0)
  	     CP: (^ COMP) = !
  	    |
  	     VPinf: (^XCOMP) = !
-		    (! FIN) = -
-		    (! VFORM) = inf
+		    {(! FIN) = -
+		    "(! VFORM) = inf"  "including this will make infelected verbs infinitival"
+		     | (^PASSIVE) =c + "if embedded verb is passive, verb remains inflected" }
 		    "(s::^ TEMP-REF) = (s::(^XCOMP) EVAL)"}
  	   )
 
@@ -53,7 +54,8 @@ VERB ENGLISH RULES (1.0)
  	  "(AP[predicative]: ! $ (^ ADJUNCT))."
 
    VPinf --> {PARTinf VP
-             | VP: ( (XCOMP ^) VFORM) =c modal }. "eg. can appear"
+             | VP: ( (XCOMP ^) VFORM) =c modal "eg. can appear"
+             | VP: (^PASSIVE) =c +}.
 
 
 
