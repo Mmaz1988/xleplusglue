@@ -65,6 +65,13 @@ fast 	  ADJ-S XLE { @(PRED %stem)
 	      }
 	      (^SEMTYPE) = degree.
 
+big 	  ADJ-S XLE { @(PRED %stem)
+         (^ ATYPE) =c attributive
+	      |
+	       (^PRED) = '%stem<(^SUBJ)>'
+	       (^ ATYPE) =c predicative
+	      }
+	      (^SEMTYPE) = degree.
 
 black 	  ADJ-S XLE { @(PRED %stem)
                        (^ ATYPE) =c attributive
