@@ -121,6 +121,7 @@ wait 	  V-S XLE { @(INTRANS-EV wait) |
 		(^ OBL PFORM) =c on
 		(^ PSEM) =c nosem }.
 
+
 "Optional transitives"
 
 travel    V-S XLE @(OPT-TRANS-EV %stem).
@@ -172,6 +173,8 @@ finish   V-S XLE @(TRANS-EV %stem).
 publish  V-S XLE @(TRANS-EV %stem).
 
 spend    V-S XLE @(TRANS-EV %stem).
+
+take 	V-S XLE @(TRANS-EV %stem).
 
 
 "use: either 'to use smth' or 'used to xyz'"

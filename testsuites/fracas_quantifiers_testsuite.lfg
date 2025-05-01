@@ -5,7 +5,7 @@
 An Italian became the greatest tenor.
 
 
-# 2 - 4sol  There pers, scope of CPrel
+# 2 - 2+2 (4sol  There pers, scope of CPrel)
 
 #There was an Italian who became the world's greatest tenor.
 
@@ -19,7 +19,7 @@ Every Italian man wants to be a great tenor.
 
 Some Italian men are great tenors.
 
-# 5 - 12 sol, there features, tnsasp be, scope
+# 5 - 3+3 (12 sol, there features, tnsasp be, scope)
 
 There are Italian men who want to be a great tenor.
 
@@ -27,15 +27,15 @@ There are Italian men who want to be a great tenor.
 
 All Italian men want to be a great tenor.
 
-# 7 - 3 scope
+# 7 - 6 scope
 
 Each Italian tenor wants to be great.
 
-# 8
+# 8 2 - great as NP or Adj
 
 Some Italian tenors are great.
 
-# 9 - 4 sol, there features, want +inf or -inf
+# 9 - 2+2 (4 sol, there features, want +inf or -inf)
 
 There are Italian tenors who want to be great.
 
@@ -43,7 +43,7 @@ There are Italian tenors who want to be great.
 
 The really ambitious tenors are Italian.
 
-# 11 - 4 there features, N vs Adj "Italian"
+# 11 - 4 there features, N vs Adj "Italian" (+4)
 
 There are really ambitious tenors who are Italian.
 
@@ -51,7 +51,7 @@ There are really ambitious tenors who are Italian.
 
 No really great tenors are modest.
 
-# 13 - 2 there features
+# 13 - 2+2 there features
 
 There are really great tenors who are modest.
 
@@ -59,15 +59,15 @@ There are really great tenors who are modest.
 
 Some great tenors are Swedish.
 
-# 15 - 2 there features
+# 15 - 1+1 (2 there features)
 
 There are great tenors who are Swedish.
 
-# 16
+# 16 2 (German Adj or N?)
 
 Many great tenors are German.
 
-# 17
+# 17 2+2
 
 There are great tenors who are German.
 
@@ -75,7 +75,7 @@ There are great tenors who are German.
 
 Several great tenors are British.
 
-# 19
+# 19 1+1
 
 There are great tenors who are British.
 
@@ -107,7 +107,7 @@ Few great tenors are poor.
 
 There are great tenors who are poor.
 
-# 27 - leading is in lexicon
+# 27
 
 Both leading tenors are excellent.
 
@@ -131,17 +131,13 @@ One of the leading tenors is Pavarotti.
 
 Pavarotti is a leading tenor who comes cheap.
 
-# 33 0 take part as one word?
+# 33 1+1
 
-#At least three tenors will take part in the concert.
+At least three tenors will take part in the concert.
 
-At least three tenors will appear in the concert.
+# 34 3+9
 
-# 34 0    alternative: 4+4???
-
-#There are tenors who will take part in the concert.
-
-There are tenors who will appear in the concert.
+There are tenors who will take part in the concert.
 
 # 35
 
@@ -151,7 +147,7 @@ At most two tenors will contribute their fees to charity.
 
 There are tenors who will contribute their fees to charity.
 
-# 37 2 - "for" attachment position
+# 37
 
 An Irishman won the Nobel prize for literature.
 
@@ -159,15 +155,15 @@ An Irishman won the Nobel prize for literature.
 
 An Irishman won a Nobel prize.
 
-# 39 12 - lots of ambiguity
+# 39 4+8 (12 - lots of ambiguity)
 
 Every European has the right to live in Europe.
 
-# 40
+# 40 2
 
 Every European is a person.
 
-# 41 24 - 3 PP attachment options "within Europe"
+# 41 12+12
 
 Every person who has the right to live in Europe can travel freely within Europe.
 
@@ -175,16 +171,15 @@ Every person who has the right to live in Europe can travel freely within Europe
 
 Every European can travel freely within Europe.
 
-# 43
+# 43 4+8
 
 All Europeans have the right to live in Europe.
 
-# 44
+# 44 2
 
 All Europeans can travel freely within Europe.
 
-
-# 45 12
+# 45 4+8
 
 Each European has the right to live in Europe.
 
@@ -192,7 +187,7 @@ Each European has the right to live in Europe.
 
 Each European can travel freely within Europe.
 
-# 47 12
+# 47 4+8
 
 The residents of member states have the right to live in Europe.
 
@@ -200,7 +195,7 @@ The residents of member states have the right to live in Europe.
 
 All residents of member states are individuals.
 
-# 49 24 - PP confusion
+# 49 12+12
 
 Every individual who has the right to live in Europe can travel freely within Europe.
 
@@ -316,7 +311,7 @@ At most ten commissioners spend a lot of time at home.
 
 At most ten commissioners spend time at home.
 
-# 78 60 - 10 trees for the PPs
+# 78 36+24 (60 - 10 trees for the PPs)
 
 Every individual who has the right to live anywhere in Europe can travel freely within Europe.
 
@@ -398,9 +393,9 @@ One of the commissioners spends a lot of time at home.
 
 # 98 - 0
 
-#At least three female commissioners spend time at home.
+At least three female commissioners spend time at home.
 
-At least three female commissioners appeared.
+#At least three female commissioners appeared.
 
 #three female commissioners appeared.
 
@@ -466,7 +461,7 @@ Several Portuguese delegates got the results published in major national newspap
 
 Most Europeans who are resident outside Europe can travel freely within Europe.
 
-# 114  - 0
+# 114
 
 At least a few female committee members are from Scandinavia.
 
@@ -474,6 +469,6 @@ At least a few female committee members are from Scandinavia.
 
 One of the female commissioners spends a lot of time at home.
 
-# 116  - 0
+# 116
 
 At least three male commissioners spend time at home.

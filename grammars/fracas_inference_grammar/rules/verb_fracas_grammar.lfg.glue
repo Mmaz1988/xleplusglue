@@ -21,8 +21,8 @@ VERB ENGLISH RULES (1.0)
 	  "secondary object"
  	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"
 		 (! PTYPE) =c sem "only semantic PPs here"
-		 "@(OT-MARK PPadj)" "disprefer adjunct PPs"
-	       | (^ OBL) = ! "or a a general oblique"
+		 @(OT-MARK PPadj) "disprefer adjunct PPs"
+	       | (^ OBL) = ! "or a general oblique"
 	       };
 
       (PP: (^ PREDLINK) = !

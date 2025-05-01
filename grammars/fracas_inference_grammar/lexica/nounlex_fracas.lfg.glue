@@ -24,6 +24,9 @@ Nobel` prize N * (^ PRED)='Nobel` prize'
 right	  N * (^PRED) = 'right<(^XCOMP)>'
               "(^NUM) = pl  (^NTYPE)=count"; ETC.
 
+
+
+
 "countries"
 
 
@@ -126,6 +129,8 @@ Pavarotti   N * @(PRED pavarotti)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = name.
+
+
 
 
 ----
