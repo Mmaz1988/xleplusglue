@@ -3,10 +3,9 @@ NOUN ENGLISH RULES (1.0)
 
 NP --> "either a full NP or a PRON"
 
-    (ADV: ! $  (^ ADJUNCT)
-          "(^ADJUNCT ADV-TYPE) =c num" )
-          "%adj = (^ ADJUNCT) ! $ %adj SPEC {NUMBER|QUANT|AQUANT}  (^ADV-TYPE) =c num eg at least several men"
-            "adjunct in the specifier, but should technically also be able to be adjunct at other levels"
+    (ADV: ! $  (^ ADJUNCT)      "eg. At least three men appeared"
+          (! ADV-TYPE) =c num )
+
   {
     "optional determiner"
     ( { D: ^=!
