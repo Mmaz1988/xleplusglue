@@ -6,6 +6,7 @@
 - Fix semantics of the other COMP verbs to work both independently and with LiGER 
 - Fix XCOMP semantics in parallel with COMP semantics
 - Implement negation to get an easy example with contradiction for inference
+- Liger does not work with Firefox
 
 ## Intro
 
