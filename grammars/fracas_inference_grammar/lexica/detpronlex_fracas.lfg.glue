@@ -357,6 +357,10 @@ At` least  ADV * (^PRED) = 'at` least'
 At` most  ADV * (^PRED) = 'at` most'
                  (^ADV-TYPE) = num.
 
+
+exactly   ADV * (^PRED) = 'exactly'
+                 (^ADV-TYPE) = num.
+
 "Mary sold One more computer than John."
 
 "EX: ITEL sold 3000 more computers than APCOM."
