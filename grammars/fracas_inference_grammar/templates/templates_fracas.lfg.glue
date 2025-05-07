@@ -211,9 +211,20 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    DEF = (^ DEF).
 
-"templates for partitives"
+"templates for number and partitives"
     PARTITIVE(P)=   (^PRED) = 'P <(^OBL-PART)>'
 	                (^NTYPE NSEM COMMON) = partitive.
+
+    NUMBER-PL(P N) = @(SPEC-NUMBER-PRED P)
+                   (^ DEF) = -
+	               (^ NUM) = N.
+
+
+	NUMBER-PART(P) = @(PARTITIVE P)
+	               (^NUMBER-TYPE) = cardinal.
+
+
+
 
 "template for adjectives"
 
@@ -242,5 +253,8 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
 
    ADJ-SUP = (^DEGREE) = superlative.
+
+
+
 
    ----

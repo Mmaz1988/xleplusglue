@@ -319,36 +319,7 @@ a` few    D * {@(SPEC-QUANT-PRED a` few)
 	            (^ NUM) = pl
  	            "@(QUANT-SCOPE ^ %q)"
  	            |
- 	           @(PARTITIVE a` few)}.
-
-"numbers/measure words/numerals"
-One     NUMBER *  {@(SPEC-NUMBER-PRED one)
-                   (^ DEF) = -
-	               (^ NUM) = sg
-	               |
-	               @(PARTITIVE one)
-	               (^NUMBER-TYPE) = cardinal}.
-
-one     NUMBER *  {@(SPEC-NUMBER-PRED one)
-                   (^ DEF) = -
-	               (^ NUM) = sg
-	               |
-	               @(PARTITIVE one)
-	               (^NUMBER-TYPE) = cardinal}.
-
-two     NUMBER *  {@(SPEC-NUMBER-PRED twp)
-                   (^ DEF) = -
-	               (^ NUM) = pl
-	               |
-	               @(PARTITIVE two)
-	               (^NUMBER-TYPE) = cardinal}.
-
-three     NUMBER *  {@(SPEC-NUMBER-PRED three)
-                   (^ DEF) = -
-	               (^ NUM) = pl
-	               |
-	               @(PARTITIVE three)
-	               (^NUMBER-TYPE) = cardinal}.
+ 	            @(PARTITIVE a` few)}.
 
 
 At` least  ADV * (^PRED) = 'at` least'
@@ -361,12 +332,42 @@ At` most  ADV * (^PRED) = 'at` most'
 exactly   ADV * (^PRED) = 'exactly'
                  (^ADV-TYPE) = num.
 
+"numbers/measure words/numerals"
+One     NUMBER *  { @(NUMBER-PL 1 sg)
+                   | @(NUMBER-PART 1)}
+                    "{@(SPEC-NUMBER-PRED one)
+                   (^ DEF) = -
+	               (^ NUM) = sg
+	               |
+	               @(PARTITIVE one)
+	               (^NUMBER-TYPE) = cardinal}".
+
+one     NUMBER *  { @(NUMBER-PL 1 sg)
+                   | @(NUMBER-PART 1)}.
+
+"two     NUMBER *  {@(SPEC-NUMBER-PRED two)
+                   (^ DEF) = -
+	               (^ NUM) = pl
+	               |
+	               @(PARTITIVE two)
+	               (^NUMBER-TYPE) = cardinal}."
+
+"three     NUMBER *  {@(SPEC-NUMBER-PRED three)
+                   (^ DEF) = -
+	               (^ NUM) = pl
+	               |
+	               @(PARTITIVE three)
+	               (^NUMBER-TYPE) = cardinal}."
+
+
+
+
 "Mary sold One more computer than John."
 
 "EX: ITEL sold 3000 more computers than APCOM."
 "EX: ITEL is faster than 500 MIPS."
 
-ten 	  NUMBER *  @(SPEC-NUMBER-PRED ten)
+"ten 	  NUMBER *  @(SPEC-NUMBER-PRED ten)
                     (^ DEF) = -
 	                (^ NUM) = pl.
 
@@ -378,7 +379,7 @@ ten 	  NUMBER *  @(SPEC-NUMBER-PRED ten)
 
 2500      NUMBER *  @(SPEC-NUMBER-PRED 2500)
                    (^ DEF) = -
-	               (^ NUM) = pl.
+	               (^ NUM) = pl."
 
 
 "exactly    does not work"

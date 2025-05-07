@@ -49,12 +49,19 @@ The sublexcial items are the POS assigned to the various tags in morph-lex.lfg"
    ADV --> ADV-S_BASE
  	  ADV-POS_BASE.
 
+    NUMBER -->  NUMBER-S_BASE
+                NUMBER-POS_BASE
+                NUMBER-SPELL_BASE
+                NUMBER-TYPE_BASE
+                NUMBER-SIGN_BASE.
 ----
 MORPH   ENGLISH   LEXICON (1.0)
 
 "this guesses words that are unknown to your lexicon
  to be either adjectives or nouns"
 -unknown  ADJ-S XLE @(PRED %stem);
+          NUMBER-S XLE { @(NUMBER-PL %stem pl)
+                       | @(NUMBER-PART %stem)};d
 	  ADV-S XLE @(PRED %stem);
 	  N-S XLE @(PRED %stem)
 	      (s::^ TYPE) = entity
@@ -139,6 +146,17 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Adv 	  ADV-POS XLE .
 
+
+
++Num      NUMBER-POS  XLE   .
+
++Dig       NUMBER-SPELL XLE .
+
++Spelled    NUMBER-SPELL XLE .
+
++Integer   NUMBER-TYPE XLE .
+
++PosNum     NUMBER-SIGN XLE .
 
 """
 TODO: morphemes of be include '+sg', which doesn't seem to occur for verbs elsewhere (?) 
