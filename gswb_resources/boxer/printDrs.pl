@@ -117,6 +117,14 @@ formatRefs([Ref|Rest],Out):-
    formatRefs(Rest,Temp),
    appendLists([32|Code],Temp,Out).
 
+%for typed variables, types not displayed
+formatRefs([Ref|Rest],Out):-
+   Ref = I:T,
+   atom(T),
+   makeConstant(I,Code),
+   formatRefs(Rest,Temp),
+   appendLists([32|Code],Temp,Out).
+
 
 /*========================================================================
    Turn a discourse referent into a Prolog constant

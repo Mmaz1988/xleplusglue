@@ -38,6 +38,7 @@ fol2tptp(Formula,Input):-
    nl(Stream),
    close(Stream).
 
+% For testing
 fol2tptp1(Input, Output) :-
     with_output_to(string(Output),
         (
@@ -53,13 +54,14 @@ fol2tptp1(Input, Output) :-
    Print Tptp formulas
 ========================================================================*/
 
+%Added disjunction to deal with different types. Untyped variables are of type $i
 printTptp(some(Arg, Formula), Stream) :- !,
     write(Stream, '(?['),
     ( Arg = (X : T) ->
         write_term(Stream, X, [numbervars(true)]),
         ( T = d -> write(Stream, ' : $int') ; write(Stream, ' : $i') )
     ;
-        write_term(Stream, Arg, [numbervars(true)])
+        write_term(Stream, Arg, [numbervars(true)]), write(Stream, ' : $i')
     ),
     write(Stream, ']: '),
     printTptp(Formula, Stream),
@@ -71,7 +73,7 @@ printTptp(all(Arg, Formula), Stream) :- !,
         write_term(Stream, X, [numbervars(true)]),
         ( T = d -> write(Stream, ' : $int') ; write(Stream, ' : $i') )
     ;
-        write_term(Stream, Arg, [numbervars(true)])
+        write_term(Stream, Arg, [numbervars(true)]), write(Stream, ' : $i')
     ),
     write(Stream, ']: '),
     printTptp(Formula, Stream),
@@ -83,7 +85,7 @@ printTptp(que(Arg, Formula), Stream) :- !,
         write_term(Stream, X, [numbervars(true)]),
         ( T = d -> write(Stream, ' : $int') ; write(Stream, ' : $i') )
     ;
-        write_term(Stream, Arg, [numbervars(true)])
+        write_term(Stream, Arg, [numbervars(true)]), write(Stream, ' : $i')
     ),
     write(Stream, ']: '),
     printTptp(Formula, Stream),

@@ -15,7 +15,7 @@
 #a SUBJ #b s:: #c &
 #a PRED %a
 ==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #z & #s DEGREE-PRED #p &
-#p GLUE lam(D,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#z_v -o #p_t)) &
+#p GLUE lam(D:d,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#z_v -o #p_t)) &
 #s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
 ((#z_v -o #p_t) -o ((#z_v -o #z_t) -o (#z_v -o #z_t))).
 
@@ -23,12 +23,12 @@
 #a ATYPE 'attributive' & #a SEMTYPE 'degree' &
 #a PRED %a
 ==> #a s:: #s & #s DEGREE #d & #s DEGREE-HOLDER #y & #s DEGREE-PRED #p &
-#p GLUE lam(D,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#y_e -o #p_t)) &
+#p GLUE lam(D:d,lam(X,drs([],[rel(strip(%a),X,D)]))) : (#d_d -o (#y_e -o #p_t)) &
 #s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
 ((#y_e -o #p_t) -o ((#y_e -o #y_t) -o (#y_e -o #y_t))).
 
 #a ATYPE %u & #a DEGREE 'positive' & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
-==> #d GLUE lam(P,merge(drs([D],[]),app(P,D))) : ((#d_d -o #e_t) -o #e_t) || noscope.
+==> #d GLUE lam(P,merge(drs([D:d],[]),app(P,D))) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
 #a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p
 #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
@@ -36,8 +36,8 @@
 ==>
 #o DEGREE #x & #o DEGREE-HOLDER #y &
 #d GLUE lam(P,lam(Q,lam(E,
-		merge(drs([D],[]),merge(app(app(P,D),E),drs([],[not(merge(drs([V],[]),app(app(Q,D),V)))])))))) :
+		merge(drs([D:d],[]),merge(app(app(P,D),E),drs([],[not(merge(drs([V],[]),app(app(Q,D),V)))])))))) :
 		((#d_d -o (#e_v -o #p_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#e_v -o #p_t))) || noscope &
-#m GLUE lam(D,lam(E,drs([],[rel(strip(%p),E,D)]))) : (#x_d -o (#y_v -o #m_t)) &
+#m GLUE lam(D:d,lam(E,drs([],[rel(strip(%p),E,D)]))) : (#x_d -o (#y_v -o #m_t)) &
 #n GLUE lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) :
 		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))).

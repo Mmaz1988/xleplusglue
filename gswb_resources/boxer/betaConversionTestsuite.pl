@@ -23,7 +23,7 @@
 
 *************************************************************************/
 
-:- module(betaConversionTestSuite,[test/2]).
+:- module(betaConversionTestsuite,[test/2]).
 
 
 /*========================================================================
@@ -35,6 +35,5 @@ test(app(lam(X:e,drs([],[pred(sleep,X:e)])),mary),drs([],[pred(sleep,mary:e)])).
 test(app(lam(X:e,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 
 test(app(lam(X,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
-
 
 test(merge(drs([X:e],[]),drs([],[pred(sleep,X)])),test).

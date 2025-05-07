@@ -27,7 +27,7 @@
 
 :- use_module(alphaConversionDRT,[alphaConvertDRS/2]).
 
-:- use_module(betaConversionTestSuite,[test/2]).
+:- use_module(betaConversionTestsuite,[test/2]).
 
 x:-  op(500, xfx, [:]).
 
@@ -74,7 +74,7 @@ betaConvert(Expression,Result,[X|Stack]):-
 
 betaConvert(Expression,Result,[X|Stack]):-
    nonvar(Expression),
-   \+ atom(X), \+ X = _:_,
+  %\+ atom(X), \+ X = _:_,
    Expression = lam(X,Formula),
    betaConvert(Formula,Result,Stack).
 

@@ -19,6 +19,7 @@
 
 %:- consult('glue_prover_amended.pl').       % glue/2
 :- consult('boxer/betaConversionDRT.pl').   % betaConvert/2
+:- consult('boxer/betaConversionTestsuite.pl').   % could also be commented out
 :- consult('boxer/presupDRT.pl').           % resolveDrs/2
 :- consult('boxer/printDrs.pl').            % printDrs/1
 
