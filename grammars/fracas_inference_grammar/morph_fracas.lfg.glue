@@ -61,7 +61,7 @@ MORPH   ENGLISH   LEXICON (1.0)
  to be either adjectives or nouns"
 -unknown  ADJ-S XLE @(PRED %stem);
           NUMBER-S XLE { @(NUMBER-PL %stem pl)
-                       | @(NUMBER-PART %stem)};d
+                       | @(NUMBER-PART %stem)};
 	  ADV-S XLE @(PRED %stem);
 	  N-S XLE @(PRED %stem)
 	      (s::^ TYPE) = entity
