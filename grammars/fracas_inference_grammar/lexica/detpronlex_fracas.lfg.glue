@@ -325,9 +325,17 @@ a` few    D * {@(SPEC-QUANT-PRED a` few)
 At` least  ADV * (^PRED) = 'at` least'
                  (^ADV-TYPE) = num.
 
+at` least  ADV * (^PRED) = 'at` least'
+                 (^ADV-TYPE) = num.
+
 At` most  ADV * (^PRED) = 'at` most'
                  (^ADV-TYPE) = num.
 
+at` most  ADV * (^PRED) = 'at` most'
+                 (^ADV-TYPE) = num.
+
+Exactly   ADV * (^PRED) = 'exactly'
+                 (^ADV-TYPE) = num.
 
 exactly   ADV * (^PRED) = 'exactly'
                  (^ADV-TYPE) = num.
@@ -343,6 +351,9 @@ One     NUMBER *  { @(NUMBER-PL 1 sg)
 	               (^NUMBER-TYPE) = cardinal}".
 
 one     NUMBER *  { @(NUMBER-PL 1 sg)
+                   | @(NUMBER-PART 1)}.
+
+1      NUMBER *  { @(NUMBER-PL 1 sg)
                    | @(NUMBER-PART 1)}.
 
 "two     NUMBER *  {@(SPEC-NUMBER-PRED two)
