@@ -127,10 +127,16 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 "other"
 
-+Adj 	  ADJ-POS XLE  { @ADJ-INT |
+
+"Adjectives are interpreted as plain positive adjectives just in case they are scalar and they are not comparative or superlative"
++Adj 	  ADJ-POS XLE  { "Ex. The Scottish chairman (intersective)"
+                         @ADJ-INT |
+                         "Ex. The dog is fast (gradable)"
                         (^ SEMTYPE) =c degree
                         {@ADJ-POS |
-                        ~[(^ DEGREE) = positive]}
+                        "Ex. The dog is faster than the cat (comparative and superlative)"
+                        (^ DEGREE)
+                        (^ DEGREE) ~= positive}
                         }.
 
 +Comp     GRAD XLE @(ADJ-COMP).
