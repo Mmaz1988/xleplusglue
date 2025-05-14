@@ -1,102 +1,53 @@
 ADJADV ENGLISH LEXICON (1.0)
 
-"adjectives --- should really be done via the morphology, like the nouns"
-"He is a fatter politician than the other guy."
-greatest  A * @(ADJ-SUP great).
-               "is atype important here?"
+"degree"
 
-
-"greater   A * @(ADJ-COMP);
-	      ADV * (^DEGREE) = comparative
-		        (^ PRED)='great<(^ OBL-COMP)>'
-		.
-great   A *  @(ADJ-POS great).
-
-small 	  A * @(ADJ-POS small).
-
-smart 	  A * @(PRED smart).
-
-grey 	  A * @(PRED grey)."
-
-
-interesting A * @(PRED interesting).
-
-indispensable   A * @(PRED indispensable).
-
-genuine   A * (^DEGREE) = positive
-	      @(PRED genuine)
-	      (^ATYPE) = attributive.
-
-leading	  A * (^DEGREE) = positive
-	      @(PRED leading)
-	      (^ATYPE) = attributive.
-
-Leading	  A * (^DEGREE) = positive
-	      @(PRED leading)
-	      (^ATYPE) = attributive.
-
-former 	  A * (^DEGREE) = positive
-	      @(PRED former)
-	      (^ATYPE) = attributive.
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-
-successful A * @(ADJ-POS successful).
-
-"still to implement:
-       four-legged, NEGATION??, "
-
-"not the revised semantics"
-
-big 	  A * { @(PRED big)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope,
-	      |
-	       @(PRED %stem)
-	       :$ lam(P,lam(X,merge(app(P,X),drs([],[pred(%stem,E)])))) :
-	       ((s::(^SUBJ)_v -o s::(^SUBJ)_t) -o (s::(^SUBJ)_v -o s::(^SUBJ)_t)),
-	       }.
+successful ADJ-S XLE { @(PRED %stem)
+		       (^ ATYPE) =c attributive
+		      |
+		       (^PRED) = '%stem<(^SUBJ)>'
+		       (^ ATYPE) =c predicative
+		     }
+		     (^SEMTYPE) = degree.
+	   
 
 fast 	  ADJ-S XLE { @(PRED %stem)
-         (^ ATYPE) =c attributive
-	      |
-	       (^PRED) = '%stem<(^SUBJ)>'
-	       (^ ATYPE) =c predicative
-	      }
-	      (^SEMTYPE) = degree.
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = degree.
+
+clever 	  ADJ-S XLE { @(PRED %stem)
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = degree.
 
 big 	  ADJ-S XLE { @(PRED %stem)
-         (^ ATYPE) =c attributive
-	      |
-	       (^PRED) = '%stem<(^SUBJ)>'
-	       (^ ATYPE) =c predicative
-	      }
-	      (^SEMTYPE) = degree.
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = degree.
+
+"intersectives"
 
 black 	  ADJ-S XLE { @(PRED %stem)
-                       (^ ATYPE) =c attributive
-                        |
-                       (^PRED) = '%stem<(^SUBJ)>'
-                       (^ ATYPE) =c predicative
-                    	}
-                    	(^SEMTYPE) = intersective.
-
-scottish  A * @(PRED scottish)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-
-trustworthy A * @(PRED trustworthy)
-		  :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-		  ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-
-alleged   A * @(PRED alleged)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = intersective.
 
 "countries"
 
-British     A * @(PRED british); ETC.
+British   A * @(PRED british); ETC.
 
 German      A * @(PRED german); ETC.
 
@@ -111,20 +62,72 @@ Portuguese      A * @(PRED portuguese); ETC.
 North` American     A * @(PRED north` american); ETC.
 
 
-"adverbs --- should really be done via the morphology, like the nouns"
+"adverbs "
 
 quickly   ADV * (^ PRED) = 'quick<>(^OBL-COMP)'.
-
-
 
 quicker   ADV * (^ DEGREE) = comparative
                 (^ PRED)='quick<>(^OBL-COMP)'.
 
-
 very 	  ADV * @(PRED very).
 
+freely 	  ADV * @(PRED free).
 
-freely   ADV * @(PRED free).
+twice 	  ADV * @(PRED twice).
 
+"old?"
+scottish  A * @(PRED scottish)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+trustworthy A * @(PRED trustworthy)
+		:$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+		((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+alleged   A * @(PRED alleged)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
 
+genuine   A * (^DEGREE) = positive
+	      @(PRED genuine)
+	      (^ATYPE) = attributive.
+leading	  A * (^DEGREE) = positive
+	      @(PRED leading)
+	      (^ATYPE) = attributive.
+Leading	  A * (^DEGREE) = positive
+	      @(PRED leading)
+	      (^ATYPE) = attributive.
+former 	  A * (^DEGREE) = positive
+	      @(PRED former)
+	      (^ATYPE) = attributive.
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+"
+old stuff
+
+greater   A * @(ADJ-COMP);
+	      ADV * (^DEGREE) = comparative
+		        (^ PRED)='great<(^ OBL-COMP)>'
+		.
+great   A *  @(ADJ-POS great).
+
+small 	  A * @(ADJ-POS small).
+
+smart 	  A * @(PRED smart).
+
+grey 	  A * @(PRED grey).
+
+interesting A * @(PRED interesting).
+
+indispensable   A * @(PRED indispensable).
+
+big 	  A * { @(PRED big)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope,
+	      |
+	       @(PRED %stem)
+	       :$ lam(P,lam(X,merge(app(P,X),drs([],[pred(%stem,E)])))) :
+	       ((s::(^SUBJ)_v -o s::(^SUBJ)_t) -o (s::(^SUBJ)_v -o s::(^SUBJ)_t)),
+	       }.
+
+"
 ----

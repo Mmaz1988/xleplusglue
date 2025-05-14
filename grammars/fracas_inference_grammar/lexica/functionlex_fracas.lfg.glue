@@ -8,7 +8,7 @@ than      CComp * (^PRED) = 'than<(^OBJ)>'
 as        CComp * (^PRED) = 'as<(^OBJ)>'
                   (^DEGREE) ~=c comparative
                   (^DEGREE) ~=c superlative;
-          ADVComp * @(PRED as)
+          ADVComp * (^PRED) = 'as<(^OBL-COMP)>'
                   (^DEGREE) ~=c comparative
                   (^DEGREE) ~=c superlative.
 
