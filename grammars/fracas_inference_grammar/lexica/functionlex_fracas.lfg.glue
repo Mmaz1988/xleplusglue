@@ -2,7 +2,7 @@ FUNCTION ENGLISH LEXICON (1.0)
 
 "comparison constructions"
 
-than      CComp * (^PRED) = 'than<(^OBJ)>'
+than      CComp * (^PRED) = 'than<(^OBJ)>'.
                   ((OBL-COMP ^) DEGREE) =c comparative.
 
 as        CComp * (^PRED) = 'as<(^OBJ)>'

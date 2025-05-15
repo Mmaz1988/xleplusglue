@@ -241,6 +241,13 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    (%LOCAL PRED)= 'more'
 	    (%LOCAL DEGREE) = comparative
 	   |
+	   "Attributive adjectives can also take COMPs (Ex. He is a faster dog than him)"
+	   (^ATYPE) = attributive
+       	    %LOCAL $ (^ ADJUNCT)
+	    (%LOCAL PRED)='more<(%LOCAL OBL-COMP)>'
+	    (%LOCAL DEGREE)= comparative
+	    (%LOCAL OBL-COMP PRED FN)=c than
+	   |
 	    (^ATYPE) = predicative
 	    %LOCAL $ (^ ADJUNCT)
 	    (%LOCAL PRED)='more<(%LOCAL OBL-COMP)>'
