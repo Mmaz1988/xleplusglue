@@ -2,18 +2,18 @@
 
 #An Italian became the world's greatest tenor.
 
-An Italian became the greatest tenor. (1 0.006 45)
+An Italian became the greatest tenor. (1 0.008 42)
 
 
 # 2 - 2+2 (4sol  There pers, scope of CPrel)
 
 #There was an Italian who became the world's greatest tenor.
 
-There was an Italian who became the greatest tenor. (2+2 0.007 60)
+There was an Italian who became the greatest tenor. (0 0.007 56)
 
 # 3 - 6sol scope of wants to be
 
-Every Italian man wants to be a great tenor. (6 0.008 48)
+Every Italian man wants to be a great tenor. (6 0.006 48)
 
 # 4
 
@@ -21,11 +21,11 @@ Some Italian men are great tenors. (1 0.004 33)
 
 # 5 - 3+3 (12 sol, there features, tnsasp be, scope)
 
-There are Italian men who want to be a great tenor. (3+3 0.009 112)
+There are Italian men who want to be a great tenor. (0 0.006 56)
 
 # 6 - 6 sol scope
 
-All Italian men want to be a great tenor. (6 0.005 48)
+All Italian men want to be a great tenor. (6 0.004 48)
 
 # 7 - 6 scope
 
@@ -37,7 +37,7 @@ Some Italian tenors are great. (2 0.003 34)
 
 # 9 - 2+2 (4 sol, there features, want +inf or -inf)
 
-There are Italian tenors who want to be great. (2+2 0.004 96)
+There are Italian tenors who want to be great. (0 0.004 63)
 
 # 10 - 2 sol, N vs Adj "Italian"
 
@@ -45,15 +45,15 @@ The really ambitious tenors are Italian. (2 0.002 39)
 
 # 11 - 4 there features, N vs Adj "Italian" (+4)
 
-There are really ambitious tenors who are Italian. (2+2 0.003 54)
+There are really ambitious tenors who are Italian. (0 0.003 53)
 
 # 12
 
-No really great tenors are modest. (1 0.002 33)
+No really great tenors are modest. (1 0.003 33)
 
 # 13 - 2+2 there features
 
-There are really great tenors who are modest. (1+1 0.002 48)
+There are really great tenors who are modest. (0 0.003 47)
 
 # 14
 
@@ -61,7 +61,7 @@ Some great tenors are Swedish. (1 0.002 30)
 
 # 15 - 1+1 (2 there features)
 
-There are great tenors who are Swedish. (1+1 0.003 60)
+There are great tenors who are Swedish. (0 0.003 38)
 
 # 16 2 (German Adj or N?)
 
@@ -69,7 +69,7 @@ Many great tenors are German. (2 0.002 37)
 
 # 17 2+2
 
-There are great tenors who are German. (2+2 0.003 68)
+There are great tenors who are German. (0 0.002 48)
 
 # 18
 
@@ -77,7 +77,7 @@ Several great tenors are British. (1 0.002 25)
 
 # 19 1+1
 
-There are great tenors who are British. (1+1 0.002 55)
+There are great tenors who are British. (0 0.002 39)
 
 # 20 - 2 "Italian"
 
@@ -85,19 +85,19 @@ Most great tenors are Italian. (2 0.002 34)
 
 # 21 - 2 "Italian"
 
-There are great tenors who are Italian. (2+2 0.003 68)
+There are great tenors who are Italian. (0 0.002 48)
 
 # 22
 
-A few great tenors sing popular music. (1 0.003 57)
+A few great tenors sing popular music. (1 0.003 51)
 
 # 23
 
-Some great tenors like popular music. (1 0.002 64)
+Some great tenors like popular music. (1 0.002 56)
 
 # 24
 
-There are great tenors who sing popular music. (1+1 0.003 133)
+There are great tenors who sing popular music. (0 0.002 56)
 
 # 25 - 2sol N vs Adj
 
@@ -105,7 +105,7 @@ Few great tenors are poor. (2 0.002 37)
 
 # 26 - 2sol N vs Adj
 
-There are great tenors who are poor. (2+2 0.003 71)
+There are great tenors who are poor. (0 0.002 51)
 
 # 27
 
@@ -113,11 +113,11 @@ Both leading tenors are excellent. (1 0.002 25)
 
 # 28
 
-Leading tenors who are excellent are indispensable. (2 0.002 46)
+Leading tenors who are excellent are indispensable. (0 0.002 45)
 
 # 29
 
-Both leading tenors are indispensable. (2 0.003 34)
+Both leading tenors are indispensable. (2 0.002 34)
 
 # 30 -
 
@@ -129,35 +129,35 @@ One of the leading tenors is Pavarotti. (1 0.002 34)
 
 # 32
 
-Pavarotti is a leading tenor who comes cheap. (1 0.003 56)
+Pavarotti is a leading tenor who comes cheap. (1 0.003 55)
 
 # 33 1+1
 
-At least three tenors will take part in the concert. (1+1 0.004 69)
+At least three tenors will take part in the concert. (1+1 0.005 69)
 
 # 34 3+9
 
-There are tenors who will take part in the concert. (1+11 0.017 91)
+There are tenors who will take part in the concert. (0 0.007 79)
 
 # 35
 
-At most two tenors will contribute their fees to charity. (1 0.005 142)
+At most two tenors will contribute their fees to charity. (1 0.004 105)
 
 # 36
 
-There are tenors who will contribute their fees to charity. (1+1 0.004 140)
+There are tenors who will contribute their fees to charity. (0 0.004 126)
 
 # 37
 
-An Irishman won the Nobel prize for literature. (1+1 0.004 60)
+An Irishman won the Nobel prize for literature. (1+1 0.004 47)
 
 # 38
 
-An Irishman won a Nobel prize. (1 0.003 34)
+An Irishman won a Nobel prize. (1 0.003 29)
 
 # 39 4+8 (12 - lots of ambiguity)
 
-Every European has the right to live in Europe. (1+2 0.004 88)
+Every European has the right to live in Europe. (1+2 0.003 72)
 
 # 40 2
 
@@ -165,31 +165,31 @@ Every European is a person. (1 0.002 24)
 
 # 41 12+12
 
-Every person who has the right to live in Europe can travel freely within Europe. (4+4 0.016 383)
+Every person who has the right to live in Europe can travel freely within Europe. (4+4 0.013 225)
 
 # 42
 
-Every European can travel freely within Europe. (1+1 0.003 132)
+Every European can travel freely within Europe. (1+1 0.003 51)
 
 # 43 4+8
 
-All Europeans have the right to live in Europe. (1+2 0.003 88)
+All Europeans have the right to live in Europe. (1+2 0.003 72)
 
 # 44 2
 
-All Europeans can travel freely within Europe. (2 0.003 132)
+All Europeans can travel freely within Europe. (2 0.002 51)
 
 # 45 4+8
 
-Each European has the right to live in Europe. (1+2 0.003 88)
+Each European has the right to live in Europe. (1+2 0.003 72)
 
 # 46
 
-Each European can travel freely within Europe. (1+1 0.003 132)
+Each European can travel freely within Europe. (1+1 0.002 51)
 
 # 47 4+8
 
-The residents of member states have the right to live in Europe. (1+2 0.004 149)
+The residents of member states have the right to live in Europe. (1+2 0.004 109)
 
 # 48
 
@@ -197,43 +197,43 @@ All residents of member states are individuals. (1 0.003 40)
 
 # 49 12+12
 
-Every individual who has the right to live in Europe can travel freely within Europe. (4+4 0.015 383)
+Every individual who has the right to live in Europe can travel freely within Europe. (4+4 0.012 225)
 
 # 50
 
-The residents of member states can travel freely within Europe. (2 0.007 481)
+The residents of member states can travel freely within Europe. (2 0.004 139)
 
 # 51
 
-No delegate finished the report on time. (1+3 0.004 73)
+No delegate finished the report on time. (1+3 0.005 60)
 
 # 52
 
-No delegate finished the report. (1 0.002 39)
+No delegate finished the report. (1 0.002 34)
 
 # 53
 
-Some delegates finished the survey on time. (1+3 0.004 73)
+Some delegates finished the survey on time. (1+3 0.004 60)
 
 # 54
 
-Some delegates finished the survey. (1 0.002 39)
+Some delegates finished the survey. (1 0.002 34)
 
 # 55
 
-Many delegates obtained interesting results from the survey. (1+1 0.004 71)
+Many delegates obtained interesting results from the survey. (1+1 0.003 58)
 
 # 56
 
-Many delegates obtained results from the survey. (1+1 0.003 68)
+Many delegates obtained results from the survey. (1+1 0.003 55)
 
 # 57
 
-Several delegates got the results published in major national newspapers. (2 0.009 208)
+Several delegates got the results published in major national newspapers. (2 0.005 84)
 
 # 58
 
-Several delegates got the results published. (2 0.005 78)
+Several delegates got the results published. (2 0.004 58)
 
 # 59
 
@@ -241,15 +241,15 @@ Most Europeans are resident in Europe. (1+2 0.002 41)
 
 # 60
 
-All Europeans are people. (1 0.001 14)
+All Europeans are people. (1 0.002 14)
 
 # 61
 
-All people who are resident in Europe can travel freely within Europe. (6+4 0.007 459)
+All people who are resident in Europe can travel freely within Europe. (0 0.005 199)
 
 # 62
 
-Most Europeans can travel freely within Europe. (2 0.003 132)
+Most Europeans can travel freely within Europe. (2 0.002 51)
 
 # 63
 
@@ -261,7 +261,7 @@ All committee members are people. (1 0.002 21)
 
 # 65
 
-All people who are from Sweden are from Scandinavia. (1 0.002 47)
+All people who are from Sweden are from Scandinavia. (0 0.002 46)
 
 # 66
 
@@ -273,7 +273,7 @@ Few committee members are from Portugal. (1 0.002 29)
 
 # 68
 
-All people who are from Portugal are from southern Europe. (1 0.003 53)
+All people who are from Portugal are from southern Europe. (0 0.003 52)
 
 # 69
 
@@ -281,43 +281,43 @@ There are few committee members from southern Europe. (1+3 0.002 41)
 
 # 70
 
-Both commissioners used to be leading businessmen. (1 0.003 72)
+Both commissioners used to be leading businessmen. (1 0.003 52)
 
 # 71
 
-Both commissioners used to be businessmen. (1 0.003 68)
+Both commissioners used to be businessmen. (1 0.002 49)
 
 # 72 5 - PP attachements
 
-Neither commissioner spends a lot of time at home. (2+3 0.003 112)
+Neither commissioner spends a lot of time at home. (2+3 0.003 78)
 
 # 73
 
-Neither commissioner spends time at home. (1+1 0.002 61)
+Neither commissioner spends time at home. (1+1 0.002 50)
 
 # 74
 
-At least three commissioners spend a lot of time at home. (2+3 0.003 123)
+At least three commissioners spend a lot of time at home. (2+3 0.003 89)
 
 # 75
 
-At least three commissioners spend time at home. (1+1 0.002 72)
+At least three commissioners spend time at home. (1+1 0.002 61)
 
 # 76 5 - PPs
 
-At most ten commissioners spend a lot of time at home. (2+3 0.004 123)
+At most ten commissioners spend a lot of time at home. (2+3 0.003 89)
 
 # 77
 
-At most ten commissioners spend time at home. (1+1 0.002 72)
+At most ten commissioners spend time at home. (1+1 0.003 61)
 
 # 78 36+24 (60 - 10 trees for the PPs)
 
-Every individual who has the right to live anywhere in Europe can travel freely within Europe. (12+8 0.029 531)
+Every individual who has the right to live anywhere in Europe can travel freely within Europe. (12+8 0.020 321)
 
 # 79 24
 
-The residents of member states have the right to live anywhere in Europe. (2+4 0.005 185)
+The residents of member states have the right to live anywhere in Europe. (2+4 0.004 130)
 
 # 80
 
@@ -337,7 +337,7 @@ There are few committee members from Portugal. (1+3 0.002 35)
 
 # 84
 
-A Swede won a Nobel prize. (1 0.003 29)
+A Swede won a Nobel prize. (1 0.003 24)
 
 # 85
 
@@ -345,7 +345,7 @@ Every Swede is a Scandinavian. (1 0.002 24)
 
 # 86
 
-A Scandinavian won a Nobel prize. (1 0.003 34)
+A Scandinavian won a Nobel prize. (1 0.003 29)
 
 # 87
 
@@ -353,23 +353,23 @@ Every Canadian resident is a resident of the North American continent. (1+1 0.00
 
 # 88
 
-The residents of major western countries can travel freely within Europe. (2 0.009 813)
+The residents of major western countries can travel freely within Europe. (2 0.004 216)
 
 # 89
 
-The residents of western countries have the right to live in Europe. (1+2 0.004 153)
+The residents of western countries have the right to live in Europe. (1+2 0.003 113)
 
 # 90
 
-No Scandinavian delegate finished the report on time. (1+3 0.004 108)
+No Scandinavian delegate finished the report on time. (1+3 0.004 78)
 
 # 91
 
-Some delegate finished the report on time. (1+3 0.004 73)
+Some delegate finished the report on time. (1+3 0.004 60)
 
 # 92
 
-Most Europeans who are resident in Europe can travel freely within Europe. (6+4 0.007 459)
+Most Europeans who are resident in Europe can travel freely within Europe. (0 0.005 199)
 
 # 93
 
@@ -377,23 +377,23 @@ A few female committee members are from Scandinavia. (1 0.002 35)
 
 # 94
 
-Both female commissioners used to be in business. (1 0.003 90)
+Both female commissioners used to be in business. (1 0.003 70)
 
 # 95
 
-Both commissioners used to be in business. (1 0.003 76)
+Both commissioners used to be in business. (1 0.002 57)
 
 # 96
 
-Neither female commissioner spends a lot of time at home. (2+3 0.004 135)
+Neither female commissioner spends a lot of time at home. (2+3 0.003 96)
 
 # 97
 
-One of the commissioners spends a lot of time at home. (2+3 0.003 121)
+One of the commissioners spends a lot of time at home. (2+3 0.003 87)
 
 # 98 - 0
 
-At least three female commissioners spend time at home. (1+1 0.003 86)
+At least three female commissioners spend time at home. (1+1 0.002 74)
 
 #At least three female commissioners appeared.
 
@@ -403,63 +403,63 @@ At least three female commissioners spend time at home. (1+1 0.003 86)
 
 # 99 - 0
 
-At most ten female commissioners spend time at home. (1+1 0.002 86)
+At most ten female commissioners spend time at home. (1+1 0.003 74)
 
 # 100
 
-Every resident of the North American continent can travel freely within Europe. (1 0.021 277)
+Every resident of the North American continent can travel freely within Europe. (1 0.007 97)
 
 # 101
 
-Every Canadian resident can travel freely within Europe 	. (1 0.003 140)
+Every Canadian resident can travel freely within Europe 	. (1 0.003 59)
 
 # 102
 
-All residents of the North American continent can travel freely within Europe. (2 0.021 277)
+All residents of the North American continent can travel freely within Europe. (2 0.007 97)
 
 # 103
 
-All Canadian residents can travel freely within Europe. (2 0.004 140)
+All Canadian residents can travel freely within Europe. (2 0.003 59)
 
 # 104
 
-Each resident of the North American continent can travel freely within Europe. (1 0.023 277)
+Each resident of the North American continent can travel freely within Europe. (1 0.006 97)
 
 # 105
 
-Each Canadian resident can travel freely within Europe. (1 0.003 140)
+Each Canadian resident can travel freely within Europe. (1 0.003 59)
 
 # 106
 
-The residents of western countries can travel freely within Europe. (2 0.006 485)
+The residents of western countries can travel freely within Europe. (2 0.004 143)
 
 # 107
 
-All residents of major western countries are residents of western countries. (1+1 0.004 75)
+All residents of major western countries are residents of western countries. (1+1 0.003 75)
 
 # 108
 
-The residents of major western countries have the right to live in Europe. (1+2 0.005 213)
+The residents of major western countries have the right to live in Europe. (1+2 0.004 132)
 
 # 109
 
-Some Scandinavian delegate finished the report on time. (1+3 0.004 108)
+Some Scandinavian delegate finished the report on time. (1+3 0.004 78)
 
 # 110
 
-Some Irish delegates finished the survey on time. (1+3 0.004 76)
+Some Irish delegates finished the survey on time. (1+3 0.004 63)
 
 # 111
 
-Many British delegates obtained interesting results from the survey. (1+1 0.004 74)
+Many British delegates obtained interesting results from the survey. (1+1 0.003 61)
 
 # 112
 
-Several Portuguese delegates got the results published in major national newspapers. (2 0.009 219)
+Several Portuguese delegates got the results published in major national newspapers. (2 0.005 94)
 
 # 113
 
-Most Europeans who are resident outside Europe can travel freely within Europe. (2 0.015 1273)
+Most Europeans who are resident outside Europe can travel freely within Europe. (0 0.006 298)
 
 # 114
 
@@ -467,10 +467,10 @@ At least a few female committee members are from Scandinavia. (1 0.003 37)
 
 # 115
 
-One of the female commissioners spends a lot of time at home. (2+3 0.004 147)
+One of the female commissioners spends a lot of time at home. (2+3 0.003 104)
 
 # 116
 
-At least three male commissioners spend time at home. (1+1 0.003 86)
+At least three male commissioners spend time at home. (1+1 0.003 74)
 
-# 116 sentences, 0.534 CPU secs total, 0.029 CPU secs max (05/16/25)
+# 116 sentences, 0.402 CPU secs total, 0.020 CPU secs max (05/16/25)
