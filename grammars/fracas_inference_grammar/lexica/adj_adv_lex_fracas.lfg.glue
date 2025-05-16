@@ -53,6 +53,14 @@ interesting    A * { @(PRED %stem)
 		    }
 		    (^SEMTYPE) = intersective.
 
+four`-legged    A * { @(PRED %stem)
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = intersective.
+
 "countries"
 
 British   A * @(PRED british); ETC.
