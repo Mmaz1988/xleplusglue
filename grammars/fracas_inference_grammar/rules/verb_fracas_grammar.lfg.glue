@@ -1,12 +1,14 @@
 VERB ENGLISH RULES (1.0)
 
-   VP --> (AUX) "auxiliary introduced for passive"
-
+   "Change this to use of parameterized rules"
+   VP --> (AUX: {(^PREDLINK) | (^XCOMP) | (^ PASSIVE) =c + | (^TNS-ASP PROG) =c +_ | (^TNS-ASP TENSE) = fut }) "auxiliary introduced for passive"
       (NEG: ! $ (^ ADJUNCT))
 
- 	  {V: ^=!
- 	  | AUX: ^=!
- 	         (! VFORM) =c modal  "eg. can"}
+ 	  "{"
+ 	  (V: ^=!)
+ 	  "| AUX: ^=!
+ 	         (! VFORM) =c modal eg. can
+ 	         }"
 
  	  ({ NP: (^ OBJ)=! "direct object"
 		 (! CASE)=acc |

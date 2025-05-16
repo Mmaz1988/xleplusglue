@@ -1,0 +1,28 @@
+"from /adj_adv_lex_fracas.lfg.glue"
+
+greater   A * @(ADJ-COMP);
+	      ADV * (^DEGREE) = comparative
+		        (^ PRED)='great<(^ OBL-COMP)>'
+		.
+great   A *  @(ADJ-POS great).
+
+small 	  A * @(ADJ-POS small).
+
+smart 	  A * @(PRED smart).
+
+grey 	  A * @(PRED grey).
+
+interesting A * @(PRED interesting).
+
+indispensable   A * @(PRED indispensable).
+
+big 	  A * { @(PRED big)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope,
+	      |
+	       @(PRED %stem)
+	       :$ lam(P,lam(X,merge(app(P,X),drs([],[pred(%stem,E)])))) :
+	       ((s::(^SUBJ)_v -o s::(^SUBJ)_t) -o (s::(^SUBJ)_v -o s::(^SUBJ)_t)),
+	       }.
+
+"

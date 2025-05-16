@@ -58,6 +58,12 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	  @(ARG2 %arg2).
 
 
+  INTRANS-OBL-EV(P) = (^ PRED) = 'P<(^SUBJ) (^OBL)>'
+                    @(EVENT P)
+                    @(ARG1 (^ SUBJ))
+                    @(ARG2 (^ OBL))
+                    (^OBL PFORM) =c in.
+
 
    "lambda DRT"
    INTRANS-EV(P) = (^ PRED) = 'P<(^SUBJ)>'

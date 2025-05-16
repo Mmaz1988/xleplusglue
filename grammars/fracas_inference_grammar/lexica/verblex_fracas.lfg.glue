@@ -174,7 +174,18 @@ publish  V-S XLE @(TRANS-EV %stem).
 
 spend    V-S XLE @(TRANS-EV %stem).
 
-take 	V-S XLE @(TRANS-EV %stem).
+"take 	V-S XLE @(TRANS-EV %stem)."
+
+"take` part V-S XLE @(INTRANS-EV %stem)."
+
+takes` part V * {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
+                @(PROG -_)
+                @(PERF -_)
+                @S-AGR.
+
+take` part V *  {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
+                @(PROG -_)
+                @(PERF -_).
 
 
 "use: either 'to use smth' or 'used to xyz'"
@@ -204,7 +215,7 @@ come V-S XLE    (^PRED) = 'come<(^PREDLINK)>(^SUBJ)'
 
 "present: am(1sg), are(pl, 2sg, all person), is(3sg)  + aux is"
 
-is   V *   @VPRESBE       "template without inf option"
+is   AUX *   @VPRESBE       "template without inf option"
 		   @(PROG -_)
 		   @(PERF -_)
 		   @S-AGR       "3sg"
@@ -251,20 +262,21 @@ are  V *   @VPRESBE
 
 "past: was(1sg, 3sg), were(pl, 2sg)  + aux was"
 
-was   V *  @VPAST
+was   AUX *  @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
 		   {@S-AGR @(OT-MARK Be-3pl)
 		   |
-		     (^ SUBJ PERS) = 2
+		   (^ SUBJ PERS) = 2
 	       (^ SUBJ NUM) = sg}
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                @(EVENT %stem)
               |
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem)};
-        AUX * @(TENSE past)
+               @(EVENT %stem)}.
+
+        "AUX * @(TENSE past)
             { @(PROG -_)
               @(PERF -_) |
              (^ TNS-ASP PROG)
@@ -272,7 +284,7 @@ was   V *  @VPAST
             { (^ SUBJ PERS) = 1
                | (^ SUBJ PERS) = 3
             }
-            (^ SUBJ NUM) = sg.
+            (^ SUBJ NUM) = sg."
 
 
 were   V *  @VPAST
