@@ -10,10 +10,10 @@ NP --> "either a full NP or a PRON"
     "optional determiner"
     ( { D: ^=!
      | PRON
-     | NUMBER  "eg. One man appeared"
+     | NUMBER: ^=! "eg. One man appeared"
      |
         (NUMBER)                    "or AQUANTS"
-         DComp: ! $ (^ ADJUNCT)         "ITEL sold 3000 more computers than APCOM- how can this go with NUMBER?"
+        DComp: ! $ (^ ADJUNCT)       "ITEL sold 3000 more computers than APCOM- how can this go with NUMBER?"
      } )
 
 

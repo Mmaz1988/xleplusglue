@@ -9,7 +9,6 @@ successful ADJ-S XLE { @(PRED %stem)
 		       (^ ATYPE) =c predicative
 		     }
 		     (^SEMTYPE) = degree.
-	   
 
 fast 	  ADJ-S XLE { @(PRED %stem)
 		      (^ ATYPE) =c attributive
@@ -28,6 +27,46 @@ clever 	  ADJ-S XLE { @(PRED %stem)
 		    (^SEMTYPE) = degree.
 
 big 	  ADJ-S XLE { @(PRED %stem)
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = degree.
+
+small 	  ADJ-S XLE { @(PRED %stem)
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = degree.
+
+large 	  ADJ-S XLE { @(PRED %stem)
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = degree.
+
+fat 	  ADJ-S XLE { @(PRED %stem)
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = degree.
+
+important 	  ADJ-S XLE { @(PRED %stem)
+		      (^ ATYPE) =c attributive
+		     |
+		      (^PRED) = '%stem<(^SUBJ)>'
+		      (^ ATYPE) =c predicative
+		    }
+		    (^SEMTYPE) = degree.
+
+more` important 	  ADJ-S XLE { @(PRED %stem)
 		      (^ ATYPE) =c attributive
 		     |
 		      (^PRED) = '%stem<(^SUBJ)>'

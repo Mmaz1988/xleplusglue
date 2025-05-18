@@ -109,7 +109,7 @@ ITEL-ZX   N *   @(PRED ITEL-ZX)
                 (^NTYPE NSEM COMMON) = count.
 
 MIPS 	  N *   @(PRED MIPS)
-                (^NUM) = sg
+                (^NUM) = pl
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count.
 

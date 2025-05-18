@@ -122,11 +122,7 @@ An 	  D * @(SPEC-DET-PRED a)
 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
-
-
-
-
-more 	  DComp * (^ PRED)='more<>(^ OBL-COMP)'
+more 	  DComp * (^PRED)='more<(^OBL-COMP)>'
                 (^DEF) = - "this indefinite only marks plurals"
                 @(SPEC-QUANT-TYPE comparative)
 		        (^NUM) = pl
@@ -136,7 +132,6 @@ More 	  DComp * (^DEF) = - "this indefinite only marks plurals"
                 @(SPEC-QUANT-TYPE comparative)
 		        (^NUM) = pl
 		        (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
-
 
 many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
                  (^DEF) = - "this indefinite only marks plurals"
