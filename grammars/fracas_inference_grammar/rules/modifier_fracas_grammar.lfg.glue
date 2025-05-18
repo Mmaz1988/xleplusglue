@@ -79,16 +79,18 @@
  	    (COMMA).
 
 
-   CPrel --> NP: (! PRON-TYPE) =c rel
-		 (^ SUBJ) = !
-		 ((ADJUNCT ^) PERS)  = (^SUBJ PERS)
-		 ((ADJUNCT ^) NUM)  = (^SUBJ NUM)
+   CPrel --> PRON: (! PRON-TYPE) =c rel
+              %rel = !
+              (^ {SUBJ | OBJ}) = %rel
+              (^ TOPIC) = %rel
+              		 ((ADJUNCT ^) PERS)  =c (^TOPIC PERS)
+              		 ((ADJUNCT ^) NUM)  =c (^TOPIC NUM);
+          (NP: (^ SUBJ) = !)
 		 "from Pargram: (^ TOPIC-REL {(OBJ)|(OBL-PART)} [SPEC (POSS)]*) = (^ PRON-REL)"
-		 ;
  	  VP: (^ TNS-ASP TENSE) "require that sentences have tense"
 	     (^ FIN) = +.
 
-
+   CPto --> PARTinf VP.
 
 
 

@@ -61,6 +61,6 @@ NP --> "either a full NP or a PRON"
                         (%LOCAL ADJUNCT $) = %COMP "The OBL-COMP is in the adjunct set of the adjective (i.e., modifying the adjective)"
                         %COMP $ (%LOCAL ADJUNCT) "Anchoring for IOFU"
                         |
-                VPinf: (^XCOMP) = !
-                    (! SUBJ PRED) = 'pro'}.
+                CPto:  (^XCOMP) = !
+                       (! SUBJ PRED) = 'pro'}.
 ----

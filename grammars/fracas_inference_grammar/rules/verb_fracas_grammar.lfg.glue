@@ -3,8 +3,6 @@ VERB ENGLISH RULES (1.0)
    "Change this to use of parameterized rules"
    VP --> (AUX: {(^PREDLINK) | (^XCOMP) | (^ PASSIVE) =c + | (^TNS-ASP PROG) =c +_ | (^TNS-ASP TENSE) = fut }) "auxiliary introduced for passive"
       (NEG: ! $ (^ ADJUNCT))
-
- 	  "{"
  	  (V: ^=!)
  	  "| AUX: ^=!
  	         (! VFORM) =c modal eg. can
