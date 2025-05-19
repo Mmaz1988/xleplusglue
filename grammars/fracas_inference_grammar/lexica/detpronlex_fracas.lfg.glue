@@ -289,16 +289,7 @@ Most    D* @(SPEC-AQUANT-PRED most)
             @(SPEC-AQUANT-TYPE superlative)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q)
- 	        "not final, just a test"
- 	        :$ lam(P,lam(Q,merge(
- 	                drs([D],[]),
- 	                merge(drs([X],[]),
- 	                    merge(app(P,X), merge(app(Q,X), app(app(many,X),D))
- 	                    )
- 	                )
- 	        ))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	        @(QUANT-SCOPE ^ %q).
 
 most    D* @(SPEC-AQUANT-PRED most)
             @(SPEC-AQUANT-TYPE superlative)
