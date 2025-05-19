@@ -93,7 +93,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 		  { @VPAST
 		   (^ VFORM) = fin
 		   | @PASTP
-		    (^ VFORM) = nonfin}
+		    (^ PASSIVE) =  +} "should be optional "
 		  @(PROG -_)
 		  @(PERF -_).
 
@@ -103,7 +103,8 @@ MORPH   ENGLISH   LEXICON (1.0)
 		   @(PROG -_)
 		   @(PERF -_).
 
-+PastPerf TNS XLE @PASTP.
++PastPerf TNS XLE @PASTP
+                  (^ PASSIVE) = +. "PASSIVE should be optional"
 
 +Prog 	  ASP XLE @VPROG.
 

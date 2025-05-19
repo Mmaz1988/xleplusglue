@@ -89,7 +89,7 @@ want 	  V-S XLE { (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 
 
 get V-S XLE {@(DITRANS-EV %stem) |
-          (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
+          (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'     "OBJ"
           @(EVENT %stem)
           @(ARG1 (^SUBJ))
           @(ARG2 (^OBJ))
@@ -287,7 +287,9 @@ was   AUX[fin] *  @VPAST
               |
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem)}.
+               @(EVENT %stem) |
+               (^PASSIVE) = + }.
+
 
         "AUX * @(TENSE past)
             { @(PROG -_)

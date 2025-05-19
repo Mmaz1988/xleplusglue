@@ -85,11 +85,11 @@ Most great tenors are Italian. (2 0.002 35)
 
 # 21 - 2 "Italian"
 
-There are great tenors who are Italian. (2+2 0.002 44)
+There are great tenors who are Italian. (2+2 0.003 44)
 
 # 22
 
-A few great tenors sing popular music. (1 0.002 44)
+A few great tenors sing popular music. (1 0.003 44)
 
 # 23
 
@@ -141,11 +141,11 @@ There are tenors who will take part in the concert. (1+9 0.007 59)
 
 # 35
 
-At most two tenors will contribute their fees to charity. (1 0.004 81)
+At most two tenors will contribute their fees to charity. (1 0.004 87)
 
 # 36
 
-There are tenors who will contribute their fees to charity. (1+1 0.004 93)
+There are tenors who will contribute their fees to charity. (1+1 0.004 99)
 
 # 37
 
@@ -165,11 +165,11 @@ Every European is a person. (1 0.002 22)
 
 # 41 12+12
 
-Every person who has the right to live in Europe can travel freely within Europe. (4+4 0.005 110)
+Every person who has the right to live in Europe can travel freely within Europe. (4+4 0.005 119)
 
 # 42
 
-Every European can travel freely within Europe. (1 0.002 36)
+Every European can travel freely within Europe. (1 0.002 45)
 
 # 43 4+8
 
@@ -177,7 +177,7 @@ All Europeans have the right to live in Europe. (1+2 0.003 66)
 
 # 44 2
 
-All Europeans can travel freely within Europe. (1 0.002 36)
+All Europeans can travel freely within Europe. (1 0.002 45)
 
 # 45 4+8
 
@@ -185,7 +185,7 @@ Each European has the right to live in Europe. (1+2 0.003 66)
 
 # 46
 
-Each European can travel freely within Europe. (1 0.002 36)
+Each European can travel freely within Europe. (1 0.002 45)
 
 # 47 4+8
 
@@ -197,11 +197,11 @@ All residents of member states are individuals. (1 0.002 41)
 
 # 49 12+12
 
-Every individual who has the right to live in Europe can travel freely within Europe. (4+4 0.005 110)
+Every individual who has the right to live in Europe can travel freely within Europe. (4+4 0.005 119)
 
 # 50
 
-The residents of member states can travel freely within Europe. (1 0.003 57)
+The residents of member states can travel freely within Europe. (1 0.002 66)
 
 # 51
 
@@ -213,7 +213,7 @@ No delegate finished the report. (1 0.002 34)
 
 # 53
 
-Some delegates finished the survey on time. (1+2 0.004 57)
+Some delegates finished the survey on time. (1+2 0.003 57)
 
 # 54
 
@@ -237,7 +237,7 @@ Several delegates got the results published. (0 0.001 0)
 
 # 59
 
-Most Europeans are resident in Europe. (1 0.001 29)
+Most Europeans are resident in Europe. (1 0.002 29)
 
 # 60
 
@@ -245,11 +245,11 @@ All Europeans are people. (1 0.001 15)
 
 # 61
 
-All people who are resident in Europe can travel freely within Europe. (3 0.003 76)
+All people who are resident in Europe can travel freely within Europe. (3 0.003 85)
 
 # 62
 
-Most Europeans can travel freely within Europe. (1 0.002 36)
+Most Europeans can travel freely within Europe. (1 0.002 45)
 
 # 63
 
@@ -265,15 +265,15 @@ All people who are from Sweden are from Scandinavia. (1 0.002 38)
 
 # 66
 
-At least a few committee members are from Scandinavia. (1 0.002 30)
+At least a few committee members are from Scandinavia. (1 0.003 30)
 
 # 67
 
-Few committee members are from Portugal. (1 0.001 28)
+Few committee members are from Portugal. (1 0.002 28)
 
 # 68
 
-All people who are from Portugal are from southern Europe. (1 0.002 44)
+All people who are from Portugal are from southern Europe. (1 0.003 44)
 
 # 69
 
@@ -281,7 +281,7 @@ There are few committee members from southern Europe. (1+1 0.002 37)
 
 # 70
 
-Both commissioners used to be leading businessmen. (1 0.002 42)
+Both commissioners used to be leading businessmen. (1 0.003 42)
 
 # 71
 
@@ -313,11 +313,11 @@ At most ten commissioners spend time at home. (1+1 0.002 61)
 
 # 78 36+24 (60 - 10 trees for the PPs)
 
-Every individual who has the right to live anywhere in Europe can travel freely within Europe. (6+6 0.006 126)
+Every individual who has the right to live anywhere in Europe can travel freely within Europe. (6+6 0.005 135)
 
 # 79 24
 
-The residents of member states have the right to live anywhere in Europe. (1+3 0.003 101)
+The residents of member states have the right to live anywhere in Europe. (1+3 0.004 101)
 
 # 80
 
@@ -353,7 +353,7 @@ Every Canadian resident is a resident of the North American continent. (1 0.004 
 
 # 88
 
-The residents of major western countries can travel freely within Europe. (1 0.003 67)
+The residents of major western countries can travel freely within Europe. (1 0.003 76)
 
 # 89
 
@@ -365,11 +365,11 @@ No Scandinavian delegate finished the report on time. (1+2 0.004 63)
 
 # 91
 
-Some delegate finished the report on time. (1+2 0.003 57)
+Some delegate finished the report on time. (1+2 0.004 57)
 
 # 92
 
-Most Europeans who are resident in Europe can travel freely within Europe. (3 0.003 76)
+Most Europeans who are resident in Europe can travel freely within Europe. (3 0.003 85)
 
 # 93
 
@@ -393,7 +393,7 @@ One of the commissioners spends a lot of time at home. (2+3 0.003 87)
 
 # 98 - 0
 
-At least three female commissioners spend time at home. (1+1 0.002 67)
+At least three female commissioners spend time at home. (1+1 0.003 67)
 
 #At least three female commissioners appeared.
 
@@ -407,35 +407,35 @@ At most ten female commissioners spend time at home. (1+1 0.002 67)
 
 # 100
 
-Every resident of the North American continent can travel freely within Europe. (1 0.004 60)
+Every resident of the North American continent can travel freely within Europe. (1 0.004 69)
 
 # 101
 
-Every Canadian resident can travel freely within Europe 	. (1 0.002 44)
+Every Canadian resident can travel freely within Europe 	. (1 0.002 53)
 
 # 102
 
-All residents of the North American continent can travel freely within Europe. (1 0.004 60)
+All residents of the North American continent can travel freely within Europe. (1 0.004 69)
 
 # 103
 
-All Canadian residents can travel freely within Europe. (1 0.002 44)
+All Canadian residents can travel freely within Europe. (1 0.002 53)
 
 # 104
 
-Each resident of the North American continent can travel freely within Europe. (1 0.004 60)
+Each resident of the North American continent can travel freely within Europe. (1 0.004 69)
 
 # 105
 
-Each Canadian resident can travel freely within Europe. (1 0.002 44)
+Each Canadian resident can travel freely within Europe. (1 0.002 53)
 
 # 106
 
-The residents of western countries can travel freely within Europe. (1 0.003 61)
+The residents of western countries can travel freely within Europe. (1 0.002 70)
 
 # 107
 
-All residents of major western countries are residents of western countries. (1 0.003 71)
+All residents of major western countries are residents of western countries. (1 0.002 71)
 
 # 108
 
@@ -459,7 +459,7 @@ Several Portuguese delegates got the results published in major national newspap
 
 # 113
 
-Most Europeans who are resident outside Europe can travel freely within Europe. (1 0.003 59)
+Most Europeans who are resident outside Europe can travel freely within Europe. (1 0.003 68)
 
 # 114
 
@@ -471,6 +471,6 @@ One of the female commissioners spends a lot of time at home. (2+3 0.003 93)
 
 # 116
 
-At least three male commissioners spend time at home. (1+1 0.002 67)
+At least three male commissioners spend time at home. (1+1 0.003 67)
 
-# 116 sentences, 0.302 CPU secs total, 0.007 CPU secs max (05/19/25)
+# 116 sentences, 0.311 CPU secs total, 0.007 CPU secs max (05/19/25)

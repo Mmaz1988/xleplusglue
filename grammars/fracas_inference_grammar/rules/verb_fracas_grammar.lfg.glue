@@ -1,14 +1,20 @@
 VERB ENGLISH RULES (1.0)
 
 
-VP[_form $ {cop fin pass perf prog base }] --> {VPv[_form] | VPcop[_form]}.
+VP[_form $ {cop fin pass perf prog base }] --> {VPv[_form] | VPcop[_form] | VPpass[pass,_form]}.
+
+VPpass[pass,_form] --> AUX[_form]
+                       VPv[pass].
 
 VPv[_form] -->
                       e: {
                             _form = fin
                             (^ VFORM) =c fin |
                             _form = base
-                            (^ VFORM) =c inf};
+                            (^ VFORM) =c inf |
+                            _form = pass
+                            (^ PASSIVE) = +
+                            };
                       V[_form]: ^=!;
                  	  (NP: (^ OBJ)=! "direct object"
                 		 (! CASE)=acc)
@@ -28,6 +34,7 @@ VPv[_form] -->
                  	  (PP: (^ OBL-AG) = ! "oblique agent of passive"
                 	       "example of a constraining equation: require a value with =c"
                 	       (! PFORM) =c by
+                	       (^ PASSIVE) =c +
                 	       @(OT-MARK PPpassiv))
                  	  (
                  	    {
