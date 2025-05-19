@@ -81,7 +81,17 @@ Dumbo 	  N *   @(PRED Dumbo)
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = name.
 
-"Bill 	  N * @(PRED Bill)."
+Bill 	  N * @(PRED Bill)
+              (^NUM) = sg
+              (^GENDER) = masc
+              (^NTYPE NSYN) = proper
+              (^NTYPE NSEM PROPER) = name.
+
+Kim 	  N * @(PRED Kim)
+              (^NUM) = sg
+              (^GENDER) = fem
+              (^NTYPE NSYN) = proper
+              (^NTYPE NSEM PROPER) = name.
 
 Fido 	  N *   @(PRED Fido)
                 (^NUM) = sg

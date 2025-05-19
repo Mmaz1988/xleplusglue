@@ -100,6 +100,13 @@ four`-legged    A * { @(PRED %stem)
 		    }
 		    (^SEMTYPE) = intersective.
 
+genuine   A * { @(PRED %stem)
+          		(^ ATYPE) =c attributive
+          	|
+          		 (^PRED) = '%stem<(^SUBJ)>'
+          		 (^ ATYPE) =c predicative
+          		    }
+             (^SEMTYPE) = intersective.
 "countries"
 
 British   A * @(PRED british); ETC.
@@ -130,7 +137,7 @@ freely 	  ADV * @(PRED free).
 
 twice 	  ADV * @(PRED twice).
 
-"old?"
+"old?
 scottish  A * @(PRED scottish)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
@@ -144,6 +151,7 @@ alleged   A * @(PRED alleged)
 genuine   A * (^DEGREE) = positive
 	      @(PRED genuine)
 	      (^ATYPE) = attributive.
+
 leading	  A * (^DEGREE) = positive
 	      @(PRED leading)
 	      (^ATYPE) = attributive.
@@ -155,6 +163,5 @@ former 	  A * (^DEGREE) = positive
 	      (^ATYPE) = attributive.
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-
-
+"
 ----
