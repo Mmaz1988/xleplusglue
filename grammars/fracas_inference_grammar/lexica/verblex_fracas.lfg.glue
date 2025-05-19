@@ -91,12 +91,6 @@ want 	  V-S XLE { (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
 get V-S XLE {@(DITRANS-EV %stem) |
           (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'     "OBJ"
           @(EVENT %stem)
-          @(ARG1 (^SUBJ))
-          @(ARG2 (^OBJ))
-          (^ XCOMP SUBJ) = (^OBJ)
-          %s = s::(^ XCOMP)
-          :$ lam(V,lam(P,lam(X,lam(E,merge(app(app(V,X),E),drs([],[cont(E,app(P,X))])))))) :
-          ((s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)) -o ((s::(^ XCOMP SUBJ)_e -o (%s SIT)_t) -o (s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)))),
 		  }.
 
 "Intransitives"
@@ -287,8 +281,12 @@ was   AUX[fin] *  @VPAST
               |
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem) |
-               (^PASSIVE) = + }.
+               @(EVENT %stem)
+               };
+       AUX[pass,fin] * @VPAST
+       		           @S-AGR
+       		           (^VFORM) = fin
+       		           (^PASSIVE) = +.
 
 
         "AUX * @(TENSE past)

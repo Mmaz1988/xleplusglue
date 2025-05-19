@@ -3,7 +3,9 @@ VERB ENGLISH RULES (1.0)
 
 VP[_form $ {cop fin pass perf prog base }] --> {VPv[_form] | VPcop[_form] | VPpass[pass,_form]}.
 
-VPpass[pass,_form] --> AUX[_form]
+VPpass[pass,_form] --> (NP: (^ SUBJ) = !)
+                       { AUX[pass,_form] |
+                       e: _form = nonfin }
                        VPv[pass].
 
 VPv[_form] -->
@@ -41,10 +43,10 @@ VPv[_form] -->
                  	     CP: (^ COMP) = !
                  	    |
                  	     VPinf: (^XCOMP) = !
-                		    {
-                		    (! VFORM) = inf  "including this will make infelected verbs infinitival"
-                		     | (^PASSIVE) =c + "if embedded verb is passive, verb remains inflected" }
-                		    "(s::^ TEMP-REF) = (s::(^XCOMP) EVAL)"}
+                		 (! VFORM) = inf  "including this will make infelected verbs infinitival"
+                		  |
+                		  VPpass[pass,nonfin]: (^ XCOMP) = !
+                		 }
                  	   )
                  	   (AP[predicative]: (^PREDLINK) = !).
 
