@@ -178,14 +178,23 @@ spend    V-S XLE @(TRANS-EV %stem).
 
 "take` part V-S XLE @(INTRANS-EV %stem)."
 
-takes` part V * {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
+takes` part V[fin] * {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
                 @(PROG -_)
                 @(PERF -_)
-                @S-AGR.
+                @S-AGR
+                @(VPRES)
+                (^VFORM) = fin.
 
-take` part V *  {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
-                @(PROG -_)
-                @(PERF -_).
+take` part V[base] * {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
+                      @(PROG -_)
+                      @(PERF -_)
+                      (^VFORM) = inf;
+           V[fin] * {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
+                        @(PROG -_)
+                        @(PERF -_)
+                        (^TNS-ASP TENSE) = pres
+                        (^VFORM) = fin.
+
 
 
 "use: either 'to use smth' or 'used to xyz'"
@@ -215,24 +224,28 @@ come V-S XLE    (^PRED) = 'come<(^PREDLINK)>(^SUBJ)'
 
 "present: am(1sg), are(pl, 2sg, all person), is(3sg)  + aux is"
 
-is   AUX *   @VPRESBE       "template without inf option"
-		   @(PROG -_)
-		   @(PERF -_)
-		   @S-AGR       "3sg"
-		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-               @(EVENT be)
-               @(ARG1 (^SUBJ))
-              |
-               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-               (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT be)
-               @(ARG1 (^SUBJ))
-               };
+is   AUX[fin] *   @VPRESBE       "template without inf option"
+		          @(PROG -_)
+		          @(PERF -_)
+		          @S-AGR       "3sg"
+		          {
+		          (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                  @(EVENT be)
+                  @(ARG1 (^SUBJ))
+                  |
+                  (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                  (^SUBJ) = (^ PREDLINK SUBJ)
+                  @(EVENT be)
+                  @(ARG1 (^SUBJ))
+               }.
+
+     "
       AUX * @(TENSE pres)
 		    { (^ SUBJ PERS) = 1
                 | (^ SUBJ PERS) = 3
                 }
                 (^ SUBJ NUM) = sg.
+                "
 
 am   V *   @VPRESBE
 		   @(PROG -_)
@@ -246,7 +259,7 @@ am   V *   @VPRESBE
                "(^SUBJ) = (^ PREDLINK SUBJ)"
                @(EVENT %stem)}.
 
-are  V *   @VPRESBE
+are  AUX[fin] *   @VPRESBE
 		   @(PROG -_)
 		   @(PERF -_)
 		   {(^ SUBJ NUM) = pl @(OT-MARK Be-3pl)|
@@ -262,7 +275,7 @@ are  V *   @VPRESBE
 
 "past: was(1sg, 3sg), were(pl, 2sg)  + aux was"
 
-was   AUX *  @VPAST
+was   AUX[fin] *  @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
 		   {@S-AGR @(OT-MARK Be-3pl)
@@ -287,7 +300,7 @@ was   AUX *  @VPAST
             (^ SUBJ NUM) = sg."
 
 
-were   V *  @VPAST
+were[fin]   V *  @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
 		   {(^ SUBJ NUM) = pl @(OT-MARK Be-3pl)|
@@ -308,18 +321,19 @@ were   V *  @VPAST
 
 "future"
 
-will    AUX * @VFUT "@(TENSE past)"
+will    AUX[fin] * @VFUT "@(TENSE past)"
               "@(PROG -_)
               @(PERF -_)"
               (^ SUBJ NUM)
               (^ SUBJ PERS)
               (^ FIN) = +
+              (^ VTYPE) = fin
               @(EVENT %stem). "semantics don't work here"
 
 
 "be, (being, been??)"
 
-be   V *  (^VFORM) = inf
+be   AUX[base] *  (^VFORM) = inf
 		   @(PROG -_)
 		   @(PERF -_)
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
@@ -332,12 +346,12 @@ be   V *  (^VFORM) = inf
 "auxiliaries"
 
 
-can    AUX *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
+can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
              (^ XCOMP SUBJ) = (^SUBJ)
               (^ VFORM) = modal
               @VPRES.
 
 
-did AUX * @VPAST.
+did AUX[fin] * @VPAST.
 
 ----

@@ -1,15 +1,17 @@
 VERB ENGLISH RULES (1.0)
 
 
- VPall[_form $ {cop fin pass perf prog }] --> {VPv[_form] | VPcop[_form]}.
+VP[_form $ {cop fin pass perf prog base }] --> {VPv[_form] | VPcop[_form]}.
 
-VPv[_form] --> V: ^=!;
-                 	  "| AUX: ^=!
-                 	         (! VFORM) =c modal eg. can
-                 	         }"
+VPv[_form] -->
+                      e: {
+                            _form = fin
+                            (^ VFORM) =c fin |
+                            _form = base
+                            (^ VFORM) =c inf};
+                      V[_form]: ^=!;
                  	  (NP: (^ OBJ)=! "direct object"
-                		 (! CASE)=acc
-                 	   )
+                		 (! CASE)=acc)
                  	  (NP: (^ OBJ2) = !)
 
                  	  (ADVP: ! $ (^ ADJUNCT)) "place adverb before non-argument PPs eg. All Europeans travel freely within Europe"
@@ -32,83 +34,32 @@ VPv[_form] --> V: ^=!;
                  	     CP: (^ COMP) = !
                  	    |
                  	     VPinf: (^XCOMP) = !
-                		    {(! FIN) = -
-                		    "(! VFORM) = inf"  "including this will make infelected verbs infinitival"
+                		    {
+                		    (! VFORM) = inf  "including this will make infelected verbs infinitival"
                 		     | (^PASSIVE) =c + "if embedded verb is passive, verb remains inflected" }
                 		    "(s::^ TEMP-REF) = (s::(^XCOMP) EVAL)"}
-                 	   ).
+                 	   )
+                 	   (AP[predicative]: (^PREDLINK) = !).
 
                  	  "(ADVP: ! $ (^ ADJUNCT))."
 
 
-  VPcop[_form $ {fin cop pass modal perf prog}] -->
-            AUX[_form],
+  VPcop[_form $ {fin cop pass modal perf prog base}] -->
+            AUX[_form]
             (ADVP: ! $ (^ ADJUNCT))
             (NEG: ! $ (^ ADJUNCT))
-            { NP: (^ {RREDLINK) = ! |
-              AP[predicative]: (^ PREDLINK) = ! |
-              PP: (^ PREDLINK) = !
-              (! PTYPE) = nosem )
+            {
+              NP: (^ PREDLINK) = ! | "EX. ... is a dog"
+              AP[predicative]: (^ PREDLINK) = ! | "EX. ... is fast"
+              PP: (^ PREDLINK) = ! "EX. ... is on the table"
+              (! PTYPE) = sem  |
+              VP[base]: (^ XCOMP) = ! | "EX. ... can appear"
+              VP[base]: ^ = !; "EX. ... will take part"
               }.
 
+   VPinf --> PARTinf VP[base].
 
 
-   "Change this to use of parameterized rules"
-   VP --> (AUX: {(^PREDLINK) | (^XCOMP) | (^ PASSIVE) =c + | (^TNS-ASP PROG) =c +_ | (^TNS-ASP TENSE) = fut }) "auxiliary introduced for passive"
-      (NEG: ! $ (^ ADJUNCT))
- 	  (V: ^=!)
- 	  "| AUX: ^=!
- 	         (! VFORM) =c modal eg. can
- 	         }"
-
- 	  ({ NP: (^ OBJ)=! "direct object"
-		 (! CASE)=acc |
- 	     NP: (^ PREDLINK) = ! "to be + ..."
- 	   })
- 	  (NP: (^ OBJ2) = !)
-
- 	  (AP[predicative]: (^ PREDLINK) = !)
-
- 	  (ADVP: ! $ (^ ADJUNCT)) "place adverb before non-argument PPs eg. All Europeans travel freely within Europe"
-
-	  "secondary object"
- 	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"
-		 (! PTYPE) =c sem "only semantic PPs here"
-		 @(OT-MARK PPadj) "disprefer adjunct PPs"
-	       | (^ OBL) = ! "or a general oblique"
-	       };
-
-      (PP: (^ PREDLINK) = !
-           (! PTYPE) = nosem )  "argument for to be, eg. Mary is from Sweden"
-
- 	  (PP: (^ OBL-TO) = ! "special obl for ditransitives"
-	       "example of a constraining equation: require a value with =c"
-	       (! PFORM) =c to )
- 	  (PP: (^ OBL-AG) = ! "oblique agent of passive"
-	       "example of a constraining equation: require a value with =c"
-	       (! PFORM) =c by
-	       @(OT-MARK PPpassiv))
- 	  (
- 	    {
- 	     CP: (^ COMP) = !
- 	    |
- 	     VPinf: (^XCOMP) = !
-		    {(! FIN) = -
-		    "(! VFORM) = inf"  "including this will make infelected verbs infinitival"
-		     | (^PASSIVE) =c + "if embedded verb is passive, verb remains inflected" }
-		    "(s::^ TEMP-REF) = (s::(^XCOMP) EVAL)"}
- 	   )
-
- 	  (ADVP: ! $ (^ ADJUNCT)).
-
-	  "rule for phrasal comparative"
-	  "EX: He laughs greater than her."
-	  "somewhat preliminary, should not be 'predicative', works for the moment though"
- 	  "(AP[predicative]: ! $ (^ ADJUNCT))."
-
-   VPinf --> {PARTinf VP
-             | VP: ( (XCOMP ^) VFORM) =c modal "eg. can appear"
-             | VP: (^PASSIVE) =c +}.
 
 
 
