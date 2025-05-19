@@ -29,9 +29,10 @@ MORPH   ENGLISH   RULES (1.0)
 "this deals with verbs.  
 The sublexcial items are the POS assigned to the various tags in morph-lex.lfg" 
 
-   V --> V-S_BASE "verb stem, e.g. run"
+   V[_form] -->
+     V-S_BASE "verb stem, e.g. run"
  	 V-POS_BASE "suffix saying that this is a verb: +Verb"
- 	 {TNS_BASE "tense suffix, e.g. +Pres" 
+ 	 {TNS_BASE "tense suffix, e.g. +Pres"
  	   PERS_BASE "person suffix, e.g. +3sg"
  	 | ASP_BASE}.   "aspectual information"
 
@@ -89,12 +90,16 @@ MORPH   ENGLISH   LEXICON (1.0)
 		   @(PERF -_).
 
 +PastBoth TNS XLE "past tense or past particle"
-		  { @VPAST | @PASTP }
+		  { @VPAST
+		   (^ VFORM) = fin
+		   | @PASTP
+		    (^ VFORM) = nonfin}
 		  @(PROG -_)
 		  @(PERF -_).
 
 +PastTense TNS XLE "past tense"
 		   @VPAST
+		   (^ VFORM) = fin
 		   @(PROG -_)
 		   @(PERF -_).
 
@@ -104,11 +109,14 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Inf 	  ASP XLE .
 
-+3sg 	  PERS XLE @S-AGR.
++3sg 	  PERS XLE @S-AGR
+                   (^ VFORM) = fin.
 
 +123SP 	  PERS XLE .
 
-+Non3sg   PERS XLE @BARE-AGR.
++Non3sg   PERS XLE @BARE-AGR
+                   {(^ VFORM) = inf |
+                    (^ VFORM) = fin }.
 
 "nominal/verbal"
 

@@ -47,7 +47,7 @@ GLUE   BASIC   TEMPLATES (1.0)
 
    PREP-SEM(P) =
              {
-	     %scope = (s::(ADJUNCT ^) EV)
+	     %scope = (s::({ADJUNCT | PREDLINK} ^) EV)
 	     (%scope TYPE) =c eventuality
 	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
 	    ((%scope_v -o s::^_t) -o ((%scope_v -o %scope_t) -o (%scope_v -o %scope_t))),
