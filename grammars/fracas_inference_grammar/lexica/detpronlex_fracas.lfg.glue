@@ -149,6 +149,7 @@ many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q).
 
+
 Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
                  (^DEF) = - "this indefinite only marks plurals"
          		 (^NUM) = pl
@@ -178,17 +179,22 @@ Every 	   D * @(SPEC-QUANT-PRED every)
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 
-" new quantifiers"
+"new quantifiers"
 
+"semantics for some is copied from a/an"
 some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
 	      "(^ NUM) = pl" "some man and some men both work :)"
- 	      @(QUANT-SCOPE ^ %q).
+ 	      @(QUANT-SCOPE ^ %q)
+	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
 	      "(^ NUM) = pl"
- 	      @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 "preliminary semantics for all, copied from every"
 "also for Fracas Testsuite"
@@ -210,18 +216,22 @@ All 	  D * @(SPEC-QUANT-PRED all)
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 
-"each"
+"each: semantics from all"
 Each D *  @(SPEC-QUANT-PRED each)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = -
 	      (^ NUM) = sg
- 	      @(QUANT-SCOPE ^ %q).
+ 	      @(QUANT-SCOPE ^ %q)
+ 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 each D *  @(SPEC-QUANT-PRED each)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = -
 	      (^ NUM) = sg
- 	      @(QUANT-SCOPE ^ %q).
+ 	      @(QUANT-SCOPE ^ %q)
+ 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 
 No D * @(SPEC-QUANT-PRED no)
@@ -280,7 +290,16 @@ Most    D* @(SPEC-AQUANT-PRED most)
             @(SPEC-AQUANT-TYPE superlative)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+ 	        "not final, just a test"
+ 	        :$ lam(P,lam(Q,merge(
+ 	                drs([D],[]),
+ 	                merge(drs([X],[]),
+ 	                    merge(app(P,X), merge(app(Q,X), app(app(many,X),D))
+ 	                    )
+ 	                )
+ 	        ))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 most    D* @(SPEC-AQUANT-PRED most)
             @(SPEC-AQUANT-TYPE superlative)
