@@ -56,10 +56,14 @@ NP --> "either a full NP or a PRON"
                 "comparison with whole NPs"
                 "EX: He is a fatter politician than him."
                 CPComp: (%COMP OBL-COMP)=! "The complement modifies the adjective"
-                         %LOCAL $ (^ ADJUNCT) "The adjective is in the adjunct set of the NP"
+                         {%LOCAL $ (^ ADJUNCT) "The adjective is in the adjunct set of the NP"
                         (^ ADJUNCT $)=%LOCAL "BONUS instantiation (Set magic)"
                         (%LOCAL ADJUNCT $) = %COMP "The OBL-COMP is in the adjunct set of the adjective (i.e., modifying the adjective)"
-                        %COMP $ (%LOCAL ADJUNCT) "Anchoring for IOFU"
+                        %COMP $ (%LOCAL ADJUNCT) |
+                         %COMP $ (^ ADJUNCT)
+                        (^ ADJUNCT $)=%COMP }
+
+                         "Anchoring for IOFU"
                         |
                 CPto:  (^XCOMP) = !
                        (! SUBJ PRED) = 'pro'}.

@@ -45,11 +45,11 @@ The really ambitious tenors are Italian. (2 0.002 40)
 
 # 11 - 4 there features, N vs Adj "Italian" (+4)
 
-There are really ambitious tenors who are Italian. (4+4 0.003 57)
+There are really ambitious tenors who are Italian. (4+4 0.002 57)
 
 # 12
 
-No really great tenors are modest. (1 0.003 34)
+No really great tenors are modest. (1 0.002 34)
 
 # 13 - 2+2 there features
 
@@ -89,7 +89,7 @@ There are great tenors who are Italian. (2+2 0.002 44)
 
 # 22
 
-A few great tenors sing popular music. (1 0.003 44)
+A few great tenors sing popular music. (1 0.002 44)
 
 # 23
 
@@ -141,7 +141,7 @@ There are tenors who will take part in the concert. (1+9 0.007 59)
 
 # 35
 
-At most two tenors will contribute their fees to charity. (1 0.003 81)
+At most two tenors will contribute their fees to charity. (1 0.004 81)
 
 # 36
 
@@ -181,7 +181,7 @@ All Europeans can travel freely within Europe. (1 0.002 36)
 
 # 45 4+8
 
-Each European has the right to live in Europe. (1+2 0.002 66)
+Each European has the right to live in Europe. (1+2 0.003 66)
 
 # 46
 
@@ -237,11 +237,11 @@ Several delegates got the results published. (0 0.001 0)
 
 # 59
 
-Most Europeans are resident in Europe. (1 0.002 29)
+Most Europeans are resident in Europe. (1 0.001 29)
 
 # 60
 
-All Europeans are people. (1 0.002 15)
+All Europeans are people. (1 0.001 15)
 
 # 61
 
@@ -257,7 +257,7 @@ A few committee members are from Sweden. (1 0.002 28)
 
 # 64
 
-All committee members are people. (1 0.002 22)
+All committee members are people. (1 0.001 22)
 
 # 65
 
@@ -265,11 +265,11 @@ All people who are from Sweden are from Scandinavia. (1 0.002 38)
 
 # 66
 
-At least a few committee members are from Scandinavia. (1 0.003 30)
+At least a few committee members are from Scandinavia. (1 0.002 30)
 
 # 67
 
-Few committee members are from Portugal. (1 0.002 28)
+Few committee members are from Portugal. (1 0.001 28)
 
 # 68
 
@@ -281,7 +281,7 @@ There are few committee members from southern Europe. (1+1 0.002 37)
 
 # 70
 
-Both commissioners used to be leading businessmen. (1 0.003 42)
+Both commissioners used to be leading businessmen. (1 0.002 42)
 
 # 71
 
@@ -365,7 +365,7 @@ No Scandinavian delegate finished the report on time. (1+2 0.004 63)
 
 # 91
 
-Some delegate finished the report on time. (1+2 0.004 57)
+Some delegate finished the report on time. (1+2 0.003 57)
 
 # 92
 
@@ -393,7 +393,7 @@ One of the commissioners spends a lot of time at home. (2+3 0.003 87)
 
 # 98 - 0
 
-At least three female commissioners spend time at home. (1+1 0.003 67)
+At least three female commissioners spend time at home. (1+1 0.002 67)
 
 #At least three female commissioners appeared.
 
@@ -403,7 +403,7 @@ At least three female commissioners spend time at home. (1+1 0.003 67)
 
 # 99 - 0
 
-At most ten female commissioners spend time at home. (1+1 0.003 67)
+At most ten female commissioners spend time at home. (1+1 0.002 67)
 
 # 100
 
@@ -431,11 +431,11 @@ Each Canadian resident can travel freely within Europe. (1 0.002 44)
 
 # 106
 
-The residents of western countries can travel freely within Europe. (1 0.002 61)
+The residents of western countries can travel freely within Europe. (1 0.003 61)
 
 # 107
 
-All residents of major western countries are residents of western countries. (1 0.002 71)
+All residents of major western countries are residents of western countries. (1 0.003 71)
 
 # 108
 
@@ -471,6 +471,6 @@ One of the female commissioners spends a lot of time at home. (2+3 0.003 93)
 
 # 116
 
-At least three male commissioners spend time at home. (1+1 0.003 67)
+At least three male commissioners spend time at home. (1+1 0.002 67)
 
-# 116 sentences, 0.308 CPU secs total, 0.007 CPU secs max (05/19/25)
+# 116 sentences, 0.302 CPU secs total, 0.007 CPU secs max (05/19/25)
