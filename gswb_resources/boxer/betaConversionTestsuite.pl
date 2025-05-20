@@ -37,3 +37,20 @@ test(app(lam(X:e,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 test(app(lam(X,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 
 test(merge(drs([X:e],[]),drs([],[pred(sleep,X)])),test).
+
+% test(merge(drs([X:e,Y],[]),drs([],[rel(love,X,Y)])),test).
+
+% test(merge(drs([Y:e],[and(rel(love,X,Y),pred(musician,Y))]),drs([X:e],[eq(X,mary)])),test).
+
+% test(merge(drs([Y:e],[and(rel(love,X,Y),pred(musician,Y))]),drs([X:e],[eq(X,mary)])),test).
+
+% test(app(lam(Y:e,drs([X:e],[eq(X,Y)])),mary),drs([X:e],[eq(X,mary)])).
+% i get a double result if the variable bound by lambda does not have a tpye
+% das check ich nicht, die geht aber die gibt mir ein komisches double result
+
+% test(merge(drs([X:e,Y:e],[]),drs([],[and(eq(X,mary),and(pred(musician,Y),rel(loves,X,Y)))])),drs[X]).
+% die gibt mir nur false, was schätze ich bedeutet, dass das ein Blödsinn ist
+
+% die gibt mir nur false, was schätze ich bedeutet, dass das ein Blödsinn ist
+
+test(app(lam(Y:e,drs([X:e,Y:e],[rel(love,mary,Y)])),john),drs([X:e,Y:e],[rel(love,mary,john)])).
