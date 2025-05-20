@@ -135,9 +135,7 @@ More 	  DComp * (^DEF) = - "this indefinite only marks plurals"
 		        (^NUM) = pl
 		        (^DEGREE) = comparative. "marks the NP as comparative to allow CPComps to apply"
 
-many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
-                 (^DEF) = - "this indefinite only marks plurals"
-                 @(SPEC-QUANT-TYPE positive)
+many     DComp * @(PRED many)
          		 (^NUM) = pl
          		 (^DEGREE) ~= comparative
          		 (^DEGREE) ~= superlative; "marks the NP as comparative to allow CPComps to apply"
@@ -145,7 +143,6 @@ many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q).
-
 
 Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
                  (^DEF) = - "this indefinite only marks plurals"
@@ -347,6 +344,9 @@ Exactly   ADV * (^PRED) = 'exactly'
 exactly   ADV * (^PRED) = 'exactly'
                  (^ADV-TYPE) = num.
 
+twice   ADV * (^PRED) = 'twice'
+               (^ADV-TYPE) = num.
+
 "numbers/measure words/numerals"
 One     NUMBER *  { @(NUMBER-PL 1 sg)
                    | @(NUMBER-PART 1)}
@@ -399,9 +399,6 @@ one     NUMBER *  { @(NUMBER-PL 1 sg)
                    (^ DEF) = -
 	               (^ NUM) = pl."
 
-
-"exactly    does not work"
-"what about     twice?"
 
 "very preliminary any"
 any D * @(SPEC-QUANT-PRED some)

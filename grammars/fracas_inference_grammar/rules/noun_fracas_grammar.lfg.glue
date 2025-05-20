@@ -3,8 +3,8 @@ NOUN ENGLISH RULES (1.0)
 
 NP --> "either a full NP or a PRON"
 
-    (ADV: ! $  (^ ADJUNCT)      "eg. At least three men appeared"
-          (! ADV-TYPE) =c num )
+    (ADV: ! $ (^ ADJUNCT)      "eg. At least three men appeared"
+          (! ADV-TYPE) =c num)
 
   {
     "optional determiner"
@@ -13,6 +13,7 @@ NP --> "either a full NP or a PRON"
      | NUMBER: ^=! "eg. One man appeared"
      |
         (NUMBER)                    "or AQUANTS"
+        (ADVComp: ! $ (^ ADJUNCT))
         DComp: ! $ (^ ADJUNCT)   "ITEL sold 3000 more computers than APCOM- how can this go with NUMBER?"
      } )
 

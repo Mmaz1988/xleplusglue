@@ -135,9 +135,7 @@ very 	  ADV * @(PRED very).
 
 freely 	  ADV * @(PRED free).
 
-twice 	  ADV * @(PRED twice).
-
-"old?"
+"old?
 scottish  A * @(PRED scottish)
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
@@ -163,6 +161,5 @@ former 	  A * (^DEGREE) = positive
 	      (^ATYPE) = attributive.
 	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
 	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-
-
+"
 ----
