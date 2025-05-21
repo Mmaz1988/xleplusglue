@@ -139,11 +139,16 @@ MORPH   ENGLISH   LEXICON (1.0)
                     {(^ DEF)  |
                     @(QUANT-SCOPE ^ %q)
                     :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-                    	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
+                            ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
                     	      }.
 
 +Sg 	  N-NUM XLE (^ NUM) = sg
-                    @(PERS 3).
+                    @(PERS 3)
+                    {(^ DEF)  |
+                    @(QUANT-SCOPE ^ %q)
+                    :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+                            ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
+                            }.
 
 "nominal tags"
 
