@@ -95,8 +95,6 @@ get V-S XLE {@(DITRANS-EV %stem) |
 
 "Intransitives"
 
-did       V-S XLE @(INTRANS-EV %stem).
-
 appear 	  V-S XLE @(INTRANS-EV %stem).
 
 disappear V-S XLE @(INTRANS-EV %stem).
@@ -259,12 +257,16 @@ are  AUX[fin] *   @VPRESBE
 		   {(^ SUBJ NUM) = pl @(OT-MARK Be-3pl)|
 		     (^ SUBJ PERS) = 2
 	       (^ SUBJ NUM) = sg}
-		   { (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'
-               @(EVENT %stem)
-              |
-               (^PRED) = '%stem<(^PREDLINK)>(^SUBJ)'
-               (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem)}.
+		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                          @(EVENT be)
+                          @(ARG1 (^ SUBJ))
+                          @(ARG2 (^ PREDLINK)) "EX. Every man is a tenor, There was an Italian"
+                         |
+                          (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                          (^SUBJ) = (^ PREDLINK SUBJ)
+                          @(EVENT be)
+                          @(ARG1 (^ SUBJ)) "the dog was fast"
+                          }.
 
 
 "past: was(1sg, 3sg), were(pl, 2sg)  + aux was"
@@ -277,11 +279,14 @@ was   AUX[fin] *  @VPAST
 		   (^ SUBJ PERS) = 2
 	       (^ SUBJ NUM) = sg}
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-               @(EVENT %stem)
+               @(EVENT be)
+               @(ARG1 (^ SUBJ))
+               @(ARG2 (^ PREDLINK)) "EX. Every man is a tenor, There was an Italian"
               |
                (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
                (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem)
+               @(EVENT be)
+               @(ARG1 (^ SUBJ)) "the dog was fast"
                };
        AUX[pass,fin] * @VPAST
        		           @S-AGR
@@ -337,11 +342,15 @@ be   AUX[base] *  (^VFORM) = inf
 		   @(PROG -_)
 		   @(PERF -_)
 		   { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-               @(EVENT %stem)
-              |
-               (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-               (^SUBJ) = (^ PREDLINK SUBJ)
-               @(EVENT %stem)}.
+                          @(EVENT be)
+                          @(ARG1 (^ SUBJ))
+                          @(ARG2 (^ PREDLINK)) "EX. Every man is a tenor"
+                         |
+                          (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                          (^SUBJ) = (^ PREDLINK SUBJ)
+                          @(EVENT be)
+                          { @(ARG1 (^ PREDLINK)) | @(ARG1 (^ SUBJ))} "EX. There was an Italian vs. the dog was fast"
+                          }.
 
 "auxiliaries"
 
@@ -353,5 +362,8 @@ can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
 
 
 did AUX[fin] * @VPAST.
+
+
+"did       V-S XLE @(INTRANS-EV %stem)."
 
 ----

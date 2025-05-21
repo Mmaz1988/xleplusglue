@@ -60,14 +60,25 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 "this guesses words that are unknown to your lexicon
  to be either adjectives or nouns"
--unknown  ADJ-S XLE @(PRED %stem);
+-unknown  ADJ-S XLE { @(PRED %stem)
+                      (^ ATYPE) =c attributive
+                      s::(ADJUNCT $ ^) = %s
+                      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+                      	        ((%s_e -o %s_t) -o (%s_e -o %s_t)) || noscope,
+                     |
+                      (^PRED) = '%stem<(^SUBJ)>'
+                      (^ ATYPE) =c predicative
+                      s::(^ SUBJ) = %s
+                      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+                                ((%s_e -o %s_t) -o (%s_e -o %s_t)) || noscope,
+                    		    };
           NUMBER-S XLE { @(NUMBER-PL %stem pl)
                        | @(NUMBER-PART %stem)};
 	  ADV-S XLE @(PRED %stem);
-	  N-S XLE @(PRED %stem)
+	  N-S XLE {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
 	      (s::^ TYPE) = entity
 		  { (^ NTYPE) = count
-		    :$ lam(X,drs([],[pred(%stem,X)])) : (s::^_e -o s::^_t),
+		    :$ lam(X,drs([],[pred('%stem',X)])) : (s::^_e -o s::^_t),
 		  |
 		  (^ NTYPE) = name
 		  @(NAME-SCOPE ^ %q)
@@ -121,7 +132,12 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 "nominal/verbal"
 
-+Pl 	  N-NUM XLE (^ NUM) = pl.
++Pl 	  N-NUM XLE (^ NUM) = pl
+                    {(^ DEF)  |
+                    @(QUANT-SCOPE ^ %q)
+                    :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+                    	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
+                    	      }.
 
 +Sg 	  N-NUM XLE (^ NUM) = sg
                     @(PERS 3).

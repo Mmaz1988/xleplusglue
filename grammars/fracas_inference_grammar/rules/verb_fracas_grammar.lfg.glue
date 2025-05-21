@@ -59,7 +59,9 @@ VPv[_form] -->
             (NEG: ! $ (^ ADJUNCT))
             {
               NP: (^ PREDLINK) = ! | "EX. ... is a dog"
-              AP[predicative]: (^ PREDLINK) = ! | "EX. ... is fast"
+              AP[predicative]: (^ PREDLINK) = !
+               @(OT-MARK +adjpred)
+               | "EX. ... is fast"
               PP: (^ PREDLINK) = ! "EX. ... is on the table"
               (! PTYPE) = sem  |
               VP[base]: (^ XCOMP) = ! | "EX. ... can appear"

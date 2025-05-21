@@ -62,18 +62,30 @@ their   PRON * @(POSS-PRON they 3 pl).
 
 
 "expletive"
-There   PRON *   (^PRON-TYPE) = expl_
+There PRON *   (^PRON-TYPE) = expl_
 	             (^PRON-FORM) = it
+	             @(QUANT-SCOPE ^ %q)
+	             :$ lam(Q,merge(drs([X],[]),app(Q,X))) :
+                  ((s::^_e -o %q_t) -o %q_t) || noscope.
+
 	             "(^PERS) = 3 (^NUM) = sg"  "standard analysis, but some"
 	             "{(^NUM) =sg |(^NUM) = pl}"
 	             "(^NUM)"
-	             "inherit features from subject??".
+	             "inherit features from subject??"
 
-"relative"
+"relative who -- semantics are stored in the lexical entry because [] are not allowed in semantic c-structure annotations
+This requires a number of IOFA to work"
+
 who PRON *      (^PRON-TYPE) = rel
                 (^PRON-FORM) = who
                 (^PRED) = 'PRO'
-                {(^NUM) =sg |(^NUM) = pl}.
+                {(^NUM) =sg |(^NUM) = pl}
+                s::(ADJUNCT TOPIC ^) = %sem
+                    (TOPIC ^) = %rel
+                    (s::%rel SIT) = %sit
+                    (%rel {SUBJ | OBJ}) = %arg
+                :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+                   ((%sem_e -o %sem_t) -o ((s::%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope.
 
 
 "determiners"

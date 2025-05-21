@@ -92,3 +92,30 @@ believe V-S XLE @(PASS (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>')
 	  "somewhat preliminary, should not be 'predicative', works for the moment though"
  	  "(AP[predicative]: ! $ (^ ADJUNCT))."
 
+"old?
+scottish  A * @(PRED scottish)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+trustworthy A * @(PRED trustworthy)
+		:$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+		((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+alleged   A * @(PRED alleged)
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+
+genuine   A * (^DEGREE) = positive
+	      @(PRED genuine)
+	      (^ATYPE) = attributive.
+
+leading	  A * (^DEGREE) = positive
+	      @(PRED leading)
+	      (^ATYPE) = attributive.
+Leading	  A * (^DEGREE) = positive
+	      @(PRED leading)
+	      (^ATYPE) = attributive.
+former 	  A * (^DEGREE) = positive
+	      @(PRED former)
+	      (^ATYPE) = attributive.
+	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
+	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
+"

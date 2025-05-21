@@ -135,31 +135,4 @@ very 	  ADV * @(PRED very).
 
 freely 	  ADV * @(PRED free).
 
-"old?
-scottish  A * @(PRED scottish)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-trustworthy A * @(PRED trustworthy)
-		:$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-		((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-alleged   A * @(PRED alleged)
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-
-genuine   A * (^DEGREE) = positive
-	      @(PRED genuine)
-	      (^ATYPE) = attributive.
-
-leading	  A * (^DEGREE) = positive
-	      @(PRED leading)
-	      (^ATYPE) = attributive.
-Leading	  A * (^DEGREE) = positive
-	      @(PRED leading)
-	      (^ATYPE) = attributive.
-former 	  A * (^DEGREE) = positive
-	      @(PRED former)
-	      (^ATYPE) = attributive.
-	      :$ lam(Q,lam(X,merge(drs([],[pred(%stem,X)]),app(Q,X)))) :
-	      ((s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t) -o (s::(ADJUNCT $ ^)_e -o s::(ADJUNCT $ ^)_t)) || noscope.
-"
 ----
