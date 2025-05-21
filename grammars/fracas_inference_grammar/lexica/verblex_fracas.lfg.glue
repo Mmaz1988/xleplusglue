@@ -220,16 +220,16 @@ is   AUX[fin] *   @VPRESBE       "template without inf option"
 		          @(PROG -_)
 		          @(PERF -_)
 		          @S-AGR       "3sg"
-		          {
-		          (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-                  @(EVENT be)
-                  @(ARG1 (^SUBJ))
-                  |
-                  (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-                  (^SUBJ) = (^ PREDLINK SUBJ)
-                  @(EVENT be)
-                  @(ARG1 (^SUBJ))
-               }.
+		          { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                                 @(EVENT be)
+                                 @(ARG1 (^ SUBJ))
+                                 @(ARG2 (^ PREDLINK)) "EX. Every man is a tenor, There was an Italian"
+                                |
+                                 (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                                 (^SUBJ) = (^ PREDLINK SUBJ)
+                                 @(EVENT be)
+                                 @(ARG1 (^ SUBJ)) "the dog was fast"
+                                 }.
 
      "
       AUX * @(TENSE pres)
