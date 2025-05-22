@@ -2,6 +2,21 @@ ADJADV ENGLISH LEXICON (1.0)
 
 "degree"
 
+leading A * { @(PRED leading)
+              (^ ATYPE) =c attributive
+              s::(ADJUNCT $ ^) = %s
+              :$ lam(X,drs([],[pred('%stem',X)])) : (s::^_e -o s::^_t),
+              :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+              ((s::^_e -o s::^_t) -o ((%s_e -o %s_t) -o (%s_e -o %s_t))) || noscope,
+              |
+              (^PRED) = '%stem<(^SUBJ)>'
+              (^ ATYPE) =c predicative
+              (s::(PREDLINK ^) EV) = %s
+              :$ lam(X,drs([],[pred('%stem',X)])) : (s::^_v -o s::^_t),
+              :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+              ((s::^_v -o s::^_t) -o ((%s_v -o %s_t) -o (%s_v -o %s_t))) || noscope,
+              }.
+
 successful ADJ-S XLE { @(PRED %stem)
 		       (^ ATYPE) =c attributive
 		      |

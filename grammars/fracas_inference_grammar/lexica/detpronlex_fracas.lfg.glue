@@ -257,12 +257,16 @@ no D * @(SPEC-QUANT-PRED no)
 Both D *  @(SPEC-QUANT-PRED both)
 	      (^ DEF) = -
 	      (^ NUM) = pl
- 	      @(QUANT-SCOPE ^ %q).
+ 	      @(QUANT-SCOPE ^ %q)
+ 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+          	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 both D *  @(SPEC-QUANT-PRED both)
 	      (^ DEF) = -
 	      (^ NUM) = pl
- 	      @(QUANT-SCOPE ^ %q).
+ 	      @(QUANT-SCOPE ^ %q)
+ 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+          	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Neither  D * @(SPEC-QUANT-PRED neither)
          @(SPEC-QUANT-TYPE negative)
