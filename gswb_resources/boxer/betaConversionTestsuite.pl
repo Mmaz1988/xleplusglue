@@ -36,21 +36,72 @@ test(app(lam(X:e,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 
 test(app(lam(X,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 
-test(merge(drs([X:e],[]),drs([],[pred(sleep,X)])),test).
+% type on discourse referent
+test(
+    merge(
+        drs([Y:e],[]),
+        app(lam(X,
+            drs([],[eq(Y,X),pred(sleep,Y)])),
+        mary)
+    ),
+    merge(
+        drs([Y:e],[]),
+        drs([],[eq(Y,mary),pred(sleep,Y)])
+    )
+).
 
-% test(merge(drs([X:e,Y],[]),drs([],[rel(love,X,Y)])),test).
+% some, typed
+test(
+    merge(
+        drs([X:e,Y:e],[]),
+        app(lam(Z,
+            drs([],[eq(X,Z),pred(musician,Y),loves(X,Y)])),
+        john)
+    ),
+    merge(
+        drs([X:e,Y:e],[]),
+        drs([],[eq(X,john),pred(musician,Y),loves(X,Y)])
+    )
+).
 
-% test(merge(drs([Y:e],[and(rel(love,X,Y),pred(musician,Y))]),drs([X:e],[eq(X,mary)])),test).
+% forall, typed
+test(
+    merge(
+        drs([X:e],[]),
+        app(lam(Z,
+            drs([],[eq(X,Z),imp(drs([Y:e],[pred(troll,Y)]),drs([],[loves(X,Y)]))])),
+        john)
+    ),
+    merge(
+        drs([X:e],[]),
+        drs([],[eq(X,john),imp(drs([Y:e],[pred(troll,Y)]),drs([],[loves(X,Y)]))])
+    )
+).
 
-% test(merge(drs([Y:e],[and(rel(love,X,Y),pred(musician,Y))]),drs([X:e],[eq(X,mary)])),test).
+% forall, untyped
+test(
+    merge(
+        drs([X],[]),
+        app(lam(Z,
+            drs([],[eq(X,Z),imp(drs([Y],[pred(troll,Y)]),drs([],[loves(X,Y)]))])),
+        john)
+    ),
+    merge(
+        drs([X],[]),
+        drs([],[eq(X,john),imp(drs([Y],[pred(troll,Y)]),drs([],[loves(X,Y)]))])
+    )
+).
 
-% test(app(lam(Y:e,drs([X:e],[eq(X,Y)])),mary),drs([X:e],[eq(X,mary)])).
-% i get a double result if the variable bound by lambda does not have a tpye
-% das check ich nicht, die geht aber die gibt mir ein komisches double result
-
-% test(merge(drs([X:e,Y:e],[]),drs([],[and(eq(X,mary),and(pred(musician,Y),rel(loves,X,Y)))])),drs[X]).
-% die gibt mir nur false, was schätze ich bedeutet, dass das ein Blödsinn ist
-
-% die gibt mir nur false, was schätze ich bedeutet, dass das ein Blödsinn ist
-
-test(app(lam(Y:e,drs([X:e,Y:e],[rel(love,mary,Y)])),john),drs([X:e,Y:e],[rel(love,mary,john)])).
+% or
+test(
+    merge(
+        drs([X:e],[]),
+        app(lam(X,
+            drs([],[eq(Y,X),or(drs([],[pred(happy,Y)]),drs([],[pred(sad,Y)]))])),
+        mary)
+    ),
+    merge(
+        drs([X:e],[]),
+        drs([],[eq(Y,mary),or(drs([],[pred(happy,Y)]),drs([],[pred(sad,Y)]))])
+    )
+).
