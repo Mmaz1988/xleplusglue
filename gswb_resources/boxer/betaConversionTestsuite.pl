@@ -55,12 +55,12 @@ test(
     merge(
         drs([X:e,Y:e],[]),
         app(lam(Z,
-            drs([],[eq(X,Z),pred(musician,Y),loves(X,Y)])),
+            drs([],[eq(X,Z),pred(musician,Y),rel(loves,X,Y)])),
         john)
     ),
     merge(
         drs([X:e,Y:e],[]),
-        drs([],[eq(X,john),pred(musician,Y),loves(X,Y)])
+        drs([],[eq(X,john),pred(musician,Y),rel(loves,X,Y)])
     )
 ).
 
@@ -69,12 +69,12 @@ test(
     merge(
         drs([X:e],[]),
         app(lam(Z,
-            drs([],[eq(X,Z),imp(drs([Y:e],[pred(troll,Y)]),drs([],[loves(X,Y)]))])),
+            drs([],[eq(X,Z),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])),
         john)
     ),
     merge(
         drs([X:e],[]),
-        drs([],[eq(X,john),imp(drs([Y:e],[pred(troll,Y)]),drs([],[loves(X,Y)]))])
+        drs([],[eq(X,john),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])
     )
 ).
 
@@ -83,12 +83,12 @@ test(
     merge(
         drs([X],[]),
         app(lam(Z,
-            drs([],[eq(X,Z),imp(drs([Y],[pred(troll,Y)]),drs([],[loves(X,Y)]))])),
+            drs([],[eq(X,Z),imp(drs([Y],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])),
         john)
     ),
     merge(
         drs([X],[]),
-        drs([],[eq(X,john),imp(drs([Y],[pred(troll,Y)]),drs([],[loves(X,Y)]))])
+        drs([],[eq(X,john),imp(drs([Y],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])
     )
 ).
 
