@@ -78,4 +78,17 @@ GLUE   BASIC   TEMPLATES (1.0)
        :$ lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg3,E,X)]))))) :
        (((s::^ EV)_v -o (s::^ EV)_t) -o (s::ARG_e -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
 
+
+DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
+                      	      (s::^ TYPE) = entity
+                      		  { (^ NTYPE) = count
+                      		    :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t),
+                      		  |
+                      		  (^ NTYPE) = name
+                      		  @(NAME-SCOPE ^ %q)
+                      		  :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t),
+                      	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+                      	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
+                      		  }.
+
 ----

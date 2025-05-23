@@ -78,17 +78,7 @@ MORPH   ENGLISH   LEXICON (1.0)
           NUMBER-S XLE { @(NUMBER-PL %stem pl)
                        | @(NUMBER-PART %stem)};
 	  ADV-S XLE @(PRED %stem);
-	  N-S XLE {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
-	      (s::^ TYPE) = entity
-		  { (^ NTYPE) = count
-		    :$ lam(X,drs([],[pred('%stem',X)])) : (s::^_e -o s::^_t),
-		  |
-		  (^ NTYPE) = name
-		  @(NAME-SCOPE ^ %q)
-		  :$ lam(X,drs([],[eq(X,'%stem')])) : (s::^_e -o s::^_t),
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
-		  }.  
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
 
 
             "lam(Y,lam(P,lam(X,merge(drs([],[%stem(X,Y)]),app(P,X))))"
