@@ -92,16 +92,44 @@ test(
     )
 ).
 
-% or
+% or, typed
 test(
     merge(
-        drs([X:e],[]),
+        drs([Y:e],[]),
         app(lam(X,
             drs([],[eq(Y,X),or(drs([],[pred(happy,Y)]),drs([],[pred(sad,Y)]))])),
         mary)
     ),
     merge(
-        drs([X:e],[]),
+        drs([Y:e],[]),
         drs([],[eq(Y,mary),or(drs([],[pred(happy,Y)]),drs([],[pred(sad,Y)]))])
+    )
+).
+
+% not, typed discourse referent
+test(
+    merge(
+        drs([Y:e],[]),
+        app(lam(X,
+            drs([],[eq(Y,X),not(drs([],[pred(musician,Y)]))])),
+        john)
+    ),
+    merge(
+        drs([Y:e],[]),
+        drs([],[eq(Y,john),not(drs([],[pred(musician,Y)]))])
+    )
+).
+
+% not, typed elsewhere
+test(
+    merge(
+        drs([Y],[]),
+        app(lam(X:e,
+            drs([],[eq(Y,X:e),not(drs([],[pred(musician,Y)]))])),
+        john:e)
+    ),
+    merge(
+        drs([Y],[]),
+        drs([],[eq(Y,john:e),not(drs([],[pred(musician,Y)]))])
     )
 ).
