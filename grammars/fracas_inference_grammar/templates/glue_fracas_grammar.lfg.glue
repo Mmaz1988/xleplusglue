@@ -81,14 +81,21 @@ GLUE   BASIC   TEMPLATES (1.0)
 
 DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
                       	      (s::^ TYPE) = entity
-                      		  { (^ NTYPE) = count
-                      		    :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t),
+                      		  { @(COUNT-NOUN-SEM P)
                       		  |
-                      		  (^ NTYPE) = name
-                      		  @(NAME-SCOPE ^ %q)
-                      		  :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t),
-                      	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-                      	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
+                      		  @(PROPER-NOUN-SEM P)
                       		  }.
+
+
+COUNT-NOUN-SEM(P) = (^ NTYPE) = count
+                  :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t).
+
+PROPER-NOUN-SEM(P) = (^ NTYPE) = name
+                             @(NAME-SCOPE ^ %q)
+                             :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t),
+                             :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+                             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
+
+
 
 ----

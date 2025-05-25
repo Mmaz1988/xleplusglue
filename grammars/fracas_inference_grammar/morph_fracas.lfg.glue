@@ -126,7 +126,10 @@ MORPH   ENGLISH   LEXICON (1.0)
 "nominal/verbal"
 
 +Pl 	  N-NUM XLE (^ NUM) = pl
-                    {(^ DEF)  |
+                    {(^ DEF) |
+                    (^ NTYPE) =c name |
+                    ~[(^ DEF)]
+                    (^ NTYPE) ~= name
                     @(QUANT-SCOPE ^ %q)
                     :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
                             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
@@ -134,7 +137,10 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Sg 	  N-NUM XLE (^ NUM) = sg
                     @(PERS 3)
-                    {(^ DEF)  |
+                    {(^ DEF) |
+                     (^ NTYPE) =c name |
+                    ~[(^ DEF)]
+                    (^ NTYPE) ~= name
                     @(QUANT-SCOPE ^ %q)
                     :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
                             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,

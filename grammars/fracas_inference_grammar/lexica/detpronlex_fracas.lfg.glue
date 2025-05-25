@@ -154,7 +154,9 @@ many     DComp * @(PRED many)
          D * @(SPEC-AQUANT-PRED many)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+            	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+            	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
                  (^DEF) = - "this indefinite only marks plurals"
@@ -164,7 +166,9 @@ Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
          D * @(SPEC-AQUANT-PRED many)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+            	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+            	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 
 "changed to spec-quant"
@@ -301,37 +305,49 @@ Several D * @(SPEC-AQUANT-PRED several)
              "no quant type?"
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+            :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 
 several D * @(SPEC-AQUANT-PRED several)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	         @(QUANT-SCOPE ^ %q)
+             :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 
 Most    D* @(SPEC-AQUANT-PRED most)
             @(SPEC-AQUANT-TYPE superlative)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+                         :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+                         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 most    D* @(SPEC-AQUANT-PRED most)
             @(SPEC-AQUANT-TYPE superlative)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+                         :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+                         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 
 Few D *      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+                         :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+                         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 few D *      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q).
+ 	        @(QUANT-SCOPE ^ %q)
+                         :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+                         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 "partitives"
 
