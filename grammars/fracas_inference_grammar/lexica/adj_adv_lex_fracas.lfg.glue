@@ -96,13 +96,23 @@ important 	  ADJ-S XLE { @(PRED %stem)
 		    }
 		    (^SEMTYPE) = degree.
 
-more` important 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
-		    (^SEMTYPE) = degree.
+more` important  A *        { @(PRED %stem)
+                            {
+                            	    %LOCAL $ (^ ADJUNCT)
+                            	    (%LOCAL PRED)= 'more'
+                            	    (%LOCAL DEGREE) = comparative
+                            	   |
+                            	   "Attributive adjectives can also take COMPs (Ex. He is a faster dog than him)"
+                                   	%LOCAL $ (^ ADJUNCT)
+                            	    (%LOCAL PRED)='more<(%LOCAL OBL-COMP)>'
+                            	    (%LOCAL DEGREE)= comparative
+                            	    (%LOCAL OBL-COMP PRED FN)=c than
+                            	  }
+		                    |
+		                    (^PRED) = '%stem<(^SUBJ)>'
+		                    (^ ATYPE) =c predicative
+		                    }
+		                    (^SEMTYPE) = degree.
 
 "intersectives"
 

@@ -242,20 +242,12 @@ DEMO   ENGLISH   TEMPLATES (1.0)
    ADJ-COMP = (^ DEGREE) = comparative
           "inspiriert von english-2009-11-25/index/english-templatex.lfg:103"
 	  {
-	    (^ATYPE) = attributive
 	    %LOCAL $ (^ ADJUNCT)
 	    (%LOCAL PRED)= 'more'
 	    (%LOCAL DEGREE) = comparative
 	   |
 	   "Attributive adjectives can also take COMPs (Ex. He is a faster dog than him)"
-	   (^ATYPE) = attributive
-       	    %LOCAL $ (^ ADJUNCT)
-	    (%LOCAL PRED)='more<(%LOCAL OBL-COMP)>'
-	    (%LOCAL DEGREE)= comparative
-	    (%LOCAL OBL-COMP PRED FN)=c than
-	   |
-	    (^ATYPE) = predicative
-	    %LOCAL $ (^ ADJUNCT)
+       	%LOCAL $ (^ ADJUNCT)
 	    (%LOCAL PRED)='more<(%LOCAL OBL-COMP)>'
 	    (%LOCAL DEGREE)= comparative
 	    (%LOCAL OBL-COMP PRED FN)=c than

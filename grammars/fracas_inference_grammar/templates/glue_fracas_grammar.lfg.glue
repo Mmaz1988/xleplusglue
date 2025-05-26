@@ -91,9 +91,10 @@ COUNT-NOUN-SEM(P) = (^ NTYPE) = count
                   :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t).
 
 PROPER-NOUN-SEM(P) = (^ NTYPE NSYN) = proper
-                             @(NAME-SCOPE ^ %q)
                              :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t),
                              {
+                             ~[(^DEF)]
+                             @(NAME-SCOPE ^ %q)
                              :$ lam(Q,lam(R,merge(drs([X],[]),merge(app(Q,X),app(R,X))))) :
                              ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
                              |
@@ -104,14 +105,14 @@ DEFAULT-ADJ-SEM(P)  = { @(PRED P)
                       (^ ATYPE) =c attributive
                       s::(ADJUNCT $ ^) = %s
                       :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t),
-                      :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+                      :$ lam(Q,lam(R,lam(X,merge(app(Q,X),app(R,X))))) :
                                 ((s::^_e -o s::^_t) -o ((%s_e -o %s_t) -o (%s_e -o %s_t))) || noscope,
                      |
                       (^PRED) = 'P<(^SUBJ)>'
                       (^ ATYPE) =c predicative
                       (s::(PREDLINK ^) EV) = %s
                       :$ lam(X,drs([],[pred('P',X)])) : (s::^_v -o s::^_t),
-                      :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+                      :$ lam(Q,lam(R,lam(X,merge(app(Q,X),app(R,X))))) :
                                 ((s::^_v -o s::^_t) -o ((%s_v -o %s_t) -o (%s_v -o %s_t))) || noscope,
                       }.
 ----
