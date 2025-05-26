@@ -90,12 +90,14 @@ DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
 COUNT-NOUN-SEM(P) = (^ NTYPE) = count
                   :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t).
 
-PROPER-NOUN-SEM(P) = (^ NTYPE) = name
+PROPER-NOUN-SEM(P) = (^ NTYPE NSYN) = proper
                              @(NAME-SCOPE ^ %q)
                              :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t),
-                             :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-                             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
-
-
+                             {
+                             :$ lam(Q,lam(R,merge(drs([X],[]),merge(app(Q,X),app(R,X))))) :
+                             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
+                             |
+                             (^ DEF)
+                             }.
 
 ----

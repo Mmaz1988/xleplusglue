@@ -449,8 +449,10 @@ one     NUMBER *  { @(NUMBER-PL 1 sg)
 
 
 "very preliminary any"
-any D * @(SPEC-QUANT-PRED some)
+any D * @(SPEC-QUANT-PRED any)
         (^ DEF) = -
-        @(QUANT-SCOPE ^ %q).
+        @(QUANT-SCOPE ^ %q)
+        :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
+        ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 ----

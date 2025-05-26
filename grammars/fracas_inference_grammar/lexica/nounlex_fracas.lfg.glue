@@ -100,47 +100,47 @@ Fido 	  N *   @(PRED Fido)
 
 PC-6082   N *   @(PRED PC-6082)
                 (^NUM) = sg
-                (^NTYPE NSYN) = common
+                (^NTYPE NSYN) = proper
                 (^NTYPE NSEM COMMON) = count
                 @(PROPER-NOUN-SEM %stem).
 
 ITEL-XZ   N *   @(PRED ITEL-XZ)
                 (^NUM) = sg
-                (^NTYPE NSYN) = common
+                (^NTYPE NSYN) = proper
                 (^NTYPE NSEM COMMON) = count
                 @(PROPER-NOUN-SEM %stem).
 
 ITEL-ZY   N *   @(PRED ITEL-ZY)
                 (^NUM) = sg
-                (^NTYPE NSYN) = common
+                (^NTYPE NSYN) = proper
                 (^NTYPE NSEM COMMON) = count
                 @(PROPER-NOUN-SEM %stem).
 
 ITEL-ZX   N *   @(PRED ITEL-ZX)
                 (^NUM) = sg
-                (^NTYPE NSYN) = common
+                (^NTYPE NSYN) = proper
                 (^NTYPE NSEM COMMON) = count
                 @(PROPER-NOUN-SEM %stem).
 
 MIPS 	  N *   @(PRED MIPS)
                 (^NUM) = pl
-                (^NTYPE NSYN) = common
+                (^NTYPE NSYN) = proper
                 (^NTYPE NSEM COMMON) = count
                 @(PROPER-NOUN-SEM %stem).
 
 ITEL 	N *   @(PRED ITEL)
                 (^NUM) = sg
-                (^NTYPE NSYN) = common
+                (^NTYPE NSYN) = proper
                 (^NTYPE NSEM COMMON) = count
-                @(PROPER-NOUN-SEM %stem),
+                @(PROPER-NOUN-SEM %stem)
                 ;
 	    NMod * .
 
 APCOM   N *     @(PRED APCOM)
                 (^NUM) = sg
-                (^NTYPE NSYN) = common
+                (^NTYPE NSYN) = proper
                 (^NTYPE NSEM COMMON) = count
-                @(PROPER-NOUN-SEM %stem),
+                @(PROPER-NOUN-SEM %stem)
                 ;
         NMod * .
 
