@@ -114,9 +114,9 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Pl 	  N-NUM XLE (^ NUM) = pl
                     {(^ DEF) |
-                    (^ NTYPE) =c name |
+                    (^ NTYPE NSYN) =c proper |
                     ~[(^ DEF)]
-                    (^ NTYPE) ~= name
+                    (^ NTYPE NSYN) ~= proper
                     @(QUANT-SCOPE ^ %q)
                     :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
                             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
@@ -125,9 +125,9 @@ MORPH   ENGLISH   LEXICON (1.0)
 +Sg 	  N-NUM XLE (^ NUM) = sg
                     @(PERS 3)
                     {(^ DEF) |
-                     (^ NTYPE) =c name |
+                     (^ NTYPE NSYN) =c proper |
                     ~[(^ DEF)]
-                    (^ NTYPE) ~= name
+                    (^ NTYPE NSYN) ~= proper
                     @(QUANT-SCOPE ^ %q)
                     :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
                             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
@@ -138,7 +138,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 +Noun 	  N-POS XLE @(NPOS count) "3rd person count noun"
 		    @(PERS 3).
 		       
-+Prop 	  N-POS XLE @(NPOS name) "3rd person name"
++Prop 	  N-POS XLE @(NPOS proper) "3rd person name"
 		    @(PERS 3).   
 
 +Giv 	  N-NAME XLE .   "for given names, no info associated so far"

@@ -191,7 +191,7 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
 "template for ntypes, called NPOS here because of clash with common templates"
 
-   NPOS(N) = (^ NTYPE) = N. 
+   NPOS(N) = (^ NTYPE NSYN) = N.
 
    PREP(P) = "template for most prepositions"
 	  { (^ PRED) = 'P<(^OBJ)>' 
