@@ -100,4 +100,18 @@ PROPER-NOUN-SEM(P) = (^ NTYPE NSYN) = proper
                              (^ DEF)
                              }.
 
+DEFAULT-ADJ-SEM(P)  = { @(PRED P)
+                      (^ ATYPE) =c attributive
+                      s::(ADJUNCT $ ^) = %s
+                      :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t),
+                      :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+                                ((s::^_e -o s::^_t) -o ((%s_e -o %s_t) -o (%s_e -o %s_t))) || noscope,
+                     |
+                      (^PRED) = 'P<(^SUBJ)>'
+                      (^ ATYPE) =c predicative
+                      (s::(PREDLINK ^) EV) = %s
+                      :$ lam(X,drs([],[pred('P',X)])) : (s::^_v -o s::^_t),
+                      :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+                                ((s::^_v -o s::^_t) -o ((%s_v -o %s_t) -o (%s_v -o %s_t))) || noscope,
+                      }.
 ----
