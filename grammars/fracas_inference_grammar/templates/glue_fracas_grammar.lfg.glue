@@ -118,4 +118,18 @@ DEFAULT-ADJ-SEM(P)  = { @(PRED P)
                       :$ lam(Q,lam(R,lam(X,merge(app(Q,X),app(R,X))))) :
                                 ((s::^_v -o s::^_t) -o ((%s_v -o %s_t) -o (%s_v -o %s_t))) || noscope,
                       }.
+
+GENERALIZED_QUANT = @(QUANT-SCOPE ^ %q)
+                :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+
+GENERALIZED_QUANT_NOSCOPE = @(QUANT-SCOPE ^ %q)
+            :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t))|| noscope.
+
+UNIVERSAL_QUANT = @(QUANT-SCOPE ^ %q)
+	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
 ----
