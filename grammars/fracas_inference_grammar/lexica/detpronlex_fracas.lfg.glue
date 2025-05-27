@@ -95,35 +95,35 @@ who PRON *      (^PRON-TYPE) = rel
 the 	  D *
           @(SPEC-DET-PRED the)
           (^DEF) = +        "encoded as det-type in inness"
-	      @GENERALIZED_QUANT_NOSCOPE.
+	      @DEFAULT-EX-QUANT-NOSCOPE.
 
 The 	  D *
           @(SPEC-DET-PRED the)
           (^DEF) = +
-	      @GENERALIZED_QUANT_NOSCOPE .
+	      @DEFAULT-EX-QUANT-NOSCOPE .
 
 
 a 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @GENERALIZED_QUANT.
+	      @DEFAULT-EX-QUANT.
 
 
 an 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @GENERALIZED_QUANT.
+	      @DEFAULT-EX-QUANT.
 
 A 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @GENERALIZED_QUANT.
+	      @DEFAULT-EX-QUANT.
 
 
 An 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @GENERALIZED_QUANT.
+	      @DEFAULT-EX-QUANT.
 
 
 more 	  DComp * (^PRED)='more<(^ OBL-COMP)>'
@@ -146,7 +146,7 @@ many     DComp * @(PRED many)
          D * @(SPEC-AQUANT-PRED many)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @GENERALIZED_QUANT.
+ 	        @DEFAULT-EX-QUANT.
 
 Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
                  (^DEF) = - "this indefinite only marks plurals"
@@ -156,7 +156,7 @@ Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
          D * @(SPEC-AQUANT-PRED many)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @GENERALIZED_QUANT.
+ 	        @DEFAULT-EX-QUANT.
 
 
 "changed to spec-quant"
@@ -164,13 +164,13 @@ every 	  D * @(SPEC-QUANT-PRED every)
                @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @UNIVERSAL_QUANT.
+	      @UNIVERSAL-QUANT.
 
 Every 	   D * @(SPEC-QUANT-PRED every)
                @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
- 	      @UNIVERSAL_QUANT.
+ 	      @UNIVERSAL-QUANT.
 
 
 "new quantifiers"
@@ -179,12 +179,12 @@ Every 	   D * @(SPEC-QUANT-PRED every)
 some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
 	      "(^ NUM) = pl" "some man and some men both work :)"
- 	      @GENERALIZED_QUANT.
+ 	      @DEFAULT-EX-QUANT.
 
 Some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
 	      "(^ NUM) = pl"
- 	        @GENERALIZED_QUANT.
+ 	        @DEFAULT-EX-QUANT.
 
 "preliminary semantics for all, copied from every"
 "also for Fracas Testsuite"
@@ -193,13 +193,13 @@ all 	  D * @(SPEC-QUANT-PRED all)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = pl
-	      @UNIVERSAL_QUANT.
+	      @UNIVERSAL-QUANT.
 
 All 	  D * @(SPEC-QUANT-PRED all)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = pl
-	      @UNIVERSAL_QUANT.
+	      @UNIVERSAL-QUANT.
 
 
 "each: semantics from all"
@@ -207,13 +207,13 @@ Each D *  @(SPEC-QUANT-PRED each)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = -
 	      (^ NUM) = sg
- 	      @UNIVERSAL_QUANT.
+ 	      @UNIVERSAL-QUANT.
 
 each D *  @(SPEC-QUANT-PRED each)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = -
 	      (^ NUM) = sg
- 	      @UNIVERSAL_QUANT.
+ 	      @UNIVERSAL-QUANT.
 
 
 No D * @(SPEC-QUANT-PRED no)
@@ -247,12 +247,12 @@ neither D * @(SPEC-QUANT-PRED no)
 Both D *  @(SPEC-QUANT-PRED both)
 	      (^ DEF) = -
 	      (^ NUM) = pl
- 	      @GENERALIZED_QUANT.
+ 	      @DEFAULT-EX-QUANT.
 
 both D *  @(SPEC-QUANT-PRED both)
 	      (^ DEF) = -
 	      (^ NUM) = pl
- 	      @GENERALIZED_QUANT.
+ 	      @DEFAULT-EX-QUANT.
 
 Neither  D * @(SPEC-QUANT-PRED neither)
          @(SPEC-QUANT-TYPE negative)
@@ -273,13 +273,13 @@ Several D * @(SPEC-AQUANT-PRED several)
              "no quant type?"
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @GENERALIZED_QUANT.
+ 	        @DEFAULT-EX-QUANT.
 
 
 several D * @(SPEC-AQUANT-PRED several)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	         @GENERALIZED_QUANT.
+ 	         @DEFAULT-EX-QUANT.
 
 
 Most    D* @(SPEC-AQUANT-PRED most)
@@ -302,12 +302,12 @@ most    D* @(SPEC-AQUANT-PRED most)
 Few D *      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @GENERALIZED_QUANT.
+ 	        @DEFAULT-EX-QUANT.
 
 few D *      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @GENERALIZED_QUANT.
+ 	        @DEFAULT-EX-QUANT.
 
 "partitives"
 
@@ -320,7 +320,7 @@ few D *      @(SPEC-AQUANT-PRED few)
 A` few    D * {@(SPEC-QUANT-PRED a` few)
 	            (^ DEF) = -
 	            (^ NUM) = pl
-	            @GENERALIZED_QUANT
+	            @DEFAULT-EX-QUANT
  	            |
  	            @(PARTITIVE a` few)}.
 
@@ -328,7 +328,7 @@ a` few    D * {@(SPEC-QUANT-PRED a` few)
 	            (^ DEF) = -
 	            (^ NUM) = pl
  	            "@(QUANT-SCOPE ^ %q)"
- 	            @GENERALIZED_QUANT
+ 	            @DEFAULT-EX-QUANT
  	            |
  	            @(PARTITIVE a` few)}.
 
@@ -410,6 +410,6 @@ one     NUMBER *  { @(NUMBER-PL 1 sg)
 "very preliminary any"
 any D * @(SPEC-QUANT-PRED any)
         (^ DEF) = -
-        @UNIVERSAL_QUANT.
+        @UNIVERSAL-QUANT.
 
 ----
