@@ -93,46 +93,36 @@ who PRON *      (^PRON-TYPE) = rel
 the 	  D *
           @(SPEC-DET-PRED the)
           (^DEF) = +        "encoded as det-type in inness"
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
+	      @GENERALIZED_QUANT_NOSCOPE.
 
 The 	  D *
           @(SPEC-DET-PRED the)
           (^DEF) = +
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
+	      @GENERALIZED_QUANT_NOSCOPE .
 
 
 a 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @GENERALIZED_QUANT.
 
 
 an 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @GENERALIZED_QUANT.
 
 A 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @GENERALIZED_QUANT.
+
 
 An 	  D * @(SPEC-DET-PRED a)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @GENERALIZED_QUANT.
+
 
 more 	  DComp * (^PRED)='more<(^ OBL-COMP)>'
 		        (^NUM) = pl
@@ -154,9 +144,7 @@ many     DComp * @(PRED many)
          D * @(SPEC-AQUANT-PRED many)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q)
-            	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-            	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	        @GENERALIZED_QUANT.
 
 Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
                  (^DEF) = - "this indefinite only marks plurals"
@@ -166,9 +154,7 @@ Many     DComp * (^ PRED)='many<>(^ OBL-COMP)'
          D * @(SPEC-AQUANT-PRED many)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q)
-            	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-            	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	        @GENERALIZED_QUANT.
 
 
 "changed to spec-quant"
@@ -176,17 +162,13 @@ every 	  D * @(SPEC-QUANT-PRED every)
                @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @UNIVERSAL_QUANT.
 
 Every 	   D * @(SPEC-QUANT-PRED every)
                @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = sg
- 	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	      @UNIVERSAL_QUANT.
 
 
 "new quantifiers"
@@ -195,16 +177,12 @@ Every 	   D * @(SPEC-QUANT-PRED every)
 some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
 	      "(^ NUM) = pl" "some man and some men both work :)"
- 	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	      @GENERALIZED_QUANT.
 
 Some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
 	      "(^ NUM) = pl"
- 	        @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	        @GENERALIZED_QUANT.
 
 "preliminary semantics for all, copied from every"
 "also for Fracas Testsuite"
@@ -213,17 +191,13 @@ all 	  D * @(SPEC-QUANT-PRED all)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = pl
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @UNIVERSAL_QUANT.
 
 All 	  D * @(SPEC-QUANT-PRED all)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = - "this indefinite only marks singulars"
 	      (^ NUM) = pl
-	      @(QUANT-SCOPE ^ %q)
-	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	      @UNIVERSAL_QUANT.
 
 
 "each: semantics from all"
@@ -231,17 +205,13 @@ Each D *  @(SPEC-QUANT-PRED each)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = -
 	      (^ NUM) = sg
- 	      @(QUANT-SCOPE ^ %q)
- 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	      @UNIVERSAL_QUANT.
 
 each D *  @(SPEC-QUANT-PRED each)
           @(SPEC-QUANT-TYPE universal)
 	      (^ DEF) = -
 	      (^ NUM) = sg
- 	      @(QUANT-SCOPE ^ %q)
- 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	      @UNIVERSAL_QUANT.
 
 
 No D * @(SPEC-QUANT-PRED no)
@@ -275,16 +245,12 @@ neither D * @(SPEC-QUANT-PRED no)
 Both D *  @(SPEC-QUANT-PRED both)
 	      (^ DEF) = -
 	      (^ NUM) = pl
- 	      @(QUANT-SCOPE ^ %q)
- 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-          	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	      @GENERALIZED_QUANT.
 
 both D *  @(SPEC-QUANT-PRED both)
 	      (^ DEF) = -
 	      (^ NUM) = pl
- 	      @(QUANT-SCOPE ^ %q)
- 	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-          	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	      @GENERALIZED_QUANT.
 
 Neither  D * @(SPEC-QUANT-PRED neither)
          @(SPEC-QUANT-TYPE negative)
@@ -305,17 +271,13 @@ Several D * @(SPEC-AQUANT-PRED several)
              "no quant type?"
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q)
-            :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	        @GENERALIZED_QUANT.
 
 
 several D * @(SPEC-AQUANT-PRED several)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	         @(QUANT-SCOPE ^ %q)
-             :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	         @GENERALIZED_QUANT.
 
 
 Most    D* @(SPEC-AQUANT-PRED most)
@@ -323,31 +285,27 @@ Most    D* @(SPEC-AQUANT-PRED most)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q)
-                         :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-                         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	        :$ lam(P,lam(Q,merge(drs([D],[]),merge(drs([X],[]), merge(app(P,X), merge(app(Q,X),rel(many,X,D))))))) :
+ 	         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 most    D* @(SPEC-AQUANT-PRED most)
             @(SPEC-AQUANT-TYPE superlative)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q)
-                         :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-                         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+            :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+            ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 
 Few D *      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q)
-                         :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-                         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	        @GENERALIZED_QUANT.
 
 few D *      @(SPEC-AQUANT-PRED few)
              (^ DEF) = -
 	         (^ NUM) = pl
- 	        @(QUANT-SCOPE ^ %q)
-                         :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-                         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	        @GENERALIZED_QUANT.
 
 "partitives"
 
@@ -360,9 +318,7 @@ few D *      @(SPEC-AQUANT-PRED few)
 A` few    D * {@(SPEC-QUANT-PRED a` few)
 	            (^ DEF) = -
 	            (^ NUM) = pl
-	            @(QUANT-SCOPE ^ %q)
-	            :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-                	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)),
+	            @GENERALIZED_QUANT
  	            |
  	            @(PARTITIVE a` few)}.
 
@@ -370,6 +326,7 @@ a` few    D * {@(SPEC-QUANT-PRED a` few)
 	            (^ DEF) = -
 	            (^ NUM) = pl
  	            "@(QUANT-SCOPE ^ %q)"
+ 	            @GENERALIZED_QUANT
  	            |
  	            @(PARTITIVE a` few)}.
 
@@ -451,8 +408,6 @@ one     NUMBER *  { @(NUMBER-PL 1 sg)
 "very preliminary any"
 any D * @(SPEC-QUANT-PRED any)
         (^ DEF) = -
-        @(QUANT-SCOPE ^ %q)
-        :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
-        ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+        @UNIVERSAL_QUANT.
 
 ----
