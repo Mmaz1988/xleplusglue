@@ -20,7 +20,7 @@ GLUE   BASIC   TEMPLATES (1.0)
    (s::^ QUANT-SCOPE) = NAME.
 
      QUANT-SCOPE(UP NAME) =
-  	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL-COMP | OBL | ADJUNCT | PREDLINK | OBL-PART | $}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
+  	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL-COMP | OBL | PREDLINK | ADJUNCT | OBL-PART | $}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
   	  (s::%name EV TYPE) =c eventuality
   	  NAME = s::%name
       (s::^ QUANT-SCOPE) = NAME.
@@ -89,9 +89,11 @@ DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
 
 
 COUNT-NOUN-SEM(P) = (^ NTYPE NSYN) =c count
-                  :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t).
+                    (s::^ TYPE) = entity
+                    :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t).
 
 PROPER-NOUN-SEM(P) = (^ NTYPE NSYN) =c proper
+                     (s::^ TYPE) = entity
                              :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t),
                              {
                              ~[(^DEF)]

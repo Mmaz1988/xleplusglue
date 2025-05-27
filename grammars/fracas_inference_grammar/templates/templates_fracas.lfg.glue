@@ -87,10 +87,17 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
 
 BE-TRANS-EV = (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-                     (^SUBJ) = (^ PREDLINK SUBJ)
+                     {(^SUBJ) = (^ PREDLINK SUBJ)
+                     |
+                     (^PREDLINK PTYPE)
+                     }
                      @(EVENT be)
-                     @(ARG1 (^ SUBJ)) "EX. John is Italian"
+                     %arg1 = (^ SUBJ {OBL-PART | OBJ}*) "EX. One of the ... is ..."
+                     (s::%arg1 TYPE) =c entity
+                     @(ARG1 %arg1) "EX. John is Italian"
                      {
+                     (s::(^ PREDLINK) TYPE) ~= entity
+                     |
                      (s::(^ PREDLINK) TYPE) =c entity
                      @(ARG2 (^ PREDLINK)) "EX. John is an Italian"
                      }.
@@ -201,7 +208,7 @@ BE-TRANS-EV = (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
 	  | (^VFORM) = inf}.
 
    S-AGR = (^ SUBJ PERS) = 3 "for verbs in -s"
-	  (^ SUBJ NUM) = sg.
+	       (^ SUBJ NUM) = sg.
 
 "template for ntypes, called NPOS here because of clash with common templates"
 
