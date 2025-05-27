@@ -85,6 +85,19 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    @(INTRANS-EV P)
 	  }. 
 
+
+BE_TRANS-EV = { (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                     @(EVENT be)
+                     @(ARG1 (^ SUBJ))
+                     @(ARG2 (^ PREDLINK)) "EX. Every man is a tenor, There was an Italian"
+                    |
+                     (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
+                     (^SUBJ) = (^ PREDLINK SUBJ)
+                     @(EVENT be)
+                     @(ARG1 (^ SUBJ)) "the dog was fast"
+                     "{ @(ARG1 (^ PREDLINK)) | @(ARG1 (^ SUBJ))}" "EX. There was an Italian vs. the dog was fast"
+                  }.
+
 """ Argument structure templates """
    
    TRANS-PASSIVE-ARGS(ARG1 ARG2) = { 
@@ -233,7 +246,6 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
 
 "template for adjectives"
-
 
    ADJ-INT = (^ SEMTYPE) = intersective.
 
