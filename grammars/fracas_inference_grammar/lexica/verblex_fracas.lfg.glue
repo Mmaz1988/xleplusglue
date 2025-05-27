@@ -217,7 +217,7 @@ come V-S XLE    (^PRED) = 'come<(^PREDLINK)>(^SUBJ)'
 
 "present: am(1sg), are(pl, 2sg, all person), is(3sg)  + aux is"
 
-is   AUX[fin] *   @BE_TRANS-EV
+is   AUX[fin] *   @BE-TRANS-EV
                   @VPRESBE       "template without inf option"
 		          @(PROG -_)
 		          @(PERF -_)
@@ -230,7 +230,7 @@ is   AUX[fin] *   @BE_TRANS-EV
                 }
                 (^ SUBJ NUM) = sg."
 
-am   AUX[fin] *  @BE_TRANS-EV
+am   AUX[fin] *  @BE-TRANS-EV
                 @VPRESBE
                @(PROG -_)
                @(PERF -_)
@@ -238,7 +238,7 @@ am   AUX[fin] *  @BE_TRANS-EV
                (^SUBJ NUM) = sg.
 
 
-are  AUX[fin] *   @BE_TRANS-EV
+are  AUX[fin] *   @BE-TRANS-EV
                   @VPRESBE
                   @(PROG -_)
                   @(PERF -_)
@@ -249,7 +249,7 @@ are  AUX[fin] *   @BE_TRANS-EV
 
 "past: was(1sg, 3sg), were(pl, 2sg)  + aux was"
 
-was   AUX[fin] *  @BE_TRANS-EV
+was   AUX[fin] *  @BE-TRANS-EV
            @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
@@ -274,7 +274,7 @@ was   AUX[fin] *  @BE_TRANS-EV
             (^ SUBJ NUM) = sg."
 
 
-were  Aux[fin]  *  @BE_TRANS-EV
+were  Aux[fin]  *  @BE-TRANS-EV
             @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
@@ -290,14 +290,13 @@ were  Aux[fin]  *  @BE_TRANS-EV
 
 "future"
 
-will    AUX[fin] * @VFUT "@(TENSE past)"
+will    AUX[fut,fin] * @VFUT "@(TENSE past)"
               "@(PROG -_)
               @(PERF -_)"
               (^ SUBJ NUM)
               (^ SUBJ PERS)
               (^ FIN) = +
-              (^ VTYPE) = fin
-              @(EVENT %stem). "semantics don't work here"
+              (^ VTYPE) = fin. "semantics don't work here"
 
 
 "be, (being, been??)"
@@ -305,7 +304,7 @@ will    AUX[fin] * @VFUT "@(TENSE past)"
 be   AUX[base] *  (^VFORM) = inf
                    @(PROG -_)
                    @(PERF -_)
-                   @BE_TRANS-EV
+                   @BE-TRANS-EV
              "|
               ^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
               (^SUBJ) = (^ PREDLINK SUBJ)

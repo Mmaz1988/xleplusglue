@@ -1,7 +1,9 @@
 VERB ENGLISH RULES (1.0)
 
 
-VP[_form $ {cop fin pass perf prog base }] --> {VPv[_form] | VPcop[_form] | VPpass[pass,_form]}.
+VP[_form $ {cop fin perf prog base }] --> {VPv[_form] | VPcop[_form] | VPfut[fut,_form] | VPpass[pass,_form]}.
+
+
 
 VPpass[pass,_form] --> (NP: (^ SUBJ) = !)
                        { AUX[pass,_form] |
@@ -63,15 +65,16 @@ VPv[_form] -->
                                (^ PREDLINK) = !
                | "EX. ... is fast"
               PP: (^ PREDLINK) = ! "EX. ... is on the table"
-              (! PTYPE) = sem  |
-              VP[base]: (^ XCOMP) = ! | "EX. ... can appear"
-              VP[base]: ^ = !; "EX. ... will take part"
+              (! PTYPE) = sem
+              |
+              VP[base]: (^ XCOMP) = !
               }.
 
    VPinf --> PARTinf VP[base].
 
 
-
+VPfut[fut,_form] -->  AUX[fut,_form]
+                      VPv[base].
 
 
 ----
