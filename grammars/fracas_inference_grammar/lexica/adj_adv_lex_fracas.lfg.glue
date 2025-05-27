@@ -2,99 +2,41 @@ ADJADV ENGLISH LEXICON (1.0)
 
 "degree"
 
-Leading A * { @(PRED leading)
-              (^ ATYPE) =c attributive
-              s::(ADJUNCT $ ^) = %s
-              :$ lam(X,drs([],[pred('%stem',X)])) : (s::^_e -o s::^_t),
-              :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
-              ((s::^_e -o s::^_t) -o ((%s_e -o %s_t) -o (%s_e -o %s_t))) || noscope,
-              |
-              (^PRED) = '%stem<(^SUBJ)>'
-              (^ ATYPE) =c predicative
-              (s::(PREDLINK ^) EV) = %s
-              :$ lam(X,drs([],[pred('%stem',X)])) : (s::^_v -o s::^_t),
-              :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
-              ((s::^_v -o s::^_t) -o ((%s_v -o %s_t) -o (%s_v -o %s_t))) || noscope,
-              }.
+Leading A * @(DEFAULT-ADJ-SEM %stem).
 
-leading A * { @(PRED leading)
-              (^ ATYPE) =c attributive
-              s::(ADJUNCT $ ^) = %s
-              :$ lam(X,drs([],[pred('%stem',X)])) : (s::^_e -o s::^_t),
-              :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
-              ((s::^_e -o s::^_t) -o ((%s_e -o %s_t) -o (%s_e -o %s_t))) || noscope,
-              |
-              (^PRED) = '%stem<(^SUBJ)>'
-              (^ ATYPE) =c predicative
-              (s::(PREDLINK ^) EV) = %s
-              :$ lam(X,drs([],[pred('%stem',X)])) : (s::^_v -o s::^_t),
-              :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
-              ((s::^_v -o s::^_t) -o ((%s_v -o %s_t) -o (%s_v -o %s_t))) || noscope,
-              }.
 
-successful ADJ-S XLE { @(PRED %stem)
+leading A *  @(DEFAULT-ADJ-SEM %stem).
+
+successful ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+                      (^SEMTYPE) = degree.
+                "{ @(PRED %stem)
 		       (^ ATYPE) =c attributive
 		      |
 		       (^PRED) = '%stem<(^SUBJ)>'
 		       (^ ATYPE) =c predicative
 		     }
-		     (^SEMTYPE) = degree.
+		     (^SEMTYPE) = degree"
 
-fast 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
-		    (^SEMTYPE) = degree.
+fast 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		             (^SEMTYPE) = degree.
 
-clever 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
-		    (^SEMTYPE) = degree.
+clever 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = degree.
 
-big 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
-		    (^SEMTYPE) = degree.
+big 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
 
-small 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
-		    (^SEMTYPE) = degree.
+small 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
 
-large 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
-		    (^SEMTYPE) = degree.
+large 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		             (^SEMTYPE) = degree.
 
-fat 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
-		    (^SEMTYPE) = degree.
+fat 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
 
-important 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
-		    (^SEMTYPE) = degree.
+important 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		                (^SEMTYPE) = degree.
 
 more` important  A *        { @(PRED %stem)
                             {
@@ -116,52 +58,36 @@ more` important  A *        { @(PRED %stem)
 
 "intersectives"
 
-black 	  ADJ-S XLE { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
+black 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 		    (^SEMTYPE) = intersective.
 
-interesting    A * { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
+interesting    A * @(DEFAULT-ADJ-SEM %stem)
 		    (^SEMTYPE) = intersective.
 
-four`-legged    A * { @(PRED %stem)
-		      (^ ATYPE) =c attributive
-		     |
-		      (^PRED) = '%stem<(^SUBJ)>'
-		      (^ ATYPE) =c predicative
-		    }
+four`-legged    A * @(DEFAULT-ADJ-SEM %stem)
 		    (^SEMTYPE) = intersective.
 
-genuine   A * { @(PRED %stem)
-          		(^ ATYPE) =c attributive
-          	|
-          		 (^PRED) = '%stem<(^SUBJ)>'
-          		 (^ ATYPE) =c predicative
-          		    }
+genuine   A * @(DEFAULT-ADJ-SEM %stem)
              (^SEMTYPE) = intersective.
+
+
 "countries"
 
-British   A * @(PRED british); ETC.
+North` American     A * @(DEFAULT-ADJ-SEM north` american); ETC.
+
+"British   A * @(DEFAULT-ADJ-SEM british); ETC.
 
 German      A * @(PRED german); ETC.
 
-"Italian     A * @(PRED italian); ETC."
+Italian     A * @(PRED italian); ETC.
 
 Irish       A * @(PRED irish); ETC.
 
 Canadian     A * @(PRED canadian); ETC.
 
-Portuguese      A * @(PRED portuguese); ETC.
+Portuguese      A * @(PRED portuguese); ETC."
 
-North` American     A * @(PRED north` american); ETC.
+
 
 
 "adverbs "
@@ -174,5 +100,7 @@ quicker   ADV * (^ DEGREE) = comparative
 very 	  ADV * @(PRED very).
 
 freely 	  ADV * @(PRED free).
+
+"more    ADV *  @(PRED more)."
 
 ----
