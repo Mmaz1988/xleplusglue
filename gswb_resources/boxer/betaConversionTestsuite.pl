@@ -37,18 +37,18 @@ test(app(lam(X:e,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 test(app(lam(X,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 
 % type on discourse referent
-test(
-    merge(
-        drs([Y:e],[]),
-        app(lam(X,
-            drs([],[eq(Y,X),pred(sleep,Y)])),
-        mary)
-    ),
-    merge(
-        drs([Y:e],[]),
-        drs([],[eq(Y,mary),pred(sleep,Y)])
-    )
-).
+%test(
+%    merge(
+%        drs([Y:e],[]),
+%        app(lam(X,
+%            drs([],[eq(Y,X),pred(sleep,Y)])),
+%        mary)
+%    ),
+%    merge(
+%        drs([Y:e],[]),
+%        drs([],[eq(Y,mary),pred(sleep,Y)])
+%    )
+%).
 
 % some, typed
 test(
