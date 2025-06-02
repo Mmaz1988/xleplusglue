@@ -254,19 +254,6 @@ both D *  @(SPEC-QUANT-PRED both)
 	      (^ NUM) = pl
  	      @DEFAULT-EX-QUANT.
 
-Neither  D * @(SPEC-QUANT-PRED neither)
-         @(SPEC-QUANT-TYPE negative)
-          (^ DEF) = -
-          (^ NUM) = sg
-          @(QUANT-SCOPE ^ %q).
-
-neither  D * @(SPEC-QUANT-PRED neither)
-         @(SPEC-QUANT-TYPE negative)
-          (^ DEF) = -
-          (^ NUM) = sg
-          @(QUANT-SCOPE ^ %q).
-
-
 "AQUANTS"
 
 Several D * @(SPEC-AQUANT-PRED several)
