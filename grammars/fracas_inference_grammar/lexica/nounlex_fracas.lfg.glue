@@ -76,10 +76,11 @@ people   N *    {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count.
 
-Dumbo 	  N *   {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
-                (^NUM) = sg
-                (^NTYPE NSYN) = proper
-                (^NTYPE NSEM PROPER) = name.
+Dumbo 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                          (^NUM) = sg
+                          (^NTYPE NSYN) = proper
+                          (^NTYPE NSEM PROPER) = name
+                          @(PROPER-NOUN-SEM %stem).
 
 Bill 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
               (^NUM) = sg
@@ -88,15 +89,16 @@ Bill 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
               (^NTYPE NSEM PROPER) = name.
 
 Kim 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
-              (^NUM) = sg
-              (^GENDER) = fem
-              (^NTYPE NSYN) = proper
-              (^NTYPE NSEM PROPER) = name.
+                          (^NUM) = sg
+                          (^NTYPE NSYN) = proper
+                          (^NTYPE NSEM PROPER) = name
+                          @(PROPER-NOUN-SEM %stem).
 
-Fido 	  N *   {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
-                (^NUM) = sg
-                (^NTYPE NSYN) = proper
-                (^NTYPE NSEM PROPER) = name.
+Fido 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                          (^NUM) = sg
+                          (^NTYPE NSYN) = proper
+                          (^NTYPE NSEM PROPER) = name
+                          @(PROPER-NOUN-SEM %stem).
 
 PC-6082   N *   {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NUM) = sg

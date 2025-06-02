@@ -150,11 +150,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 "other"
 
-+Adj 	  ADJ-POS XLE  { @ADJ-INT |
-                        (^ SEMTYPE) =c degree
-                        {@ADJ-POS |
-                        ~[(^ DEGREE) = positive]}
-                         }.
++Adj 	  ADJ-POS XLE .
 
 +Country COUNTRY XLE .
 
