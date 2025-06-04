@@ -63,6 +63,7 @@ betaConvert(Expression,Result,[X|Stack]):-
    Expression = lam(X,Formula),
    betaConvert(Formula,Result,Stack).
 
+%Also used for atoms, e.g. 'Italian'
 betaConvert(Formula,Result,[]):-
    nonvar(Formula),
    \+ (Formula = app(X,_), nonvar(X)),
