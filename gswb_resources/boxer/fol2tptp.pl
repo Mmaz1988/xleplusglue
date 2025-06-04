@@ -120,6 +120,16 @@ printTptp(not(Phi),Stream):- !,
 printTptp(eq(X,Y),Stream):- !,
    write_term(Stream,equal(X,Y),[numbervars(true)]).
 
+printTptp(greater(X,Y),Stream):- !,
+   write_term(Stream,$greater(X,Y),[numbervars(true)]).
+
+printTptp(plus(Phi,Psi),Stream):- !,
+   write(Stream,'('),
+   printTptp(Phi,Stream),
+   write(Stream,' + '),
+   printTptp(Psi,Stream),
+   write(Stream,')').
+
 printTptp(Phi,Stream):-
    basicFormula(Phi),
    write_term(Stream,Phi,[numbervars(true)]).

@@ -36,7 +36,11 @@ x:-  op(500, xfx, [:]).
 ========================================================================*/
 
 betaConvert(X,Y):-
-   betaConvert(X,Y,[]).
+	betaConvert(X,Y,[]).
+
+isatomic(X):-
+	atom(X),
+	number(X).
 
 
 /*========================================================================
@@ -67,7 +71,7 @@ betaConvert(Expression,Result,[X|Stack]):-
 
 betaConvert(Expression,Result,[X|Stack]):-
    nonvar(Expression),
-   atom(X),
+   isatomic(X),
    Expression = lam(V,Formula),
    betaConvert(Formula,Result,Stack),
    V = X.

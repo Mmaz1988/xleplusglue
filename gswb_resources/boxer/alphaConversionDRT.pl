@@ -34,6 +34,9 @@
 alphaConvertDRS(B1,B2):-
 	alphaConvertDRS(B1,[]-_,B2).
 
+isatomic(X):-
+    number(X);
+    atom(X).
 
 /*========================================================================
    Alpha Conversion (term)
@@ -47,12 +50,12 @@ alphaConvertTerm(X,Vars,New):-
    alphaConvertVar(X,Vars,New).
 
 alphaConvertTerm(X,_Vars,New):-
-   atom(X),
+   isatomic(X),
    New = X.
 
 alphaConvertTerm(X,Vars,New) :-
    \+ var(X),
-   \+ atom(X),
+   \+ isatomic(X),
    X =.. [Func|Args],
    alphaConvertTermList(Args,Vars,NewArgs),
    New =.. [Func|NewArgs].

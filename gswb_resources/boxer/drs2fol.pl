@@ -46,11 +46,11 @@ cond2fol(or(Drs1,Drs2),or(Formula1,Formula2)):-
    drs2fol(Drs1,Formula1),
    drs2fol(Drs2,Formula2).
 
-cond2fol(imp(drs([],Conds),Drs2), imp(Formula1,Formula2)):-
+cond2fol(imp(drs([],Conds),Drs2),imp(Formula1,Formula2)):-
    drs2fol(drs([],Conds),Formula1),
    drs2fol(Drs2,Formula2).
 
-cond2fol(imp(drs([X|Referents],Conds),Drs2), all(X,Formula)):-
+cond2fol(imp(drs([X|Referents],Conds),Drs2),all(X,Formula)):-
    cond2fol(imp(drs(Referents,Conds),Drs2),Formula).
 
 cond2fol(eq(X,Y),eq(X,Y)).
@@ -60,7 +60,7 @@ cond2fol(BasicCondition,AtomicFormula):-
    atomic(Symbol),
    AtomicFormula =.. [Symbol|Args],
    %findall avoids reordering arguments compared to setof/3]
-   findall(X,(member(X,Args),(var(X);atom(X))),Tested),
+   findall(X,(member(X,Args),(var(X);atom(X);number(X))),Tested),
    Args = Tested.
 
 

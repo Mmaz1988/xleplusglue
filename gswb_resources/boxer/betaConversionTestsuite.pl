@@ -25,7 +25,6 @@
 
 :- module(betaConversionTestsuite,[test/2]).
 
-
 /*========================================================================
    Give formula and expected result
 ========================================================================*/
@@ -36,7 +35,7 @@ test(app(lam(X:e,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 
 test(app(lam(X,drs([],[pred(sleep,X)])),mary),drs([],[pred(sleep,mary)])).
 
-%type on discourse referent
+% type on discourse referent
 test(
     merge(
         drs([Y:e],[]),
@@ -69,67 +68,96 @@ test(
     merge(
         drs([X:e],[]),
         app(lam(Z,
-            drs([],[eq(X,Z),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])),
+            drs([],[eq(Z,X),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])),
         john)
     ),
     merge(
         drs([X:e],[]),
-        drs([],[eq(X,john),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])
+        drs([],[eq(john,X),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])
     )
 ).
-%
-%% forall, untyped
-%test(
-%    merge(
-%        drs([X],[]),
-%        app(lam(Z,
-%            drs([],[eq(X,Z),imp(drs([Y],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])),
-%        john)
-%    ),
-%    merge(
-%        drs([X],[]),
-%        drs([],[eq(X,john),imp(drs([Y],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])
-%    )
-%).
-%
-%% or, typed
-%test(
-%    merge(
-%        drs([Y:e],[]),
-%        app(lam(X,
-%            drs([],[eq(Y,X),or(drs([],[pred(happy,Y)]),drs([],[pred(sad,Y)]))])),
-%        mary)
-%    ),
-%    merge(
-%        drs([Y:e],[]),
-%        drs([],[eq(Y,mary),or(drs([],[pred(happy,Y)]),drs([],[pred(sad,Y)]))])
-%    )
-%).
-%
-%% not, typed discourse referent
-%test(
-%    merge(
-%        drs([Y:e],[]),
-%        app(lam(X,
-%            drs([],[eq(Y,X),not(drs([],[pred(musician,Y)]))])),
-%        john)
-%    ),
-%    merge(
-%        drs([Y:e],[]),
-%        drs([],[eq(Y,john),not(drs([],[pred(musician,Y)]))])
-%    )
-%).
-%
-%% not, typed elsewhere
-%test(
-%    merge(
-%        drs([Y],[]),
-%        app(lam(X:e,
-%            drs([],[eq(Y,X:e),not(drs([],[pred(musician,Y)]))])),
-%        john:e)
-%    ),
-%    merge(
-%        drs([Y],[]),
-%        drs([],[eq(Y,john:e),not(drs([],[pred(musician,Y)]))])
-%    )
-%).
+
+% forall, untyped
+test(
+    merge(
+        drs([X:e],[]),
+        app(lam(Z,
+            drs([],[eq(Z,X),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])),
+        john)
+    ),
+    merge(
+        drs([X:e],[]),
+        drs([],[eq(john,X),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])
+    )
+).
+
+% or, typed
+test(
+    merge(
+        drs([Y:e],[]),
+        app(lam(X,
+            drs([],[eq(X,Y),or(drs([],[pred(happy,Y)]),drs([],[pred(sad,Y)]))])),
+        mary)
+    ),
+    merge(
+        drs([Y:e],[]),
+        drs([],[eq(mary,Y),or(drs([],[pred(happy,Y)]),drs([],[pred(sad,Y)]))])
+    )
+).
+
+% not, typed discourse referent
+test(
+    merge(
+        drs([Y:e],[]),
+        app(lam(X,
+            drs([],[eq(X,Y),not(drs([],[pred(musician,Y)]))])),
+        john)
+    ),
+    merge(
+        drs([Y:e],[]),
+        drs([],[eq(john,Y),not(drs([],[pred(musician,Y)]))])
+    )
+).
+
+% not, typed elsewhere
+test(
+    merge(
+        drs([Y],[]),
+        app(lam(X:e,
+            drs([],[eq(X:e,Y),not(drs([],[pred(musician,Y)]))])),
+        john:e)
+    ),
+    merge(
+        drs([Y],[]),
+        drs([],[eq(john:e,Y),not(drs([],[pred(musician,Y)]))])
+    )
+).
+
+% greater
+test(
+    merge(
+        drs([Y:e,Z:e,D1,D2],[]),
+        app(lam(X,
+            drs([],[eq(X,Y),eq(john,Z),rel(tall,Y,D1),rel(tall,Z,D2),rel(greater,D1,D2)])),
+        mary)
+    ),
+    merge(
+        drs([Y:e],[]),
+        drs([],[eq(mary,Y),eq(john,Z),rel(tall,Y,D1),rel(tall,Z,D2),rel(greater,D1,D2)])
+    )
+).
+
+
+% plus
+test(
+    merge(
+        drs([Y:e],[]),
+        app(lam(X,
+            drs([],[eq(X,Y),rel(tall,D,X),rel(plus,D,2)])),
+        mary)
+    ),
+    merge(
+        drs([Y:e],[]),
+        drs([],[eq(mary,Y),rel(tall,D,mary),rel(plus,D,2)])
+    )
+).
