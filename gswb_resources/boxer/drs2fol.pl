@@ -57,8 +57,9 @@ cond2fol(eq(X,Y),eq(X,Y)).
 
 cond2fol(BasicCondition,AtomicFormula):-
    BasicCondition =.. [_|[Symbol|Args]],
+   atomic(Symbol),
    AtomicFormula =.. [Symbol|Args],
-   %findall avoids reordering arguments compared to setof/3
+   %findall avoids reordering arguments compared to setof/3]
    findall(X,(member(X,Args),(var(X);atom(X))),Tested),
    Args = Tested.
 

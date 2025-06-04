@@ -50,33 +50,33 @@ test(
     )
 ).
 
-%% some, typed
-%test(
-%    merge(
-%        drs([X:e,Y:e],[]),
-%        app(lam(Z,
-%            drs([],[eq(X,Z),pred(musician,Y),rel(loves,X,Y)])),
-%        john)
-%    ),
-%    merge(
-%        drs([X:e,Y:e],[]),
-%        drs([],[eq(X,john),pred(musician,Y),rel(loves,X,Y)])
-%    )
-%).
-%
-%% forall, typed
-%test(
-%    merge(
-%        drs([X:e],[]),
-%        app(lam(Z,
-%            drs([],[eq(X,Z),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])),
-%        john)
-%    ),
-%    merge(
-%        drs([X:e],[]),
-%        drs([],[eq(X,john),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])
-%    )
-%).
+% some, typed
+test(
+    merge(
+        drs([X:e,Y:e],[]),
+        app(lam(Z,
+            drs([],[eq(Z,X),pred(musician,Y),rel(loves,X,Y)])),
+        john)
+    ),
+    merge(
+        drs([X:e,Y:e],[]),
+        drs([],[eq(john,X),pred(musician,Y),rel(loves,X,Y)])
+    )
+).
+
+% forall, typed
+test(
+    merge(
+        drs([X:e],[]),
+        app(lam(Z,
+            drs([],[eq(X,Z),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])),
+        john)
+    ),
+    merge(
+        drs([X:e],[]),
+        drs([],[eq(X,john),imp(drs([Y:e],[pred(troll,Y)]),drs([],[rel(loves,X,Y)]))])
+    )
+).
 %
 %% forall, untyped
 %test(
