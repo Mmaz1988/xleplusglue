@@ -26,7 +26,8 @@
 main :- 
  current_prolog_flag(argv,Argv),
  Argv = [X,Y|_],
-  convert(X,Y).
+  convert(X,Y),
+  halt.
 
 convert(X,Y) :- consult(X),
   findall(S,solution(_,S),L),
