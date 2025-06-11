@@ -135,7 +135,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 "nominal tags"
 
-+Noun 	  N-POS XLE @(NPOS count) "3rd person count noun"
++Noun 	  N-POS XLE @(NPOS common) "3rd person count noun"
 		    @(PERS 3).
 		       
 +Prop 	  N-POS XLE @(NPOS proper) "3rd person name"

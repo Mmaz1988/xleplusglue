@@ -88,7 +88,7 @@ DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
                       		  }.
 
 
-COUNT-NOUN-SEM(P) = (^ NTYPE NSYN) =c count
+COUNT-NOUN-SEM(P) = (^ NTYPE NSYN) =c common
                     (s::^ TYPE) = entity
                     :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t).
 
