@@ -16,15 +16,18 @@ as        CComp * (^PRED) = 'as<(^OBJ)>'
 
 "prepositions"
 
-by 	  P * @(PREP by).
+by 	  P * @(PREP by)
+        @(PREP-SEM by).
 
-to 	  P * @(PREP to);
+to 	  P * @(PREP to)
+        @(PREP-SEM to);
 	  PARTinf * (^ VFORM) =c inf.
 
 on 	  P * @(PREP on)
           @(PREP-SEM on).
 
-in 	  P * @(PREP in).
+in 	  P * @(PREP in)
+          @(PREP-SEM in).
 
 for 	  P * @(PREP for)
              @(PREP-SEM for).
@@ -32,11 +35,14 @@ for 	  P * @(PREP for)
 with 	  P * @(PREP with)
 	  @(PREP-SEM with).
 
-within     P * @(PREP within).
+within     P * @(PREP within)
+                @(PREP-SEM within).
 
-of      P * @(PREP of).
+of      P * @(PREP of)
+            @(PREP-SEM of).
 
-from     P * @(PREP from).
+from     P * @(PREP from)
+            @(PREP-SEM from).
 
 at	  P * @(PREP at)
         @(PREP-SEM at).

@@ -63,6 +63,7 @@ MORPH   ENGLISH   LEXICON (1.0)
  to be either adjectives or nouns"
 -unknown  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem);
           NUMBER-S XLE { @(NUMBER-PL %stem pl)
+                         @DEFAULT-EX-QUANT
                        | @(NUMBER-PART %stem)};
 	  ADV-S XLE @(PRED %stem);
 	  N-S XLE @(DEFAULT-NOUN-SEM %stem).

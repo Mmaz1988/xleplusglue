@@ -274,7 +274,7 @@ Most    D* @(SPEC-AQUANT-PRED most)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q)
- 	        :$ lam(P,lam(Q,merge(drs([D],[]),merge(merge(drs([X],[]),merge(app(P,X),merge(app(Q,X), rel(many,X,D)))))drs([],[not(merge(drs([Y],[]),merge(app(P,Y),merge(drs([],[not(app(Q,Y))]), rel(many,Y,D))))]))))) :
+ 	        :$ lam(P,lam(Q,merge(drs([D],[]),merge(merge(drs([X],[]),merge(app(P,X),merge(app(Q,X),drs([],[rel(many,X,D)]))))),drs([],[not(merge(drs([Y],[]),merge(app(P,Y),merge(drs([],[not(app(Q,Y))]),drs([],[rel(many,Y,D)])))))])))) :
  	         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 most    D* @(SPEC-AQUANT-PRED most)
@@ -347,14 +347,17 @@ One     NUMBER *  { @(NUMBER-PL 1 sg)
                     "{@(SPEC-NUMBER-PRED one)
                    (^ DEF) = -
 	               (^ NUM) = sg
+	               @DEFAULT-EX-QUANT
 	               |
 	               @(PARTITIVE one)
 	               (^NUMBER-TYPE) = cardinal}".
 
 one     NUMBER *  { @(NUMBER-PL 1 sg)
+                    @DEFAULT-EX-QUANT
                    | @(NUMBER-PART 1)}.
 
 1      NUMBER *  { @(NUMBER-PL 1 sg)
+                    @DEFAULT-EX-QUANT
                    | @(NUMBER-PART 1)}.
 
 "two     NUMBER *  {@(SPEC-NUMBER-PRED two)
