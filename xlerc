@@ -2,7 +2,7 @@
 set-character-encoding stdio utf-8
 
 # set timeout lower; amounts are in seconds
-set timeout 15
+set timeout 5
 
 #For output window
 set semwindowtop 0

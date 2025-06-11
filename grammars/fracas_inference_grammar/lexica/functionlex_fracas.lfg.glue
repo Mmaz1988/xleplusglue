@@ -26,7 +26,8 @@ on 	  P * @(PREP on)
 
 in 	  P * @(PREP in).
 
-for 	  P * @(PREP for).
+for 	  P * @(PREP for)
+             @(PREP-SEM for).
 
 with 	  P * @(PREP with)
 	  @(PREP-SEM with).
@@ -37,7 +38,8 @@ of      P * @(PREP of).
 
 from     P * @(PREP from).
 
-at	  P * @(PREP at).
+at	  P * @(PREP at)
+        @(PREP-SEM at).
 
 
 "complementizers"

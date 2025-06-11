@@ -15,9 +15,9 @@ New` York N *   (^ PRED)='New` York'
 
 Nobel` prize N * (^ PRED)='Nobel` prize'
                  (^NUM)=sg
-                 (^NTYPE NSYN) = proper
-                 "(^NTYPE NSEM COMMON) = count".
-
+                 (^NTYPE NSYN) = count
+                 (^NTYPE NSEM COMMON) = count
+                 @(COUNT-NOUN-SEM prize).
 
 "nouns that can take an XCOMP" "eg. the right to appear"
 
