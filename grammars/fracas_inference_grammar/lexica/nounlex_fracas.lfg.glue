@@ -33,7 +33,14 @@ right	  N * (^PRED) = 'right<(^XCOMP)>'
 Swede      N * @(PRED swede)
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
-                (^NTYPE NSEM COMMON) = count.
+                (^NTYPE NSEM COMMON) = count
+                 @(COUNT-NOUN-SEM %stem).
+
+Scandinavian      N * @(PRED scandinavian)
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count
+                 @(COUNT-NOUN-SEM %stem).
 
 Sweden     N *   @(PRED sweden)
                 (^NUM) = sg
@@ -57,7 +64,7 @@ European    N * @(PRED european)
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count
-                @(COUNT-NOUN-SEM prize)
+                @(COUNT-NOUN-SEM %stem)
                 ; ETC.
 
 Europeans    N * @(PRED european)
@@ -68,7 +75,8 @@ Europeans    N * @(PRED european)
 Europe     N *   @(PRED europe)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
-                (^NTYPE NSEM PROPER) = location.
+                (^NTYPE NSEM PROPER) = location
+                 @(PROPER-NOUN-SEM %stem).
 
 
 "hardcoded words"

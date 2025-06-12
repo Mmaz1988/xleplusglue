@@ -39,7 +39,9 @@ within     P * @(PREP within)
                 @(PREP-SEM within).
 
 of      P * @(PREP of)
-            @(PREP-SEM of).
+            {@(PREP-SEM of) |
+             (OBL-PART ^)}
+             .
 
 from     P * @(PREP from)
             @(PREP-SEM from).
