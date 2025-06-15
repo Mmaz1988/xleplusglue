@@ -15,16 +15,21 @@
 ==> #s DEGREE #d & #s DEGREE-HOLDER #y & #s DEGREE-PRED #p &
 #p GLUE lam(P,lam(D,lam(X,drs([],[rel(strip(%a),X,D)])))) : ((#s_e -o #s_t) -o (#d_d -o (#s_e -o #s_t))).
 
+
+// Rules for positive uses
+// attributive
 #x ADJUNCT #n in_set #a & #x PRED %x &
 #a ATYPE 'attributive' &
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE lam(P,merge(drs([D],[]),merge(drs([],[eq(th_strip(%a)('strip(%x)'),D)]),app(P,D)))) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
+// predicative
 #x PREDLINK #a & #x SUBJ #y PRED %x &
 #a ATYPE 'predicative' &
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE lam(P,merge(drs([D],[]),merge(drs([],[eq(th_strip(%a)('strip(%x)'),D)]),app(P,D)))) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
+//Rules for comparative uses
 #a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p
 #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
 #a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
@@ -32,7 +37,7 @@
 #o DEGREE #x & #o DEGREE-HOLDER #y &
 #d GLUE lam(P,lam(Q,lam(E,
 		merge(drs([D:d],[]),merge(app(app(P,D),E),drs([],[not(merge(drs([V],[]),app(app(Q,D),V)))])))))) :
-		((#d_d -o (#e_v -o #p_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#e_v -o #p_t))) || noscope &
+		((#d_d -o (#b_v -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_v -o #b_t))) || noscope &
 #m GLUE lam(D,lam(E,drs([],[rel(strip(%p),E,D)]))) : (#x_d -o (#y_v -o #m_t)) &
 #n GLUE lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) :
 		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))).
