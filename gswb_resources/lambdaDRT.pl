@@ -24,7 +24,8 @@
 :- consult('boxer/printDrs.pl').            % printDrs/1
 
 :- consult('boxer/drs2fol.pl').       % drs2fol/2
-:- consult('boxer/fol2tptp.pl').       % fol2tpl/2
+:- consult('boxer/fol2fof.pl').       % fol2tpl/2
+:- consult('boxer/fol2tff.pl').       % fol2tpl/2
 
 
 main :- 
@@ -35,8 +36,8 @@ main :-
 
 pl2Tftf :-
     current_prolog_flag(argv,Argv),
-    Argv = [X,Y|_],
-    translateProlog(X,Y), halt.
+    Argv = [X,Y,Z|_],
+    translateProlog(X,Y,Z), halt.
 
 convert(X,Y) :- consult(X),
   findall(S,solution(_,S),L),
@@ -55,27 +56,33 @@ betaConvertList([],[]).
 
 % Functions for translating from Prolog to TPTP and write to file
 
-translateProlog(In,Out) :- consult(In),
+translateProlog(In,Out,Z) :- consult(In),
     findall(A,axiom(A),L),
-    translateAxiomList(L,TL),
+    translateAxiomList(L,TL,Z),
     open(Out,append,Stream),
     writeList(TL,Stream),
     close(Stream).
 
 
-translateAxiomList([],[]).
-translateAxiomList([H1|T1],[H2|T2]) :- translateAxiom(H1,H2),translateAxiomList(T1,T2).
+translateAxiomList([],[],_).
+translateAxiomList([H1|T1],[H2|T2],L) :- translateAxiom(H1,H2,L),translateAxiomList(T1,T2,L).
 
-translateAxiom(In,Out) :-
+translateAxiom(In,Out,L) :-
     In =.. ['drs'| _ ],
     betaConvert(In,Converted),
     resolveDrs(Converted,Resolved),
     drs2fol(Resolved,Fol),
-    fol2tptp_string(Fol,Out).
+    ( L = 'tff' ->
+        fol2tff_string(Fol,Out);
+      L = 'fof' ->
+        fol2fof_string(Fol,Out)).
 
-translateAxiom(In,Out) :-
+translateAxiom(In,Out,L) :-
     \+ In =.. ['drs'| _ ], % Term should be FOL if not a DRS
-    fol2tptp_string(In,Out).
+    ( L = 'tff' ->
+            fol2tff_string(In,Out);
+      L = 'fof' ->
+            fol2fof_string(In,Out)).
 
 
  writeList([],_).

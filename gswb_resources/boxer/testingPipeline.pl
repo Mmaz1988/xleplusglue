@@ -8,7 +8,7 @@
 
 :- use_module(drs2fol,[drs2fol/2]).
 
-:- use_module(fol2tptp,[fol2tptp1/2]).
+:- use_module(fol2tff,[fol2tptp_string/2]).
 
 :- use_module(mergeDRT,[mergeDrs/2]).
 
@@ -32,6 +32,6 @@ testingPipeline:-
    drs2fol(MergedConverted,FOLCOnverted),
    write(FOLCOnverted),
    format('~nfol2tptp says: ',[]),
-   fol2tptp1(FOLCOnverted,TPTPConverted),
+   fol2tptp_string(FOLCOnverted,TPTPConverted),
    write(TPTPConverted),
    fail.
