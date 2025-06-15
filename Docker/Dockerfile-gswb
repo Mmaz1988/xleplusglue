@@ -14,7 +14,8 @@ ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
 COPY jars/gswb.jar app.jar
 
 # copy necessary resource files
-COPY gswb_resources gswb_resources
+COPY BB-DRT/boxer /gswb_resources/boxer
+COPY BB-DRT/lambdaDRT.pl /gswb_resources/lambdaDRT.pl
 
 ## ENTRYPOINT ["java", "-jar", "/app.jar"]
 ENTRYPOINT exec java -jar /app.jar -web

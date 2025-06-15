@@ -16,8 +16,8 @@ RUN apt-get update && \
 # set jemalloc as default malloc in env variable
 ENV LD_PRELOAD=libjemalloc.so.2
 
-COPY gswb_resources/boxer /liger_resources/boxer
-COPY gswb_resources/lambdaDRT.pl /liger_resources/lambdaDRT.pl
+COPY BB-DRT/boxer /liger_resources/boxer
+COPY BB-DRT/lambdaDRT.pl /liger_resources/lambdaDRT.pl
 
 # Copy from build stage to keep image size small
 COPY jars/liger.jar app.jar
