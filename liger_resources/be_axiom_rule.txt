@@ -1,0 +1,6 @@
+#p PRED %p & strip(%p) = 'be' & #p PREDLINK #c s:: #s TYPE 'entity' ==>
+#p AXIOM all(X,all(Y, all(Z, and(be(X),and
+
+
+fof(be_axiom, axiom,
+    ![X,Y,Z] : ((be(X) & arg1(X,Y) & arg2(X,Z)) <=> Y = Z)).
