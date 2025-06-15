@@ -8,7 +8,7 @@
 #p GLUE lam(X,drs([],[pred(strip(%a),X)])) :  (#s_e -o #s_t) &
 #s GLUE lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
 ((#s_e -o #s_t) -o ((#y_e -o #y_t) -o (#y_e -o #y_t))) || noscope.
-
+x
 //Degree (gradable) adjectives
 #x PREDLINK #a & #x s:: #y EV #z &
 #a ATYPE 'predicative' & #a SEMTYPE 'degree' &

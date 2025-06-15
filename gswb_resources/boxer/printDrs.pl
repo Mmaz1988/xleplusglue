@@ -122,9 +122,15 @@ formatRefs([Ref|Rest],Out):-
    Turn a discourse referent into a Prolog constant
 ========================================================================*/
 
-makeConstant(X,Code):- 
+makeConstant(X,Code):-
    atomic(X),
    name(X,Code).
+
+makeConstant(X,Code):-
+   nonvar(X),
+   X =.. [_,_ | []],
+   term_to_atom(X, Atom),
+   name(Atom, Code).
 
 makeConstant(X,[120|Codes]):-
    nonvar(X),
@@ -136,13 +142,16 @@ makeConstant(X,[C|Odes]):-
    nonvar(X),
    X =.. ['$VAR',[C|Odes]].
 
-makeConstant(X,[120|Number]):- 
+makeConstant(X,[120|Number]):-
    var(X),
    retract(counter(N)),
-   name(N,Number), 
+   name(N,Number),
    name(X,[120|Number]),
    M is N+1,
    assert(counter(M)).
+
+
+
 
 
 /*========================================================================

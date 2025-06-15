@@ -30,13 +30,13 @@ right	  N * (^PRED) = 'right<(^XCOMP)>'
 "countries"
 
 
-Swede      N * @(PRED swede)
+Swede      N * {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count
                  @(COUNT-NOUN-SEM %stem).
 
-Scandinavian      N * @(PRED scandinavian)
+Scandinavian      N * {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count
@@ -60,7 +60,7 @@ Portugal   N *   @(PRED portugal)
                 (^NTYPE NSEM PROPER) = location.
 
 
-European    N * @(PRED european)
+European    N * {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count

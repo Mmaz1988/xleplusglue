@@ -1,11 +1,11 @@
-%Declare predicate to identify fast
 tff(fast_type, type, fast: ($i * $int) > $o).
 tff(slow_type, type, slow: ($i * $int) > $o).
 tff(kind_type, type, kind: ($i * $i) > $o).
-%Does slow have a maximum? more like clean? 
+
+tff(adj_postulate, axiom,
+![X: $i, Y: $i , D: $int]: (arg1(X, Y) & fast(X, D)  <=> fast(Y, D))).
 
 %FAST
-%possibly optional (taken from Haruta, et al. Github)
 tff(downward_monotonicity_fast, axiom,
     ![X: $i, Delta1: $int]:
     (fast(X, Delta1) <=>
@@ -14,7 +14,6 @@ tff(downward_monotonicity_fast, axiom,
         )
 ).
 
-%consistency postulate, p. 148, Haruta, et al. 2022
 tff(consistency_axiom, axiom,
     ![X: $i, Y: $i]:
         (? [D: $int]: (fast(X, D) & ~fast(Y, D))
@@ -22,7 +21,6 @@ tff(consistency_axiom, axiom,
          ![D2: $int]: (fast(Y, D2) => fast(X, D2)))
 ).
 
-%supremum, p. 149, Haruta, et al. 2022
 tff(existence_of_maximal_fast, axiom,
     ![X: $i]:(
         ?[Delta1: $int]:
@@ -35,7 +33,6 @@ tff(existence_of_maximal_fast, axiom,
 
 
 %SLOW
-%possibly optional (taken from Haruta, et al. Github)
 tff(downward_monotonicity_slow, axiom,
     ![X: $i, Delta1: $int]:
     (slow(X, Delta1) <=>
@@ -44,7 +41,6 @@ tff(downward_monotonicity_slow, axiom,
         )
 ).
 
-%consistency postulate, p. 148, Haruta, et al. 2022
 tff(consistency_axiom, axiom,
     ![X: $i, Y: $i]:
         (? [D: $int]: (slow(X, D) & ~slow(Y, D))
@@ -52,7 +48,6 @@ tff(consistency_axiom, axiom,
          ![D2: $int]: (slow(Y, D2) => slow(X, D2)))
 ).
 
-%supremum, p. 149, Haruta, et al. 2022
 tff(existence_of_maximal_slow, axiom,
     ![X: $i]:(
         ?[Delta1: $int]:
