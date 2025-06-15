@@ -25,6 +25,7 @@
 
 :- use_module(comsemPredicates,[memberList/2]).
 
+:-  op(500, xfx, [:]).
 
 /*========================================================================
    Alpha Conversion (introducing substitutions)
@@ -33,6 +34,9 @@
 alphaConvertDRS(B1,B2):-
 	alphaConvertDRS(B1,[]-_,B2).
 
+isatomic(X):-
+    number(X);
+    atom(X).
 
 /*========================================================================
    Alpha Conversion (term)
@@ -46,12 +50,12 @@ alphaConvertTerm(X,Vars,New):-
    alphaConvertVar(X,Vars,New).
 
 alphaConvertTerm(X,_Vars,New):-
-   atom(X),
+   isatomic(X),
    New = X.
 
 alphaConvertTerm(X,Vars,New) :-
    \+ var(X),
-   \+ atom(X),
+   \+ isatomic(X),
    X =.. [Func|Args],
    alphaConvertTermList(Args,Vars,NewArgs),
    New =.. [Func|NewArgs].
@@ -61,11 +65,22 @@ alphaConvertTerm(X,Vars,New) :-
 ========================================================================*/
 
 alphaConvertVar(X,Vars,New):-
-   var(X), 
+   var(X),
    (
       memberList(sub(Z,Y),Vars),
       X==Z, !,
       New=Y
+   ;
+      New=X
+   ).
+
+alphaConvertVar(X,Vars,New):-
+   \+ var(X),
+   X = I:T,
+   (
+      memberList(sub(Z,Y),Vars),
+      I==Z, !,
+      New=Y:T
    ;
       New=X
    ).
@@ -76,13 +91,24 @@ alphaConvertVar(X,Vars,New):-
 ========================================================================*/
 
 alphaConvertDRS(X1,Vars-Vars,X2):-
-   var(X1), 
+   (var(X1);
+   X1 = I:_,
+   var(I)),!,
    alphaConvertVar(X1,Vars,X2).
+
+alphaConvertDRS(Exp,Vars-Vars,lam(Y:T,B2)):-
+   nonvar(Exp),
+   Exp=lam(X,B1),
+   \+ var(X),
+   X = I:T,
+   alphaConvertDRS(B1,[sub(I,Y)|Vars]-_,B2).
 
 alphaConvertDRS(Exp,Vars-Vars,lam(Y,B2)):-
    nonvar(Exp),
    Exp=lam(X,B1),
+   var(X),var(Y),
    alphaConvertDRS(B1,[sub(X,Y)|Vars]-_,B2).
+
 
 alphaConvertDRS(Exp,Vars-Vars,drs([],[])):-
    nonvar(Exp),
@@ -94,9 +120,17 @@ alphaConvertDRS(Exp,Vars1-Vars2,drs([],[C2|Conds2])):-
    alphaConvertCondition(C1,Vars1,C2), 
    alphaConvertDRS(drs([],Conds1),Vars1-Vars2,drs([],Conds2)).
 
+alphaConvertDRS(Exp,Vars1-Vars2,drs([New:T|L2],C2)):-
+   nonvar(Exp),
+   Exp=drs([Ref|L1],C1),
+   \+ var(Ref),
+   Ref = I:T,
+   alphaConvertDRS(drs(L1,C1),[sub(I,New)|Vars1]-Vars2,drs(L2,C2)).
+
 alphaConvertDRS(Exp,Vars1-Vars2,drs([New|L2],C2)):-
    nonvar(Exp),
    Exp=drs([Ref|L1],C1),
+   var(Ref),var(New),
    alphaConvertDRS(drs(L1,C1),[sub(Ref,New)|Vars1]-Vars2,drs(L2,C2)).
 
 alphaConvertDRS(Exp,Vars1-Vars3,alfa(Type,B3,B4)):-

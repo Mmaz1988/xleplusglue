@@ -27,13 +27,20 @@
 
 :- use_module(alphaConversionDRT,[alphaConvertDRS/2]).
 
+:- use_module(betaConversionTestsuite,[test/2]).
+
+x:-  op(500, xfx, [:]).
 
 /*========================================================================
    Beta-Conversion (introducing stack)
 ========================================================================*/
 
 betaConvert(X,Y):-
-   betaConvert(X,Y,[]).
+	betaConvert(X,Y,[]).
+
+isatomic(X):-
+	atom(X),
+	number(X).
 
 
 /*========================================================================
@@ -41,7 +48,9 @@ betaConvert(X,Y):-
 ========================================================================*/
 
 betaConvert(X,Y,[]):-
-   var(X),
+   (var(X);
+    X = I:_,
+    var(I)),!,
    Y=X.
 
 betaConvert(Expression,Result,Stack):- 
@@ -55,11 +64,21 @@ betaConvert(Expression,Result,[X|Stack]):-
    nonvar(Expression),
    atom(X),
    Expression = lam(V,Formula),
+   \+ var(V),
+   V = I:_,
+   betaConvert(Formula,Result,Stack),
+   I = X.
+
+betaConvert(Expression,Result,[X|Stack]):-
+   nonvar(Expression),
+   isatomic(X),
+   Expression = lam(V,Formula),
    betaConvert(Formula,Result,Stack),
    V = X.
 
 betaConvert(Expression,Result,[X|Stack]):-
    nonvar(Expression),
+  %\+ atom(X), \+ X = _:_,
    Expression = lam(X,Formula),
    betaConvert(Formula,Result,Stack).
 
@@ -102,3 +121,19 @@ info:-
 /*
 :- info.
 */
+
+/*========================================================================
+   BETA CONVERSION TEST SUITE
+========================================================================*/
+
+betaConversionTestSuite:-
+   format('~n>>>>> BETA CONVERSION TEST SUITE <<<<<~n',[]),
+   test(Formula,Converted),
+   format('~n~nFormula:',[]),
+   write(Formula),
+   format('~nConverted:',[]),
+   write(Converted),
+   format('~nbetaConversion says: ',[]),
+   betaConvert(Formula,Result),
+   write(Result),
+   fail.

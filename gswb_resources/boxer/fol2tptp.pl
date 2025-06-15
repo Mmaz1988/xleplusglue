@@ -21,7 +21,7 @@
 
 *************************************************************************/
 
-:- module(fol2tptp,[fol2tptp/2]).
+:- module(fol2tptp,[fol2tptp/2,fol2tptp1/2]).
 
 :- use_module(comsemPredicates,[basicFormula/1]).
 
@@ -38,31 +38,59 @@ fol2tptp(Formula,Input):-
    nl(Stream),
    close(Stream).
 
+% For testing
+fol2tptp1(Input, Output) :-
+    with_output_to(string(Output),
+        (
+            write('input_formula(comsem,axiom,'),
+            \+ \+ ( numbervars(Input, 0, _), printTptp(Input, current_output) ),
+            write(').'),
+            nl
+        )
+    ).
+
 
 /*========================================================================
    Print Tptp formulas
 ========================================================================*/
 
-printTptp(some(X,Formula),Stream):- !,
-   write(Stream,'(? ['),
-   write_term(Stream,X,[numbervars(true)]),
-   write(Stream,']: '),
-   printTptp(Formula,Stream),
-   write(Stream,')').
+%Added disjunction to deal with different types. Untyped variables are of type $i
+printTptp(some(Arg, Formula), Stream) :- !,
+    write(Stream, '(?['),
+    ( Arg = (X : T) ->
+        write_term(Stream, X, [numbervars(true)]),
+        ( T = d -> write(Stream, ' : $int') ; write(Stream, ' : $i') )
+    ;
+        write_term(Stream, Arg, [numbervars(true)]), write(Stream, ' : $i')
+    ),
+    write(Stream, ']: '),
+    printTptp(Formula, Stream),
+    write(Stream, ')').
 
-printTptp(que(X,Formula),Stream):- !,
-   write(Stream,'(? ['),
-   write_term(Stream,X,[numbervars(true)]),
-   write(Stream,']: '),
-   printTptp(Formula,Stream),
-   write(Stream,')').
+printTptp(all(Arg, Formula), Stream) :- !,
+    write(Stream, '(!['),
+    ( Arg = (X : T) ->
+        write_term(Stream, X, [numbervars(true)]),
+        ( T = d -> write(Stream, ' : $int') ; write(Stream, ' : $i') )
+    ;
+        write_term(Stream, Arg, [numbervars(true)]), write(Stream, ' : $i')
+    ),
+    write(Stream, ']: '),
+    printTptp(Formula, Stream),
+    write(Stream, ')').
 
-printTptp(all(X,Formula),Stream):- !,
-   write(Stream,'(! ['),
-   write_term(Stream,X,[numbervars(true)]),
-   write(Stream,']: '),
-   printTptp(Formula,Stream),
-   write(Stream,')').
+printTptp(que(Arg, Formula), Stream) :- !,
+    write(Stream, '(?['),
+    ( Arg = (X : T) ->
+        write_term(Stream, X, [numbervars(true)]),
+        ( T = d -> write(Stream, ' : $int') ; write(Stream, ' : $i') )
+    ;
+        write_term(Stream, Arg, [numbervars(true)]), write(Stream, ' : $i')
+    ),
+    write(Stream, ']: '),
+    printTptp(Formula, Stream),
+    write(Stream, ')').
+
 
 printTptp(and(Phi,Psi),Stream):- !,
    write(Stream,'('),
@@ -91,6 +119,16 @@ printTptp(not(Phi),Stream):- !,
 
 printTptp(eq(X,Y),Stream):- !,
    write_term(Stream,equal(X,Y),[numbervars(true)]).
+
+printTptp(greater(X,Y),Stream):- !,
+   write_term(Stream,$greater(X,Y),[numbervars(true)]).
+
+printTptp(plus(Phi,Psi),Stream):- !,
+   write(Stream,'('),
+   printTptp(Phi,Stream),
+   write(Stream,' + '),
+   printTptp(Psi,Stream),
+   write(Stream,')').
 
 printTptp(Phi,Stream):-
    basicFormula(Phi),
