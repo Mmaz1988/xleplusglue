@@ -92,7 +92,7 @@ def printDRS(Drs):
 #what a DRT input should look like
 #class Formula(BaseModel):
 #    formula: str
- #   newformula: str
+#   newformula: str
 
 app = FastAPI()
 # Enable CORS for all origins (Modify for security in production)
@@ -159,10 +159,14 @@ def process_vampire_request(request: VampireRequest):
         readings = extract_drs_blocks(request.hypothesis)
         logger.debug("Readings extracted: %s", readings)
 
+        # if logic_type is zero then use fof, otherwise use tff
+        logic_type = "fof" if request.vampire_preferences['logic_type'] == 0 else "tff"
+        logger.info("Using logic type: %s", logic_type)
+
         hypotheses = []
         for reading in readings:
-            prolog_hypothesis, fof_hypothesis = conversion(reading)
-            fof_hypothesis = extract_fof(fof_hypothesis)
+            prolog_hypothesis, fof_hypothesis = conversion(reading, tptp_type=logic_type)
+            # fof_hypothesis = extract_fof(fof_hypothesis)
             context = Context(original=request.text, prolog_drs=reading, prolog_fol=prolog_hypothesis,
                               tptp=fof_hypothesis, box=printDRS(reading))
             hypotheses.append(context)
@@ -184,7 +188,7 @@ def process_vampire_request(request: VampireRequest):
             for ctx in active_contexts:
                 for hypothesis in hypotheses:
                     output_folder = "tmp/current/"
-                    generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic="fof",
+                    generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
                                         output_folder=output_folder)
                     results = massacer(output_folder, mode=["-sa", "fmb"], timeout=7, vampire_path="bin")
                     logger.debug("Vampire Results: %s", results)
@@ -197,7 +201,7 @@ def process_vampire_request(request: VampireRequest):
                         # Create new context
                         new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs)
                         prolog_hypothesis, fof_hypothesis = conversion(new_prolog)
-                        fof_hypothesis = extract_fof(fof_hypothesis)
+                        # fof_hypothesis = extract_fof(fof_hypothesis)
                         context = Context(original=ctx.original + " " + hypothesis.original,
                                           prolog_drs=new_prolog, prolog_fol=prolog_hypothesis,
                                           tptp=fof_hypothesis, box=printDRS(new_prolog))
@@ -230,7 +234,7 @@ def process_vampire_request(request: VampireRequest):
 
         result = VampireResponse(context=new_context,
                                  active_indices=new_active_indices,
-                                    context_checks_mapping=context_checks_mapping)
+                                 context_checks_mapping=context_checks_mapping)
         if os.path.exists("tmp"):
             shutil.rmtree("tmp")
         return result
@@ -247,12 +251,12 @@ def extract_drs_blocks(text):
     return matches
 
 def extract_fof(text):
-    pattern = r"fof\(\w+,\w+,(.*?)\)\."
+    pattern = r"fof\(\w+,\w+,(.*?)\)\s*"
     match = re.search(pattern, text)
     return match.group(1)
 
 #convert drs to fol to tptp and get the vampire output from that
-def conversion(formula):
+def conversion(formula,tptp_type="fof"):
     logger.info("Converting formula to TPTP: %s", formula)
     if os.path.exists("tmp"):
         #delete contents if not empty
@@ -271,10 +275,20 @@ def conversion(formula):
     logger.info("Function conversion generated following formula: ", newfol)
     #now get TPTP string from Prolog
     fof_file = "tmp/fof.txt"
-    betterfol = "fol2tptp(" + newfol + ",'" +fof_file+"')."
+
+    # tptp conversion file
+    tptp_prolog = ""
+    betterfol = ""
+    if tptp_type == "fof":
+        betterfol = "fol2fof(" + newfol + ",'" + fof_file + "')."
+        tptp_prolog = "fol2fof"
+    else:
+        betterfol = "fol2tff(" + newfol + ",'" + fof_file + "')."
+        tptp_prolog = "fol2tff"
+    # betterfol = "fol2tptp(" + newfol + ",'" +fof_file+"')."
 
     logger.info("Calling Prolog to convert FOL to TPTP: %s", betterfol)
-    useProlog(f"[{os.path.join(BOXER,'fol2tptp')}].",betterfol)
+    useProlog(f"[{os.path.join(BOXER,tptp_prolog)}].",betterfol)
 
     data = open(fof_file, 'r').read()
     data = inputToFof(data)

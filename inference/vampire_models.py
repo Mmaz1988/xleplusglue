@@ -22,7 +22,8 @@ class VampireRequest(BaseModel):
     axioms: str
     hypothesis: str
     pruning: bool
-    active_indices: List[int]  # A list of integers
+    active_indices: List[int]
+    vampire_preferences: dict  # A dictionary for vampire preferences
 
 
 # export interface check {

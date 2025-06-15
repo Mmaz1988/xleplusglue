@@ -1,16 +1,23 @@
 # Start from a jdk base image
 FROM eclipse-temurin:17.0.9_9-jdk
-#@sha256:ef3ab7c2888f8f2f9cc043a9f33ce3dac5e7acd0d8fe964188989234337090dc
 
 EXPOSE 8080
 
 # install jemalloc as alternative malloc implementation (to be more robust to memory fragmentation)
-RUN apt-get update && apt-get install --yes --no-install-recommends libjemalloc2
-RUN apt-get install -y libx11-6
-RUN apt-get install -y tcl8.6 tk8.6
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libjemalloc2 \
+        libx11-6 \
+        tcl8.6 \
+        tk8.6 \
+        swi-prolog && \
+    apt-get clean
 
 # set jemalloc as default malloc in env variable
 ENV LD_PRELOAD=libjemalloc.so.2
+
+COPY gswb_resources/boxer /liger_resources/boxer
+COPY gswb_resources/lambdaDRT.pl /liger_resources/lambdaDRT.pl
 
 # Copy from build stage to keep image size small
 COPY jars/liger.jar app.jar

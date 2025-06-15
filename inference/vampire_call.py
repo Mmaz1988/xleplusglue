@@ -21,8 +21,8 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
 
     # Define TPTP templates with placeholders for p and q
     templates = {
-        'info_pos_check': '{}(info_pos_check, axiom, (({}) => ({}))).\n',
-        'info_neg_check': '{}(info_neg_check, axiom, ~(({}) => ({}))).\n',
+        'info_neg_check': '{}(info_pos_check, axiom, (({}) => ({}))).\n',
+        'info_pos_check': '{}(info_neg_check, axiom, ~(({}) => ({}))).\n',
         'cons_pos_check': '{}(cons_pos_check, axiom, ({} & {})).\n',
         'cons_neg_check': '{}(cons_neg_check, axiom, ({}) => ~({})).\n'
     }
@@ -328,7 +328,7 @@ def determine_informativity(data):
     if successful_neg_check:
         return False
 
-    successful_pos_check = sum(1 for value in data["neg"] if value == 1) > len(data["neg"]) / 2
+    successful_pos_check = sum(1 for value in data["pos"] if value == 1) > len(data["pos"]) / 2
     if successful_pos_check:
         return True
 

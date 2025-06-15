@@ -118,8 +118,12 @@ printFof(not(Phi),Stream):- !,
    write(Stream,'~ '),
    printFof(Phi,Stream).
 
-printFof(eq(X,Y),Stream):- !,
-   write_term(Stream,equal(X,Y),[numbervars(true)]).
+printFof(eq(Phi,Psi),Stream):- !,
+   write(Stream,'('),
+   printFof(Phi,Stream),
+   write(Stream,' = '),
+   printFof(Psi,Stream),
+   write(Stream,')').
 
 printFof(greater(X,Y),Stream):- !,
     write(Stream,'$greater('),
@@ -193,8 +197,8 @@ printFof(iff(Phi,Psi)) :- !,
 printFof(not(Phi)) :- !,
    write('~ '), printFof(Phi).
 
-printFof(eq(X,Y)) :- !,
-   write_term(equal(X,Y), [numbervars(true)]).
+printFof(eq(Phi,Psi)) :- !,
+   write('('), printFof(Phi), write(' = '), printFof(Psi), write(')').
 
 printFof(greater(X,Y)):- !,
    write('$greater('),

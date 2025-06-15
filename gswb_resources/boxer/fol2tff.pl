@@ -121,8 +121,12 @@ printTff(not(Phi),Stream):- !,
    write(Stream,'~ '),
    printTff(Phi,Stream).
 
-printTff(eq(X,Y),Stream):- !,
-   write_term(Stream,equal(X,Y),[numbervars(true)]).
+printTff(iff(Phi,Psi),Stream):- !,
+   write(Stream,'('),
+   printTff(Phi,Stream),
+   write(Stream,' = '),
+   printTff(Psi,Stream),
+   write(Stream,')').
 
 printTff(greater(X,Y),Stream):- !,
     write(Stream,'$greater('),
@@ -197,8 +201,8 @@ printTff(iff(Phi,Psi)) :- !,
 printTff(not(Phi)) :- !,
    write('~ '), printTff(Phi).
 
-printTff(eq(X,Y)) :- !,
-   write_term(equal(X,Y), [numbervars(true)]).
+printTff(eq(Phi,Psi)) :- !,
+   write('('), printTff(Phi), write(' = '), printTff(Psi), write(')').
 
 printTff(greater(X,Y)):- !,
    write('$greater('),
