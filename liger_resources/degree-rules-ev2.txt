@@ -1,5 +1,9 @@
 --replace(true);
 
+#n MOD #m in_set #p PRED %p & #p TYPE %k & #n s:: #s ==>
+#p GLUE lam(P,lam(X,merge(drs([],[rel(%k,'strip(%p)',X)]),app(P,X)))) : ((#s_e -o #s_t) -o (#s_e -o #s_t)) || noscope.
+
+
 //Degree (gradable) adjectives
 #x PREDLINK #a & #x s:: #y EV #z &
 #a ATYPE 'predicative' & #a SEMTYPE 'degree' &

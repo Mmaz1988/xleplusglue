@@ -163,6 +163,14 @@ def process_vampire_request(request: VampireRequest):
         logic_type = "fof" if request.vampire_preferences['logic_type'] == 0 else "tff"
         logger.info("Using logic type: %s", logic_type)
 
+        # use proof search based on model building in fof and mixed search in tff
+        vampire_mode = []
+        if logic_type == "fof":
+            vampire_mode = ["-sa", "fmb"]
+        elif logic_type == "tff":
+            vampire_mode = ["--mode", "casc_sat"]
+
+
         hypotheses = []
         for reading in readings:
             prolog_hypothesis, fof_hypothesis = conversion(reading, tptp_type=logic_type)
@@ -190,7 +198,7 @@ def process_vampire_request(request: VampireRequest):
                     output_folder = "tmp/current/"
                     generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
                                         output_folder=output_folder)
-                    results = massacer(output_folder, mode=["-sa", "fmb"], timeout=7, vampire_path="bin")
+                    results = massacer(output_folder, mode=vampire_mode, timeout=7, vampire_path="bin")
                     logger.debug("Vampire Results: %s", results)
 
                     consistent, informative = discourse_checks(data=results)

@@ -23,7 +23,8 @@ NP --> "either a full NP or a PRON"
     "hardcoding of MWEs"
     "should be done more elegantly in the end"
     "hardcoded words can be found in the functionlex_fracas"
-    (NMod)
+    (NMod: ! $ (^ MOD)
+      @(OT-MARK nmod))
 
     "head of NP"
     N: ^=!;

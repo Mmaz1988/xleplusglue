@@ -13,11 +13,10 @@ New` York N *   (^ PRED)='New` York'
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location.
 
-Nobel` prize N * (^ PRED)='Nobel` prize'
-                 (^NUM)=sg
-                 (^NTYPE NSYN) = common
-                 (^NTYPE NSEM COMMON) = count
-                 @(COUNT-NOUN-SEM prize).
+
+
+Nobel     NMod *  (^ PRED) = 'Nobel'
+             	  (^ TYPE) = kind.
 
 "nouns that can take an XCOMP" "eg. the right to appear"
 
@@ -30,13 +29,13 @@ right	  N * (^PRED) = 'right<(^XCOMP)>'
 "countries"
 
 
-Swede      N * {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
+Swede      N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count
                  @(COUNT-NOUN-SEM %stem).
 
-Scandinavian      N * {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
+Scandinavian      N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count
@@ -60,7 +59,7 @@ Portugal   N *   @(PRED portugal)
                 (^NTYPE NSEM PROPER) = location.
 
 
-European    N * {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
+European    N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count
@@ -146,7 +145,8 @@ ITEL 	N *    {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NTYPE NSEM COMMON) = count
                 @(PROPER-NOUN-SEM %stem)
                 ;
-	    NMod * .
+	    NMod *  (^ PRED) = 'ITEL'
+	            (^ TYPE) = kind.
 
 APCOM   N *     {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NUM) = sg
@@ -154,7 +154,8 @@ APCOM   N *     {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NTYPE NSEM COMMON) = count
                 @(PROPER-NOUN-SEM %stem)
                 ;
-        NMod * .
+        NMod *  (^ PRED) = 'APCOM'
+        	            (^ TYPE) = kind.
 
 Pavarotti   N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NUM) = sg
