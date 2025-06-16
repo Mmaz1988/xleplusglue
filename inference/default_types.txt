@@ -1,0 +1,9 @@
+tff(fast_type, type, fast: ($i * $int) > $o).
+tff(kind_type, type, kind: ($i * $i) > $o).
+tff(arg1_type, type, arg1: ($i * $i) > $o).
+tff(arg2_type, type, arg2: ($i * $i) > $o).
+tff(computer_type, type, computer: $i > $o).
+tff(be_type, type, be: $i > $o).
+
+tff(pn_type1, type, 'pc-6082': $i).
+tff(pn_type2, type, 'itel-zx': $i).

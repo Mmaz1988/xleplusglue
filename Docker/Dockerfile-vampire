@@ -1,5 +1,5 @@
 # Use the official Python base image
-FROM python:3.9-slim
+FROM python:3.9
 
 EXPOSE 8082
 
@@ -38,8 +38,10 @@ RUN pip install -r requirements.txt
 # copy boxer files to vampire
 COPY BB-DRT/boxer /vampire/boxer
 
+COPY inference/vampire_test/xleplusglue2.p /vampire/xleplusglue2.p
+
 # Run the sysctl command to modify kernel settings (this works only in privileged mode)
-RUN sudo sysctl -w kernel.perf_event_paranoid=-1 || echo "Ignoring sysctl failure, needs privileged mode."
+# RUN sudo sysctl -w kernel.perf_event_paranoid=-1 || echo "Ignoring sysctl failure, needs privileged mode."
 
 # Set the command to run the Python script
 #CMD ["python", "run_vampire.py"]

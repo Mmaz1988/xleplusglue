@@ -79,6 +79,8 @@ def printDRS(Drs):
     if not os.path.exists("tmp"):
         os.makedirs("tmp", exist_ok=True)
 
+    Drs = wrap_hyphenated_words(Drs)
+
     inputDrs = "printDrs:saveToFile(" + Drs + ",'tmp/boxing.txt')."
     useProlog(f"[{os.path.join(BOXER,'printDrs')}].",inputDrs)
 
@@ -168,7 +170,7 @@ def process_vampire_request(request: VampireRequest):
         if logic_type == "fof":
             vampire_mode = ["-sa", "fmb"]
         elif logic_type == "tff":
-            vampire_mode = ["--mode", "casc_sat"]
+            vampire_mode = ["--mode", "casc"]
 
 
         hypotheses = []
@@ -198,7 +200,7 @@ def process_vampire_request(request: VampireRequest):
                     output_folder = "tmp/current/"
                     generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
                                         output_folder=output_folder)
-                    results = massacer(output_folder, mode=vampire_mode, timeout=7, vampire_path="bin")
+                    results = massacer(output_folder, mode=vampire_mode, timeout=60, vampire_path="bin")
                     logger.debug("Vampire Results: %s", results)
 
                     consistent, informative = discourse_checks(data=results)
@@ -208,7 +210,7 @@ def process_vampire_request(request: VampireRequest):
                     if consistent and informative:
                         # Create new context
                         new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs)
-                        prolog_hypothesis, fof_hypothesis = conversion(new_prolog)
+                        prolog_hypothesis, fof_hypothesis = conversion(new_prolog,tptp_type=logic_type)
                         # fof_hypothesis = extract_fof(fof_hypothesis)
                         context = Context(original=ctx.original + " " + hypothesis.original,
                                           prolog_drs=new_prolog, prolog_fol=prolog_hypothesis,
@@ -280,7 +282,7 @@ def conversion(formula,tptp_type="fof"):
     logger.info(f"Loading knowledge base [{os.path.join(BOXER,'drs2fol')}].")
 
     newfol = open(drs2fol_file, 'r').read()
-    logger.info("Function conversion generated following formula: ", newfol)
+    logger.info("Function conversion generated following formula: " + newfol)
     #now get TPTP string from Prolog
     fof_file = "tmp/fof.txt"
 
@@ -305,13 +307,16 @@ def conversion(formula,tptp_type="fof"):
     os.remove(fof_file)
     os.rmdir("tmp")
     print("Generated TPTP formula: ", data)
-    return newfol, data
 
+    return newfol, wrap_hyphenated_words(data)
 
+"""
+Utilities
+"""
 
-
-
-
+def wrap_hyphenated_words(text):
+    pattern = r'\b[\w\d]+-[\w\d]+\b'
+    return re.sub(pattern, lambda m: f"'{m.group(0)}'", text)
 
 
 

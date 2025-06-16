@@ -128,12 +128,37 @@ printTff(iff(Phi,Psi),Stream):- !,
    printTff(Psi,Stream),
    write(Stream,')').
 
+ printTff(eq(Phi,Psi),Stream) :- !,
+    write(Stream,'('), printTff(Phi,Stream), write(Stream,' = '), printTff(Psi,Stream), write(Stream,')').
+
 printTff(greater(X,Y),Stream):- !,
     write(Stream,'$greater('),
     printTff(X,Stream),
     write(Stream,','),
     printTff(Y,Stream),
     write(Stream,')').
+
+printTff(greaterEq(X,Y),Stream):- !,
+    write(Stream,'$greatereq('),
+    printTff(X,Stream),
+    write(Stream,','),
+    printTff(Y,Stream),
+    write(Stream,')').
+
+printTff(less(X,Y),Stream):- !,
+    write(Stream,'less('),
+    printTff(X,Stream),
+    write(Stream,','),
+    printTff(Y,Stream),
+    write(Stream,')').
+
+printTff(lessEq(X,Y),Stream):- !,
+    write(Stream,'$lesseq('),
+    printTff(X,Stream),
+    write(Stream,','),
+    printTff(Y,Stream),
+    write(Stream,')').
+
 
 printTff(plus(Phi,Psi),Stream):- !,
    write(Stream,'('),
@@ -145,6 +170,8 @@ printTff(plus(Phi,Psi),Stream):- !,
 printTff(Phi,Stream):-
    basicFormula(Phi),
    write_term(Stream,Phi,[numbervars(true)]).
+
+
 
 /*========================================================================
    Print Tptp formulas to default output (for string conversion)
@@ -210,6 +237,27 @@ printTff(greater(X,Y)):- !,
    write(','),
    printTff(Y),
    write(')').
+
+   printTff(greaterEq(X,Y)):- !,
+      write('$greatereq('),
+      printTff(X),
+      write(','),
+      printTff(Y),
+      write(')').
+
+   printTff(less(X,Y)):- !,
+          write('less('),
+          printTff(X),
+          write(','),
+          printTff(Y),
+          write(')').
+
+   printTff(lessEq(X,Y)):- !,
+                write('$lesseq('),
+                printTff(X),
+                write(','),
+                printTff(Y),
+                write(')').
 
 printTff(plus(Phi,Psi)):- !,
    write('('),

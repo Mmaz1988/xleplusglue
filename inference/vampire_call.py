@@ -4,6 +4,7 @@ import subprocess
 import re
 import logging
 
+
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ def extract_vampire_info(output):
 
     return termination_reason, termination_phase, finite_model_found, szs_status
 
-def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=7,vampire_path="bin"):
+def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
     """
     Runs Vampire theorem prover on a single .p file and extracts relevant information.
 
@@ -103,7 +104,7 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=7,vampire_path="bin"):
     vampire_path = os.path.join(vampire_path, "vampire")
     command = [str(vampire_path), file_path, "-t", str(timeout)] + mode
 
-    logging.debug("Executing: %s", " ".join(command))
+    logger.debug("Executing: %s", " ".join(command))
     # print("Executing: ", " ".join(command), "\r", flush=True)
 
     try:
@@ -115,10 +116,15 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=7,vampire_path="bin"):
             text=True,
             timeout=timeout
         )
+        #Logg exit code
+        logger.debug("Vampire exited with code: %d" + str(completed_process.returncode))
 
         # Extract information from the output
         output = completed_process.stdout
-        logging.debug("Vampire Output: %s", output)
+        # print(f"Vampire Output: {output}")
+        # print(f"Error output: {completed_process.stderr}")
+        logger.info("Vampire Output: %s" + output)
+        # logger.debug("Error output: %s" + completed_process.stderr)
         # print(output)
         termination_reason, termination_phase, finite_model_found, szs_status = extract_vampire_info(output)
 
@@ -130,14 +136,19 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=7,vampire_path="bin"):
             "SZS Status": szs_status
         })
 
-    except subprocess.TimeoutExpired:
-        result["Termination Reason"] = "Timeout"
+    except subprocess.TimeoutExpired as e:
+        logger.warning("Vampire process timed out after %d seconds", timeout)
+        if e.stdout:
+            logger.warning("Partial STDOUT before timeout:\n%s", e.stdout)
+        if e.stderr:
+            logger.warning("Partial STDERR before timeout:\n%s", e.stderr)
     except Exception as e:
+        logger.error("An error occurred while running Vampire: %s", e)
         result["Termination Reason"] = f"Error: {e}"
 
     return result
 
-def massacer(folder_path, mode=["-sa", "fmb"], timeout=7,vampire_path ="bin"):
+def massacer(folder_path, mode=["-sa", "fmb"], timeout=15,vampire_path ="bin"):
     """
     Processes all .p files in the given folder using the Vampire theorem prover.
 
@@ -297,7 +308,7 @@ def discourse_checks(data):
 
     # Determine consistency and informativity
     consistent = determine_consistency(consistency_check)
-    informative = determine_informativity(informativity_check)
+    informative, maxim_of_relevance  = determine_informativity(informativity_check)
 
     return consistent, informative
 
@@ -323,14 +334,19 @@ Determines informativity based on mapped values.
 def determine_informativity(data):
     logger.debug("Informativity Check: %s", data)
     # Placeholder: Implement specific informativity conditions
+
+    if sum(data["neg"]) == 0 and sum(data["pos"]) == 0:
+        logger.info("Assuming maxime of relevance for informativity")
+        return True, True  # Maxime of relevance is assumed to be true
+
     successful_neg_check = sum(1 for value in data["neg"] if value == -1) > len(data["neg"]) / 2
 
     if successful_neg_check:
-        return False
+        return False, False
 
     successful_pos_check = sum(1 for value in data["pos"] if value == 1) > len(data["pos"]) / 2
     if successful_pos_check:
-        return True
+        return True, False
 
-    return False
+    return False, False
 

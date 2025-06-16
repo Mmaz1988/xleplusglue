@@ -1,5 +1,6 @@
 --replace(true);
 
+//Nounmodifiers
 #n MOD #m in_set #p PRED %p & #p TYPE %k & #n s:: #s ==>
 #p GLUE lam(P,lam(X,merge(drs([],[rel(%k,'strip(%p)',X)]),app(P,X)))) : ((#s_e -o #s_t) -o (#s_e -o #s_t)) || noscope.
 
@@ -45,3 +46,21 @@
 #m GLUE lam(D,lam(E,drs([],[rel(strip(%p),E,D)]))) : (#x_d -o (#y_v -o #m_t)) &
 #n GLUE lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) :
 		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))).
+
+//Axioms
+
+//Be equality axiom
+#p PRED %p & strip(%p) == 'be' & #p PREDLINK #c s:: #s TYPE 'entity' ==>
+#p AXIOM all(X,all(Y,all(Z,imp(and(be(X),and(arg1(X,Y),arg2(X,Z))),eq(Y,Z))))).
+
+//Comparative axioms
+#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p ==>
+#a AXIOM all(X, all(Y, all(D:d, imp(and(arg1(X, Y), fast(X, D)), fast(Y, D))))).
+
+#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o ==>
+#a MONO #q & #q AXIOM all(X, all(Delta1:d, iff(strip(%p)(X, Delta1), all(Delta2:d, imp(lessEq(Delta2, Delta1), strip(%p)(X, Delta2)))))) &
+#a CP #r & #r AXIOM all(X, all(Y, imp(some(D:d, and(strip(%p)(X, D), not(strip(%p)(Y, D)))), all(D2:d, imp(strip(%p)(Y, D2), strip(%p)(X, D2)))))) &
+#a MAX #s & #s AXIOM all(X, some(Delta1:d, and(strip(%p)(X, Delta1), not(some(Delta2:d, and(greater(Delta2, Delta1), strip(%p)(X, Delta2))))))).
+
