@@ -35,7 +35,7 @@
 ==> #d GLUE lam(P,merge(drs([D],[]),merge(drs([],[eq(th_strip(%a)('strip(%x)'),D)]),app(P,D)))) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
 //Rules for comparative uses
-#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p
+#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p &
 #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
 #a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
 ==>
@@ -57,7 +57,7 @@
 #a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p ==>
 #a AXIOM all(X, all(Y, all(D:d, imp(and(arg1(X, Y), fast(X, D)), fast(Y, D))))).
 
-#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p
+#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p &
 #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
 #a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o ==>
 #a MONO #q & #q AXIOM all(X, all(Delta1:d, iff(strip(%p)(X, Delta1), all(Delta2:d, imp(lessEq(Delta2, Delta1), strip(%p)(X, Delta2)))))) &

@@ -200,7 +200,7 @@ def process_vampire_request(request: VampireRequest):
                     output_folder = "tmp/current/"
                     generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
                                         output_folder=output_folder)
-                    results = massacer(output_folder, mode=vampire_mode, timeout=60, vampire_path="bin")
+                    results = massacer(output_folder, mode=vampire_mode, timeout=20, vampire_path="bin")
                     logger.debug("Vampire Results: %s", results)
 
                     consistent, informative = discourse_checks(data=results)
