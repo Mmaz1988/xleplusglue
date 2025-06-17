@@ -35,6 +35,7 @@ class Check(BaseModel):
     glyph: str
     informative: bool
     consistent: bool
+    relevant: bool
 
 
 # export interface vampireResponse {

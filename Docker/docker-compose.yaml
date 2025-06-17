@@ -13,7 +13,7 @@ services:
       dockerfile: Docker/Dockerfile-vampire
       context: ..
       args:
-        - platform=linux/amd64
+       - platform=linux/amd64
     platform: linux/amd64
     ports:
       - '8082:8082'

@@ -1,6 +1,0 @@
---replace(true);
-#g ^(SPEC) #h & #g QUANT #i ==> #h SEM #l & #l VAR #j & #l RESTR #k.
-#g ^(SPEC) #h & #g DET #i ==> #h SEM #l & #l VAR #j & #l RESTR #k.
-#g ^(SPEC) #h SEM #i VAR #j & #i RESTR #k ==> #g GLUE '((#j -o #k) -o AF#i.((#i -o F#i) -o F#i))'.
-#g SEM #j VAR #i & #j RESTR #k ==> #g GLUE '(#i -o #k)'.
-#g SUBJ #h SEM #i & #g OBJ #l SEM #m ==> #g GLUE '(#i -o (#m -o #g))'.

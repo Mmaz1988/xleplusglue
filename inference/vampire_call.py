@@ -3,7 +3,7 @@ import os
 import subprocess
 import re
 import logging
-
+import traceback
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -143,7 +143,10 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
         if e.stderr:
             logger.warning("Partial STDERR before timeout:\n%s", e.stderr)
     except Exception as e:
+        #print stacktrace
         logger.error("An error occurred while running Vampire: %s", e)
+        logger.error("Stacktrace: %s", traceback.format_exc())
+
         result["Termination Reason"] = f"Error: {e}"
 
     return result
@@ -310,7 +313,7 @@ def discourse_checks(data):
     consistent = determine_consistency(consistency_check)
     informative, maxim_of_relevance  = determine_informativity(informativity_check)
 
-    return consistent, informative
+    return consistent, informative, maxim_of_relevance
 
 
 """

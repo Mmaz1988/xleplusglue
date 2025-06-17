@@ -114,32 +114,6 @@ BOXER = os.getenv("BOXER_PATH", "boxer")
 def root():
     return {"test": "Hello World"}
 
-# where 'pure' proving happens
-@app.post("/prove")
-def proving(request: Item):
-    histresult = str(request.discourseSoFar)
-    newresult = str(request.axioms)
-    return bloodsucking(histresult, newresult)
-
-# where conversion to TPTP and then proving happens
-@app.post("/convert")
-def proving(request: Item):
-    discourse = str(request.discourseSoFar)
-    newdiscourse = str(request.axioms)
-    convertedForm = conversion(discourse)
-    convertedNewform = conversion(newdiscourse)
-    resultList = bloodsucking(convertedForm,convertedNewform)
-    # check if vampire concludes satisfiability/consistency
-    if "Termination reason: Satisfiable" in resultList[2]:
-        newDRS = mergeIfTrue(discourse,newdiscourse)
-        resultList.append(newDRS)
-        boxedDrs = printDRS(newDRS)
-        resultList.append(boxedDrs)
-    return resultList
-
-
-
-
 # Define the Pydantic model for request validation
 
 @app.post("/vampire_request")
@@ -173,6 +147,10 @@ def process_vampire_request(request: VampireRequest):
             vampire_mode = ["--mode", "casc"]
 
 
+        # CHeck if vampire preferences have max_duration with default 45 seconds
+        max_duration = int(request.vampire_preferences.get('max_duration', 45))
+        logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
+
         hypotheses = []
         for reading in readings:
             prolog_hypothesis, fof_hypothesis = conversion(reading, tptp_type=logic_type)
@@ -200,11 +178,11 @@ def process_vampire_request(request: VampireRequest):
                     output_folder = "tmp/current/"
                     generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
                                         output_folder=output_folder)
-                    results = massacer(output_folder, mode=vampire_mode, timeout=20, vampire_path="bin")
+                    results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
                     logger.debug("Vampire Results: %s", results)
 
-                    consistent, informative = discourse_checks(data=results)
-                    logger.debug("Consistent: %s, Informative: %s", consistent, informative)
+                    consistent, informative, maxim_of_relevance = discourse_checks(data=results)
+                    logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
 
                     #Placeholder code
                     if consistent and informative:
@@ -218,13 +196,13 @@ def process_vampire_request(request: VampireRequest):
                         if context not in new_context:
                             new_context.append(context)
                             svg_output = generate_svg_glyph(results)
-                            check = Check(glyph=svg_output, informative=informative, consistent=consistent)
+                            check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
                             current_checks.append(check)
                     elif ctx not in new_context:
                         # Keep old context
                         new_context.append(ctx)
                         svg_output = generate_svg_glyph(results)
-                        check = Check(glyph=svg_output, informative=informative, consistent=consistent)
+                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant=maxim_of_relevance)
                         current_checks.append(check)
 
             new_active_indices = [i for i in range(len(new_context))]
