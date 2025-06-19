@@ -1,0 +1,1 @@
+This readme describes the python interface to Vampire making inference in the style of Blackburn & Bos. 2005. 

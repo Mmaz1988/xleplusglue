@@ -238,11 +238,6 @@ def extract_drs_blocks(text):
     matches = re.findall(pattern, text, re.DOTALL)  # Use DOTALL to match across multiple lines
     return matches
 
-def extract_fof(text):
-    pattern = r"fof\(\w+,\w+,(.*?)\)\s*"
-    match = re.search(pattern, text)
-    return match.group(1)
-
 #convert drs to fol to tptp and get the vampire output from that
 def conversion(formula,tptp_type="fof"):
     logger.info("Converting formula to TPTP: %s", formula)
@@ -302,4 +297,11 @@ def wrap_hyphenated_words(text):
 #bin/vampire --mode model_check  eprover.p
 #values for saturation_algorithm: fmb, otter
 #bin/vampire --saturation_algorithm fmb  eprover.p
+
+# def extract_fof(text):
+#     pattern = r"fof\(\w+,\w+,(.*?)\)\s*"
+#     match = re.search(pattern, text)
+#     return match.group(1)
+
+
 
