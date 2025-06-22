@@ -11,7 +11,8 @@ NOUN ENGLISH LEXICON (1.0)
 New` York N *   (^ PRED)='New` York'
                 (^NUM)=sg
                 (^NTYPE NSYN) = proper
-                (^NTYPE NSEM PROPER) = location.
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM New` York).
 
 
 
@@ -41,22 +42,25 @@ Scandinavian      N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
                 (^NTYPE NSEM COMMON) = count
                  @(COUNT-NOUN-SEM %stem).
 
-Sweden     N *   @(PRED sweden)
+Sweden     N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
-                (^NTYPE NSEM PROPER) = location.
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem).
 
 
-Scandinavia N *   @(PRED scandinavia)
+Scandinavia N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
-                (^NTYPE NSEM PROPER) = location.
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem).
 
 
-Portugal   N *   @(PRED portugal)
+Portugal   N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
-                (^NTYPE NSEM PROPER) = location.
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem).
 
 
 European    N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
@@ -66,16 +70,17 @@ European    N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
                 @(COUNT-NOUN-SEM %stem)
                 ; ETC.
 
-Europeans    N * @(PRED european)
+Europeans    N * @(PRED %stem)
                 (^NUM) = pl
                 (^NTYPE NSYN) = common
-                (^NTYPE NSEM COMMON) = count.
+                (^NTYPE NSEM COMMON) = count
+                @(COUNT-NOUN-SEM %stem).
 
-Europe     N *   @(PRED europe)
+Europe     N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
-                 @(PROPER-NOUN-SEM %stem).
+                @(PROPER-NOUN-SEM %stem).
 
 
 "hardcoded words"
@@ -83,7 +88,8 @@ Europe     N *   @(PRED europe)
 people   N *    {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NUM) = pl
                 (^NTYPE NSYN) = common
-                (^NTYPE NSEM COMMON) = count.
+                (^NTYPE NSEM COMMON) = count
+                @(COUNT-NOUN-SEM %stem).
 
 Dumbo 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                           (^NUM) = sg
@@ -95,7 +101,8 @@ Bill 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
               (^NUM) = sg
               (^GENDER) = masc
               (^NTYPE NSYN) = proper
-              (^NTYPE NSEM PROPER) = name.
+              (^NTYPE NSEM PROPER) = name
+               @(PROPER-NOUN-SEM %stem).
 
 Kim 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                           (^NUM) = sg
