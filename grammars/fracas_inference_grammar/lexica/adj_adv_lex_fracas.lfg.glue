@@ -101,6 +101,11 @@ very 	  ADV * @(PRED very).
 
 freely 	  ADV * @(PRED free).
 
+
+"outside	  ADV * (^ PRED) = 'outside<(^OBJ)>'; ETC."
+
+"within	  ADV * (^ PRED) = 'within<(^OBJ)>'; ETC."
+
 "more    ADV *  @(PRED more)."
 
 ----

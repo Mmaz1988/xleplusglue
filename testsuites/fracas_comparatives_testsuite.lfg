@@ -1,60 +1,62 @@
 #1
 
-The PC-6082 is faster than the ITEL-XZ.
+The PC-6082 is faster than the ITEL-XZ. (2 0.008 39)
 
-The ITEL-XZ is fast.
+The ITEL-XZ is fast. (2 0.004 18)
 
-The ITEL-XZ is slow.
+The ITEL-XZ is slow. (2 0.003 18)
 
-The PC-6082 is faster than the ITEL-XZ.
+The PC-6082 is faster than the ITEL-XZ. (2 0.005 39)
 
-The PC-6082 is faster than the ITEL-XZ.
+The PC-6082 is faster than the ITEL-XZ. (2 0.005 39)
 
-The PC-6082 is as fast as the ITEL-XZ.
+The PC-6082 is as fast as the ITEL-XZ. (2 0.003 28)
 
-ITEL won more orders than APCOM did.
+ITEL won more orders than APCOM did. (2 0.009 49)
 
-APCOM won ten orders.
+APCOM won ten orders. (1 0.003 36)
 
-ITEL won more orders than APCOM.
+ITEL won more orders than APCOM. (1 0.006 37)
 
-ITEL won more orders than the APCOM contract.
+ITEL won more orders than the APCOM contract. (1 0.005 46)
 
-ITEL won twice as many orders as APCOM.
+ITEL won twice as many orders as APCOM. (1 0.008 38)
 
 
 #2
 
-ITEL won more orders than APCOM lost.
+ITEL won more orders than APCOM lost. (2 0.007 49)
 
 
 #3
 
-The PC-6082 is faster than 500 MIPS.
+The PC-6082 is faster than 500 MIPS. (2 0.004 48)
 
-The ITEL-ZX is slower than 500 MIPS.
+The ITEL-ZX is slower than 500 MIPS. (2 0.003 37)
 
 
 #4
 
-ITEL sold 3000 more computers than APCOM.
+ITEL sold 3000 more computers than APCOM. (1 0.006 45)
 
-APCOM sold exactly 2500 computers.
+APCOM sold exactly 2500 computers. (1 0.002 38)
 
 
 #5
 
-APCOM has a more important customer than ITEL.
+APCOM has a more important customer than ITEL. (4 0.010 37)
 
 
 #6
 
-The PC-6082 is faster than every ITEL computer.
+The PC-6082 is faster than every ITEL computer. (2 0.003 46)
 
-The PC-6082 is faster than some ITEL computer.
+The PC-6082 is faster than some ITEL computer. (2 0.003 46)
 
-The PC-6082 is faster than any ITEL computer.
+The PC-6082 is faster than any ITEL computer. (2 0.003 46)
 
 #The PC-6082 is faster than the ITEL-ZX and the ITEL-ZY.
 
 #The PC-6082 is faster than the ITEL-ZX or the ITEL-ZY.
+
+# 20 sentences, 0.102 CPU secs total, 0.010 CPU secs max (06/24/25)

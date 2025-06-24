@@ -74,7 +74,7 @@
 	    "type of comparative is handled in the lexicon"
 	    "EX1: The tree is greater than the plant."
 	    "EX2: The tree is (as) great (as the plant)."
- 	    (CPComp: (^ OBL-COMP) = !)
+ 	    "(CPComp: (^ OBL-COMP) = !)"
 
  	    (COMMA).
 

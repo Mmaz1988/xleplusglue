@@ -20,7 +20,9 @@ by 	  P * @(PREP by)
         @(PREP-SEM by).
 
 to 	  P * @(PREP to)
-        @(PREP-SEM to);
+        {
+        (^PTYPE) =c sem
+        @(PREP-SEM to)};
 	  PARTinf * (^ VFORM) =c inf.
 
 on 	  P * @(PREP on)
@@ -48,6 +50,9 @@ from     P * @(PREP from)
 
 at	  P * @(PREP at)
         @(PREP-SEM at).
+
+outside	  P * @(PREP outside)
+              @(PREP-SEM outside).
 
 
 "complementizers"

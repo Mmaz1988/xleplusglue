@@ -29,7 +29,7 @@ VPv[_form] -->
                 	  "secondary object"
                  	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"
                 		 (! PTYPE) =c sem "only semantic PPs here"
-                		 @(OT-MARK PPadj) "disprefer adjunct PPs"
+                		  "@(OT-MARK PPadj) disprefer adjunct PPs"
                 	       | (^ OBL) = ! "or a general oblique"
                 	       };
                  	  (PP: (^ OBL-TO) = ! "special obl for ditransitives"
@@ -60,10 +60,11 @@ VPv[_form] -->
             (ADVP: ! $ (^ ADJUNCT))
             (NEG: ! $ (^ ADJUNCT))
             {
-              NP: (^ PREDLINK) = ! | "EX. ... is a dog"
+              NP: (^ PREDLINK) = ! "EX. ... is a dog"
+              |
               AP[predicative]: @(OT-MARK adj)
                                (^ PREDLINK) = !
-               | "EX. ... is fast"
+              | "EX. ... is fast"
               PP: (^ PREDLINK) = ! "EX. ... is on the table"
               (! PTYPE) = sem
               |

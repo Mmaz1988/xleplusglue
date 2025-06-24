@@ -85,9 +85,9 @@ who PRON *      (^PRON-TYPE) = rel
                 s::(ADJUNCT TOPIC ^) = %sem
                     (TOPIC ^) = %rel
                     (s::%rel SIT) = %sit
-                    (%rel {SUBJ | OBJ}) = %arg
+                    s::(%rel {SUBJ | OBJ}) = %arg
                 :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
-                   ((%sem_e -o %sem_t) -o ((s::%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope.
+                   ((%sem_e -o %sem_t) -o ((%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope.
 
 
 "determiners"

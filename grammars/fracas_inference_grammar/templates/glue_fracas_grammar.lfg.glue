@@ -16,14 +16,12 @@ GLUE   BASIC   TEMPLATES (1.0)
    NAME-SCOPE(UP NAME) =
    %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART | $}+ ^)
    (%name FIN) =c +
-   NAME  = s::%name
-   (s::^ QUANT-SCOPE) = NAME.
+   NAME  = s::%name.
 
      QUANT-SCOPE(UP NAME) =
   	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL-COMP | OBL | PREDLINK | ADJUNCT | OBL-PART | $}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
   	  (s::%name EV TYPE) =c eventuality
-  	  NAME = s::%name
-      (s::^ QUANT-SCOPE) = NAME.
+  	  NAME = s::%name.
 
 " Why does the below not work?
    QUANT-SCOPE(UP NAME) =
@@ -57,8 +55,8 @@ GLUE   BASIC   TEMPLATES (1.0)
 	    %scope = s::(ADJUNCT ^)
 	    (%scope TYPE) =c entity
 	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
-	    ((s::(ADJUNCT ^)_e -o s::^_t) -o ((s::(ADJUNCT ^)_e -o %scope_t) -o (s::(ADJUNCT ^)_e -o %scope_t))) || noscope,
-	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (s::(ADJUNCT ^)_e -o s::^_t)),
+	    ((%scope_e -o s::^_t) -o ((%scope_e -o %scope_t) -o (%scope_e -o %scope_t))) || noscope,
+	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (%scope_e -o s::^_t)),
 	     }.
 
 "
@@ -82,18 +80,19 @@ GLUE   BASIC   TEMPLATES (1.0)
 
 DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
                       	      (s::^ TYPE) = entity
-                      		  { @(COUNT-NOUN-SEM P)
+                      		  { (^ NTYPE NSYN) =c common
+                      		  @(COUNT-NOUN-SEM P)
                       		  |
+                      		  (^ NTYPE NSYN) =c proper
                       		  @(PROPER-NOUN-SEM P)
                       		  }.
 
 
-COUNT-NOUN-SEM(P) = (^ NTYPE NSYN) =c common
+COUNT-NOUN-SEM(P) =
                     (s::^ TYPE) = entity
                     :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t).
 
-PROPER-NOUN-SEM(P) = (^ NTYPE NSYN) =c proper
-                     (s::^ TYPE) = entity
+PROPER-NOUN-SEM(P) = (s::^ TYPE) = entity
                              :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t),
                              {
                              ~[(^DEF)]
