@@ -22,8 +22,8 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
 
     # Define TPTP templates with placeholders for p and q
     templates = {
-        'info_neg_check': '{}(info_pos_check, axiom, (({}) => ({}))).\n',
-        'info_pos_check': '{}(info_neg_check, axiom, ~(({}) => ({}))).\n',
+        'info_pos_check': '{}(info_pos_check, axiom, ~(({}) => ({}))).\n',
+        'info_neg_check': '{}(info_neg_check, axiom, (({}) => ({}))).\n',
         'cons_pos_check': '{}(cons_pos_check, axiom, ({} & {})).\n',
         'cons_neg_check': '{}(cons_neg_check, axiom, ({}) => ~({})).\n'
     }
