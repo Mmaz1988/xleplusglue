@@ -39,7 +39,7 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
         tptp_content += template.format(logic,q,p)
         filename = f"sem_{suffix}.p"
         file_path = os.path.join(output_folder, filename)
-        logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")
+        # logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")
         with open(file_path, mode='w') as file:
             file.write(tptp_content)
 
@@ -123,7 +123,7 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
         output = completed_process.stdout
         # print(f"Vampire Output: {output}")
         # print(f"Error output: {completed_process.stderr}")
-        logger.info("Vampire Output: %s" + output)
+        # logger.info("Vampire Output: %s" + output)
         # logger.debug("Error output: %s" + completed_process.stderr)
         # print(output)
         termination_reason, termination_phase, finite_model_found, szs_status = extract_vampire_info(output)
@@ -174,7 +174,7 @@ def massacer(folder_path, mode=["-sa", "fmb"], timeout=15,vampire_path ="bin"):
     for i,filename in enumerate(file_list):
         if filename.endswith(".p"):
             # print file being analyzed and flush stdout to see progress
-            print(f"Analyzing {filename}...({i+1}/{len(file_list)})", end="\r", flush=True)
+            # print(f"Analyzing {filename}...({i+1}/{len(file_list)})", end="\r", flush=True)
             file_path = os.path.join(folder_path, filename)
             result = bloodsuck(file_path, mode, timeout, vampire_path)
             results.append(result)

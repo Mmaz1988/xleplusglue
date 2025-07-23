@@ -4,15 +4,15 @@
 PYTHON_CMD=${1:-python3}
 
 # Define script and argument variables for easy modification
-TPTP_CSV="tptp_testsuite_speed.csv"
-OUTPUT_DIR="generated_testfiles_speed"
-AXIOMS_FILE="degree_axioms_speed.txt"
+TPTP_CSV="tptp_testsuite_height.csv"
+OUTPUT_DIR="generated_testfiles_height"
+AXIOMS_FILE="degree_axioms_height.txt"
 LOGIC_TYPE="tff"
 
 # Modes: --mode casc, --mode casc_sat, -sa fmb
 VAMPIRE_MODE="--mode casc"
-VAMPIRE_PATH=""
-RESULT_FILE="results_speed.csv"
+VAMPIRE_PATH="../../vampire_build/vampire/bin"
+RESULT_FILE="results_height.csv"
 
 # Check if virtual environment already exists
 if [ ! -d "venv" ]; then

@@ -136,7 +136,7 @@ def process_vampire_request(request: VampireRequest):
         logger.debug("Readings extracted: %s", readings)
 
         # if logic_type is zero then use fof, otherwise use tff
-        logic_type = "fof" if request.vampire_preferences['logic_type'] == 0 else "tff"
+        logic_type = "fof" if request.vampire_preferences['logic_type'] == '0' else "tff"
         logger.info("Using logic type: %s", logic_type)
 
         # use proof search based on model building in fof and mixed search in tff
@@ -219,6 +219,8 @@ def process_vampire_request(request: VampireRequest):
             context_checks_mapping[i] = check
 
         logger.info(f"Returning Vampire Response: {new_context}, {new_active_indices}, {context_checks_mapping}")
+
+
 
         result = VampireResponse(context=new_context,
                                  active_indices=new_active_indices,
