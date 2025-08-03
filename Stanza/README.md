@@ -2,6 +2,10 @@
 
 If not already there create a directory named `models` in the project root directory
 
+Download the English model from [Stanza English model](https://huggingface.co/stanfordnlp/stanza-en/blob/main/models/default.zip) 
+
+Download the resources file from [Stanza resources](https://github.com/stanfordnlp/stanza-resources/blob/main/resources_1.10.0.json)
+
 If starting standalone, create a python environment, install the requiremenmts (e.g. pip install -r requirements.txt) and start the api using `uvicorn main:app --host 0.0.0.0 --port {PORT}` with `{PORT}` beeing the chosen available port for the api.
 
 If started using docker(-compose) simply run `docker compose up --build` to build and start the api. The default port will be 8002.
