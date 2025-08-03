@@ -1,0 +1,30 @@
+
+# SUBJ OBJ XCOMP:
+
+John believed Mary to appear
+
+
+# SUBJ XCOMP:
+
+Mary is believed to appear
+
+
+# SUBJ OBL-AG XCOMP:
+
+Mary is believed by John to appear
+
+
+
+# SUBJ COMP:
+
+Mary believed that John appeared
+
+# SUBJ OBJ COMP:
+
+Mary believed John that Peter appeared
+
+
+# SUBJ OBJ:
+
+John believed Mary
+
