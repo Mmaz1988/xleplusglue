@@ -10,7 +10,7 @@ services:
       - '8080:8080'
   stanza:
     build:
-      dockerfile: Docker/Dockerfile-liger
+      dockerfile: Docker/Dockerfile-stanza
       context: ..
       args:
         - platform=linux/amd64
