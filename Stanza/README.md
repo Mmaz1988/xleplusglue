@@ -1,6 +1,6 @@
 # Setup
 
-If not already there create a directory named `models` in the project root directory
+If not already there create a directory named `models` in the `Stanza` directory
 
 Download the English model from [Stanza English model](https://huggingface.co/stanfordnlp/stanza-en/blob/main/models/default.zip) 
 
