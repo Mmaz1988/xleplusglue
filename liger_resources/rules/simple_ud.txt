@@ -29,6 +29,9 @@
 #d SEM #t & #t GLUE [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) \& Q(x)]]] :
 						((#s_e -o #s_t) -o ((#s_e -o #q_t) -o #q_t)).
 
+#d DEFINITE Def & #d ^(DET) #n SEM #s & #n ^(%) #p SEM #q  ==>
+#d SEM #t & #t GLUE [/P_<e,t>.Ix_e[P(x)]] : ((#s_e -o #s_t) -o #s_e).
+
 #d UPOS 'DET' & #d LEMMA every & #d ^(DET) #n SEM #s & #n ^(%) #p SEM #q  ==>
 #d SEM #t & #t GLUE [/P_<e,t>.[/Q_<e,t>.Ax_e[P(x) -> Q(x)]]] :
 						((#s_e -o #s_t) -o ((#s_e -o #q_t) -o #q_t)).
