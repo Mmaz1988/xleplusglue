@@ -26,12 +26,12 @@ COPY jars/liger.jar app.jar
 COPY liger_resources liger_resources
 
 # copy XLE
-COPY ../xle /xle
+# COPY ../xle /xle
 
-COPY src/.bashrc /root/.bashrc
+# COPY src/.bashrc /root/.bashrc
 
 # copy grammars
-COPY grammars /grammars
+# COPY grammars /grammars
 
 ## ENTRYPOINT ["java", "-jar", "/app.jar"]
 ENTRYPOINT exec java -jar /app.jar -web
