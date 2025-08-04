@@ -5,7 +5,7 @@ from fastapi_restful.tasks import repeat_every
 from stanza.utils.conll import CoNLL
 from fastapi.middleware.cors import CORSMiddleware
 
-from stanza_models import LinguisticStructure, GraphConstraint, Sentence_payload
+from stanza_models import LinguisticStructure, GraphConstraint, Sentence_payload, batch_payload
 
 
 app = FastAPI()
@@ -42,18 +42,33 @@ from fastapi import APIRouter
 import datetime
 import json
 
+
+
 @app.post('/parse_to_liger')
 async def depParse2Liger(payload: Sentence_payload):
+    graph_structure = parse_sentence_to_liger_structure(payload.sentence, payload.language)
+    return graph_structure.toJson()
+
+@app.post('/batch_parse_to_liger')
+async def batchParseToLiger(payload: batch_payload):
+    #iterate through dictionary payload.sentences
+    parsed_sentences = {}
+    for key, sentence in payload.sentences.items():
+        graph_structure = parse_sentence_to_liger_structure(sentence, payload.language)
+        parsed_sentences[key] = graph_structure.toJson()
+    return {"annotations" : parsed_sentences}
+
+def parse_sentence_to_liger_structure(sentence, language):
     # Load or reuse parser
-    if payload.language not in loadedParsers:
-        parser = stanza.Pipeline(lang=payload.language, processors='tokenize,mwt,pos,lemma,depparse', dir='models', use_gpu=False)
-        loadedParsers[payload.language] = [parser, datetime.datetime.now()]
+    if language not in loadedParsers:
+        parser = stanza.Pipeline(lang=language, processors='tokenize,mwt,pos,lemma,depparse', dir='models', use_gpu=False)
+        loadedParsers[language] = [parser, datetime.datetime.now()]
     else:
-        parser = loadedParsers[payload.language][0]
-        loadedParsers[payload.language][1] = datetime.datetime.now()
+        parser = loadedParsers[language][0]
+        loadedParsers[language][1] = datetime.datetime.now()
 
     # Parse sentence
-    doc: stanza.Document = parser(payload.sentence)
+    doc: stanza.Document = parser(sentence)
     sentence = doc.sentences[0]
 
     # Construct GraphConstraints
@@ -82,8 +97,8 @@ async def depParse2Liger(payload: Sentence_payload):
         sentence=sentence.text,
         constraints=constraints
     )
+    return ls
 
-    return ls.toJson()
 
 
 @app.post('/parse')

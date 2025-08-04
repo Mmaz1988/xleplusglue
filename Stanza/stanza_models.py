@@ -108,3 +108,8 @@ class ChoiceSpace:
 class Sentence_payload(BaseModel):
     sentence: str
     language: str
+
+class batch_payload(BaseModel):
+    sentences: dict[str, str]
+    language: str
+
