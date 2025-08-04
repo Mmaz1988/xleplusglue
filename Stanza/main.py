@@ -61,7 +61,7 @@ async def batchParseToLiger(payload: batch_payload):
 def parse_sentence_to_liger_structure(sentence, language):
     # Load or reuse parser
     if language not in loadedParsers:
-        parser = stanza.Pipeline(lang=language, processors='tokenize,mwt,pos,lemma,depparse', dir='models', use_gpu=False)
+        parser = stanza.Pipeline(lang=language, processors='tokenize,mwt,pos,lemma,depparse', dir='models', use_gpu=False,download_method=None)
         loadedParsers[language] = [parser, datetime.datetime.now()]
     else:
         parser = loadedParsers[language][0]
