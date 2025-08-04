@@ -11,7 +11,7 @@ Create a models folder in the Stanza directory and place the downloaded files th
 ```
 Stanza/
  |-- models/
-     |-- English <-- contents of the English model in the default.zip file
+     |-- en <-- contents of the English model in the default.zip file
      |-- resources.json <-- contents of the resources_1.10.0.json file
 
 ```

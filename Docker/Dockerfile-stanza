@@ -19,8 +19,11 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY ../Stanza/main.py main.py
 COPY ../Stanza/stanza_models.py stanza_models.py
 
+# Copy the Stanza models directory
+COPY ../Stanza/models/ models/
+
 # Expose the port
-EXPOSE 8002
+EXPOSE 8083
 
 # Run the app using uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8083"]
