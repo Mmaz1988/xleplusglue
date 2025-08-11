@@ -33,7 +33,7 @@ This repository contains:
 - Java (jars are compiled at version 17; available at **[OpenJDK](https://jdk.java.net/13/)**
 - **[SWI-Prolog](https://www.swi-prolog.org/) (version > v6.xx)**
 
-Due to XLE's architecture, the Docker-based system cannot be run successfully on Apple machines with ARM-based chips like the M1 and M2. It should run on machines that support x86 on any operating system.
+Due to XLE's and Vampire's architecture, the Docker-based XLE interface is a bit slow on ARM machines.
 
 ## Installation -- XLE+Glue_web
 
