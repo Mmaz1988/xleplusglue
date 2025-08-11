@@ -1,12 +1,16 @@
 # XLE+Glue toolset
 
-# Current TODOs
+# Development
 
-- Add noun semantics to Multiword expressions Lexicon (Can be copied from noun semantics in the morphology)
-- Fix semantics of the other COMP verbs to work both independently and with LiGER 
-- Fix XCOMP semantics in parallel with COMP semantics
-- Implement negation to get an easy example with contradiction for inference
-- Liger does not work with Firefox
+XLE+Glue is developed actively on two branches:
+
+ - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/2024_inference)
+ - [XLE+UD](https://github.com/Mmaz1988/xleplusglue/tree/2025_xleplusud)
+
+As the name suggests, the different versions are interfaced with different syntactic parsers. Please use a version accordingly. 
+In the future, the main branch will coincide with the XLE+Glue with Inference branch, as it will be the main version of XLE+Glue.
+The corresponding branches contain sub-branches with demos for specific events/papers. From these, substantial updates are incorporated into the main braches regularly.
+
 
 ## Intro
 
