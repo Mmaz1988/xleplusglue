@@ -213,7 +213,7 @@ def generate_svg_glyph(data):
     }
 
     # Define property order (ignoring Termination Phase)
-    property_labels = ["Termination Reason", "Finite Model Found", "SZS Status"]
+    property_labels = ["Termination Reason", "SZS Status", "Finite Model Found"]
 
     # Define check categories (first two are Consistency, last two are Informativity)
     is_positive_check = [False, True, False, True]  # False = negative check, True = positive check
@@ -252,6 +252,14 @@ def generate_svg_glyph(data):
     # Draw dividing line slightly lower between Consistency and Informativity checks
     divider_y = row_spacing * 2 + padding - 2  # Adjusted lower so it does not cross symbols
     svg += f'<line x1="{padding}" y1="{divider_y}" x2="{width - padding - 10}" y2="{divider_y}" stroke="black" stroke-width="1"/>'
+
+    # Draw vertical dashed divider after the first two columns
+    vertical_divider_x = padding + col_spacing * 2 + 15  # 15 matches the x-offset you use for symbols
+    svg += (
+            f'<line x1="{vertical_divider_x}" y1="{padding}" '
+            f'x2="{vertical_divider_x}" y2="{height - padding}" '
+            f'stroke="black" stroke-width="1" stroke-dasharray="4,2"/>'
+            )
 
     # Add "C" (Consistency) and "I" (Informativity) labels directly above and below the line
     svg += f'<text x="{padding + 5}" y="{divider_y - 3}" font-size="{symbol_size}" fill="black" font-weight="bold" text-anchor="middle">C</text>'
