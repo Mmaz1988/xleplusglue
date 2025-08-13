@@ -210,7 +210,10 @@ def process_vampire_request(request: VampireRequest):
 
         # Create singleton list consisting of first hypothesis
         if request.pruning:
-            new_context = [hypotheses[0]]
+            if len(new_context) > 0:
+               new_context = [new_context[0]]
+            else:
+                new_context = [hypotheses[0]]
             new_active_indices = [0]
 
         context_checks_mapping = {}
