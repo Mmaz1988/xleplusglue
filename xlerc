@@ -25,7 +25,7 @@ set defaultGlueTCL [relpath src/glue.tcl]
 #Here the grammar is loaded
 # set defaultGlueParser [relpath grammars/hybrid-basic/hybrid-drt-tense.lfg.glue]
 # set defaultGlueParser [relpath grammars/multistage-basic/multistage_xle_adj.lfg.glue]
-set defaultGlueParser [relpath grammars/glue-basic/glue-basic.lfg.glue]
+set defaultGlueParser [relpath grammars/glue-basic-drt/glue-basic-drt.lfg.glue]
 
 #Set LiGER rule file
 set transferRuleFile [relpath liger_resources/test_rules.txt]
@@ -40,13 +40,13 @@ source $defaultGlueTCL
 set solutionOnly 0
 
 # choose prover  (0: HEPPLE, 1: LEV, 2: LEV-altered, 3: Multistage proving)
-set prover 1
+set prover 0
 
 # activate semantic parser (0: no parsing / 1: semantic Parsing / 2: Prolog)
-set semParser 1
+set semParser 2
 
 # activate DRT mode (1/0); requires Prolog parsing! 
-set processDRT 0
+set processDRT 1
 
 # Choose between Prolog-encoding (0) and String-encoding (1) for MCs
 set mcEncoding 1
