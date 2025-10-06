@@ -150,17 +150,14 @@ NAME(P) = (^ PRED) = 'P'
    VERB-SUBJ(P) =
 	  (^ PRED) = 'P<(^ SUBJ)>'
 	  %EV = (s::^ EV)
-	  @(ARG1 (^ SUBJ))
-	  :$ lam(V,drs([],[pred(P,V)])) : (%EV_v -o %EV_t),
-	  :$ lam(V,merge(drs([E],[]),app(V,E))) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
+	  :$ lam(X,drs([E],[pred(P,E),rel(arg1,E,X)])) :
+	  (s::(^SUBJ)_e -o  %EV_t).
 	  
    VERB-SUBJ-OBJ(P) =
 	  (^ PRED) = 'P<(^ SUBJ)(^ OBJ)>'
 	  %EV = (s::^ EV)
-	  @(ARG1 (^ SUBJ))
-	  @(ARG2 (^ OBJ))
-	  :$ lam(V,drs([],[pred(P,V)])) : (%EV_v -o %EV_t),
-	  :$ lam(V,merge(drs([E],[]),app(V,E))) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
+	  :$ lam(X, lam(Y, drs([E],[pred(P,E),rel(arg1,E,X),rel(arg2,E,Y)]))) :
+	 (s::(^SUBJ)_e -o (s::(^OBJ)_e -o  %EV_t)).
 
    VPAST = (^ VTYPE) = FIN
 	  (^ TENSE) = PST.
