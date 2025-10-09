@@ -9,6 +9,7 @@ import time
 import shutil
 import logging
 
+from inference.vampire_models import VampireMultipleRequest
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check
 
@@ -117,11 +118,61 @@ def root():
 # Define the Pydantic model for request validation
 
 @app.post("/vampire_request")
-def process_vampire_request(request: VampireRequest):
+def process_vampire_request_single(request: VampireRequest):
     """
     API endpoint to process vampireRequest.
     """
+    try:
+        return single_vampire_request(request)
 
+    except Exception as e:
+        logger.error("Exception occurred", exc_info=True)
+        if os.path.exists("tmp"):
+             shutil.rmtree("tmp")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.post("/vampire_multiple_request")
+def process_vampire_request_multiple(request: VampireMultipleRequest):
+    """
+    API endpoint to process vampireRequest.
+    """
+    try:
+        return multiple_vampire_request(request)
+
+    except Exception as e:
+        logger.error("Exception occurred", exc_info=True)
+        if os.path.exists("tmp"):
+            shutil.rmtree("tmp")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+def multiple_vampire_request(request):
+    # Inference id to Check
+    results = {}
+    for id, nli_item in request.nli_items.items():
+        initial_premise = nli_item.premises[0]
+        # merge premises into one drs
+        premises_input = []
+        while len(nli_item.premises) > 1:
+            #premise semantics
+            first = nli_item.premises[0]
+            second = nli_item.premises[1]
+
+            first_readings = extract_drs_blocks(first)
+            second_readings = extract_drs_blocks(second)
+
+            if not request.pruning:
+                for reading1 in first_readings:
+                    for reading2 in second_readings:
+                        merged = mergeDrs(reading1, reading2)
+
+
+            nli_item.premises = [merged] + nli_item.premises[2:]
+
+
+
+def single_vampire_request(request):
     new_context = []
     new_active_indices = []
     current_checks = []
@@ -130,113 +181,104 @@ def process_vampire_request(request: VampireRequest):
     if os.path.exists("tmp"):
         shutil.rmtree("tmp")
 
-    try:
-        logger.info("Received Vampire Request: %s", request)
-        readings = extract_drs_blocks(request.hypothesis)
-        logger.debug("Readings extracted: %s", readings)
+    logger.info("Received Vampire Request: %s", request)
+    readings = extract_drs_blocks(request.hypothesis)
+    logger.debug("Readings extracted: %s", readings)
 
-        # if logic_type is zero then use fof, otherwise use tff
-        logic_type = "fof" if request.vampire_preferences['logic_type'] == '0' else "tff"
-        logger.info("Using logic type: %s", logic_type)
+    # if logic_type is zero then use fof, otherwise use tff
+    logic_type = "fof" if request.vampire_preferences['logic_type'] == '0' else "tff"
+    logger.info("Using logic type: %s", logic_type)
 
-        # use proof search based on model building in fof and mixed search in tff
-        vampire_mode = []
-        if logic_type == "fof":
-            vampire_mode = ["-sa", "fmb"]
-        elif logic_type == "tff":
-            vampire_mode = ["--mode", "casc"]
+    # use proof search based on model building in fof and mixed search in tff
+    vampire_mode = []
+    if logic_type == "fof":
+        vampire_mode = ["-sa", "fmb"]
+    elif logic_type == "tff":
+        vampire_mode = ["--mode", "casc"]
 
+    # CHeck if vampire preferences have max_duration with default 45 seconds
+    max_duration = int(request.vampire_preferences.get('max_duration', 45))
+    logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
 
-        # CHeck if vampire preferences have max_duration with default 45 seconds
-        max_duration = int(request.vampire_preferences.get('max_duration', 45))
-        logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
-
-        hypotheses = []
-        for reading in readings:
-            prolog_hypothesis, fof_hypothesis = conversion(reading, tptp_type=logic_type)
-            # fof_hypothesis = extract_fof(fof_hypothesis)
-            context = Context(original=request.text, prolog_drs=reading, prolog_fol=prolog_hypothesis,
+    hypotheses = []
+    for reading in readings:
+        prolog_hypothesis, fof_hypothesis = conversion(reading, tptp_type=logic_type)
+        # fof_hypothesis = extract_fof(fof_hypothesis)
+        context = Context(original=request.text, prolog_drs=reading, prolog_fol=prolog_hypothesis,
                               tptp=fof_hypothesis, box=printDRS(reading))
-            hypotheses.append(context)
+        hypotheses.append(context)
 
-        if not request.context:
-            new_context = hypotheses
-            new_active_indices = [i for i in range(len(hypotheses))]
-            logger.info("No context provided. Returning hypotheses.")
+    if not request.context:
+        new_context = hypotheses
+        new_active_indices = [i for i in range(len(hypotheses))]
+        logger.info("No context provided. Returning hypotheses.")
 
-        else:
-            logger.info("Context provided. Processing hypotheses.")
-            logger.debug("First context: %s", request.context[0].tptp)
+    else:
+        logger.info("Context provided. Processing hypotheses.")
+        logger.debug("First context: %s", request.context[0].tptp)
 
-            active_contexts = request.context
+        active_contexts = request.context
 
-            if request.active_indices:
-                active_contexts = [ctx for i, ctx in enumerate(request.context) if i in request.active_indices]
+        if request.active_indices:
+            active_contexts = [ctx for i, ctx in enumerate(request.context) if i in request.active_indices]
 
-            for ctx in active_contexts:
-                for hypothesis in hypotheses:
-                    output_folder = "tmp/current/"
-                    generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
+        for ctx in active_contexts:
+            for hypothesis in hypotheses:
+                output_folder = "tmp/current/"
+                generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
                                         output_folder=output_folder)
-                    results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
-                    logger.debug("Vampire Results: %s", results)
+                results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+                logger.debug("Vampire Results: %s", results)
 
-                    consistent, informative, maxim_of_relevance = discourse_checks(data=results)
-                    logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
+                consistent, informative, maxim_of_relevance = discourse_checks(data=results)
+                logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
 
-                    #Placeholder code
-                    if consistent and informative:
-                        # Create new context
-                        new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs)
-                        prolog_hypothesis, fof_hypothesis = conversion(new_prolog,tptp_type=logic_type)
-                        # fof_hypothesis = extract_fof(fof_hypothesis)
-                        context = Context(original=ctx.original + " " + hypothesis.original,
+                #Placeholder code
+                if consistent and informative:
+                    # Create new context
+                    new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs)
+                    prolog_hypothesis, fof_hypothesis = conversion(new_prolog,tptp_type=logic_type)
+                    # fof_hypothesis = extract_fof(fof_hypothesis)
+                    context = Context(original=ctx.original + " " + hypothesis.original,
                                           prolog_drs=new_prolog, prolog_fol=prolog_hypothesis,
                                           tptp=fof_hypothesis, box=printDRS(new_prolog))
-                        if context not in new_context:
-                            new_context.append(context)
-                            svg_output = generate_svg_glyph(results)
-                            check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
-                            current_checks.append(check)
-                    elif ctx not in new_context:
-                        # Keep old context
-                        new_context.append(ctx)
+                    if context not in new_context:
+                        new_context.append(context)
                         svg_output = generate_svg_glyph(results)
-                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant=maxim_of_relevance)
+                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
                         current_checks.append(check)
+                elif ctx not in new_context:
+                    # Keep old context
+                    new_context.append(ctx)
+                    svg_output = generate_svg_glyph(results)
+                    check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant=maxim_of_relevance)
+                    current_checks.append(check)
 
-            new_active_indices = [i for i in range(len(new_context))]
-
-
-        # Create singleton list consisting of first hypothesis
-        if request.pruning:
-            if len(new_context) > 0:
-               new_context = [new_context[0]]
-            else:
-                new_context = [hypotheses[0]]
-            new_active_indices = [0]
-
-        context_checks_mapping = {}
-        # Create context_checks_mapping
-        for i, check in enumerate(current_checks):
-            context_checks_mapping[i] = check
-
-        logger.info(f"Returning Vampire Response: {new_context}, {new_active_indices}, {context_checks_mapping}")
+        new_active_indices = [i for i in range(len(new_context))]
 
 
+    # Create singleton list consisting of first hypothesis
+    if request.pruning:
+        if len(new_context) > 0:
+            new_context = [new_context[0]]
+        else:
+            new_context = [hypotheses[0]]
+        new_active_indices = [0]
 
-        result = VampireResponse(context=new_context,
+    context_checks_mapping = {}
+    # Create context_checks_mapping
+    for i, check in enumerate(current_checks):
+        context_checks_mapping[i] = check
+
+    logger.info(f"Returning Vampire Response: {new_context}, {new_active_indices}, {context_checks_mapping}")
+
+    result = VampireResponse(context=new_context,
                                  active_indices=new_active_indices,
                                  context_checks_mapping=context_checks_mapping)
-        if os.path.exists("tmp"):
-            shutil.rmtree("tmp")
-        return result
+    if os.path.exists("tmp"):
+        shutil.rmtree("tmp")
+    return result
 
-    except Exception as e:
-        logger.error("Exception occurred", exc_info=True)
-        if os.path.exists("tmp"):
-            shutil.rmtree("tmp")
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 def extract_drs_blocks(text):
     pattern = r"(drs\(.*?\))\n\n"
