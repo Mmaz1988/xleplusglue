@@ -39,7 +39,7 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
         tptp_content += template.format(logic,q,p)
         filename = f"sem_{suffix}.p"
         file_path = os.path.join(output_folder, filename)
-        # logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")
+        logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")
         with open(file_path, mode='w') as file:
             file.write(tptp_content)
 
@@ -117,11 +117,11 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
             timeout=timeout
         )
         #Logg exit code
-        logger.debug("Vampire exited with code: %d" + str(completed_process.returncode))
+        logger.debug("Vampire exited with code: " + str(completed_process.returncode))
 
         # Extract information from the output
         output = completed_process.stdout
-        # print(f"Vampire Output: {output}")
+        print(f"Vampire Output: {output}")
         # print(f"Error output: {completed_process.stderr}")
         # logger.info("Vampire Output: %s" + output)
         # logger.debug("Error output: %s" + completed_process.stderr)
@@ -357,7 +357,7 @@ def determine_informativity(data):
 
     successful_pos_check = sum(1 for value in data["pos"] if value == 1) > len(data["pos"]) / 2
     if successful_pos_check:
-        return True, False
+        return True, True
 
     return False, False
 

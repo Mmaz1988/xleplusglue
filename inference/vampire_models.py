@@ -27,7 +27,6 @@ class VampireRequest(BaseModel):
 
 class VampireMultipleRequest(BaseModel):
     nli_items: dict  # A dictionary mapping ids to VampireNLI objects
-    axioms: str
     pruning: bool
     vampire_preferences: dict
 
@@ -60,3 +59,5 @@ class VampireResponse(BaseModel):
     active_indices: List[int]  # A list of integers
     context_checks_mapping: dict  # A dictionary mapping integers to Check objects
 
+class VampireMultipleResponse(BaseModel):
+    results: dict  # A dictionary mapping ids to Lists of Check objects

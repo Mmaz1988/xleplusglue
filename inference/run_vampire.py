@@ -9,34 +9,17 @@ import time
 import shutil
 import logging
 
-from inference.vampire_models import VampireMultipleRequest
+
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
-from vampire_models import VampireRequest, VampireResponse, Context, Item, Check
+from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest, VampireMultipleResponse
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 vampire_command = 'vampire'
 
-
-#merge two DRSs
-def mergeDrs(firstOne,secondOne):
-    logger.info("Merging DRSs: %s, %s", firstOne, secondOne)
-    callToMerge = "presupDRT:printMerged(" + firstOne + "," + secondOne + ",'mergedRes.txt')."
-    useProlog(f"[{os.path.join(BOXER,'presupDRT')}].",callToMerge)
-
-    filepath = 'mergedRes.txt'
-    mergedRes = open(filepath, 'r').read()
-    if os.path.exists('mergedRes.txt'):
-        os.remove('mergedRes.txt')
-    return mergedRes
-
-
-# manipulate a string to be readable by vampire
-def inputToFof(inputstring):
-    fofstring = inputstring.replace("input_formula","fof")
-    return fofstring
-
+# Retrieve the helper file path from the environment variable
+BOXER = os.getenv("BOXER_PATH", "boxer")
 
 # function for calling predicate with a specific knowledgebase and input
 def useProlog(knowledgeBase, inputString):
@@ -75,6 +58,18 @@ def useProlog(knowledgeBase, inputString):
         print("Error:", str(e))
         return None
 
+#merge two DRSs
+def mergeDrs(firstOne,secondOne):
+    logger.info("Merging DRSs: %s, %s", firstOne, secondOne)
+    callToMerge = "presupDRT:printMerged(" + firstOne + "," + secondOne + ",'mergedRes.txt')."
+    useProlog(f"[{os.path.join(BOXER,'presupDRT')}].",callToMerge)
+
+    filepath = 'mergedRes.txt'
+    mergedRes = open(filepath, 'r').read()
+    if os.path.exists('mergedRes.txt'):
+        os.remove('mergedRes.txt')
+    return mergedRes
+
 #print boxer output
 def printDRS(Drs):
     if not os.path.exists("tmp"):
@@ -92,85 +87,68 @@ def printDRS(Drs):
     return boxed
 
 
+def extract_drs_blocks(text):
+    pattern = r"(drs\(.*?\))\n"
+    matches = re.findall(pattern, text, re.DOTALL)  # Use DOTALL to match across multiple lines
+    return matches
+
+
+# manipulate a string to be readable by vampire
+def inputToFof(inputstring):
+    fofstring = inputstring.replace("input_formula","fof")
+    return fofstring
+
+
+#convert drs to fol to tptp and get the vampire output from that
+def conversion(formula,tptp_type="fof"):
+    logger.info("Converting formula to TPTP: %s", formula)
+    if os.path.exists("tmp"):
+        #delete contents if not empty
+        for file in os.listdir("tmp"):
+            os.remove(os.path.join("tmp", file))
+        os.rmdir("tmp")
+    os.makedirs("tmp", exist_ok=True)
+    drs2fol_file = "tmp/folly.txt"
+    #get prolog output of drs to fol
+    betterformula = "drs2fol:printfol(" + formula + ",'"+ drs2fol_file +"')."
+    logger.info("Calling Prolog to convert DRS to FOL: %s", betterformula)
+    useProlog(f"[{os.path.join(BOXER,'drs2fol')}].",betterformula)
+    logger.info(f"Loading knowledge base [{os.path.join(BOXER,'drs2fol')}].")
+
+    newfol = open(drs2fol_file, 'r').read()
+    logger.info("Function conversion generated following formula: " + newfol)
+    #now get TPTP string from Prolog
+    fof_file = "tmp/fof.txt"
+
+    # tptp conversion file
+    tptp_prolog = ""
+    betterfol = ""
+    if tptp_type == "fof":
+        betterfol = "fol2fof(" + newfol + ",'" + fof_file + "')."
+        tptp_prolog = "fol2fof"
+    else:
+        betterfol = "fol2tff(" + newfol + ",'" + fof_file + "')."
+        tptp_prolog = "fol2tff"
+    # betterfol = "fol2tptp(" + newfol + ",'" +fof_file+"')."
+
+    logger.info("Calling Prolog to convert FOL to TPTP: %s", betterfol)
+    useProlog(f"[{os.path.join(BOXER,tptp_prolog)}].",betterfol)
+
+    data = open(fof_file, 'r').read()
+    data = inputToFof(data)
+    # delete tmp folders and content after use
+    os.remove(drs2fol_file)
+    os.remove(fof_file)
+    os.rmdir("tmp")
+    print("Generated TPTP formula: ", data)
+
+    return newfol, wrap_hyphenated_words(data)
+
+
 #what a DRT input should look like
 #class Formula(BaseModel):
 #    formula: str
 #   newformula: str
-
-app = FastAPI()
-# Enable CORS for all origins (Modify for security in production)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Change this to your frontend domain for security (e.g., "http://localhost:4200")
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, OPTIONS, etc.)
-    allow_headers=["*"],  # Allow all headers
-)
-
-
-# Retrieve the helper file path from the environment variable
-BOXER = os.getenv("BOXER_PATH", "boxer")
-
-@app.get("/")
-def root():
-    return {"test": "Hello World"}
-
-# Define the Pydantic model for request validation
-
-@app.post("/vampire_request")
-def process_vampire_request_single(request: VampireRequest):
-    """
-    API endpoint to process vampireRequest.
-    """
-    try:
-        return single_vampire_request(request)
-
-    except Exception as e:
-        logger.error("Exception occurred", exc_info=True)
-        if os.path.exists("tmp"):
-             shutil.rmtree("tmp")
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-
-@app.post("/vampire_multiple_request")
-def process_vampire_request_multiple(request: VampireMultipleRequest):
-    """
-    API endpoint to process vampireRequest.
-    """
-    try:
-        return multiple_vampire_request(request)
-
-    except Exception as e:
-        logger.error("Exception occurred", exc_info=True)
-        if os.path.exists("tmp"):
-            shutil.rmtree("tmp")
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-
-def multiple_vampire_request(request):
-    # Inference id to Check
-    results = {}
-    for id, nli_item in request.nli_items.items():
-        initial_premise = nli_item.premises[0]
-        # merge premises into one drs
-        premises_input = []
-        while len(nli_item.premises) > 1:
-            #premise semantics
-            first = nli_item.premises[0]
-            second = nli_item.premises[1]
-
-            first_readings = extract_drs_blocks(first)
-            second_readings = extract_drs_blocks(second)
-
-            if not request.pruning:
-                for reading1 in first_readings:
-                    for reading2 in second_readings:
-                        merged = mergeDrs(reading1, reading2)
-
-
-            nli_item.premises = [merged] + nli_item.premises[2:]
-
-
 
 def single_vampire_request(request):
     new_context = []
@@ -186,7 +164,7 @@ def single_vampire_request(request):
     logger.debug("Readings extracted: %s", readings)
 
     # if logic_type is zero then use fof, otherwise use tff
-    logic_type = "fof" if request.vampire_preferences['logic_type'] == '0' else "tff"
+    logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
     logger.info("Using logic type: %s", logic_type)
 
     # use proof search based on model building in fof and mixed search in tff
@@ -280,55 +258,99 @@ def single_vampire_request(request):
     return result
 
 
-def extract_drs_blocks(text):
-    pattern = r"(drs\(.*?\))\n\n"
-    matches = re.findall(pattern, text, re.DOTALL)  # Use DOTALL to match across multiple lines
-    return matches
+# Define the Pydantic model for request validation
+def multiple_vampire_request(request):
 
-#convert drs to fol to tptp and get the vampire output from that
-def conversion(formula,tptp_type="fof"):
-    logger.info("Converting formula to TPTP: %s", formula)
+    # if logic_type is zero then use fof, otherwise use tff
+    logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
+    logger.info("Using logic type: %s", logic_type)
+
+    # use proof search based on model building in fof and mixed search in tff
+    vampire_mode = []
+    if logic_type == "fof":
+        vampire_mode = ["-sa", "fmb"]
+    elif logic_type == "tff":
+        vampire_mode = ["--mode", "casc"]
+
+    # CHeck if vampire preferences have max_duration with default 45 seconds
+    max_duration = int(request.vampire_preferences.get('max_duration', 45))
+    logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
+
+    # Inference id to Check
+    results = {}
+    inference_results = {}
+
+    for id, nli_item in request.nli_items.items():
+        output_folder = "tmp/current/"
+        # merge premises into one drs
+
+        if len(nli_item['premises']) > 1:
+            while len(nli_item['premises']) > 1:
+                #premise semantics
+
+                #if first is a string extract drs, if first is a list do nothing
+                logger.info("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
+                first = extract_drs_blocks(nli_item['premises'][0]) if isinstance(nli_item['premises'][0], str) else nli_item['premises'][0]
+                second = extract_drs_blocks(nli_item['premises'][1]) if isinstance(nli_item['premises'][1], str) else nli_item['premises'][1]
+
+                merged_list = []
+
+                if not request.pruning:
+                    for reading1 in first:
+                        for reading2 in second:
+                            merged = mergeDrs(reading1, reading2)
+                            if merged not in merged_list:
+                                merged_list.append(merged)
+                else:
+                    merged = mergeDrs(first[0], second[0])
+                    merged_list.append(merged)
+
+                #make merged_list first item of nli_items and ignore second item
+                nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
+
+        else:
+            nli_item['premises'] = [extract_drs_blocks(nli_item['premises'][0])]
+
+        premise_semantics = nli_item['premises'][0]
+        logger.info("Premise semantics: %s", premise_semantics)
+
+        # This might require fixing if there are multiple hyptheses
+        hypothesis_semantics = []
+        for item in nli_item['hypothesis']:
+            hypothesis_semantics += extract_drs_blocks(item)
+
+        logger.info("Hypothesis semantics: %s", hypothesis_semantics)
+
+        inference_checks = []
+
+        for sem1 in premise_semantics:
+            for sem2 in hypothesis_semantics:
+
+                prolog_premises, fof_premises = conversion(sem1, tptp_type=logic_type)
+                prolog_hypothesis, fof_hypothesis = conversion(sem2, tptp_type=logic_type)
+
+                generate_tptp_files(fof_premises, fof_hypothesis, axioms=nli_item['axioms'], logic=logic_type,
+                                    output_folder=output_folder)
+                results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+                logger.debug("Vampire Results: %s", results)
+
+                consistent, informative, maxim_of_relevance = discourse_checks(data=results)
+                logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
+
+                svg_output = generate_svg_glyph(results)
+                check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
+
+                inference_checks.append(check)
+
+        inference_results[id] = inference_checks
+
+    result = VampireMultipleResponse(results=inference_results)
+
     if os.path.exists("tmp"):
-        #delete contents if not empty
-        for file in os.listdir("tmp"):
-            os.remove(os.path.join("tmp", file))
-        os.rmdir("tmp")
-    os.makedirs("tmp", exist_ok=True)
-    drs2fol_file = "tmp/folly.txt"
-    #get prolog output of drs to fol
-    betterformula = "drs2fol:printfol(" + formula + ",'"+ drs2fol_file +"')."
-    logger.info("Calling Prolog to convert DRS to FOL: %s", betterformula)
-    useProlog(f"[{os.path.join(BOXER,'drs2fol')}].",betterformula)
-    logger.info(f"Loading knowledge base [{os.path.join(BOXER,'drs2fol')}].")
+        shutil.rmtree("tmp")
 
-    newfol = open(drs2fol_file, 'r').read()
-    logger.info("Function conversion generated following formula: " + newfol)
-    #now get TPTP string from Prolog
-    fof_file = "tmp/fof.txt"
+    return result
 
-    # tptp conversion file
-    tptp_prolog = ""
-    betterfol = ""
-    if tptp_type == "fof":
-        betterfol = "fol2fof(" + newfol + ",'" + fof_file + "')."
-        tptp_prolog = "fol2fof"
-    else:
-        betterfol = "fol2tff(" + newfol + ",'" + fof_file + "')."
-        tptp_prolog = "fol2tff"
-    # betterfol = "fol2tptp(" + newfol + ",'" +fof_file+"')."
-
-    logger.info("Calling Prolog to convert FOL to TPTP: %s", betterfol)
-    useProlog(f"[{os.path.join(BOXER,tptp_prolog)}].",betterfol)
-
-    data = open(fof_file, 'r').read()
-    data = inputToFof(data)
-    # delete tmp folders and content after use
-    os.remove(drs2fol_file)
-    os.remove(fof_file)
-    os.rmdir("tmp")
-    print("Generated TPTP formula: ", data)
-
-    return newfol, wrap_hyphenated_words(data)
 
 """
 Utilities
