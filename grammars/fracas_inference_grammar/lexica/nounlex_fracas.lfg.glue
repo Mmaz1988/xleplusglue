@@ -45,6 +45,12 @@ Scandinavian      N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                     (^SEMTYPE) = intersective.
                     "Using ETC. with nouns leads to spurious ambiguity with UNKNOWN entry."
 
+Scandinavia     N *   @(PRED %stem)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem).
+
 Sweden     N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
@@ -76,6 +82,7 @@ Europe     N *   @(PRED %stem)
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
                 @(PROPER-NOUN-SEM %stem).
+
 
 
 "hardcoded words"
