@@ -13,16 +13,20 @@ you	PRON * {@(PRON you 2 sg pers)
 	       |@(PRON you 2 pl pers)}.
 
 He 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE nom).
+		 @(CASE nom)
+		 @(DEFAULT-PRON-NOSCOPE male).
 
 he 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE nom).
+		 @(CASE nom)
+		 @(DEFAULT-PRON-NOSCOPE male).
 
 She 	  PRON * @(PRON she 3 sg pers)
-		 @(CASE nom).
+		 @(CASE nom)
+		 @(DEFAULT-PRON-NOSCOPE female).
 
 she 	  PRON * @(PRON she 3 sg pers)
-		 @(CASE nom).
+		 @(CASE nom)
+		 @(DEFAULT-PRON-NOSCOPE female).
 
 it	  PRON * @(PRON it 3 sg pers).
 

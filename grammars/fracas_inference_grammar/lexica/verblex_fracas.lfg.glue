@@ -28,7 +28,7 @@ know	  V-S XLE  {
                     @(ARG1 (^SUBJ))
                     %s = s::(^ COMP)
                     :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
-                    (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t)))
+                    (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))),
                     |
                     @(TRANS-EV %stem)
                    }.
