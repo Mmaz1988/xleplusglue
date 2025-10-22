@@ -50,7 +50,9 @@ VPv[_form] -->
                 		  VPpass[pass,nonfin]: (^ XCOMP) = !
                 		 }
                  	   )
-                 	   (AP[predicative]: (^PREDLINK) = !).
+                 	   (AP[predicative]: (^PREDLINK) = !)
+
+                 	   (CONJPsub: ! $ (^ ADJUNCT)).
 
                  	  "(ADVP: ! $ (^ ADJUNCT))."
 

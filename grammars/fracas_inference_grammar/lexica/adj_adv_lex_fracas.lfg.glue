@@ -101,6 +101,8 @@ very 	  ADV * @(PRED very).
 
 freely 	  ADV * @(PRED free).
 
+then 	  ADV * @(PRED then)
+                (^ADV-TYPE) = cond.
 
 "outside	  ADV * (^ PRED) = 'outside<(^OBJ)>'; ETC."
 

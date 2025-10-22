@@ -274,16 +274,17 @@ Most    D* @(SPEC-AQUANT-PRED most)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q)
- 	        :$ lam(P,lam(Q,merge(drs([D],[]),merge(merge(drs([X],[]),merge(app(P,X),merge(app(Q,X),drs([],[rel(many,X,D)]))))),drs([],[not(merge(drs([Y],[]),merge(app(P,Y),merge(drs([],[not(app(Q,Y))]),drs([],[rel(many,Y,D)])))))])))) :
- 	         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+ 	         :$ lam(P,lam(Q,merge(drs([D],[]),merge(merge(drs([X],[]),merge(app(P,X),merge(app(Q,X),drs([],[rel(many,X,D)]))))),drs([],[not(merge(drs([Y],[]),merge(app(P,Y),merge(drs([],[not(app(Q,Y))]),drs([],[rel(many,Y,D)])))))])))) :
+ 	         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t))
+ 	         .
 
-most    D* @(SPEC-AQUANT-PRED most)
+most    D * @(SPEC-AQUANT-PRED most)
             @(SPEC-AQUANT-TYPE superlative)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q)
-            :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-            ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+            :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) : ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t))
+            .
 
 
 Few D *      @(SPEC-AQUANT-PRED few)
@@ -375,9 +376,6 @@ one     NUMBER *  { @(NUMBER-PL 1 sg)
 	               (^NUMBER-TYPE) = cardinal}."
 
 
-
-
-"Mary sold One more computer than John."
 
 "EX: ITEL sold 3000 more computers than APCOM."
 "EX: ITEL is faster than 500 MIPS."

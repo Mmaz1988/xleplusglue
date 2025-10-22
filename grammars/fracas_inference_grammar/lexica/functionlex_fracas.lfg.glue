@@ -13,6 +13,10 @@ as        CComp * (^PRED) = 'as<(^OBJ)>'
                   (^DEGREE) ~=c superlative.
 
 
+"conditionals"
+
+if CONJsub *  (^COMP-FORM) = if
+           (^STMT-TYPE) = conditional.
 
 "prepositions"
 
