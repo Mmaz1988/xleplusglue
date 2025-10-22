@@ -18,6 +18,9 @@ as        CComp * (^PRED) = 'as<(^OBJ)>'
 if CONJsub *  (^COMP-FORM) = if
            (^STMT-TYPE) = conditional.
 
+If CONJsub *  (^COMP-FORM) = if
+           (^STMT-TYPE) = conditional.
+
 "prepositions"
 
 by 	  P * @(PREP by)
