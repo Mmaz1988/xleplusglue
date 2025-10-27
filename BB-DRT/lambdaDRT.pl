@@ -28,10 +28,11 @@
 :- consult('boxer/fol2tff.pl').       % fol2tpl/2
 
 
-main :- 
+%X = input file, Y = output file, Z indicates whether DRS should be resolved
+main :-
  current_prolog_flag(argv,Argv),
- Argv = [X,Y|_],
-  convert(X,Y),
+ Argv = [X,Y,Z|_],
+  convert(X,Y,Z),
   halt.
 
 pl2Tftf :-
@@ -41,19 +42,26 @@ pl2Tftf :-
 
 % Loads a list of solution/2 terms from a file (unreduced DRSs) and beta reduces them
 convert(X,Y) :- consult(X),
+convert(X,Y,Z) :- consult(X),
   findall(S,solution(_,S),L),
-  drt2file(L,Y). 
+  drt2file(L,Y,Z).
 
-drt2file(L,F) :- betaConvertList(L,L2),
+drt2file(L,F,Z) :- betaConvertList(L,L2,Z),
   open(F,write,Stream),
   write(Stream,L2),
   close(Stream).
- 
-betaConvertList([],[]).
-  betaConvertList([H1|T1],[H2|T2]) :- betaConvert(H1,H2),resolveDrs(H2,H3),
+
+betaConvertList([],[],_).
+
+  betaConvertList([H1|T1],[H2|T2],true) :- betaConvert(H1,H2),resolveDrs(H2,H3),
   write(H3),nl,
   printDrs(H3),
-  betaConvertList(T1,T2),halt. 
+  betaConvertList(T1,T2,true),halt.
+
+    betaConvertList([H1|T1],[H2|T2],false) :- betaConvert(H1,H2),
+    write(H2),nl,
+    printDrs(H2),
+    betaConvertList(T1,T2,false),halt.
 
 % Functions for translating from Prolog to TPTP and write to file
 
