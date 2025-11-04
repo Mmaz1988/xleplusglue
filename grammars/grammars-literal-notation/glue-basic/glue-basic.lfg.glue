@@ -1,0 +1,565 @@
+DEMO   ENGLISH   CONFIG (1.0)
+  ROOTCAT   ROOT.  "changed to ROOT from S"
+  FILES common.templates.lfg  .
+  LEXENTRIES   (DEMO ENGLISH) (MORPH ENGLISH).
+  TEMPLATES (DEMO ENGLISH) (GLUE BASIC) (STANDARD COMMON).  "added common ParGram templates"
+  RULES   (DEMO ENGLISH) (MORPH ENGLISH).
+  MORPHOLOGY (DEMO ENGLISH).
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ2 COMP XCOMP OBL OBL-?+.
+  SEMANTICFUNCTIONS    ADJUNCT  TOPIC FOCUS POSS STANDARD.
+  NONDISTRIBUTIVES   NUM PERS COORD-FORM.
+  EPSILON   e.
+  OPTIMALITYORDER NOGOOD  PPadj +PPattach +sg-imp.
+  GENOPTIMALITYORDER GenBadPunct NOGOOD +Punct.
+
+----
+
+DEMO ENGLISH MORPHOLOGY (1.0)
+
+TOKENIZE:
+P!tokenizers/basic-parse-tok.fst G!tokenizers/default-gen-tokenizer.fst
+
+ANALYZE:
+tokenizers/english.infl.patch.full.fst
+
+----
+
+DEMO   ENGLISH   RULES (1.0)
+
+   ROOT --> "can have other things here as well, imperatives, etc." 
+ 	  { S
+ 	    (PERIOD: @(OT-MARK Punct)) "prefer for generation" 
+	  | Simp}. 
+
+  Simp --> e: (^ SUBJ PRED) = 'pro'
+	       (^ SUBJ PERS) = 2; 
+ 	  VP
+ 	  EXCL.  "obligatory exclamation mark"
+
+   S --> NP: (^ SUBJ)=!
+	     (! CASE)=nom;
+ 	 VP: (^ TNS-ASP TENSE). "require that sentences have tense"
+
+	 
+   VP --> (AUX) "auxiliary introduced for passive" 
+ 	  V: ^=!;
+ 	  (NP: (^ OBJ)=! "direct object"
+	       (! CASE)=acc)
+ 	  (NP: (^ OBJ2) = !)
+	       "secondary object"
+ 	  PP*: { ! $ (^ ADJUNCT) "PPs can be all types of adjuncts"
+		 (! PTYPE) =c sem "only semantic PPs here"
+		 @(OT-MARK PPadj) "disprefer adjunct PPs" 
+	       | (^ OBL) = ! "or a a general oblique"
+	       };
+ 	  (PP: (^ OBL-TO) = ! "special obl for ditransitives"
+	       "example of a constraining equation: require a value with =c"
+	       (! PFORM) =c to )
+ 	  (PP: (^ OBL-AG) = ! "oblique agent of passive" 
+	       "example of a constraining equation: require a value with =c"
+	       (! PFORM) =c by )
+ 	  ({ CP: (^ COMP) = !
+ 	   | VPinf: (^XCOMP) = !
+		    (! VFORM) = inf}).
+
+   CP -->  C
+	   S. 
+
+   VPinf --> PARTinf VP. 
+
+   NP --> "either a full NP or a PRON"
+ 	  { (D: ^=!)
+	    "optional determiner"
+ 	    AP*: ! $ (^ ADJUNCT); "introducing adjectives in sets"
+ 	     N: ^=!;
+	    "head of NP"
+ 	    PP*: ! $ (^ ADJUNCT) "PPs modifying NPs" 
+		 (! PTYPE) =c sem "have to be semantic" 
+		 @(OT-MARK PPattach) "prefer PPs attached to NPs"
+ 	  | PRON}. 
+
+   AP --> ADV*: ! $ (^ ADJUNCT);
+ 	  A
+ 	  (COMMA).						
+
+   PP --> { P: ^ = ! "head of PP"
+	       (! PTYPE) =c sem; "semantic type, Adjunct"
+ 	    NP: (^ OBJ) = !
+		(! CASE) = acc
+ 	  | P: ^ = ! "head of PP" 
+	       (! PTYPE) =c nosem; "non-semantic type, OBL"
+ 	    NP
+ 	  }. 
+
+
+----
+DEMO   ENGLISH   TEMPLATES (1.0)
+
+   OT-MARK(_mark) = "assigns an OT mark, from common templates"
+	  _mark $ o::*.
+
+   PASS(FRAME) = { FRAME "no passive, just give back subcat frame"
+	    (^ PASSIVE) = - "no passive"
+	  | FRAME "passive"
+	    (^ PASSIVE) = + "mark as such"
+	    (^ PARTICIPLE) =c past "make sure to have a past participle"
+	    (^ OBJ)-->(^ SUBJ) "obj goes to subj"
+	    { (^ SUBJ)-->(^ OBL-AG) "either make subj obl-ag"
+	    | (^ SUBJ)--> NULL "or delete"
+	    }
+	  }. 
+
+   DAT-SHIFT(SCHEMATA) = { SCHEMATA
+	    (^ DATIVE-SHIFT) = -
+	  | SCHEMATA
+	    (^ DATIVE-SHIFT) = +
+	    (^ OBJ)-->(^ OBJ2)
+	    (^ OBL-TO)-->(^ OBJ)}.
+
+   DITRANS(P) = @(PASS @(DAT-SHIFT (^ PRED)='P<(^ SUBJ) (^ OBJ) (^ OBL-TO)>'))
+	       @(DITRANS-PASSIVE-ARGS %arg1 %arg2 %arg3)
+	  :$ [/x_e.[/y_e.[/z_e.P(x,y,z)]]] : (s::%arg1_e -o (s::%arg2_e -o (s::%arg3_e -o s::^_t))).
+
+
+ "transitives can passivize"
+
+   TRANS(P) = @(PASS (^ PRED)='P<(^ SUBJ) (^ OBJ)>')
+   	  @(TRANS-PASSIVE-ARGS %arg1 %arg2)
+	  :$ [/x_e.[/y_e.P(x,y)]] : (s::%arg1_e -o (s::%arg2_e -o s::^_t)).
+
+   INTRANS(P) = (^ PRED) = 'P<(^SUBJ)>'
+	  :$ [/x_e.P(x)] : (s::(^ SUBJ)_e -o s::^_t).
+
+   OPT-TRANS(P) = { @(TRANS P) |
+		  @(INTRANS P)
+		  }.  "this template takes one argument:  P"
+
+   "Mapping arguments to GFs (for passive and dative shift)"
+   TRANS-PASSIVE-ARGS(ARG1 ARG2) = { 
+	    (^ PASSIVE) =c - 
+	    ARG1 = (^ SUBJ)
+	    ARG2 = (^ OBJ)
+	   |
+	    (^ PASSIVE) =c +
+	    { 
+	      (^OBL-AG) = ARG1 |
+	      ~(^OBL-AG)
+	      ARG1 = %empty
+	      :$ [/P_<e,t>.Ex_e[P(x)]] : ((s::%empty_e -o s::^_t) -o s::^_t),
+	      }
+	      ARG2 = (^ SUBJ)
+	    }. 
+
+   DITRANS-PASSIVE-ARGS(ARG1 ARG2 ARG3) = { 
+	    (^ PASSIVE) =c - 
+	    ARG1 = (^ SUBJ)
+	    { 
+	      (^ DATIVE-SHIFT) =c -
+	      ARG2 = (^ OBJ)
+	      ARG3 = (^ OBL-TO)
+	     |
+	      (^ DATIVE-SHIFT) =c +
+	      ARG3 = (^ OBJ)
+	      ARG2 = (^ OBJ2) 
+	    } 
+	   |
+	    (^ PASSIVE) =c +
+	    { 
+	      (^OBL-AG) = ARG1 |
+	      ARG1 = %empty
+	      :$ [/P_<e,t>.Ex_e[P(x)]] : ((s::%empty_e -o s::^_t) -o s::^_t),
+	      }
+	      { 
+	      (^ DATIVE-SHIFT) =c -
+	      ARG2 = (^ SUBJ)
+	      ARG3 = (^ OBL-TO)  
+	     |
+	      (^ DATIVE-SHIFT) =c +
+	      ARG2 = (^ OBJ2)
+	      ARG3 = (^ SUBJ)
+	    } 
+	    }.
+
+
+   "Features"
+
+   TENSE(T) = (^ TENSE) = T.  "the more general case"
+
+   CASE(C) = (^ CASE) = C.   
+
+   MOOD(M) = (^ MOOD) = M.
+
+   VPRES = { (^VFORM) ~= inf
+	    @(TENSE pres) 
+	    @(MOOD indicative)
+	  | (^VFORM) = inf}. 
+
+   VPAST = @(TENSE past) 
+	  @(MOOD indicative). 
+
+   VPROG = (^ ASPECT PROG) = +.
+
+   PRED(P) = (^ PRED) = 'P'. 
+
+   PASTP = (^ PARTICIPLE) = past. 
+
+   BARE-AGR = { (^VFORM) ~= inf 
+	    { (^ SUBJ NUM) = pl "either it is plural"
+	    | (^ SUBJ PERS) ~= 3 "or singular and not 3rd person"
+	      (^ SUBJ NUM) = sg
+	      @(OT-MARK sg-imp) "prefer a singular imperative"
+	    }
+	  | (^VFORM) = inf}.
+
+   S-AGR = (^ SUBJ PERS) = 3 "for verbs in -s"
+	  (^ SUBJ NUM) = sg. 
+
+"template for ntypes, called NPOS here because of clash with common templates"
+
+   NPOS(N) = (^ NTYPE) = N. 
+
+   PREP(P) = "template for most prepositions"
+	  { (^ PRED) = 'P<(^OBJ)>' 
+	    (^ PTYPE) = sem
+	  | (^ PTYPE) = nosem
+	    (^ PFORM) = P}.
+
+"template for pronouns of all types" 
+
+   PRON(P Z N T) = (^ PRED) = 'P'
+	  (^ NUM) = N
+	  (^ PERS) = Z
+	  (^ PRON-TYPE) = T
+	  (^ NTYPE) = pron. 
+
+   DEF = (^ DEF).
+
+
+----
+
+DEMO ENGLISH LEXICON (1.0)
+
+"took out all names and nouns because they are now handled via the morphology"
+
+"all verbs here -- still need to convert fully to just have lemmas" 
+
+"verbs with clausal arguments"
+
+say 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+	      :$ [/p_t.[/x_e.%stem(x,p)]] : (s::(^ COMP)_t -o (s::(^ SUBJ)_e -o s::^_t)).
+
+think 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+		  :$ [/p_t.[/x_e.%stem(x,p)]] : (s::(^ COMP)_t -o (s::(^ SUBJ)_e -o s::^_t)).
+
+ensure 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+		  :$ [/p_t.[/x_e.%stem(x,p)]] : (s::(^ COMP)_t -o (s::(^ SUBJ)_e -o s::^_t)).
+
+
+convince  V-S XLE (^PRED) = '%stem<(^SUBJ)(^OBJ)(^XCOMP)>'
+		  (^ XCOMP SUBJ) = (^OBJ). 
+
+try 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  :$ [/x_e.[/P_<e,t>.try(x,P(x))]] :
+		  (s::(^XCOMP SUBJ)_e -o ((s::(^ XCOMP SUBJ)_e -o s::(^ XCOMP)_t) -o s::^_t)).
+
+seem 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
+		  (^ XCOMP SUBJ) = (^SUBJ)
+		  :$ [/P_t.seem(P)]] :
+		  (s::(^ XCOMP)_t -o s::^_t).
+
+"Intransitives"
+
+appear 	  V-S XLE @(INTRANS %stem).
+
+disappear V-S XLE @(INTRANS %stem).
+
+laugh 	  V-S XLE @(INTRANS %stem).
+
+meow 	  V-S XLE @(INTRANS meow).
+
+	       "ate V * @(OPT-TRANS eat) optionally transitive verbs"
+	       "VPAST."
+	       
+	       "unnecesary entry -- have morphological analyzer now"
+	       "eats V * @(OPT-TRANS eat)
+	       @VPRES	       @S-AGR. "
+
+sleep 	  V-S XLE * @(INTRANS sleep).
+
+"Optional transitives"
+
+drinks 	  V-S XLE @(OPT-TRANS drink).
+
+eat 	  V-S XLE @(OPT-TRANS %stem).
+
+escape 	  V-S XLE @(OPT-TRANS %stem).
+
+"Transitives" 
+
+devour 	  V-S XLE @(TRANS devour).
+
+hate 	  V-S XLE @(TRANS %stem).  "using the morphological analyzer"
+
+implement V-S XLE @(TRANS %stem).
+
+love 	  V-S XLE @(TRANS %stem).
+
+receive   V-S XLE @(TRANS %stem).
+
+see 	  V-S XLE @(TRANS %stem).
+
+"Ditransitives"
+
+give 	  V-S XLE @(DITRANS give).
+
+"Nouns"
+
+cat 	  N * (^PRED) = 'cat'
+	      (^ NTYPE) = count
+	      :$ [/x_e.%stem(x)] : ((s::^ VAR)_e -o (s::^ RESTR)_t).
+
+"adjectives --- should really be done via the morphology, like the nouns"
+
+big 	  A * @(PRED big)
+	      :$ [/P_<e,t>.[/x_e.(big(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)) || noscope.
+
+black 	  A * @(PRED black)
+	      :$ [/P_<e,t>.[/x_e.(black(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)) || noscope.
+
+scottish  A * @(PRED scottish)
+	      :$ [/P_<e,t>.[/x_e.(scottish(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)) || noscope.
+
+trustworthy A * @(PRED trustworthy)
+		:$ [/P_<e,t>.[/x_e.(trustworthy(x) & P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)) || noscope.
+
+alleged   A * @(PRED alleged)
+	      :$ [/P_<e,t>.[/x_e.alleged(P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)) || noscope.
+
+former 	  A * @(PRED former)
+	      :$ [/P_<e,t>.[/x_e.former(P(x))]] : (((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t) -o ((s::(ADJUNCT $ ^) VAR)_e -o (s::(ADJUNCT $ ^) RESTR)_t)) || noscope.
+
+"prepositions"
+
+by 	  P * @(PREP by). 
+
+to 	  P * @(PREP to); 
+	  PARTinf * (^ VFORM) =c inf.
+
+on 	  P * @(PREP on). 
+
+in 	  P * @(PREP in). 
+
+with 	  P * @(PREP with)
+              @(PREP-SEM with).
+
+
+"auxiliaries"
+
+was 	  AUX * @(TENSE past)
+		{ (^ SUBJ PERS) = 1
+                | (^ SUBJ PERS) = 3
+                }
+                (^ SUBJ NUM) = sg. 
+
+"determiners"
+
+the 	  D * (^DEF) = +
+	      :$ [/P_<e,t>.Ix_e[P(x)]] : (((s::^ VAR)_e -o (s::^ RESTR)_t) -o s::^_e).
+
+The 	  D * (^DEF) = +
+	      :$ [/P_<e,t>.Ix_e[P(x)]] : (((s::^ VAR)_e -o (s::^ RESTR)_t) -o s::^_e).
+
+
+a 	  D * @(SPEC-DET-PRED a)
+	      (^ DEF) = - "this indefinite only marks singulars" 
+	      (^ NUM) = sg
+	      @(QUANT-SCOPE ^ %q) 
+	      :$ [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) & Q(x)]]] :
+	      (((s::^ VAR)_e -o (s::^ RESTR)_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+an 	  D * @(SPEC-DET-PRED a)
+	      (^ DEF) = - "this indefinite only marks singulars" 
+	      (^ NUM) = sg
+	      @(QUANT-SCOPE ^ %q) 
+	      :$ [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) & Q(x)]]] : (((s::^ VAR)_e -o (s::^ RESTR)_t) -o ((s::^_e -o %q_t) -o %q_t)).
+	
+A 	  D * @(SPEC-DET-PRED a)
+	      (^ DEF) = - "this indefinite only marks singulars" 
+	      (^ NUM) = sg
+	      @(QUANT-SCOPE ^ %q) 
+	      :$ [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) & Q(x)]]] : (((s::^ VAR)_e -o (s::^ RESTR)_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+An 	  D * @(SPEC-DET-PRED a)
+	      (^ DEF) = - "this indefinite only marks singulars" 
+	      (^ NUM) = sg
+	      @(QUANT-SCOPE ^ %q) 
+	      :$ [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) & Q(x)]]] : (((s::^ VAR)_e -o (s::^ RESTR)_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+every 	  D * @(SPEC-DET-PRED every)
+	      (^ DEF) = - "this indefinite only marks singulars" 
+	      (^ NUM) = sg
+	      @(QUANT-SCOPE ^ %q) 
+	      :$ [/P_<e,t>.[/Q_<e,t>.Ax_e[P(x) -> Q(x)]]] : (((s::^ VAR)_e -o (s::^ RESTR)_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+Every 	  D * @(SPEC-DET-PRED every)
+	      (^ DEF) = - "this indefinite only marks singulars" 
+	      (^ NUM) = sg
+	      @(QUANT-SCOPE ^ %q) 
+	      :$ [/P_<e,t>.[/Q_<e,t>.Ax_e[P(x) -> Q(x)]]] : (((s::^ VAR)_e -o (s::^ RESTR)_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+
+"complementizers"
+
+that  C * (^COMP-FORM) = that. 
+
+
+"conjunctions"
+
+and 	  CONJ * @(COORD-FORM %stem);
+	  CONJnp * @(COORD-FORM %stem) @(NUM pl).
+
+
+"punctuation, now with some functional information"
+
+. 	  PERIOD * (^ STMT-TYPE) = declarative. 
+
+, 	  COMMA * . 
+
+! 	  EXCL * (^ STMT-TYPE) = exclamation. 
+
+
+----
+
+MORPH   ENGLISH   RULES (1.0)
+
+"sample rule"
+
+"this deals with verbs.  
+The sublexcial items are the POS assigned to the various tags in morph-lex.lfg" 
+
+   V --> V-S_BASE "verb stem, e.g. run"
+ 	 V-POS_BASE "suffix saying that this is a verb: +Verb"
+ 	 {TNS_BASE "tense suffix, e.g. +Pres" 
+ 	   PERS_BASE "person suffix, e.g. +3sg"
+ 	 | ASP_BASE}.   "aspectual information"
+
+  
+   N --> N-S_BASE "noun stem"
+ 	 N-POS_BASE
+ 	 (N-NAME_BASE) "allow for +Giv or +Place in names"
+ 	 (N-GEND_BASE) "allow for gender information" 
+ 	 N-NUM_BASE.
+
+   A --> ADJ-S_BASE
+ 	 ADJ-POS_BASE.
+	 
+   ADV --> ADV-S_BASE
+ 	  ADV-POS_BASE.
+
+----
+MORPH   ENGLISH   LEXICON (1.0)
+
+"this guesses words that are unknown to your lexicon
+ to be either adjectives or nouns"
+-unknown  ADJ-S XLE @(PRED %stem);
+	  ADV-S XLE @(PRED %stem);
+	  N-S XLE @(PRED %stem)
+		  { (^ NTYPE) = count
+		    :$ [/x_e.%stem(x)] : ((s::^ VAR)_e -o (s::^ RESTR)_t),
+		  |
+		  (^ NTYPE) = name
+		  :$ %stem : s::^_e,
+		  }. 
+
+"lexical entries for tags coming out of the morphological analyzer" 
+
++Verb 	  V-POS XLE .
+
++Pres 	  TNS XLE @VPRES.
+
++3sg 	  PERS XLE @S-AGR
+		   @(PROG -_)
+		   @(PERF -_).
+
++PastBoth TNS XLE "past tense or past particle"
+		  { @VPAST | @PASTP }
+		  @(PROG -_)
+		  @(PERF -_). 
+
++PastTense TNS XLE "past tense"
+		   @VPAST
+		   @(PROG -_)
+		   @(PERF -_).
+
++PastPerf TNS XLE @PASTP.
+
++123SP 	  PERS XLE .
+
++Non3sg   PERS XLE @BARE-AGR.
+
++Prog 	  ASP XLE @VPROG.  
+
++Noun 	  N-POS XLE @(NPOS count) "3rd person count noun"
+		    @(PERS 3).
+		       
++Prop 	  N-POS XLE @(NPOS name) "3rd person name"
+		    @(PERS 3).   
+
++Giv 	  N-NAME XLE .   "for given names, no info associated so far"
+
++Pl 	  N-NUM XLE (^ NUM) = pl. 
+
++Sg 	  N-NUM XLE (^ NUM) = sg. 
+
++Fem 	  N-GEND XLE (^GEND) = fem. 
+
++Masc 	  N-GEND XLE (^GEND) = masc.
+
++Adj 	  ADJ-POS XLE .
+
++Adv 	  ADV-POS XLE .
+
+
+----
+
+GLUE   BASIC   TEMPLATES (1.0)
+
+   LLIMP(N L R) = (N ANT) = L
+	  (N CONS) = R.
+	      
+   LLATOM(N L T) = (N RESOURCE) = L
+	  (N TYPE) = T.
+
+   LLCLOSURE(G) = G $ (g::* GLUE).
+
+   GLUE-MEANING(R M) = 
+	  (R MEANING) = M.
+
+  NOSCOPE(G) = (G NOSCOPE) = +.  
+
+   QUANT-SCOPE(UP NAME) =
+	  NAME = s::({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ UP).
+
+   PREP-SEM(P) =
+             {
+         ((ADJUNCT ^) TNS-ASP)
+	     %scope = s::(ADJUNCT ^)
+	     %ppscope = (ADJUNCT ^)
+	    :$ [/U_<e,t>.[/V_<e,t>.[/x_e.(U(x) & V(x))]]] :
+	    ((s::(%ppscope SUBJ)_e -o s::^_t) -o ((s::(%ppscope SUBJ)_e -o s::%ppscope_t) -o (s::(%ppscope SUBJ)_e -o s::%ppscope_t))) || noscope,
+	    :$ [/x_e.[/y_e.P(x,y)]] : (s::(%ppscope SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
+	    |
+	    ((ADJUNCT ^) NTYPE)
+	    %scope = s::(ADJUNCT ^)
+	    %ppscope = ({SUBJ | OBJ | OBJ2 | COMP | OBL-TO | OBL-AG | OBL}+ ADJUNCT ^)
+	    :$ [/U_<e,t>.[/V_<e,t>.[/x_e.(U(x) & V(x))]]] :
+	    ((%scope_e -o s::^_t) -o ((s::(%ppscope OBJ)_e -o s::%ppscope_t) -o (s::(%ppscope OBJ)_e -o s::%ppscope_t))) || noscope,
+	    :$ [/x_e.[/y_e.P(x,y)]] : (%scope_e -o (s::(^OBJ)_e -o s::^_t)),
+	     }.
+
+
+
+
+----
+
