@@ -22,10 +22,10 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
 
     # Define TPTP templates with placeholders for p and q
     templates = {
-        'info_pos_check': '{}(info_pos_check, axiom, ~(({}) => ({}))).\n',
-        'info_neg_check': '{}(info_neg_check, axiom, (({}) => ({}))).\n',
-        'cons_pos_check': '{}(cons_pos_check, axiom, ({} & {})).\n',
-        'cons_neg_check': '{}(cons_neg_check, axiom, ({}) => ~({})).\n'
+        'info_pos_check': '{}(info_pos_check, axiom, ({q}) & ~(({q}) => ({p}))).\n',
+        'info_neg_check': '{}(info_neg_check, axiom, ({q}) & (({q}) => ({p}))).\n',
+        'cons_pos_check': '{}(cons_pos_check, axiom, ({q} & {p})).\n',
+        'cons_neg_check': '{}(cons_neg_check, axiom, ({q}) & (({q}) => ~({p}))).\n'
     }
     q = context
     p = hypothesis
@@ -36,7 +36,7 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
         tptp_content += f"{axioms}\n\n"
 
         tptp_content += f"% p = {q}\n% q = {p}\n"  # Add comments with p and q
-        tptp_content += template.format(logic,q,p)
+        tptp_content += template.format(logic,q=q,p=p)
         filename = f"sem_{suffix}.p"
         file_path = os.path.join(output_folder, filename)
         logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")

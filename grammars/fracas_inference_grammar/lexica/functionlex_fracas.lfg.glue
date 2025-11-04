@@ -15,14 +15,21 @@ as        CComp * (^PRED) = 'as<(^OBJ)>'
 
 "conditionals"
 
-if CONJsub *  (^COMP-FORM) = if
-           (^STMT-TYPE) = conditional.
+if CONJsub * (^ PRED) = 'if<(^OBJ)>'
+             (^COMP-FORM) = if
+             %ant = (s::(^OBJ) SIT)
+             %cons = (s::(ADJUNCT ^) SIT)
+             :$ lam(P,lam(Q,drs([],[imp(P,Q)]))) :
+                (%ant_t -o (%cons_t -o %cons_t)).
 
-If CONJsub *  (^COMP-FORM) = if
-           (^STMT-TYPE) = conditional.
+If CONJsub * (^ PRED) = 'if<(^OBJ)>'
+             (^COMP-FORM) = if
+             %ant = (s::(^OBJ) SIT)
+             %cons = (s::(ADJUNCT ^) SIT)
+             :$ lam(P,lam(Q,drs([],[imp(P,Q)]))) :
+                (%ant_t -o (%cons_t -o %cons_t)).
 
 "prepositions"
-
 by 	  P * @(PREP by)
         @(PREP-SEM by).
 

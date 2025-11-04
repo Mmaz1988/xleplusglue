@@ -1,10 +1,11 @@
  SENTENCE ENGLISH RULES (1.0)
 
    ROOT --> "can have other things here as well, imperatives, etc."
- 	  { S: (^ ROOT) = +;
+ 	  {{ S: (^ ROOT) = +;
+ 	   | Scond }
  	    (PERIOD: @(OT-MARK Punct)) "prefer for generation"
  	  | Simp
- 	  | Scond}.
+ 	  }.
 
    Simp --> e: (^ SUBJ PRED) = 'pro'
 	       (^ SUBJ PERS) = 2;
@@ -12,7 +13,11 @@
  	  EXCL.  "obligatory exclamation mark"
 
     "if...(then)..."
-   Scond --> CONJPsub: ! $ (^ ADJUNCT);  (COMMA) (ADVP:! $ (^ ADJUNCT) (!ADV-TYPE) =c cond) S.
+   Scond --> CONJPsub: ! $ (^ ADJUNCT);
+             (COMMA)
+             (ADVP:! $ (^ ADJUNCT)
+             (!ADV-TYPE) =c cond)
+             S.
 
    S --> NP: (^ SUBJ)=!
 	         (! CASE)=nom;

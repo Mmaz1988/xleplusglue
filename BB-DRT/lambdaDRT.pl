@@ -41,7 +41,6 @@ pl2Tftf :-
     translateProlog(X,Y,Z), halt.
 
 % Loads a list of solution/2 terms from a file (unreduced DRSs) and beta reduces them
-convert(X,Y) :- consult(X),
 convert(X,Y,Z) :- consult(X),
   findall(S,solution(_,S),L),
   drt2file(L,Y,Z).
