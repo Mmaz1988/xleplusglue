@@ -91,6 +91,10 @@
 
    CPto --> PARTinf VP[base].
 
+   "following the cookbook"
+   CONJPsub --> CONJsub
+                S: (^ OBJ) =!.
+
 
 
 ----

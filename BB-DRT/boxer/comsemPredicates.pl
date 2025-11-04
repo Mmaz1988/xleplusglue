@@ -34,6 +34,7 @@
 	   newFunctionCounter/1,
            prefix/0,
            printRepresentations/1,
+           printRepresentations/2,
 	   proveOnce/1,
 	   removeFirst/3,
 	   removeDuplicates/2,
@@ -315,6 +316,19 @@ printRep([Reading|OtherReadings],M):-
    N is M + 1, nl, write(N), tab(1), 
    \+ \+ (numbervars(Reading,0,_), print(Reading)),
    printRep(OtherReadings,N).
+
+/*========================================================================
+   Printing a set of representations to stream
+========================================================================*/
+
+printRepresentations(Readings,Stream):-
+   printRep(Readings,0,Stream).
+
+printRep([],_,Stream):- nl(Stream).
+printRep([Reading|OtherReadings],M,Stream):-
+   N is M + 1, nl(Stream), write(Stream,N), tab(Stream,1),
+   \+ \+ (numbervars(Reading,0,_), write(Stream,Reading)),
+   printRep(OtherReadings,N,Stream).
 
 
 /*========================================================================

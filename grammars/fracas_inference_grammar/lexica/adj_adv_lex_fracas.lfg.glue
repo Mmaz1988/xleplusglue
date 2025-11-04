@@ -7,6 +7,7 @@ Leading A * @(DEFAULT-ADJ-SEM %stem).
 
 leading A *  @(DEFAULT-ADJ-SEM %stem).
 
+
 successful ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
                       (^SEMTYPE) = degree.
                 "{ @(PRED %stem)
@@ -101,6 +102,8 @@ very 	  ADV * @(PRED very).
 
 freely 	  ADV * @(PRED free).
 
+then 	  ADV * @(PRED then)
+                (^ADV-TYPE) = cond.
 
 "outside	  ADV * (^ PRED) = 'outside<(^OBJ)>'; ETC."
 

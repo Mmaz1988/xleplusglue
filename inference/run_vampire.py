@@ -66,9 +66,14 @@ def mergeDrs(firstOne,secondOne):
 
     filepath = 'mergedRes.txt'
     mergedRes = open(filepath, 'r').read()
+
+    pattern = r"\d+? ((?:drs|merge)\(.*?\))\n"
+    matches = re.findall(pattern, mergedRes, re.DOTALL)  # Use DOTALL to match across multiple lines
+    logger.info("Extracted merged Drs: %s", matches)
+
     if os.path.exists('mergedRes.txt'):
         os.remove('mergedRes.txt')
-    return mergedRes
+    return matches
 
 #print boxer output
 def printDRS(Drs):
@@ -88,8 +93,9 @@ def printDRS(Drs):
 
 
 def extract_drs_blocks(text):
-    pattern = r"(drs\(.*?\))\n"
+    pattern = r"^((?:drs|merge|alfa)\(.*?\))\n"
     matches = re.findall(pattern, text, re.DOTALL)  # Use DOTALL to match across multiple lines
+    logger.info("Extracted DRS blocks: %s", matches)
     return matches
 
 
@@ -108,41 +114,74 @@ def conversion(formula,tptp_type="fof"):
             os.remove(os.path.join("tmp", file))
         os.rmdir("tmp")
     os.makedirs("tmp", exist_ok=True)
-    drs2fol_file = "tmp/folly.txt"
-    #get prolog output of drs to fol
-    betterformula = "drs2fol:printfol(" + formula + ",'"+ drs2fol_file +"')."
-    logger.info("Calling Prolog to convert DRS to FOL: %s", betterformula)
-    useProlog(f"[{os.path.join(BOXER,'drs2fol')}].",betterformula)
-    logger.info(f"Loading knowledge base [{os.path.join(BOXER,'drs2fol')}].")
+    #if formula contains app or merge, resolve first.
 
-    newfol = open(drs2fol_file, 'r').read()
-    logger.info("Function conversion generated following formula: " + newfol)
-    #now get TPTP string from Prolog
-    fof_file = "tmp/fof.txt"
+    formulas = []
 
-    # tptp conversion file
-    tptp_prolog = ""
-    betterfol = ""
-    if tptp_type == "fof":
-        betterfol = "fol2fof(" + newfol + ",'" + fof_file + "')."
-        tptp_prolog = "fol2fof"
+    resolve_file = "tmp/unpure.txt"
+    if "app(" in formula or "merge(" in formula:
+        logger.info("Resolving application or merge in formula: %s", formula)
+        resolve_input = "presupDRT:resolve2file(" + formula + ",'" + resolve_file + "')."
+        useProlog(f"[{os.path.join(BOXER,'presupDRT')}].",resolve_input)
+        #stip digits and whitespaces in the beginning (.e.g 1 drs(...))
+        formula = open(resolve_file, 'r').read()
+        pattern = r"\d+? (.*?)\n"
+        formulas = re.findall(pattern, formula, re.DOTALL)  # Use DOTALL to match across multiple lines
+        logger.info("Resolved formula: %s", formulas)
     else:
-        betterfol = "fol2tff(" + newfol + ",'" + fof_file + "')."
-        tptp_prolog = "fol2tff"
-    # betterfol = "fol2tptp(" + newfol + ",'" +fof_file+"')."
+        formulas = [formula]
 
-    logger.info("Calling Prolog to convert FOL to TPTP: %s", betterfol)
-    useProlog(f"[{os.path.join(BOXER,tptp_prolog)}].",betterfol)
 
-    data = open(fof_file, 'r').read()
-    data = inputToFof(data)
-    # delete tmp folders and content after use
-    os.remove(drs2fol_file)
-    os.remove(fof_file)
+
+    new_fols = []
+    prologs = []
+    #get prolog output of drs to fol
+    for formula in formulas:
+        drs2fol_file = "tmp/folly.txt"
+        betterformula = "drs2fol:printfol(" + formula + ",'"+ drs2fol_file +"')."
+        logger.info("Calling Prolog to convert DRS to FOL: %s", betterformula)
+        useProlog(f"[{os.path.join(BOXER,'drs2fol')}].",betterformula)
+        logger.info(f"Loading knowledge base [{os.path.join(BOXER,'drs2fol')}].")
+
+        newfol = open(drs2fol_file, 'r').read()
+        logger.info("Function conversion generated following formula: " + newfol)
+        #now get TPTP string from Prolog
+        fof_file = "tmp/fof.txt"
+
+        # tptp conversion file
+        tptp_prolog = ""
+        betterfol = ""
+        if tptp_type == "fof":
+            betterfol = "fol2fof(" + newfol + ",'" + fof_file + "')."
+            tptp_prolog = "fol2fof"
+        else:
+            betterfol = "fol2tff(" + newfol + ",'" + fof_file + "')."
+            tptp_prolog = "fol2tff"
+        # betterfol = "fol2tptp(" + newfol + ",'" +fof_file+"')."
+
+        logger.info("Calling Prolog to convert FOL to TPTP: %s", betterfol)
+        useProlog(f"[{os.path.join(BOXER,tptp_prolog)}].",betterfol)
+
+        data = open(fof_file, 'r').read()
+        data = inputToFof(data)
+        data = wrap_hyphenated_words(data)
+
+        if newfol not in new_fols:
+            new_fols.append(newfol)
+
+        if data not in prologs:
+            prologs.append(data)
+
+        # delete tmp folders and content after use
+        os.remove(drs2fol_file)
+        os.remove(fof_file)
+
+    os.remove(resolve_file) if os.path.exists(resolve_file) else None
+
     os.rmdir("tmp")
-    print("Generated TPTP formula: ", data)
+    print(f'Generated TPTP formulas: %s', new_fols)
 
-    return newfol, wrap_hyphenated_words(data)
+    return new_fols, prologs
 
 
 #what a DRT input should look like
@@ -180,11 +219,12 @@ def single_vampire_request(request):
 
     hypotheses = []
     for reading in readings:
-        prolog_hypothesis, fof_hypothesis = conversion(reading, tptp_type=logic_type)
-        # fof_hypothesis = extract_fof(fof_hypothesis)
-        context = Context(original=request.text, prolog_drs=reading, prolog_fol=prolog_hypothesis,
+        prolog_hypotheses, fof_hypotheses = conversion(reading, tptp_type=logic_type)
+        for prolog_hypothesis, fof_hypothesis in zip(prolog_hypotheses, fof_hypotheses):
+            # fof_hypothesis = extract_fof(fof_hypothesis)
+            context = Context(original=request.text, prolog_drs=reading, prolog_fol=prolog_hypothesis,
                               tptp=fof_hypothesis, box=printDRS(reading))
-        hypotheses.append(context)
+            hypotheses.append(context)
 
     if not request.context:
         new_context = hypotheses
@@ -215,16 +255,20 @@ def single_vampire_request(request):
                 if consistent and informative:
                     # Create new context
                     new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs)
-                    prolog_hypothesis, fof_hypothesis = conversion(new_prolog,tptp_type=logic_type)
-                    # fof_hypothesis = extract_fof(fof_hypothesis)
-                    context = Context(original=ctx.original + " " + hypothesis.original,
+                    for prolog in new_prolog:
+                        # Should be singleton lists because mergeDrs above already resolves ambiguities
+                        prolog_hypotheses, fof_hypotheses = conversion(prolog,tptp_type=logic_type)
+                        prolog_hypothesis = prolog_hypotheses[0]
+                        fof_hypothesis = fof_hypotheses[0]
+                        # fof_hypothesis = extract_fof(fof_hypothesis)
+                        context = Context(original=ctx.original + " " + hypothesis.original,
                                           prolog_drs=new_prolog, prolog_fol=prolog_hypothesis,
                                           tptp=fof_hypothesis, box=printDRS(new_prolog))
-                    if context not in new_context:
-                        new_context.append(context)
-                        svg_output = generate_svg_glyph(results)
-                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
-                        current_checks.append(check)
+                        if context not in new_context:
+                            new_context.append(context)
+                            svg_output = generate_svg_glyph(results)
+                            check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
+                            current_checks.append(check)
                 elif ctx not in new_context:
                     # Keep old context
                     new_context.append(ctx)
@@ -299,11 +343,15 @@ def multiple_vampire_request(request):
                     for reading1 in first:
                         for reading2 in second:
                             merged = mergeDrs(reading1, reading2)
-                            if merged not in merged_list:
-                                merged_list.append(merged)
+                            for drs in merged:
+                                logger.info("Proccesing drs: %s", drs)
+                                if drs not in merged_list:
+                                    merged_list.append(drs)
+                                    logger.info("Updated merged list: %s", merged_list)
                 else:
                     merged = mergeDrs(first[0], second[0])
-                    merged_list.append(merged)
+                    for drs in merged:
+                        merged_list.append(drs)
 
                 #make merged_list first item of nli_items and ignore second item
                 nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
@@ -323,24 +371,42 @@ def multiple_vampire_request(request):
 
         inference_checks = []
 
-        for sem1 in premise_semantics:
-            for sem2 in hypothesis_semantics:
+        #Efficiency addition so that each formula only has to be converted once
+        p_conversions = {}
+        h_conversions = {}
 
-                prolog_premises, fof_premises = conversion(sem1, tptp_type=logic_type)
-                prolog_hypothesis, fof_hypothesis = conversion(sem2, tptp_type=logic_type)
+        for i,sem in enumerate(premise_semantics):
+            prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type)
+            p_conversions[f'p_{i}'] = (prolog_premises, fof_premises)
 
-                generate_tptp_files(fof_premises, fof_hypothesis, axioms=nli_item['axioms'], logic=logic_type,
+        for j,sem in enumerate(hypothesis_semantics):
+            prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type)
+            h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
+
+        logger.info("Premise conversions: %s", p_conversions)
+        logger.info("Hypothesis conversions: %s", h_conversions)
+
+        for p_key in p_conversions.keys():
+            for h_key in h_conversions.keys():
+
+                prolog_premises, fof_premises = p_conversions[p_key]
+                prolog_hypotheses, fof_hypotheses = h_conversions[h_key]
+
+                for fof_premise in fof_premises:
+                    for fof_hypothesis in fof_hypotheses:
+                        logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
+                        generate_tptp_files(fof_premise, fof_hypothesis, axioms=nli_item['axioms'], logic=logic_type,
                                     output_folder=output_folder)
-                results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
-                logger.debug("Vampire Results: %s", results)
+                        results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+                        logger.debug("Vampire Results: %s", results)
 
-                consistent, informative, maxim_of_relevance = discourse_checks(data=results)
-                logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
+                        consistent, informative, maxim_of_relevance = discourse_checks(data=results)
+                        logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
 
-                svg_output = generate_svg_glyph(results)
-                check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
+                        svg_output = generate_svg_glyph(results)
+                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
 
-                inference_checks.append(check)
+                        inference_checks.append(check)
 
         inference_results[id] = inference_checks
 

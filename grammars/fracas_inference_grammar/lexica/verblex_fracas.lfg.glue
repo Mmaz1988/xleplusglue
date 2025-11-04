@@ -21,6 +21,20 @@ think 	  V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
 	      :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
           (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))).
 
+
+know	  V-S XLE  {
+                    (^PRED) = '%stem<(^SUBJ)(^COMP)>'
+                    @(EVENT %stem)
+                    @(ARG1 (^SUBJ))
+                    %s = s::(^ COMP)
+                    :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
+                    (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))),
+                    |
+                    @(TRANS-EV %stem)
+                   }.
+
+
+
 "
 ensure    V-S XLE (^PRED) = '%stem<(^SUBJ)(^COMP)>'
           @ATTITUDE
@@ -115,6 +129,10 @@ wait 	  V-S XLE { @(INTRANS-EV wait) |
 
 
 "Optional transitives"
+
+smoke   V-S XLE @(OPT-TRANS-EV %stem).
+
+snort    V-S XLE @(OPT-TRANS-EV %stem).
 
 travel    V-S XLE @(OPT-TRANS-EV %stem).
 

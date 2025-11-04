@@ -29,7 +29,7 @@
 
 
 %X = input file, Y = output file, Z indicates whether DRS should be resolved
-main :- 
+main :-
  current_prolog_flag(argv,Argv),
  Argv = [X,Y,Z|_],
   convert(X,Y,Z),
@@ -40,6 +40,7 @@ pl2Tftf :-
     Argv = [X,Y,Z|_],
     translateProlog(X,Y,Z), halt.
 
+% Loads a list of solution/2 terms from a file (unreduced DRSs) and beta reduces them
 convert(X,Y,Z) :- consult(X),
   findall(S,solution(_,S),L),
   drt2file(L,Y,Z).
@@ -48,7 +49,7 @@ drt2file(L,F,Z) :- betaConvertList(L,L2,Z),
   open(F,write,Stream),
   write(Stream,L2),
   close(Stream).
- 
+
 betaConvertList([],[],_).
 
   betaConvertList([H1|T1],[H2|T2],true) :- betaConvert(H1,H2),resolveDrs(H2,H3),

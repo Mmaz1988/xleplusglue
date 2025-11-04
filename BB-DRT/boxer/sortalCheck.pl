@@ -183,6 +183,8 @@ conflict(L):-
    memberList(Y:1,L). 
 
 
-
-
+% This code checks that all DRS are wellformed and searches for facts associated each of the discourse referents.
+% The facts per referent are collected in a list with items denoting the symbol and its arity, e.g., [boxer:1].
+% It is then checked whether the list is consistent by adding superconcepts, i.e., lexical knowledge.
+% If a conflict is found, the check fails, meaning that the resulting DRS will not be accepted.
 
