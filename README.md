@@ -15,7 +15,7 @@ This repository contains:
 ## Requirements
 
 - XLE installed on your machine (distributed via the **[University of Konstanz](https://ling.sprachwiss.uni-konstanz.de/pages/xle/index.html)**, requires signing a license with PARC)
-- **[Java LTS (compiled for version 11)](https://www.docker.com/)**
+- **[Java LTS (compiled for version 17)](https://www.docker.com/)**
 - **[SWI-Prolog LTS or version > v6.xx (development with version 9.04)](https://www.docker.com/)**
 
 
