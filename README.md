@@ -1,14 +1,17 @@
 # XLE+Glue toolset
 
-# Development
+This is the main branch of XLE+Glue. It serves as a landing page for people interested in the tool set. However, specific uses of the tool set are developed in different branches of this repository. Thus, choosing the right branch can lead to a leaner experience in working with XLE+Glue. 
 
-XLE+Glue is developed actively on two branches:
+# Branches
+
+The three following branches provide access to three main variants of XLE+Glue. 
 
  - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/2024_inference)
- - [XLE+UD](https://github.com/Mmaz1988/xleplusglue/tree/2025_xleplusud)
+ - [UD+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_udplusglue)
+ - [Local XLE+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_xlepluglue_local)
 
-As the name suggests, the different versions are interfaced with different syntactic parsers. Please use a version accordingly. 
-In the future, the main branch will coincide with the XLE+Glue with Inference branch, as it will be the main version of XLE+Glue.
+The _XLE+Glue with Inference_ branch corresponds to the main branch of this repository providing the most comprehensive demonstration of the XLE+Glue toolset including inference. The _UD+Glue_ branch substitutes the XLE for Stanza's Universal Dependency parser which is couched in a Docker container. Thus, no extra installation is needed. The _Local XLE+Glue_ is a lean version of XLE+Glue that ommits the reasoning component (adding support for this is a future goal), and the Docker architecture including the Web interface. It is designed to allow users to use XLE+Glue within the original user interface of the XLE. 
+
 The corresponding branches contain sub-branches with demos for specific events/papers. From these, substantial updates are incorporated into the main braches regularly.
 
 
