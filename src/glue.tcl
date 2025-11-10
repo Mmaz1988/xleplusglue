@@ -54,7 +54,7 @@ proc init-glue {{compiled 0}} {
     #Add Glue menus to XLE GUI. Specified below. 
     create-glue-menus
 
-    #COmment in when working with Sicstus-Prolog; not recommended    
+    #Comment in when working with Sicstus-Prolog; not recommended
     #foreach prologFile $defaultPrologFiles {
     #prolog "load_files('$prologFile')."}
 
@@ -62,18 +62,18 @@ proc init-glue {{compiled 0}} {
 	puts "Semantic parser is active."
     }
     if {$transferDebug == 1} {
-	puts "Debug mode is active." 
+	puts "Debug mode is active."
     }
 }
 
 ####################################################################
-# Set up menu items on f-structure windows 
+# Set up menu items on f-structure windows
 ####################################################################
 
 #This simply adds a button to the XLE command menu in the GUI
 #Calls the tcl function window-to-sem specified below
 proc create-glue-menus {} {
-    global fsCommands fsViews fsChartCommands fsChartViews 
+    global fsCommands fsViews fsChartCommands fsChartViews
 
     add-item-to-xle-menu \
 	{command -label "Semantics" \
@@ -84,7 +84,7 @@ proc create-glue-menus {} {
 
     # Convert contents of window to semantics; display
     proc window-to-sem {packed window} {
-	
+
 	global semwindowtop
 	global semDisplay
 
@@ -100,22 +100,23 @@ proc create-glue-menus {} {
 #displaymode and position is for arranging the new window relative to the XLE GUI.
 
 proc fswindow-to-premises {displaywindow window displaymode position} {
-   
+
     global defaultTmpDir prover semParser \
     transferDebug processDRT solutionOnly \
-    mcEncoding outputfont fontsize
-	
-    
+    mcEncoding outputfont fontsize \
+    transferRuleFile transfer \
+    printIndex explainFail
+
+
     #For Sicstus Prolog
     #global defaultPrologFiles
 
-
     file delete -force tmp
-   
+
     file mkdir tmp
 
-    set gswbfile [relpath tmp/gswb_[pid].pl]	
-    
+    set gswbfile [relpath tmp/gswb_[pid].pl]
+
     if {$displaymode == "window"} {
 	set displayfile tmp/display_[pid].pl
     } else {
@@ -142,14 +143,14 @@ proc fswindow-to-premises {displaywindow window displaymode position} {
         } else {
 	   puts "Generating $prologfile"
 	}
-    
+
     #Set path of liger
     set ligerpath "jars/liger.jar"
+
     set prologPath [relpath $prologfile]
     set outputPath [relpath $outputfile]
-    set command "-fs2mcs $mcEncoding $prologPath $outputPath"
+    set command "-gf $mcEncoding -i $prologPath -o $outputPath -mc"
 
-    
     #Set up the command to call LIGER in accordance with the parameters set in xlerc
     set fs2glue exec
     lappend fs2glue java
@@ -158,13 +159,19 @@ proc fswindow-to-premises {displaywindow window displaymode position} {
     if {$prover == 3} {
     lappend fs2glue "-multi"
     }
+
+    if {$transfer == 1} {
+    lappend fs2glue -rf
+    lappend fs2glue $transferRuleFile
+    }
+
     set fs2glue [concat $fs2glue $command]
 
     puts "Executing command $fs2glue"
 
     #Evaluates the command defined above
     eval $fs2glue
-    
+
     if {$transferDebug == 1} {
 	puts "#### Output of the Prolog Transfer System: $outputfile ####"
 	set fp [open $outputfile]
@@ -205,6 +212,14 @@ if {$processDRT == 1} {
 }
 if {$solutionOnly == 1} {
     lappend gswb "-s"
+}
+
+if {$printIndex == 1} {
+    lappend gswb "-printIndex"
+}
+
+if {$explainFail == 1} {
+lappend gswb "-explainFail"
 }
 
 puts "Executing command: [join $gswb { }]"

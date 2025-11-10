@@ -58,9 +58,17 @@ set processDRT 1
 # Choose between Prolog-encoding (0) and String-encoding (1) for MCs
 set mcEncoding 1
 
+# activate rewrite with LiGER (1/0)
+set transfer 0
 
 # activate debug mode (1/0)
 set transferDebug 1
+
+# Prints premise IDs in the output
+set printIndex 0
+
+# Adds additional info to the output (particularly when the proof fails)
+set explainFail 0
 
 #set font
 set outputfont Courir
@@ -70,8 +78,10 @@ set fontsize 18
 # Load in the specified rules:
 init-glue
 
-proc clean {} {
-    set command {find grammars -type f -name "*.lfg" -delete}
-    exec sh -c $command
-    puts "Cleaned up the grammars directory."
-}
+# BE CAREFUL WHEN USING THIS. THIS WILL DELETE EVERY LFG FILE
+# proc clean {} {
+#    set command {find grammars -type f -name "*.lfg" -delete}
+#    exec sh -c $command
+#    puts "Cleaned up the grammars directory."
+# }
+
