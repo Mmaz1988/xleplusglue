@@ -1,0 +1,10 @@
+services:
+  stanza:
+    build:
+      dockerfile: ../Docker/Dockerfile-stanza
+      context: .
+      args:
+        - platform=linux/amd64
+#    platform: linux/amd64
+    ports:
+      - '8083:8083'

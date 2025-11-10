@@ -8,6 +8,14 @@ services:
     platform: linux/amd64
     ports:
       - '8080:8080'
+  stanza:
+    build:
+      dockerfile: Docker/Dockerfile-stanza
+      context: ..
+      args:
+        - platform=linux/amd64
+    ports:
+      - '8083:8083'
   vampire:
     build:
       dockerfile: Docker/Dockerfile-vampire

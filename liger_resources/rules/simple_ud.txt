@@ -1,0 +1,37 @@
+--replace(true);
+
+#e UPOS VERB & #e LEMMA %l ==> #e SEM #s & 
+							   	#s CLOSURE #c &
+								#s GLUE [/e_v.%l(e)] : (#s_v -o #s_t) &
+                                #c GLUE [/P_<v,t>.Ee_v[P(v)]] : ((#s_v -o #s_t) -o #s_t) || noscope.
+
+#e NSUBJ #a & #e SEM #v ==> #a SEM #s & #v ARG1 #b & 
+								#b GLUE [/P_<v,t>.[/x_e.[/e_v.(arg1(e,x) \& P(e))]]] : 
+								((#v_v -o #v_t) -o (#s_e -o (#v_v -o #v_t))) || noscope.
+                                  
+#e OBJ #a & #e SEM #v ==> #a SEM #s & #v ARG2 #b &
+								#b GLUE [/P_<v,t>.[/x_e.[/e_v.(arg2(e,x) \& P(e))]]] : 
+								((#v_v -o #v_t) -o (#s_e -o (#v_v -o #v_t))) || noscope.
+
+ #e OBL:UNMARKED #a & #e SEM #v ==> #a SEM #s & #v ARG3 #b &
+								#b GLUE [/P_<v,t>.[/x_e.[/e_v.(arg3(e,x) \& P(e))]]] :
+								((#v_v -o #v_t) -o (#s_e -o (#v_v -o #v_t))) || noscope.
+
+ #e OBL #a & #e SEM #v ==> #a SEM #s & #v ARG3 #b &
+								#b GLUE [/P_<v,t>.[/x_e.[/e_v.(arg3(e,x) \& P(e))]]] :
+								((#v_v -o #v_t) -o (#s_e -o (#v_v -o #v_t))) || noscope.
+
+#n UPOS PROPN & #n LEMMA %l & #n SEM #s ==> #s GLUE %l : #s_e.
+
+#n UPOS NOUN & #n LEMMA %l & #n SEM #s ==> #s GLUE [/x_e.%l(x)] : (#s_e -o #s_t).
+
+#d DEFINITE Ind & #d ^(DET) #n SEM #s & #n ^(%) #p SEM #q  ==>
+#d SEM #t & #t GLUE [/P_<e,t>.[/Q_<e,t>.Ex_e[P(x) \& Q(x)]]] :
+						((#s_e -o #s_t) -o ((#s_e -o #q_t) -o #q_t)).
+
+#d DEFINITE Def & #d ^(DET) #n SEM #s & #n ^(%) #p SEM #q  ==>
+#d SEM #t & #t GLUE [/P_<e,t>.Ix_e[P(x)]] : ((#s_e -o #s_t) -o #s_e).
+
+#d UPOS 'DET' & #d LEMMA every & #d ^(DET) #n SEM #s & #n ^(%) #p SEM #q  ==>
+#d SEM #t & #t GLUE [/P_<e,t>.[/Q_<e,t>.Ax_e[P(x) -> Q(x)]]] :
+						((#s_e -o #s_t) -o ((#s_e -o #q_t) -o #q_t)).
