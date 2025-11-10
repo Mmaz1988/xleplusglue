@@ -37,8 +37,6 @@ This repository contains:
 - Java (jars are compiled at version 17; available at **[OpenJDK](https://jdk.java.net/13/)**
 - **[SWI-Prolog](https://www.swi-prolog.org/) (version > v6.xx)**
 
-Due to XLE's and Vampire's architecture, the Docker-based XLE interface is a bit slow on ARM machines.
-
 ## Installation -- XLE+Glue_web
 
 In the folder ./liger_resources create a file named xle_paths.txt with the following contents:
@@ -67,6 +65,9 @@ The system can be shut down by using the keyboard command _ctrl+c_ in the comman
 For further details, a documentation document will be made available soon. 
 
 
+## Known issues
+
+- Due to XLE's and Vampire's architecture, the Docker-based XLE interface and the inference interface are a bit slow on ARM machines.
 
 
 
