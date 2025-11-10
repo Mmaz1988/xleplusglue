@@ -30,18 +30,26 @@ right	  N * (^PRED) = 'right<(^XCOMP)>'
 "countries"
 
 
-Swede      N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
+Swede      N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count
                  @(COUNT-NOUN-SEM %stem).
 
-Scandinavian      N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
+Scandinavian      N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NUM) = sg
                 (^NTYPE NSYN) = common
                 (^NTYPE NSEM COMMON) = count
                  @(COUNT-NOUN-SEM %stem);
-                ETC.
+                 A * @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = intersective.
+                    "Using ETC. with nouns leads to spurious ambiguity with UNKNOWN entry."
+
+Scandinavia     N *   @(PRED %stem)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem).
 
 Sweden     N *   @(PRED %stem)
                 (^NUM) = sg
@@ -74,6 +82,7 @@ Europe     N *   @(PRED %stem)
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
                 @(PROPER-NOUN-SEM %stem).
+
 
 
 "hardcoded words"

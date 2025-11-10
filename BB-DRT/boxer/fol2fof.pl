@@ -132,6 +132,27 @@ printFof(greater(X,Y),Stream):- !,
     printFof(Y,Stream),
     write(Stream,')').
 
+printFof(greaterEq(X,Y),Stream):- !,
+    write(Stream,'$greatereq('),
+    printFof(X,Stream),
+    write(Stream,','),
+    printFof(Y,Stream),
+    write(Stream,')').
+
+printFof(less(X,Y),Stream):- !,
+    write(Stream,'$less('),
+    printFof(X,Stream),
+    write(Stream,','),
+    printFof(Y,Stream),
+    write(Stream,')').
+
+printFof(lessEq(X,Y),Stream):- !,
+    write(Stream,'$lesseq('),
+    printFof(X,Stream),
+    write(Stream,','),
+    printFof(Y,Stream),
+    write(Stream,')').
+
 printFof(plus(Phi,Psi),Stream):- !,
    write(Stream,'('),
    printFof(Phi,Stream),
@@ -206,6 +227,28 @@ printFof(greater(X,Y)):- !,
    write(','),
    printFof(Y),
    write(')').
+
+printFof(greaterEq(X,Y)):- !,
+   write('$greatereq('),
+   printFof(X),
+   write(','),
+   printFof(Y),
+   write(')').
+
+printFof(less(X,Y)):- !,
+   write('$less('),
+   printFof(X),
+   write(','),
+   printFof(Y),
+   write(')').
+
+printFof(lessEq(X,Y)):- !,
+   write('$lesseq('),
+   printFof(X),
+   write(','),
+   printFof(Y),
+   write(')').
+
 
 printFof(plus(Phi,Psi)):- !,
    write('('),
