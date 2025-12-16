@@ -80,6 +80,8 @@ def printDRS(Drs):
     if not os.path.exists("tmp"):
         os.makedirs("tmp", exist_ok=True)
 
+    # logger.info("Trying to print DRS: %s", Drs)
+
     Drs = wrap_hyphenated_words(Drs)
 
     inputDrs = "printDrs:saveToFile(" + Drs + ",'tmp/boxing.txt')."
@@ -87,6 +89,9 @@ def printDRS(Drs):
 
     filepath = "tmp/boxing.txt"
     boxed = open(filepath, 'r').read()
+
+    # logger.info("Generated following DRS: %s", boxed)
+
     if os.path.exists("tmp/boxing.txt"):
         os.remove("tmp/boxing.txt")
     return boxed
@@ -262,8 +267,8 @@ def single_vampire_request(request):
                         fof_hypothesis = fof_hypotheses[0]
                         # fof_hypothesis = extract_fof(fof_hypothesis)
                         context = Context(original=ctx.original + " " + hypothesis.original,
-                                          prolog_drs=new_prolog, prolog_fol=prolog_hypothesis,
-                                          tptp=fof_hypothesis, box=printDRS(new_prolog))
+                                          prolog_drs=prolog, prolog_fol=prolog_hypothesis,
+                                          tptp=fof_hypothesis, box=printDRS(prolog))
                         if context not in new_context:
                             new_context.append(context)
                             svg_output = generate_svg_glyph(results)
