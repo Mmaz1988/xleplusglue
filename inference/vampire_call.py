@@ -25,7 +25,7 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
         'info_pos_check': '{}(info_pos_check, axiom, ({q}) & ~(({q}) => ({p}))).\n',
         'info_neg_check': '{}(info_neg_check, axiom, ({q}) & (({q}) => ({p}))).\n',
         'cons_pos_check': '{}(cons_pos_check, axiom, ({q} & {p})).\n',
-        'cons_neg_check': '{}(cons_neg_check, axiom, ({q}) & (({q}) => ~({p}))).\n'
+        'cons_neg_check': '{}(cons_neg_check, axiom, ({q}) & ~(({q}) => ~({p}))).\n'
     }
     q = context
     p = hypothesis
@@ -121,7 +121,7 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
 
         # Extract information from the output
         output = completed_process.stdout
-        print(f"Vampire Output: {output}")
+        # print(f"Vampire Output: {output}")
         # print(f"Error output: {completed_process.stderr}")
         # logger.info("Vampire Output: %s" + output)
         # logger.debug("Error output: %s" + completed_process.stderr)
@@ -331,9 +331,10 @@ def determine_consistency(data):
     # Placeholder: Implement specific consistency conditions
     logger.debug("Consistency Check: %s", data)
 
-    failed_pos_check = sum(1 for value in data["pos"] if value == -1) > len(data["neg"]) / 2
+    failed_pos_check = sum(1 for value in data["pos"] if value == -1) >= 2
+    successful_neg_check = sum(1 for value in data["neg"] if value == -1) >= 2
 
-    if failed_pos_check:
+    if failed_pos_check and successful_neg_check:
         return False
 
     return True
@@ -357,7 +358,7 @@ def determine_informativity(data):
 
     successful_pos_check = sum(1 for value in data["pos"] if value == 1) > len(data["pos"]) / 2
     if successful_pos_check:
-        return True, True
+        return True, False
 
     return False, False
 
