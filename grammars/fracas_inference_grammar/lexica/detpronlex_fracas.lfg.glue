@@ -85,6 +85,7 @@ who PRON *      (^PRON-TYPE) = rel
                 (^PRON-FORM) = who
                 (^PRED) = 'PRO'
                 {(^NUM) =sg |(^NUM) = pl}
+                s::(ADJUNCT TOPIC ^) = %sem
                 (TOPIC ^) = %rel
                 (s::%rel SIT) = %sit
                  s::(%rel {SUBJ | OBJ}) = %arg

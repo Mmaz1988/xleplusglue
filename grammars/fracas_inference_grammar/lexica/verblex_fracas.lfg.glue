@@ -316,9 +316,10 @@ will    AUX[fut,fin] * @VFUT "@(TENSE past)"
               "@(PROG -_)
               @(PERF -_)"
               (^ SUBJ NUM)
-              (^ SUBJ PERS)
-              (^ FIN) = +
-              (^ VTYPE) = fin. "semantics don't work here"
+              (^ SUBJ PERS).
+              "(^ VTYPE) = fin"
+
+              "semantics don't work here"
 
 
 "be, (being, been??)"

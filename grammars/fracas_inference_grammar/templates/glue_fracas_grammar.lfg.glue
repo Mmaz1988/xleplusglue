@@ -14,14 +14,14 @@ GLUE   BASIC   TEMPLATES (1.0)
   NOSCOPE(G) = (G NOSCOPE) = +.
 
    NAME-SCOPE(UP NAME) =
-   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART | $}+ ^)
-   (%name FIN) =c +
+   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART}+ ^)
+   (%name ROOT) =c +
    NAME  = s::%name.
 
-     QUANT-SCOPE(UP NAME) =
-  	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL-COMP | OBL | PREDLINK | ADJUNCT | OBL-PART | $}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
-  	  (s::%name EV TYPE) =c eventuality
-  	  NAME = s::%name.
+   QUANT-SCOPE(UP NAME) =
+   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL-COMP | OBL | PREDLINK | ADJUNCT | OBL-PART}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
+   (s::%name EV TYPE) =c eventuality
+   NAME = s::%name.
 
 " Why does the below not work?
    QUANT-SCOPE(UP NAME) =
@@ -79,7 +79,7 @@ GLUE   BASIC   TEMPLATES (1.0)
 
 
 DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
-                      	      (s::^ TYPE) = entity
+                      	      "(s::^ TYPE) = entity"
                       		  { (^ NTYPE NSYN) =c common
                       		  @(COUNT-NOUN-SEM P)
                       		  |
@@ -124,7 +124,7 @@ DEFAULT-EX-QUANT = @(QUANT-SCOPE ^ %q)
 
 DEFAULT-EX-QUANT-NOSCOPE = @(QUANT-SCOPE ^ %q)
             :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t))|| noscope.
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
 
 UNIVERSAL-QUANT = @(QUANT-SCOPE ^ %q)
 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
