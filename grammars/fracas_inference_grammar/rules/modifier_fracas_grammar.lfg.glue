@@ -85,7 +85,8 @@
               (^ TOPIC) = %rel
               		 ((ADJUNCT ^) PERS)  = (^TOPIC PERS)
               		 ((ADJUNCT ^) NUM)  = (^TOPIC NUM);
-          (NP: (^ SUBJ) = !)
+          (NP: (^ SUBJ) = !
+           (^ OBJ) = %rel)
 		 "from Pargram: (^ TOPIC-REL {(OBJ)|(OBL-PART)} [SPEC (POSS)]*) = (^ PRON-REL)"
  	  VP[fin].
 

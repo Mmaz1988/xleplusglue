@@ -201,7 +201,7 @@ BE-TRANS-EV = (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
 
    PASTP = (^ PARTICIPLE) = past. 
 
-   BARE-AGR = { (^VFORM) ~= inf
+   BARE-AGR = { (^VFORM) = fin
 	    { (^ SUBJ NUM) = pl "either it is plural"
 	    | (^ SUBJ PERS) ~= 3 "or singular and not 3rd person"
 	      (^ SUBJ NUM) = sg

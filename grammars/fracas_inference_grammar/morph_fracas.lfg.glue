@@ -85,9 +85,10 @@ MORPH   ENGLISH   LEXICON (1.0)
 		  { @VPAST
 		   (^ VFORM) = fin
 		   | @PASTP
-		    (^ PASSIVE) =  +} "should be optional "
+		    {(^ PASSIVE) = +}} "should be optional "
 		  @(PROG -_)
 		  @(PERF -_).
+
 
 +PastTense TNS XLE "past tense"
 		   @VPAST
@@ -96,7 +97,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 		   @(PERF -_).
 
 +PastPerf TNS XLE @PASTP
-                  (^ PASSIVE) = +. "PASSIVE should be optional"
+                  {(^ PASSIVE) = +}. "PASSIVE should be optional"
 
 +Prog 	  ASP XLE @VPROG.
 
@@ -107,9 +108,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +123SP 	  PERS XLE .
 
-+Non3sg   PERS XLE @BARE-AGR
-                   {(^ VFORM) = inf |
-                    (^ VFORM) = fin }.
++Non3sg   PERS XLE @BARE-AGR.
 
 "nominal/verbal"
 

@@ -34,6 +34,7 @@ VPv[_form] -->
                 	       };
                  	  (PP: (^ OBL-TO) = ! "special obl for ditransitives"
                 	       "example of a constraining equation: require a value with =c"
+                	       "@(OT-MARK OBLto)"
                 	       (! PFORM) =c to )
                  	  (PP: (^ OBL-AG) = ! "oblique agent of passive"
                 	       "example of a constraining equation: require a value with =c"

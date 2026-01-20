@@ -2,12 +2,12 @@
 set-character-encoding stdio utf-8
 
 # performance vars
-# set max_xle_scratch_storage 500
-# set start_skimming_when_scratch_storage_exceeds 300
-# set print_subtrees 1
+set max_xle_scratch_storage 1000
+set start_skimming_when_scratch_storage_exceeds 1000
+set print_subtrees 1
 
 # set timeout lower; amounts are in seconds
-set timeout 5
+set timeout 10
 
 #For output window
 set semwindowtop 0
@@ -31,11 +31,13 @@ set defaultGlueTCL [relpath src/glue.tcl]
 #Here the grammar is loaded
 set defaultGlueParser [relpath grammars/fracas_inference_grammar/main_fracas_grammar.lfg.glue]
 
-proc tq {} {parse-testfile [relpath testsuites/fracas_quantifiers_testsuite.lfg] }
+proc tq {} {parse-testfile [relpath testsuites/parsing/fracas_quantifiers_testsuite.lfg] }
 
-proc ta {} {parse-testfile [relpath testsuites/fracas_adjectives_testsuite.lfg] }
+proc ta {} {parse-testfile [relpath testsuites/parsing/fracas_adjectives_testsuite.lfg] }
 
-proc tc {} {parse-testfile [relpath testsuites/fracas_comparatives_testsuite.lfg] }
+proc tc {} {parse-testfile [relpath testsuites/parsing/fracas_comparatives_testsuite.lfg] }
+
+proc tr {} {parse-testfile [relpath testsuites/parsing/fracas_relative_testsuite.lfg] }
 
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
