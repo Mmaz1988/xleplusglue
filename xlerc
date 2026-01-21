@@ -40,7 +40,7 @@ source $defaultGlueTCL
 set solutionOnly 0
 
 # choose prover  (0: HEPPLE, 1: LEV, 2: LEV-altered, 3: Multistage proving)
-set prover 1
+set prover 0
 
 # activate semantic parser (0: no parsing / 1: semantic Parsing / 2: Prolog)
 set semParser 0
