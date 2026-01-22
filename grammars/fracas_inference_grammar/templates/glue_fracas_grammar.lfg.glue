@@ -15,7 +15,8 @@ GLUE   BASIC   TEMPLATES (1.0)
 
    NAME-SCOPE(UP NAME) =
    %name = ({SUBJ | OBJ | OBJ2 | XCOMP | COMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART | $}+ ^)
-   (%name ROOT) =c +
+   (%name TNS-ASP TENSE)
+   "(%name ROOT) =c +"
    NAME  = s::%name.
 
    QUANT-SCOPE(UP NAME) =
