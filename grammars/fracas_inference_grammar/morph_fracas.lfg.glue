@@ -82,12 +82,20 @@ MORPH   ENGLISH   LEXICON (1.0)
 		   @(PERF -_).
 
 +PastBoth TNS XLE "past tense or past particle"
-		  { @VPAST
+		  {
+		    @VPAST
 		   (^ VFORM) = fin
+		    @(PROG -_)
+            @(PERF -_)
 		   | @PASTP
-		    {(^ PASSIVE) = +}} "should be optional "
+		   {
+		   (^ PASSIVE) =c + "should be optional "
 		  @(PROG -_)
-		  @(PERF -_).
+		  @(PERF -_) |
+		   @(PROG -_)
+           @(PERF +_)
+		  }
+		  }.
 
 
 +PastTense TNS XLE "past tense"

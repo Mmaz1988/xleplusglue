@@ -15,9 +15,9 @@
     "if...(then)..."
    Scond --> CONJPsub: ! $ (^ ADJUNCT);
              (COMMA)
-             (ADVP:! $ (^ ADJUNCT)
+             (ADVP: ! $ (^ ADJUNCT)
              (!ADV-TYPE) =c cond)
-             S.
+             S: (^ ROOT) = +.
 
    S --> NP: (^ SUBJ)=!
 	         (! CASE)=nom;

@@ -104,7 +104,8 @@ that PRON *      (^PRON-TYPE) = rel
                     (s::%rel SIT) = %sit
                     s::(%rel {SUBJ | OBJ}) = %arg
                 :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
-                   ((%sem_e -o %sem_t) -o ((%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope.
+                   ((%sem_e -o %sem_t) -o ((%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope,
+                   ;ETC.
 
 
 "determiners"

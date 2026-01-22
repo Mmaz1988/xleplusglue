@@ -130,6 +130,10 @@ wait 	  V-S XLE { @(INTRANS-EV wait) |
 
 "Optional transitives"
 
+dance   V-S XLE @(OPT-TRANS-EV %stem).
+
+smile   V-S XLE @(OPT-TRANS-EV %stem).
+
 smoke   V-S XLE @(OPT-TRANS-EV %stem).
 
 snort    V-S XLE @(OPT-TRANS-EV %stem).
@@ -149,6 +153,8 @@ win       V-S XLE @(OPT-TRANS-EV %stem).
 lose      V-S XLE @(OPT-TRANS-EV %stem).
 
 sell      V-S XLE @(OPT-TRANS-EV %stem).
+
+train      V-S XLE @(OPT-TRANS-EV %stem).
 
 do        V-S XLE @(OPT-TRANS-EV %stem).
 
@@ -170,11 +176,11 @@ implement V-S XLE @(TRANS-EV %stem).
 
 love 	  V-S XLE @(TRANS-EV %stem).
 
+marry     V-S XLE @(TRANS-EV %stem).
+
 receive   V-S XLE @(TRANS-EV %stem).
 
 see 	  V-S XLE @(TRANS-EV %stem).
-
-have      V-S XLE @(TRANS-EV %stem).
 
 obtain    V-S XLE @(TRANS-EV %stem).
 
@@ -214,6 +220,9 @@ use     V-S XLE { @(TRANS-EV %stem) |
                     (^ XCOMP SUBJ) = (^SUBJ)
                     (^TNS-ASP TENSE) =c past}.
 
+
+visit V-S XLE @(TRANS-EV %stem).
+
 "Ditransitives"
 
 give 	  V-S XLE @(DITRANS-EV give).
@@ -240,8 +249,10 @@ is   AUX[fin] *   @BE-TRANS-EV
                   @VPRESBE       "template without inf option"
 		          @(PROG -_)
 		          @(PERF -_)
-		          @S-AGR       "3sg"
-		          .
+		          @S-AGR;
+	AUX[prog,fin] * @VPRESBE       "template without inf option"
+	                @(PERF -_)
+                    @S-AGR.
 
      "AUX * @(TENSE pres)
 		    { (^ SUBJ PERS) = 1
@@ -281,7 +292,11 @@ was   AUX[fin] *  @BE-TRANS-EV
        AUX[pass,fin] * @VPAST
        		           @S-AGR
        		           (^VFORM) = fin
-       		           (^PASSIVE) = +.
+       		           (^PASSIVE) = +;
+       AUX[prog,fin] * @VPAST
+                      @S-AGR
+                      @(PERF -_)
+                      (^VFORM) = fin.
 
 
         "AUX * @(TENSE past)
@@ -318,10 +333,7 @@ will    AUX[fut,fin] * @VFUT "@(TENSE past)"
               (^ SUBJ NUM)
               (^ SUBJ PERS).
               "(^ VTYPE) = fin"
-
               "semantics don't work here"
-
-
 "be, (being, been??)"
 
 be   AUX[base] *  (^VFORM) = inf
@@ -333,9 +345,11 @@ be   AUX[base] *  (^VFORM) = inf
               (^SUBJ) = (^ PREDLINK SUBJ)
               @(EVENT be)
               { @(ARG1 (^ PREDLINK)) | @(ARG1 (^ SUBJ))}" "EX. There was an Italian vs. the dog was fast"
-              .
+              ;
+     AUX[prog,base] *  (^VFORM) = inf
+                       @(PERF -_).
 
-"auxiliaries"
+"modals"
 
 
 can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
@@ -343,8 +357,24 @@ can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
              (^ VFORM) = modal
              @VPRESMODAL.
 
+would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
+              (^ XCOMP SUBJ) = (^SUBJ)
+              (^ VFORM) = modal
+              @VPRESMODAL.
+
 
 did AUX[fin] * @VPAST.
+
+"For perfect forms"
+
+had AUX[perf,fin] * (^VFORM) = fin
+                    @VPRES.
+
+has AUX[perf,fin] * (^VFORM) = fin
+                    @VPRES.
+
+have AUX[perf,base] * (^VFORM) = inf;
+      V-S XLE @(TRANS-EV %stem).
 
 
 "did       V-S XLE @(INTRANS-EV %stem)."

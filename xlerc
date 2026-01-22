@@ -39,6 +39,8 @@ proc tc {} {parse-testfile [relpath testsuites/parsing/fracas_comparatives_tests
 
 proc tr {} {parse-testfile [relpath testsuites/parsing/fracas_relative_testsuite.lfg] }
 
+proc tm {} {parse-testfile [relpath testsuites/parsing/marks-testsuite.lfg] }
+
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
 
