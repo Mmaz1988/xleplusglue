@@ -340,8 +340,8 @@ be   AUX[base] *  (^VFORM) = inf
 
 can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
              (^ XCOMP SUBJ) = (^SUBJ)
-              (^ VFORM) = modal
-              @VPRES.
+             (^ VFORM) = modal
+             @VPRESMODAL.
 
 
 did AUX[fin] * @VPAST.
