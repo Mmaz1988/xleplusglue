@@ -363,7 +363,10 @@ would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
               @VPRESMODAL.
 
 
-did AUX[fin] * @VPAST.
+did AUX[fin] * @VPAST
+    AUXdo[fin] * @VPAST.
+
+"does AUX[fin] * @VPRES."
 
 "For perfect forms"
 

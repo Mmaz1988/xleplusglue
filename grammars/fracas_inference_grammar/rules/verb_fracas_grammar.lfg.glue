@@ -70,7 +70,7 @@ VPv[_form] -->
   VPcop[_form $ {fin cop pass modal perf prog base}] -->
             AUX[_form]
             (ADVP: ! $ (^ ADJUNCT))
-            (NEG: ! $ (^ ADJUNCT))
+            (NEG)
             {
               NP: (^ PREDLINK) = ! "EX. ... is a dog"
               |
@@ -89,9 +89,11 @@ VPv[_form] -->
 
 
 VPfut[fut,_form] -->  AUX[fut,_form]
+                      (NEG)
                       VPv[base].
 
 VPprog[prog,_form] -->  AUX[prog,_form]
+                        (NEG)
                          VPv[prog].
 
 VPperf[perf,_form] -->  AUX[perf,_form]
