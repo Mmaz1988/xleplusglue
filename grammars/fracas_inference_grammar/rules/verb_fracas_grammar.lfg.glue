@@ -1,7 +1,8 @@
 VERB ENGLISH RULES (1.0)
 
 
-VP[_form $ {cop fin perf prog base }] --> {VPv[_form] | VPperf[perf,_form] | VPprog[prog,_form] |  VPcop[_form] | VPfut[fut,_form] | VPpass[pass,_form]}.
+VP[_form $ {cop fin perf prog base }] --> {VPv[_form] | VPperf[perf,_form] | VPprog[prog,_form] |  VPcop[_form]
+                                            | VPfut[fut,_form] | VPpass[pass,_form] | VPdo[_form]}.
 
 
 
@@ -98,6 +99,11 @@ VPprog[prog,_form] -->  AUX[prog,_form]
 
 VPperf[perf,_form] -->  AUX[perf,_form]
                          VPv[perf]: (^ PARTICIPLE) =c past.
+
+
+VPdo[_form]        --> AUXdo[_form]
+                        (NEG)
+                        VPv[base].
 
 
 ----
