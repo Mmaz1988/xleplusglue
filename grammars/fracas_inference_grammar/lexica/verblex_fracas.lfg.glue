@@ -166,6 +166,8 @@ become 	  V-S XLE @(TRANS-EV %stem).
 
 devour 	  V-S XLE @(TRANS-EV %stem).
 
+find 	  V-S XLE @(TRANS-EV %stem).
+
 lick 	  V-S XLE @(TRANS-EV %stem).
 
 hate 	  V-S XLE @(TRANS-EV %stem).  "using the morphological analyzer"
