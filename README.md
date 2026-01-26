@@ -30,11 +30,13 @@ It is recommended that grammars are stored in separate folders in the /grammars 
 
 | Grammar          | Prover | semParser | processDRT | mcEncoding | transfer |
 |------------------|--------|-----------|------------|------------|----------|
-| glue-basic       | any    | 1         | 0          | 1          | 0        |
+| glue-basic       | 0      | 1         | 0          | 1          | 0        |
 | hybrid-basic     | any    | 2         | 1          | 1          | 1        |
 | multistage-basic | 3      | 1         | 0          | 1          | 0        |
 
 These are the settings intended for the different grammars. Using different settings might cause problems. 
+Generally, the HEPPLE prover (0) allows for linear quantification, while the LEV prover allows for more efficient solving, including the noscope flag.
+
 
 ## Known bugs
 
