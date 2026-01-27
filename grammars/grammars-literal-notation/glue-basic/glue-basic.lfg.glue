@@ -22,7 +22,7 @@ GLUE   BASIC   CONFIG (1.0)
   FILES  .
   LEXENTRIES   (ENGLISH BASIC).  
   RULES   (ENGLISH BASIC).
-  TEMPLATES (ENGLISH BASIC) (GLUE BASIC).
+  TEMPLATES (ENGLISH BASIC) (GLUE BASIC) (GLUE GRAMMAR).
   GOVERNABLERELATIONS    SUBJ OBJ OBJ?+ OBL?+ COMP XCOMP.
   SEMANTICFUNCTIONS    ADJUNCT TOPIC FOCUS.  
   NONDISTRIBUTIVES    NUM PERS.
@@ -141,8 +141,8 @@ ENGLISH   BASIC   TEMPLATES (1.0)
 determiners and the template for common nouns."
 
    QUANT(P Q N) = (^ PRED) = 'P'
-          @(GLUE-QUANT-MC Q)
-          @(GLUE-NOUN0-MC N).
+          @(GLUE-QUANT-DET Q)
+          @(GLUE-NOUN0 N).
 
 "Adjectives"
 
@@ -179,130 +179,59 @@ determiners and the template for common nouns."
 
 ----
 
-GLUE   BASIC   TEMPLATES (1.0)
+GLUE   GRAMMAR   TEMPLATES (1.0)
 
 "Templates called by lexical entries"
 
    GLUE-PROPERNOUN(M) =
-	  @(GLUE-REL0-MC ^ e M).
-
-   GLUE-VERB-SUBJ(M) =
-	  @(GLUE-REL1-MC (^ SUBJ) e ^ t M).
-
-   GLUE-VERB-SUBJ-OBJ(M) =
-	  @(GLUE-REL2-MC (^ SUBJ) e (^ OBJ) e ^ t M).
-
-   GLUE-VERB-SUBJ-OBJ-OBJTH(M) =
-	  @(GLUE-REL3-MC (^ SUBJ) e (^ OBJ) e (^ OBJ-TH) e ^ t M).
-
-   GLUE-VERB-SUBJ-COMP(M) =
-	  @(GLUE-REL2-MC (^ SUBJ) e (^ COMP) t ^ t M).
+	  :$ 'M' : ^_e.
 
    GLUE-NOUN0(M) = "Meaning constructor for nouns associates the e->t-type meaning with the value of PRED"
-	  @(GLUE-NOUN0-MC M).
+	  :$ 'M' : (^_e -o ^_t).
+
+   GLUE-VERB-SUBJ(M) =
+	  :$ 'M' : ((^SUBJ)_e -o ^_t).
+
+   GLUE-VERB-SUBJ-OBJ(M) =
+	  :$ 'M' : ((^SUBJ)_e -o ((^OBJ)_e -o ^_t)).
+
+   GLUE-VERB-SUBJ-OBJ-OBJTH(M) =
+     :$ 'M' : ((^SUBJ)_e -o ((^OBJ)_e -o ((^ OBJ-TH)_e -o ^_t))).
+
+   GLUE-VERB-SUBJ-COMP(M) =
+	  :$ 'M' : ((^SUBJ)_e -o ((^COMP)_t -o ^_t)).
 
    GLUE-ADJ0(M) = "Meaning constructors for prenominal adjectives provide the basic meaning and the meaning constructor that combines it with the noun"
-          @(GLUE-REL1-MC (^ PRED) e ^ t M)
-	  @(GLUE-ADJ-MODIFIER `/P`.`/Q`.`/x`.and`(P`(x`)`,Q`(x`)`)).
+          %mod = (ADJ $ ^)
+          :$ 'M' : (^_e -o ^_t),
+	  :$ and : ((^_e -o ^_t) -o ((%mod_e -o %mod_t) -o (%mod_e -o %mod_t))).
 
    GLUE-QUANT-DET(M) = "Meaning constructor for quantificational determiners, with embedded implication and quantification over the scope structure"
-	  @(GLUE-QUANT-MC M).
+	  :$ 'M' : ((^_e -o ^_t) -o AX_t.((^_e -o X_t) -o X_t)).
+
+
+
+
+----
+
+GLUE   BASIC   TEMPLATES (1.0)
 
 "Templates defining glue structures"
 
-"Zero-arity predicates have a MEANING, a semantic structure, and a type."
-   GLUE-REL0-MC(R TY M) = 
-	  @(GLUE-RESOURCE R %mc TY)
-	  @(GLUE-MEANING %mc M)
-	  %mc $ (R GLUE).
+   LLIMP(N L R) = (N ANT) = L
+	  (N CONS) = R.
 
-"Predicates with one or more arguments.  These are the simple cases,
-which do not rely on attributes in the semantic structure.  Each
-argument has a semantic structure and a type."
+   LLATOM(N L T) = (N RESOURCE) = L
+	  (N TYPE) = T.
 
-"1-place predicates" 
-   GLUE-REL1-MC(A1 A1TY R TY M) = 
-	  @(GLUE-RESOURCE R %mc TY)
-	  @(GLUE-RESOURCE A1 (%mc ARG1) A1TY) 
-	  @(GLUE-MEANING %mc M)
-	  %mc $ (R GLUE).
+    LLQUANT(N B) = (N BINDER) = B.
 
-"2-place predicates"	  
-   GLUE-REL2-MC(A1 A1TY A2 A2TY R TY M) = 
-	  @(GLUE-RESOURCE R %mc TY)
-	  @(GLUE-RESOURCE A1 (%mc ARG1) A1TY) 
-	  @(GLUE-RESOURCE A2 (%mc ARG2) A2TY) 
-	  @(GLUE-MEANING %mc M)
-	  %mc $ (R GLUE).
+   LLCLOSURE(G) = G $ (g::* GLUE).
 
-"3-place predicates"
-   GLUE-REL3-MC(A1 A1TY A2 A2TY A3 A3TY R TY M) = 
-	  @(GLUE-RESOURCE R %mc TY)
-	  @(GLUE-RESOURCE A1 (%mc ARG1) A1TY) 
-	  @(GLUE-RESOURCE A2 (%mc ARG2) A2TY) 
-	  @(GLUE-RESOURCE A3 (%mc ARG3) A3TY) 
-	  @(GLUE-MEANING %mc M)
-	  %mc $ (R GLUE).
+   GLUE-MEANING(R M) =
+	  (R MEANING) = M.
 
-"Special meaning constructor for nouns, with type
-(^ PRED)_e -o (^ PRED)_t.  This template is also used for quantifiers
-like 'everyone', so the local name %mcn in this template must be different
-from the one used in the quantifier template GLUE-QUANT-MC (%mc)."
-   GLUE-NOUN0-MC(M) = 
-	  @(GLUE-RESOURCE (^ PRED) (%mcn ARG1) e) 
-	  @(GLUE-RESOURCE (^ PRED) %mcn t)
-	  @(GLUE-MEANING %mcn M)
-	  %mcn $ (^ GLUE).
+  NOSCOPE(G) = (G NOSCOPE) = +.
 
-"Special meaning constructor to combine basic adjective meanings
-with the nouns they modify, with type
-((^ PRED)_e -o ^_t) -o 
-  ( ((ADJ $ ^) PRED)_e -o ((ADJ $ ^) PRED) -o 
-     ((ADJ $ ^) PRED)_e -o ((ADJ $ ^) PRED))."
-   GLUE-ADJ-MODIFIER(M) =
-     @(GLUE-MODIFIER1 (^ PRED) e ^ t ((ADJ $ ^) PRED) e ((ADJ $ ^) PRED) t M).
- 
-"General template for one-place modifiers, e.g. adjectives"
-  GLUE-MODIFIER1(MODARG MODARGTY MODRES MODRESTY HEADARG HEADARGTY HEADRES HEADRESTY M) =
-         "Modifier"
-         @(GLUE-RESOURCE MODARG (%mcm ARG1 ARG1) MODARGTY)
-         @(GLUE-RESOURCE MODRES (%mcm ARG1) MODRESTY)
-         "Head"
-         @(GLUE-RESOURCE HEADARG (%mcm ARG2 ARG1) HEADARGTY)
-         @(GLUE-RESOURCE HEADRES (%mcm ARG2) HEADRESTY)
-	 "Result"
-         @(GLUE-RESOURCE HEADARG (%mcm ARG3) HEADARGTY)
-         @(GLUE-RESOURCE HEADRES %mcm HEADRESTY)
-	 @(GLUE-MEANING %mcm M) 
-	 %mcm $ (^ GLUE).
-	 
-"Special template for generalized quantifiers like 'every'."
-   GLUE-QUANT-MC(M) =
-          "Restriction: (^ PRED)_e -o (^ PRED)_t"
-	  @(GLUE-RESOURCE (^ PRED) (%mc ARG1 ARG1) e)
-	  @(GLUE-RESOURCE (^ PRED) (%mc ARG1) t)
-	  "Scope argument: ^_e -o ?SCOPE_t"
-	  @(GLUE-RESOURCE ^ (%mc ARG2 ARG1) e)
-	  @(GLUE-RESOURCE %scope (%mc ARG2) t)
-	  "Result: ?SCOPE_t"
-	  @(GLUE-RESOURCE %scope %mc t)
-	  "introduce universal quantifier over scope with FORALL attribute"
- 	  (%mc FORALL) = %scope
-          "quantifier meaning"
-	  @(GLUE-MEANING %mc M)
-	  %mc $ (^ GLUE).
-
-"The base definitions.
-GLUE-RESOURCE is a term: a linguistic resource R and a type TY.
-GLUE-MEANING provides the meaning (left-hand side) of the full meaning constructor."
-
-"The structure TypedRES has the value R for RESOURCE, and the value TY for TYPE."
-   GLUE-RESOURCE(R TypedRES TY) = 
-	  (TypedRES RESOURCE) = R
-	  (TypedRES TYPE) = TY.
-
-"The meaning M appears as the value of the attribute MEANING in the structure TypedRES."
-   GLUE-MEANING(TypedRES M) =  
-	  (TypedRES MEANING) = M.
 
 ----
