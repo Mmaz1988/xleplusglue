@@ -95,9 +95,11 @@ or 	  CONJ * @(COORD-FORM %stem);
 
 "negation"
 
-not   NEG * "@(PRED not)"
-            (^NEG) = + .
-
+not   NEG * @(PRED not)
+            (^ADJUNCT-TYPE) = neg
+            @(QUANT-SCOPE ^ %q)
+            :$ lam(P,drs([],[not(P)])) :
+             (%q_t -o %q_t).
 
 "nominal modifiers"
 
