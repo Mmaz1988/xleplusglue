@@ -179,15 +179,20 @@ BE-TRANS-EV = (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
 
    CASE(C) = (^ CASE) = C.   
 
-   VPRES = { (^VFORM) ~= inf
+   VPRES = {(^VFORM) =c fin
 	    @(TENSE pres)
 	    @(MOOD indicative)
 	   |
 	    (^VFORM) = inf}.
 
-    VPRESBE = (^VFORM) ~= inf
-	    @(TENSE pres)
+    VPRESBE = (^VFORM) = fin
+    	    @(TENSE pres)
 	    @(MOOD indicative).
+
+    VPRESMODAL = (^VFORM) = modal
+    	    @(TENSE pres)
+	        @(MOOD indicative).
+
 
    VPAST = @(TENSE past) 
 	  @(MOOD indicative).
@@ -201,7 +206,7 @@ BE-TRANS-EV = (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
 
    PASTP = (^ PARTICIPLE) = past. 
 
-   BARE-AGR = { (^VFORM) ~= inf
+   BARE-AGR = { (^VFORM) = fin
 	    { (^ SUBJ NUM) = pl "either it is plural"
 	    | (^ SUBJ PERS) ~= 3 "or singular and not 3rd person"
 	      (^ SUBJ NUM) = sg

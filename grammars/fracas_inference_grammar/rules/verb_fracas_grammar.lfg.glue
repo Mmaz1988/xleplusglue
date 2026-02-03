@@ -1,11 +1,12 @@
 VERB ENGLISH RULES (1.0)
 
 
-VP[_form $ {cop fin perf prog base }] --> {VPv[_form] | VPcop[_form] | VPfut[fut,_form] | VPpass[pass,_form]}.
+VP[_form $ {cop fin perf prog base }] --> {VPv[_form] | VPperf[perf,_form] | VPprog[prog,_form] |  VPcop[_form]
+                                            | VPfut[fut,_form] | VPpass[pass,_form] | VPdo[_form]}.
 
 
 
-VPpass[pass,_form] --> (NP: (^ SUBJ) = !)
+VPpass[pass,_form] --> (NP: (^ SUBJ) = !) "Why is this here"
                        { AUX[pass,_form] |
                        e: _form = nonfin }
                        VPv[pass].
@@ -13,11 +14,20 @@ VPpass[pass,_form] --> (NP: (^ SUBJ) = !)
 VPv[_form] -->
                       e: {
                             _form = fin
-                            (^ VFORM) =c fin |
-                            _form = base
-                            (^ VFORM) =c inf |
+                            (^ VFORM) =c fin
+                            |
+                            {_form = prog
+                             (^ TNS-ASP PROG) =c +
+                              |
                             _form = pass
                             (^ PASSIVE) = +
+                            (^ PARTICIPLE) =c past }
+                            |
+                              _form = base
+                             (^ VFORM) =c inf
+                            |
+                            _form = perf
+                            (^ PARTICIPLE) =c past
                             };
                       V[_form]: ^=!;
                  	  (NP: (^ OBJ)=! "direct object"
@@ -34,6 +44,7 @@ VPv[_form] -->
                 	       };
                  	  (PP: (^ OBL-TO) = ! "special obl for ditransitives"
                 	       "example of a constraining equation: require a value with =c"
+                	       "@(OT-MARK OBLto)"
                 	       (! PFORM) =c to )
                  	  (PP: (^ OBL-AG) = ! "oblique agent of passive"
                 	       "example of a constraining equation: require a value with =c"
@@ -50,7 +61,9 @@ VPv[_form] -->
                 		  VPpass[pass,nonfin]: (^ XCOMP) = !
                 		 }
                  	   )
-                 	   (AP[predicative]: (^PREDLINK) = !).
+                 	   (AP[predicative]: (^PREDLINK) = !)
+
+                 	   (CONJPsub: ! $ (^ ADJUNCT)).
 
                  	  "(ADVP: ! $ (^ ADJUNCT))."
 
@@ -58,7 +71,7 @@ VPv[_form] -->
   VPcop[_form $ {fin cop pass modal perf prog base}] -->
             AUX[_form]
             (ADVP: ! $ (^ ADJUNCT))
-            (NEG: ! $ (^ ADJUNCT))
+            (NEG)
             {
               NP: (^ PREDLINK) = ! "EX. ... is a dog"
               |
@@ -69,13 +82,28 @@ VPv[_form] -->
               (! PTYPE) = sem
               |
               VP[base]: (^ XCOMP) = !
+              |
+              VPprog[prog,_form]: (^ XCOMP) = !
               }.
 
    VPinf --> PARTinf VP[base].
 
 
 VPfut[fut,_form] -->  AUX[fut,_form]
+                      (NEG)
                       VPv[base].
+
+VPprog[prog,_form] -->  AUX[prog,_form]
+                        (NEG)
+                         VPv[prog].
+
+VPperf[perf,_form] -->  AUX[perf,_form]
+                         VPv[perf]: (^ PARTICIPLE) =c past.
+
+
+VPdo[_form]        --> AUXdo[_form]
+                        (NEG)
+                        VPv[base].
 
 
 ----

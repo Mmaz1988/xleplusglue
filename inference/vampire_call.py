@@ -22,10 +22,10 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
 
     # Define TPTP templates with placeholders for p and q
     templates = {
-        'info_pos_check': '{}(info_pos_check, axiom, ~(({}) => ({}))).\n',
-        'info_neg_check': '{}(info_neg_check, axiom, (({}) => ({}))).\n',
-        'cons_pos_check': '{}(cons_pos_check, axiom, ({} & {})).\n',
-        'cons_neg_check': '{}(cons_neg_check, axiom, ({}) => ~({})).\n'
+        'info_pos_check': '{}(info_pos_check, axiom, ({q}) & ~(({q}) => ({p}))).\n',
+        'info_neg_check': '{}(info_neg_check, axiom, ({q}) & (({q}) => ({p}))).\n',
+        'cons_pos_check': '{}(cons_pos_check, axiom, ({q} & {p})).\n',
+        'cons_neg_check': '{}(cons_neg_check, axiom, ({q}) & ~(({q}) => ~({p}))).\n'
     }
     q = context
     p = hypothesis
@@ -36,10 +36,10 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
         tptp_content += f"{axioms}\n\n"
 
         tptp_content += f"% p = {q}\n% q = {p}\n"  # Add comments with p and q
-        tptp_content += template.format(logic,q,p)
+        tptp_content += template.format(logic,q=q,p=p)
         filename = f"sem_{suffix}.p"
         file_path = os.path.join(output_folder, filename)
-        # logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")
+        logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")
         with open(file_path, mode='w') as file:
             file.write(tptp_content)
 
@@ -117,7 +117,7 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
             timeout=timeout
         )
         #Logg exit code
-        logger.debug("Vampire exited with code: %d" + str(completed_process.returncode))
+        logger.debug("Vampire exited with code: " + str(completed_process.returncode))
 
         # Extract information from the output
         output = completed_process.stdout
@@ -331,9 +331,10 @@ def determine_consistency(data):
     # Placeholder: Implement specific consistency conditions
     logger.debug("Consistency Check: %s", data)
 
-    failed_pos_check = sum(1 for value in data["pos"] if value == -1) > len(data["neg"]) / 2
+    failed_pos_check = sum(1 for value in data["pos"] if value == -1) >= 2
+    successful_neg_check = sum(1 for value in data["neg"] if value == -1) >= 2
 
-    if failed_pos_check:
+    if failed_pos_check and successful_neg_check:
         return False
 
     return True

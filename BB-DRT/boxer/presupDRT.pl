@@ -39,7 +39,8 @@
                                 memberList/2,
                                 reverseList/2,
                                 removeFirst/3,
-                                printRepresentations/1]).
+                                printRepresentations/1,
+                                printRepresentations/2]).
 
 :- use_module(alphaConversionDRT,[alphaConvertDRS/2]).
 
@@ -72,9 +73,16 @@
 printMerged(Drs1,Drs2,Filename):-
     alphaConvertDRS(Drs2,Converted),
     open(Filename,write,Stream),
-    resolveDrs(merge(Drs1,Converted),Formula),
-    write(Stream,Formula),
+    setof(Sem,Converted^(resolveDrs(merge(Drs1,Converted),Sem)),Formulas),
+    printRepresentations(Formulas,Stream),
     close(Stream).
+
+resolve2file(Drs1,Filename):-
+    open(Filename,write,Stream),
+    setof(Sem,Drs1^(resolveDrs(Drs1,Sem)),Formulas),
+    printRepresentations(Formulas,Stream),
+    close(Stream).
+
 
 /*========================================================================
    Driver Predicates
@@ -142,7 +150,7 @@ findAlfaDrs(drs(D,C1),merge(A,R),Alfa,[a(A)|Ac],Bi1-Bi2):-
    findAlfaConds(C1,C2,Alfa,Ac,[r(drs(D,C2),R)|Bi1]-Bi2).
 
 
-/*========================================================================
+/*=====================================================================
    Find First Alfa-DRS (DRS-Conditions)
 ========================================================================*/
 

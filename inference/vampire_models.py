@@ -25,6 +25,17 @@ class VampireRequest(BaseModel):
     active_indices: List[int]
     vampire_preferences: dict  # A dictionary for vampire preferences
 
+class VampireMultipleRequest(BaseModel):
+    nli_items: dict  # A dictionary mapping ids to VampireNLI objects
+    pruning: bool
+    vampire_preferences: dict
+
+class VampireNLI(BaseModel):
+    premises: List[str]
+    hypothesis: str
+
+
+
 
 # export interface check {
 #   glyph: string;
@@ -48,3 +59,5 @@ class VampireResponse(BaseModel):
     active_indices: List[int]  # A list of integers
     context_checks_mapping: dict  # A dictionary mapping integers to Check objects
 
+class VampireMultipleResponse(BaseModel):
+    results: dict  # A dictionary mapping ids to Lists of Check objects

@@ -14,14 +14,15 @@ GLUE   BASIC   TEMPLATES (1.0)
   NOSCOPE(G) = (G NOSCOPE) = +.
 
    NAME-SCOPE(UP NAME) =
-   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART | $}+ ^)
-   (%name FIN) =c +
+   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | COMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART | $}+ ^)
+   (%name TNS-ASP TENSE)
+   "(%name ROOT) =c +"
    NAME  = s::%name.
 
-     QUANT-SCOPE(UP NAME) =
-  	  %name = ({SUBJ | OBJ | OBJ2 | XCOMP | OBL-TO | OBL-AG | OBL-COMP | OBL | PREDLINK | ADJUNCT | OBL-PART | $}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
-  	  (s::%name EV TYPE) =c eventuality
-  	  NAME = s::%name.
+   QUANT-SCOPE(UP NAME) =
+   %name = ({SUBJ | OBJ | OBJ2 | XCOMP | COMP | OBL-TO | OBL-AG | OBL-COMP | OBL | PREDLINK | ADJUNCT | OBL-PART | $}+ ^) "PREDLINK added so determiners are compatible eg. 'Mary is a dog'"
+   (s::%name EV TYPE) =c eventuality
+   NAME = s::%name.
 
 " Why does the below not work?
    QUANT-SCOPE(UP NAME) =
@@ -79,12 +80,13 @@ GLUE   BASIC   TEMPLATES (1.0)
 
 
 DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
-                      	      (s::^ TYPE) = entity
+                      	      "(s::^ TYPE) = entity"
                       		  { (^ NTYPE NSYN) =c common
                       		  @(COUNT-NOUN-SEM P)
                       		  |
                       		  (^ NTYPE NSYN) =c proper
                       		  @(PROPER-NOUN-SEM P)
+                      		  @(DEF-NAME P)
                       		  }.
 
 
@@ -93,15 +95,12 @@ COUNT-NOUN-SEM(P) =
                     :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t).
 
 PROPER-NOUN-SEM(P) = (s::^ TYPE) = entity
-                             :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t),
-                             {
-                             ~[(^DEF)]
-                             @(NAME-SCOPE ^ %n)
-                             :$ lam(Q,lam(R,merge(drs([X],[]),merge(app(Q,X),app(R,X))))) :
-                             ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)) || noscope,
-                             |
-                             (^ DEF)
-                             }.
+                             :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t).
+
+DEF-NAME(P) = @(NAME-SCOPE ^ %n)
+              :$ lam(Q,lam(R,merge(drs([X],[]),merge(app(Q,X),app(R,X))))) :
+              ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)) || noscope.
+
 
 DEFAULT-ADJ-SEM(P)  = { @(PRED P)
                       (^ ATYPE) =c attributive
@@ -122,13 +121,18 @@ DEFAULT-EX-QUANT = @(QUANT-SCOPE ^ %q)
                 :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
-
 DEFAULT-EX-QUANT-NOSCOPE = @(QUANT-SCOPE ^ %q)
             :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
-	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t))|| noscope.
+	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope.
 
 UNIVERSAL-QUANT = @(QUANT-SCOPE ^ %q)
 	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+DEFAULT-PRON-NOSCOPE(G) = @(QUANT-SCOPE ^ %q)
+            (s::^ TYPE) = entity
+            :$ lam(P,alfa(pro,drs([X],[pred(G,X)]),app(P,X))) :
+	        ((s::^_e -o %q_t) -o %q_t) || noscope.
+
 
 ----

@@ -13,9 +13,23 @@ as        CComp * (^PRED) = 'as<(^OBJ)>'
                   (^DEGREE) ~=c superlative.
 
 
+"conditionals"
+
+if CONJsub * (^ PRED) = 'if<(^OBJ)>'
+             (^COMP-FORM) = if
+             %ant = (s::(^OBJ) SIT)
+             %cons = (s::(ADJUNCT ^) SIT)
+             :$ lam(P,lam(Q,drs([],[imp(P,Q)]))) :
+                (%ant_t -o (%cons_t -o %cons_t)).
+
+If CONJsub * (^ PRED) = 'if<(^OBJ)>'
+             (^COMP-FORM) = if
+             %ant = (s::(^OBJ) SIT)
+             %cons = (s::(ADJUNCT ^) SIT)
+             :$ lam(P,lam(Q,drs([],[imp(P,Q)]))) :
+                (%ant_t -o (%cons_t -o %cons_t)).
 
 "prepositions"
-
 by 	  P * @(PREP by)
         @(PREP-SEM by).
 
@@ -81,10 +95,8 @@ or 	  CONJ * @(COORD-FORM %stem);
 
 "negation"
 
-not   NEG * @(PRED not)
-            @(QUANT-SCOPE ^ %q)
-            :$ lam(P,drs([],[not(P)])) :
-            (%q_t -o %q_t).
+not   NEG * "@(PRED not)"
+            (^NEG) = + .
 
 
 "nominal modifiers"

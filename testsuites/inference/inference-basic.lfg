@@ -1,0 +1,90 @@
+{
+A Swede won a Nobel prize.
+Every Swede is a Scandinavian.
+====
+A Scandinavian won a Nobel prize.
+>>> 1
+}
+{
+A dog appeared.
+====
+No dog appeared.
+>>> -1
+}
+{
+A dog appeared.
+====
+No cat appeared.
+>>> 0
+}
+{
+Vincent knows every boxer.
+Butch is a boxer.
+====
+Vincent knows Butch.
+>>> 1
+}
+
+{
+If Mia snorts, then Vincent smokes.
+Vincent smokes.
+====
+Mia snorts.
+>>> 0
+}
+
+{
+A woman loves every man.
+Every boxer is a man.
+====
+A woman loves every boxer.
+>>> 1
+}
+
+{
+All boxers are crazy.
+Butch is a boxer.
+====
+Butch is crazy.
+>>> 1
+}
+
+{
+All boxers are slow.
+Butch is a boxer.
+====
+Butch is not slow.
+>>> -1
+}
+
+{
+All boxers are slow.
+Butch is a boxer.
+====
+Mia likes Butch.
+>>> 0
+}
+
+{
+All boxers are crazy.
+Butch is a boxer.
+====
+Butch is crazy.
+>>> 1
+}
+
+{
+All boxers are crazy.
+Butch is a boxer.
+====
+Butch loves Fabian.
+>>> 0
+}
+
+{
+All boxers are slow.
+Butch is a boxer.
+====
+Mia likes Butch.
+>>> 0
+}

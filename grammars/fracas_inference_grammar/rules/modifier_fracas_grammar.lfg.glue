@@ -35,6 +35,7 @@
 
  	  (COMMA).
 
+"TODO What is this for"
 
    "rule for comparison constructions"
    "EX: He is greater than the dog (is)."
@@ -79,17 +80,22 @@
  	    (COMMA).
 
 
-   CPrel --> PRON: (! PRON-TYPE) =c rel
-              %rel = !
-              (^ {SUBJ | OBJ}) = %rel
-              (^ TOPIC) = %rel
-              		 ((ADJUNCT ^) PERS)  = (^TOPIC PERS)
-              		 ((ADJUNCT ^) NUM)  = (^TOPIC NUM);
-          (NP: (^ SUBJ) = !)
+   CPrel --> PRON:  (! PRON-TYPE) =c rel
+                    %rel = !
+                    (^ {SUBJ | OBJ}) = %rel
+                    (^ TOPIC) = %rel
+              	    ((ADJUNCT ^) PERS)  = (^TOPIC PERS)
+              	    ((ADJUNCT ^) NUM)  = (^TOPIC NUM);
+          (NP: (^ SUBJ) = !
+           (^ OBJ) = %rel)
 		 "from Pargram: (^ TOPIC-REL {(OBJ)|(OBL-PART)} [SPEC (POSS)]*) = (^ PRON-REL)"
  	  VP[fin].
 
    CPto --> PARTinf VP[base].
+
+   "following the cookbook"
+   CONJPsub --> CONJsub
+                S: (^ OBJ) =!.
 
 
 

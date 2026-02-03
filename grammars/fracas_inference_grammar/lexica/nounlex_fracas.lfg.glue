@@ -49,19 +49,22 @@ Scandinavia     N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
-                @(PROPER-NOUN-SEM %stem).
+                @(PROPER-NOUN-SEM %stem)
+                @(DEF-NAME %stem).
 
 Sweden     N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
-                @(PROPER-NOUN-SEM %stem).
+                @(PROPER-NOUN-SEM %stem)
+                @(DEF-NAME %stem).
 
 Portugal   N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
-                @(PROPER-NOUN-SEM %stem).
+                @(PROPER-NOUN-SEM %stem)
+                @(DEF-NAME %stem).
 
 
 European    N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
@@ -81,7 +84,8 @@ Europe     N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
-                @(PROPER-NOUN-SEM %stem).
+                @(PROPER-NOUN-SEM %stem)
+                @(DEF-NAME %stem).
 
 
 
