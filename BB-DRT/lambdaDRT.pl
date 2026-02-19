@@ -55,11 +55,13 @@ betaConvertList([],[],_).
   betaConvertList([H1|T1],[H2|T2],true) :- betaConvert(H1,H2),resolveDrs(H2,H3),
   write(H3),nl,
   printDrs(H3),
+  write("####"),nl,
   betaConvertList(T1,T2,true),halt.
 
     betaConvertList([H1|T1],[H2|T2],false) :- betaConvert(H1,H2),
     write(H2),nl,
     printDrs(H2),
+    write("####"),nl,
     betaConvertList(T1,T2,false),halt.
 
 % Functions for translating from Prolog to TPTP and write to file
