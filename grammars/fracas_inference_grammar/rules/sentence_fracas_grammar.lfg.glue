@@ -19,7 +19,8 @@
              (!ADV-TYPE) =c cond)
              S: (^ ROOT) = +.
 
-   S --> NP: (^ SUBJ)=!
+   S --> (ADVP: ! $ (^ ADJUNCT))
+        NP: (^ SUBJ)=!
 	         (! CASE)=nom;
  	     VP[fin]: (^ TNS-ASP TENSE) "require that sentences have tense"
 	              (^ FIN) = +.

@@ -97,12 +97,18 @@ quickly   ADV * (^ PRED) = 'quick<>(^OBL-COMP)'.
 quicker   ADV * (^ DEGREE) = comparative
                 (^ PRED)='quick<>(^OBL-COMP)'.
 
-very 	  ADV * @(PRED very).
+very 	  ADV * @(PRED very). "sollten wir das hier einschränken irgendwie?"
 
 freely 	  ADV * @(PRED free).
 
 then 	  ADV * @(PRED then)
                 (^ADV-TYPE) = cond.
+
+Yesterday ADV * @(PRED yesterday).
+
+Today ADV * @(PRED today).
+
+Sometimes ADV * @(PRED sometimes).
 
 "outside	  ADV * (^ PRED) = 'outside<(^OBJ)>'; ETC."
 
