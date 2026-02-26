@@ -29,7 +29,7 @@
 ==> #d GLUE lam(P,merge(drs([D:d],[]),merge(drs([],[eq(th_strip(%a)('strip(%x)'),D)]),app(P,D)))) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
 // predicative
-#x PREDLINK #a & #x SUBJ #y PRED %x &
+#x PREDLINK #a & #x PRED %x &
 #a ATYPE 'predicative' &
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE lam(P,merge(drs([D:d],[]),merge(drs([],[eq(th_strip(%a)('strip(%x)'),D)]),app(P,D)))) : ((#d_d -o #e_t) -o #e_t) || noscope.

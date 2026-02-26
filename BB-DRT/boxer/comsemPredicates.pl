@@ -161,6 +161,11 @@ simpleTerm(T):-
    ;
     nonvar(T),
     functor(T,fun,_)
+    ;
+    (T = X-Y,
+    (atom(X); number(X)),
+    (atom(Y); number(Y))
+    )
    ).
 
 

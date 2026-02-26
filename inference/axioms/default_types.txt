@@ -6,4 +6,6 @@ tff(computer_type, type, computer: $i > $o).
 tff(be_type, type, be: $i > $o).
 
 tff(pn_type1, type, 'pc-6082': $i).
-tff(pn_type2, type, 'itel-zx': $i).
+tff(pn_type2, type, 'itel-xz': $i).
+
+tff(th_fast_type, type, th_fast: $i > $int).

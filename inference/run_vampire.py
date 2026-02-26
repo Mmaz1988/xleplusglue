@@ -98,7 +98,8 @@ def printDRS(Drs):
 
 
 def extract_drs_blocks(text):
-    pattern = r"^((?:drs|merge|alfa)\(.*?\))\n"
+    pattern = r"((?:drs|merge|alfa)\(.*?\))\n"
+    logger.info("pattern=%r", pattern)
     matches = re.findall(pattern, text, re.DOTALL)  # Use DOTALL to match across multiple lines
     logger.info("Extracted DRS blocks: %s", matches)
     return matches
