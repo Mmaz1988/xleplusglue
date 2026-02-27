@@ -362,6 +362,7 @@ been     AUX[prog,base] *  (^VFORM) = inf.
 
 can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
              (^ XCOMP SUBJ) = (^SUBJ)
+             s::^ = s::(^ XCOMP)
              (^ VFORM) = modal
              @VPRESMODAL.
 
@@ -386,7 +387,7 @@ does AUXdo[fin] * @(TENSE pres)
 
 "For perfect forms"
 
-had AUX[perf,fin] * @(TENSE had)
+had AUX[perf,fin] * @(TENSE past)
                      @(MOOD indicative).
 
 has AUX[perf,fin] * @(TENSE pres)

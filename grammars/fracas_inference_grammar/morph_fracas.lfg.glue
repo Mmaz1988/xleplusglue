@@ -91,7 +91,9 @@ MORPH   ENGLISH   LEXICON (1.0)
 		   {
 		   (^ PASSIVE) =c + "should be optional "
 		  @(PROG -_)
-		  @(PERF -_) |
+		  @(PERF -_)
+		  |
+		  (^ PASSIVE) =c -
 		   @(PROG -_)
            @(PERF +_)
 		  }
