@@ -22,8 +22,9 @@
    S --> (ADVP: ! $ (^ ADJUNCT))
         NP: (^ SUBJ)=!
 	         (! CASE)=nom;
- 	     VP[fin]: (^ TNS-ASP TENSE) "require that sentences have tense"
-	              (^ FIN) = +.
+ 	     VP[fin]: (^ TNS-ASP TENSE). "require that sentences have tense"
+	              "(^ FIN) = +"
+
 	     "(s::^ TEMP-REF EVAL) = %eval. Tense needs to be evaluated against sth."
 
 

@@ -195,7 +195,7 @@ BE-TRANS-EV = (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
 
 
    VPAST = @(TENSE past) 
-	  @(MOOD indicative).
+	       @(MOOD indicative).
 
    VFUT =   @(TENSE fut)
             @(MOOD indicative).
