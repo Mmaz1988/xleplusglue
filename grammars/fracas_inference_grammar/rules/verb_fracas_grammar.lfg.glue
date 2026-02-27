@@ -56,7 +56,7 @@ VPv[_form] -->
                  	     CP: (^ COMP) = !
                  	    |
                  	     VPinf: (^XCOMP) = !
-                		 (! VFORM) = inf  "including this will make infelected verbs infinitival"
+                		        (! VFORM) = inf  "including this will make infelected verbs infinitival"
                 		  |
                 		  VPpass[pass,nonfin]: (^ XCOMP) = !
                 		 }
