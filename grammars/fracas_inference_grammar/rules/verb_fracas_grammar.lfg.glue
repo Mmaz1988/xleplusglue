@@ -84,21 +84,24 @@ VPv[_form] -->
               VP[base]: (^ XCOMP) = !
               |
               VPprog[prog,_form]: (^ XCOMP) = !
+              |
+              VPperf[perf,_form]: (^ XCOMP) = !
               }.
 
    VPinf --> PARTinf VP[base].
 
 
 VPfut[fut,_form] -->  AUX[fut,_form]
-                      (NEG)
-                      VPv[base].
+                      (NEG: ! $ (^ ADJUNCT))
+                      VP[base].
 
 VPprog[prog,_form] -->  AUX[prog,_form]
                         (NEG: ! $ (^ ADJUNCT))
                          VPv[prog].
 
 VPperf[perf,_form] -->  AUX[perf,_form]
-                         VPv[perf]: (^ PARTICIPLE) =c past.
+                         { VPv[perf]: (^ PARTICIPLE) =c past |
+                           VPprog[prog,base] }.
 
 
 VPdo[_form]        --> AUXdo[_form]

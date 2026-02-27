@@ -346,10 +346,16 @@ be   AUX[base] *  (^VFORM) = inf
               ^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
               (^SUBJ) = (^ PREDLINK SUBJ)
               @(EVENT be)
-              { @(ARG1 (^ PREDLINK)) | @(ARG1 (^ SUBJ))}" "EX. There was an Italian vs. the dog was fast"
+              { @(ARG1 (^ PREDLINK)) | @(ARG1 (^ SUB J))}" "EX. There was an Italian vs. the dog was fast"
               ;
      AUX[prog,base] *  (^VFORM) = inf
-                       @(PERF -_).
+                       "@(PERF -_)".
+
+
+
+been     AUX[prog,base] *  (^VFORM) = inf.
+                            "@(PERF +_)"
+
 
 "modals"
 
@@ -362,6 +368,13 @@ can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
 would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
               (^ XCOMP SUBJ) = (^SUBJ)
               (^ VFORM) = modal
+              s::^ = s::(^ XCOMP)
+              @VPRESMODAL.
+
+should    AUX[fin] *  (^PRED) = 'should<(^SUBJ)(^XCOMP)>'
+              (^ XCOMP SUBJ) = (^SUBJ)
+              s::^ = s::(^ XCOMP)
+              (^ VFORM) = modal
               @VPRESMODAL.
 
 
@@ -373,11 +386,11 @@ does AUXdo[fin] * @(TENSE pres)
 
 "For perfect forms"
 
-had AUX[perf,fin] * (^VFORM) = fin
-                    @VPRES.
+had AUX[perf,fin] * @(TENSE had)
+                     @(MOOD indicative).
 
-has AUX[perf,fin] * (^VFORM) = fin
-                    @VPRES.
+has AUX[perf,fin] * @(TENSE pres)
+                    @(MOOD indicative).
 
 have AUX[perf,base] * (^VFORM) = inf;
       V-S XLE @(TRANS-EV %stem).

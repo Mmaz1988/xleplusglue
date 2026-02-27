@@ -31,7 +31,10 @@ If CONJsub * (^ PRED) = 'if<(^OBJ)>'
 
 "prepositions"
 by 	  P * @(PREP by)
-        @(PREP-SEM by).
+        {
+        (^PTYPE) = sem
+        @(PREP-SEM by) |
+        (^PTYPE) = nosem }.
 
 to 	  P * @(PREP to)
         {
