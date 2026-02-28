@@ -361,21 +361,51 @@ been     AUX[prog,base] *  (^VFORM) = inf.
 
 
 can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
-             (^ XCOMP SUBJ) = (^SUBJ)
-             s::^ = s::(^ XCOMP)
-             (^ VFORM) = modal
-             @VPRESMODAL.
-
-would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
+                @(EVENT %stem)
+                 %s = s::(^ XCOMP)
+                 :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
+             	 (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))),
               (^ XCOMP SUBJ) = (^SUBJ)
               (^ VFORM) = modal
-              s::^ = s::(^ XCOMP)
+              "s::^ = s::(^ XCOMP)"
+              @(PROG -_)
+              @(PERF -_)
+              @VPRESMODAL.
+
+could    AUX[fin] *  (^PRED) = 'could<(^SUBJ)(^XCOMP)>'
+                @(EVENT %stem)
+                 %s = s::(^ XCOMP)
+                 :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
+             	 (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))),
+              (^ XCOMP SUBJ) = (^SUBJ)
+              (^ VFORM) = modal
+              "s::^ = s::(^ XCOMP)"
+              @(PROG -_)
+              @(PERF -_)
+              @VPRESMODAL.
+
+would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
+                @(EVENT %stem)
+                 %s = s::(^ XCOMP)
+                 :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
+             	 (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))),
+              (^ XCOMP SUBJ) = (^SUBJ)
+              (^ VFORM) = modal
+              "s::^ = s::(^ XCOMP)"
+              @(PROG -_)
+              @(PERF -_)
               @VPRESMODAL.
 
 should    AUX[fin] *  (^PRED) = 'should<(^SUBJ)(^XCOMP)>'
+                @(EVENT %stem)
+                 %s = s::(^ XCOMP)
+                 :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
+             	 (((s::^ EV)_v -o (s::^ EV)_t) -o ((%s SIT)_t -o ((s::^ EV)_v -o (s::^ EV)_t))),
               (^ XCOMP SUBJ) = (^SUBJ)
-              s::^ = s::(^ XCOMP)
               (^ VFORM) = modal
+              "s::^ = s::(^ XCOMP)"
+              @(PROG -_)
+              @(PERF -_)
               @VPRESMODAL.
 
 

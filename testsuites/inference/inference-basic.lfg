@@ -5,6 +5,15 @@ Every Swede is a Scandinavian.
 A Scandinavian won a Nobel prize.
 >>> 1
 }
+
+{
+A Nobel prize was won by a Swede.
+Every Swede is a Scandinavian.
+====
+A Scandinavian won a Nobel prize.
+>>> 1
+}
+
 {
 A dog appeared.
 ====
