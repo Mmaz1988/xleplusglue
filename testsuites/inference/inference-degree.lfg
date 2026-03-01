@@ -1,0 +1,45 @@
+{
+The PC-6082 is faster than every ITEL computer.
+The ITEL-ZX is an ITEL computer.
+====
+The PC-6082 is faster than the ITEL-ZX.
+>>> 1
+}
+{
+The PC-6082 is faster than every ITEL computer.
+The ITEL-XZ is an ITEL computer.
+====
+The ITEL-XZ is faster than the PC-6082.
+>>> -1
+}
+{
+The PC-6082 is a computer that is faster than every ITEL computer.
+The ITEL-XZ is an ITEL computer.
+====
+The PC-6082 is faster than the ITEL-XZ.
+>>> 1
+}
+{
+The PC-6082 is faster than every ITEL computer.
+====
+The PC-6082 is fast.
+>>> 0
+}
+{
+The PC-6082 is faster than the ITEL-XZ.
+====
+The PC-6082 is fast.
+>>> 0
+}
+{
+The PC-6082 is faster than the ITEL-XZ.
+====
+The ITEL-XZ is fast.
+>>> 0
+}
+{
+The ITEL-XZ is not fast.
+====
+The ITEL-XZ is fast.
+>>> -1
+}
