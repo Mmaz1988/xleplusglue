@@ -47,6 +47,8 @@ class Check(BaseModel):
     informative: bool
     consistent: bool
     relevant: bool
+    proof_files: List[str]
+
 
 
 # export interface vampireResponse {

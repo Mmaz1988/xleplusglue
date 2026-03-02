@@ -185,3 +185,17 @@ alphaConvertCondition(eq(X1,Y1),Vars,eq(X2,Y2)):-
    alphaConvertTerm(X1,Vars,X2),
    alphaConvertTerm(Y1,Vars,Y2).
 
+alphaConvertCondition(greater(X1,Y1),Vars,greater(X2,Y2)):-
+   alphaConvertTerm(X1,Vars,X2),
+   alphaConvertTerm(Y1,Vars,Y2).
+
+alphaConvertCondition(lessEq(X1,Y1),Vars,lessEq(X2,Y2)):-
+   alphaConvertTerm(X1,Vars,X2),
+   alphaConvertTerm(Y1,Vars,Y2).
+
+   alphaConvertCondition(greaterEq(X1,Y1),Vars,greaterEq(X2,Y2)):-
+      alphaConvertTerm(X1,Vars,X2),
+      alphaConvertTerm(Y1,Vars,Y2).
+
+
+

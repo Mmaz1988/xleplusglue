@@ -43,3 +43,10 @@ The ITEL-XZ is not fast.
 The ITEL-XZ is fast.
 >>> -1
 }
+{
+The PC-6082 is as fast as the ITEL-XZ.
+====
+The ITEL-XZ is faster than the PC-6082.
+>>> -1
+}
+

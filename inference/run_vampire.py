@@ -249,7 +249,7 @@ def single_vampire_request(request):
         for ctx in active_contexts:
             for hypothesis in hypotheses:
                 output_folder = "tmp/current/"
-                generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
+                proof_files = generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
                                         output_folder=output_folder)
                 results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
                 logger.debug("Vampire Results: %s", results)
@@ -273,13 +273,13 @@ def single_vampire_request(request):
                         if context not in new_context:
                             new_context.append(context)
                             svg_output = generate_svg_glyph(results)
-                            check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
+                            check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance, proof_files=proof_files)
                             current_checks.append(check)
                 elif ctx not in new_context:
                     # Keep old context
                     new_context.append(ctx)
                     svg_output = generate_svg_glyph(results)
-                    check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant=maxim_of_relevance)
+                    check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant=maxim_of_relevance, proof_files=proof_files)
                     current_checks.append(check)
 
         new_active_indices = [i for i in range(len(new_context))]
@@ -401,7 +401,7 @@ def multiple_vampire_request(request):
                 for fof_premise in fof_premises:
                     for fof_hypothesis in fof_hypotheses:
                         logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
-                        generate_tptp_files(fof_premise, fof_hypothesis, axioms=nli_item['axioms'], logic=logic_type,
+                        proof_files = generate_tptp_files(fof_premise, fof_hypothesis, axioms=nli_item['axioms'], logic=logic_type,
                                     output_folder=output_folder)
                         results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
                         logger.debug("Vampire Results: %s", results)
@@ -410,7 +410,7 @@ def multiple_vampire_request(request):
                         logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
 
                         svg_output = generate_svg_glyph(results)
-                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance)
+                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance, proof_files=proof_files)
 
                         inference_checks.append(check)
 

@@ -30,6 +30,7 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
     q = context
     p = hypothesis
     # Generate and write TPTP files for each template
+    files = []
     for suffix, template in templates.items():
         tptp_content = ""
         # read in axioms_file
@@ -40,9 +41,13 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
         filename = f"sem_{suffix}.p"
         file_path = os.path.join(output_folder, filename)
         logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")
+
+        files.append(tptp_content)
+
         with open(file_path, mode='w') as file:
             file.write(tptp_content)
 
+    return files
 
 def extract_vampire_info(output):
     """

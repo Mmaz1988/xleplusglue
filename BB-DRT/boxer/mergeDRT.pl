@@ -69,5 +69,14 @@ mergeDrs([rel(Sym,X,Y)|C1],[rel(Sym,X,Y)|C2]):-
 mergeDrs([eq(X,Y)|C1],[eq(X,Y)|C2]):-
    mergeDrs(C1,C2).
 
+mergeDrs([lessEq(X,Y)|C1],[lessEq(X,Y)|C2]):-
+   mergeDrs(C1,C2).
+
+ mergeDrs([greater(X,Y)|C1],[greater(X,Y)|C2]):-
+    mergeDrs(C1,C2).
+
+mergeDrs([greaterEq(X,Y)|C1],[greaterEq(X,Y)|C2]):-
+   mergeDrs(C1,C2).
+
 mergeDrs([],[]).
 

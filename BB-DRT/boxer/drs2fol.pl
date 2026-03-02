@@ -55,6 +55,12 @@ cond2fol(imp(drs([X|Referents],Conds),Drs2),all(X,Formula)):-
 
 cond2fol(eq(X,Y),eq(X,Y)).
 
+cond2fol(greater(X,Y),greater(X,Y)).
+
+cond2fol(greaterEq(X,Y),greaterEq(X,Y)).
+
+cond2fol(lessEq(X,Y),lessEq(X,Y)).
+
 cond2fol(BasicCondition,AtomicFormula):-
    BasicCondition =.. [_|[Symbol|Args]],
    atomic(Symbol),

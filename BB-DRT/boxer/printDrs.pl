@@ -250,6 +250,30 @@ formatConds([eq(A,B)|Rest],In-[[124,32|Line]|Out],N0-N2):-!,
    length([_,_,_|Line],Length),
    (Length > N1, !, N2 is Length; N2 = N1).
 
+formatConds([greater(A,B)|Rest],In-[[124,32|Line]|Out],N0-N2):-!,
+   formatConds(Rest,In-Out,N0-N1),
+   makeConstant(A,L1),
+   makeConstant(B,L2),
+   appendLists(L1,[32,62,32|L2],Line),
+   length([_,_,_|Line],Length),
+   (Length > N1, !, N2 is Length; N2 = N1).
+
+ formatConds([greaterEq(A,B)|Rest],In-[[124,32|Line]|Out],N0-N2):-!,
+    formatConds(Rest,In-Out,N0-N1),
+    makeConstant(A,L1),
+    makeConstant(B,L2),
+    appendLists(L1,[32,62,61,32|L2],Line),
+    length([_,_,_|Line],Length),
+    (Length > N1, !, N2 is Length; N2 = N1).
+
+ formatConds([lessEq(A,B)|Rest],In-[[124,32|Line]|Out],N0-N2):-!,
+    formatConds(Rest,In-Out,N0-N1),
+    makeConstant(A,L1),
+    makeConstant(B,L2),
+    appendLists(L1,[32,60,61,32|L2],Line),
+    length([_,_,_|Line],Length),
+    (Length > N1, !, N2 is Length; N2 = N1).
+
 formatConds([Basic|Rest],In-[[124,32|Line]|Out],N0-N2):-
    Basic=pred(_,_),
    formatConds(Rest,In-Out,N0-N1),
