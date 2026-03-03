@@ -117,3 +117,198 @@ Every boxer with an injury lost a fight.
 A boxer with an injury did not lose a fight.
 >>> -1
 }
+
+# here Kascha starts
+
+{
+A dog who is slow appeared
+====
+A dog appeared
+>>> 1
+}
+{
+A dog appeared
+====
+A dog who is slow appeared
+>>> 0
+}
+{
+If Mia who is slow snorts, then Vincent smokes.
+Vincent smokes.
+====
+Mia is slow.
+>>> 1
+}
+
+{
+Every big red dog appeared.
+Mary is a big red dog.
+====
+Mary appeared
+>>> 1
+}
+
+{
+Mary likes every red dog that appeared.
+John is a red dog.
+====
+Mary likes John.
+>>> 0
+}
+
+{
+Mary likes every red dog that appeared.
+John is a red dog that appeared.
+====
+Mary likes John.
+>>> 1
+}
+
+{
+Mary does not like every dog.
+====
+Mary likes a dog.
+>>> -1
+}
+
+{
+Mary does not like every dog.
+====
+Mary likes no dogs.
+>>> 1
+}
+
+{
+Mary eats an apple that John gives to a dog.
+====
+Mary likes John who is a dog.
+>>> -1
+}
+
+{
+Every dog likes a banana that no man ate.
+====
+No man ate a banana.
+>>> 0
+}
+
+{
+Every dog likes a banana that no man ate.
+====
+There is a banana that no man ate.
+>>> 1
+}
+
+{
+Every dog likes a banana that no man ate.
+====
+There is no dog that likes a banana.
+>>> -1
+}
+
+{
+Every dog likes a banana that no man ate.
+====
+There are no bananas.
+>>> -1
+}
+
+
+# can it do this??
+
+{
+A monkey eats every banana in the garden
+====
+The monkey is in the garden
+>>> 1
+}
+
+{
+A monkey eats every banana in the garden.
+====
+There is a banana in the garden.
+>>> 0
+}
+
+{
+If there is a banana in the garden, then the monkey eats it.
+====
+A monkey eats every banana in the garden.
+>>> 1
+}
+
+
+{
+No monkey eats every banana in the garden.
+====
+A monkey eats no banana in the garden.
+>>> 0
+}
+{
+Every monkey eats every banana in the garden.
+====
+No monkey eats every banana in the garden.
+>>> -1
+}
+
+{
+A monkey eats every banana in the garden.
+Every banana in the garden is Canadian.
+====
+The monkey eats every Canadian banana in the garden.
+>>> 1
+}
+
+{
+There is no leading tenor who has no dog.
+Mary has a dog.
+====
+Mary is a leading tenor
+>>> -1
+}
+
+{
+Every tenor who has no dog is a leading tenor.
+Mary has a dog.
+====
+Mary is a leading tenor
+>>> -1
+}
+
+{
+Every tenor who has no dog is a leading tenor.
+Mary has no dog.
+====
+Mary is a leading tenor
+>>> 0
+}
+
+{
+Every tenor who has no dog that every man likes appeared.
+====
+Every tenor appeared.
+>>> 0
+}
+
+{
+Every tenor who has a dog that every man likes appeared.
+====
+Every tenor who has a dog appeared.
+>>> 0
+}
+
+
+# not sure about this one
+
+{
+Every tenor who has a dog that every man likes appeared.
+====
+Every tenor who has a dog that some men like appears
+>>> 1
+}
+
+
+
+
+
+
