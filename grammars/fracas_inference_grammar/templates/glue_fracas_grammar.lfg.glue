@@ -55,6 +55,7 @@ GLUE   BASIC   TEMPLATES (1.0)
 	    |
 	    %scope = s::(ADJUNCT ^)
 	    (%scope TYPE) =c entity
+	    (s::^ EV TYPE) = eventuality "having something is a state -> eventuality variable"
 	    :$ lam(U,lam(V,lam(E,merge(drs([],[]),merge(app(U,E),app(V,E)))))) :
 	    ((%scope_e -o s::^_t) -o ((%scope_e -o %scope_t) -o (%scope_e -o %scope_t))) || noscope,
 	    :$ lam(Y,lam(X,drs([],[rel(P,X,Y)]))) : (s::(^OBJ)_e -o (%scope_e -o s::^_t)),

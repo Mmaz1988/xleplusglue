@@ -132,6 +132,8 @@ wait 	  V-S XLE { @(INTRANS-EV wait) |
 
 dance   V-S XLE @(OPT-TRANS-EV %stem).
 
+lose  V-S XLE @(OPT-TRANS-EV %stem).
+
 smile   V-S XLE @(OPT-TRANS-EV %stem).
 
 smoke   V-S XLE @(OPT-TRANS-EV %stem).
@@ -164,6 +166,8 @@ like      V-S XLE @(TRANS-EV %stem).
 
 become 	  V-S XLE @(TRANS-EV %stem).
 
+carry  V-S XLE @(TRANS-EV %stem).
+
 devour 	  V-S XLE @(TRANS-EV %stem).
 
 find 	  V-S XLE @(TRANS-EV %stem).
@@ -187,6 +191,10 @@ see 	  V-S XLE @(TRANS-EV %stem).
 obtain    V-S XLE @(TRANS-EV %stem).
 
 finish   V-S XLE @(TRANS-EV %stem).
+
+photograph  V-S XLE @(TRANS-EV %stem).
+
+praise V-S XLE @(TRANS-EV %stem).
 
 publish  V-S XLE @(TRANS-EV %stem).
 

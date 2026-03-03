@@ -66,6 +66,10 @@ def extract_vampire_info(output):
     termination_matches = re.findall(r"% Termination reason: (.+)", output)
     termination_reason = termination_matches[-1].strip() if termination_matches else "Unknown"
 
+    # Terminantion reason refutation not found
+    if "Refutation not found" in termination_reason:
+        termination_reason = "Refutation not found"
+
     # Extract the last termination phase (if available)
     termination_phase_matches = re.findall(r"% Termination phase: (.+)", output)
     termination_phase = termination_phase_matches[-1].strip() if termination_phase_matches else "Unknown"
@@ -210,11 +214,13 @@ def generate_svg_glyph(data):
     symbol_map = {
         "Satisfiable": ("▲", "green", 16),  # Upward triangle for positive
         "Refutation": ("▼", "red", 16),  # Downward triangle for negative
-        "Timeout": ("●", "yellow", 18),  # Larger circle for neutral
+        "Refutation not found": ("●", "yellow", 18),
         "Unknown": ("●", "yellow", 18),  # Larger circle for neutral
         "Unsatisfiable": ("▼", "red", 16),  # Downward triangle for negative
         "True": ("▲", "green", 16),  # Upward triangle for positive
-        "False": ("▼", "red", 16)  # Downward triangle for negative
+        "False": ("▼", "red", 16),  # Downward triangle for negative
+        "Timeout": ("■", "yellow", 16),
+        "Time limit": ("■", "yellow", 16)  # Square for timelimit
     }
 
     # Define property order (ignoring Termination Phase)
@@ -298,6 +304,8 @@ def discourse_checks(data):
         "True": 1,
         "False": -1,
         "Unknown": 0,
+        "Refutation not found": 0,
+        "Time limit": 0,
         "Timeout": 0  # Timeout is treated as unknown
     }
 

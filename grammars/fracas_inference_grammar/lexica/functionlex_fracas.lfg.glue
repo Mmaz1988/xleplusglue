@@ -103,6 +103,10 @@ not   NEG * @(PRED not)
             :$ lam(P,drs([],[not(P)])) :
             (%q_t -o %q_t).
 
+Not   NEG * @(PRED not)
+            @(QUANT-SCOPE ^ %q)
+            :$ lam(P,drs([],[not(P)])) :
+            (%q_t -o %q_t).
 
 "nominal modifiers"
 
