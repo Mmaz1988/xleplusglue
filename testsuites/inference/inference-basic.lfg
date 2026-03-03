@@ -112,12 +112,6 @@ No boxer lost a fight.
 }
 
 {
-A boxer with an injury lost a fight.
-====
-No boxer lost a fight.
->>> -1
-}
-{
 Every boxer with an injury lost a fight.
 ====
 A boxer with an injury did not lose a fight.
