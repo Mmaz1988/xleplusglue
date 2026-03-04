@@ -178,12 +178,14 @@ Mary likes no dogs.
 >>> 1
 }
 
+
 {
 Mary eats an apple that John gives to a dog.
 ====
 Mary likes John who is a dog.
 >>> -1
 }
+
 
 {
 Every dog likes a banana that no man ate.
@@ -298,17 +300,53 @@ Every tenor who has a dog appeared.
 }
 
 
-# not sure about this one
 
+{
+A tenor eats a banana with a man that he likes.
+====
+No tenor eats a banana.
+>>> -1
+}
+
+# not sure about this one
 {
 Every tenor who has a dog that every man likes appeared.
 ====
-Every tenor who has a dog that some men like appears
+Every tenor who has a dog that some men like appeared.
 >>> 1
+}
+
+# must think
+{
+Every tenor who has no dog that every man likes appeared.
+====
+A tenor who has a dog appeared.
+>>> 0
+}
+
+{
+Every tenor who has no dog that every man likes appeared.
+====
+A tenor who has a dog that every man likes appeared.
+>>> 0
 }
 
 
 
+{
+Every professor hugged a dog in the garden.
+There is a dog in the garden.
+====
+No dog in the garden was hugged by every professor.
+>>> -1
+}
 
 
-
+# this one isn't right,
+{
+Every professor hugged a dog in the garden.
+John who is professor hugged Nancy who is a dog.
+====
+Mary who is a professor did not hug Nancy.
+>>> -1
+}

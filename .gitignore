@@ -8,9 +8,26 @@ grammars/**/*.lfg
 grammars/.#*
 jars/old_versions/*
 
+inference/vampire_test/generated_testfiles/*.p
+
 *.lfg
 /grammars/*/*.fileindexdir/
 
 
 /grammars/fracas_inference_grammar/main_fracas_grammar.lfg.fileindexdir/*.lfg
 
+/.idea/.gitignore
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/libraries/jars.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/codeStyles/Project.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/testsuites/testsuite-tense.lfg.errors
+/testsuites/testsuite-tense.lfg.new
+/testsuites/testsuite-tense.lfg.stats
+/testsuites/testsuite_pron.lfg.errors
+/testsuites/testsuite_pron.lfg.new
+/testsuites/testsuite_pron.lfg.stats
+/.idea/vcs.xml
+/.idea/xleplusglue.iml

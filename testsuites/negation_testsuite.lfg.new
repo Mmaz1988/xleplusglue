@@ -1,0 +1,86 @@
+
+# yesterday, today,
+
+The PC-6082 is faster than every ITEL computer. (2 0.038 46)
+
+The ITEL-XZ is not an ITEL computer (2 0.013 24)
+
+The PC-6082 is faster than the ITEL-XZ. (2 0.014 39)
+
+
+
+Yesterday, Jordan was faster than Sam. (8 0.019 62)
+
+Today, Sam was faster than Jordan. (8 0.018 62)
+
+Sometimes, Jordan was faster than Sam. (8 0.016 62)
+
+
+
+Yesterday, Jordan was not faster than Sam. (8 0.033 64)
+
+Today, Sam was not as fast as Jordan. (8 0.020 53)
+
+Sometimes, Jordan was faster than Sam. (8 0.016 62)
+
+
+# negation
+
+# 1
+
+Mary is not red (2+2 0.015 34)
+
+
+# 2
+
+Mary is not a dog (2 0.013 29)
+
+
+Mary will not appear (0 0.010 16)
+
+
+Mary thinks that John will not appear (0 0.013 39)
+
+
+Mary is not appearing (1 0.011 27)
+
+
+Mary does not appear (1 0.012 29)
+
+
+#Mary can [not appear] vs Mary [cannot] appear
+
+Mary can not appear (0 0.010 30)
+
+#Mary [did not] appear vs Mary did [not appear]
+
+Mary did not appear (1 0.014 36)
+
+
+Mary can not not appear (0 0.009 0)
+
+
+#Mary can not not not appear
+
+
+The dog is not big (2 0.009 23)
+
+#The dog isn’t big
+
+
+The dog did not appear (1 0.010 34)
+
+#The dog didn't appear
+
+#(if there is a normal verb and negation, there is do-insertion)
+
+No man appeared (1 0.009 22)
+
+The man licked no dog (1 0.015 32)
+
+#Every man didn’t appear
+
+They should not have been eating. (0 0.009 0)
+
+
+# 23 sentences, 0.346 CPU secs total, 0.038 CPU secs max (02/20/26)

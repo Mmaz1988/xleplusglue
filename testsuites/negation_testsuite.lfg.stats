@@ -1,0 +1,50 @@
+((1) (2 0.038 46) (8 words))
+((2) (2 0.013 24) (7 words))
+((3) (2 0.014 39) (7 words))
+((4) (8 0.019 62) (6 words))
+((5) (8 0.018 62) (6 words))
+((6) (8 0.016 62) (6 words))
+((7) (8 0.033 64) (7 words))
+((8) (8 0.020 53) (8 words))
+((9) (8 0.016 62) (6 words))
+((10) (2+2 0.015 34) (4 words))
+((11) (2 0.013 29) (5 words))
+((12) (0 0.010 16) (4 words))
+((13) (0 0.013 39) (7 words))
+((14) (1 0.011 27) (4 words))
+((15) (1 0.012 29) (4 words))
+((16) (0 0.010 30) (4 words))
+((17) (1 0.014 36) (4 words))
+((18) (0 0.009 0) (5 words))
+((19) (2 0.009 23) (5 words))
+((20) (1 0.010 34) (5 words))
+((21) (1 0.009 22) (3 words))
+((22) (1 0.015 32) (5 words))
+((23) (0 0.009 0) (6 words))
+
+XLE release of Mar 17, 2017 21:12.
+Grammar = /mnt/c/Users/kakru/IdeaProjects/xleplusglue/grammars/fracas_inference_grammar/main_fracas_grammar.lfg.
+Grammar last modified on Feb 20, 2026 13:11.
+Host machine is Swifti-thrii.
+23 sentences, 0 errors, 0 mismatches
+5 sentences had 0 parses
+18 good sentences
+6 sentences had exactly one grammatical parse
+timeout = 10
+max_xle_scratch_storage = 1000 MB
+prune_subtree_location = 1
+start_skimming_when_scratch_storage_exceeds = 1000 MB
+max_new_events_per_graph_when_skimming = 500
+maximum scratch storage per sentence = 2.00 MB (#1)
+maximum raw subtrees per sentence = 177 (#7)
+maximum event count per sentence = 10999
+average event count per graph = 137.584
+tokens = 0.1%, morph = 1.0%, multiword = 1.8%, lex = 22.1%, chart = 2.4%,
+unifier = 45.0%, completer = 4.7%, solver = 22.8%, output = 0.0%
+max_alloc_mem = 2220.83 MB
+0.346 CPU secs total, 0.038 CPU secs max
+elapsed time = 5 seconds
+  range parsed failed  words   seconds  subtrees     optimal
+   1-10     18      5   5.56     0.016     41.11        3.67
+    all     18      5   5.56     0.016     41.11        3.67
+0.34 of the variance in seconds is explained by the number of subtrees

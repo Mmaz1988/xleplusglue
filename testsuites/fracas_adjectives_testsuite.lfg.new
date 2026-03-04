@@ -1,0 +1,54 @@
+# 1
+
+John has a genuine diamond. (1 0.007 39)
+
+John is a former university student. (3 0.005 37)
+
+John is a successful former university student. (6 0.005 43)
+
+John is a former successful university student. (6 0.004 43)
+
+
+# 2
+
+Every mammal is an animal. (3 0.004 27)
+
+Dumbo is a four-legged animal. (2 0.005 23)
+
+
+#3
+
+Mickey is a small animal. (6 0.004 35)
+
+Dumbo is a large animal. (4 0.005 26)
+
+Fido is not a small animal. (4 0.010 28)
+
+Fido is not a large animal. (4 0.003 28)
+
+
+#4
+
+All mice are small animals. (6 0.009 31)
+
+All elephants are large animals. (6 0.003 31)
+
+
+#5
+
+All legal authorities are law lecturers. (3 0.007 33)
+
+All law lecturers are legal authorities. (3 0.003 33)
+
+John is a fatter politician than Bill. (6 0.006 44)
+
+John is a cleverer politician than Bill. (6 0.005 44)
+
+
+#6
+
+Kim is a clever person. (4 0.004 26)
+
+Kim is a clever politician. (4 0.003 26)
+
+# 18 sentences, 0.092 CPU secs total, 0.010 CPU secs max (05/27/25)
