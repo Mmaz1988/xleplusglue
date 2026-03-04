@@ -290,10 +290,27 @@ Every tenor who has a dog appeared.
 >>> 0
 }
 
+
+
+{
+A tenor eats a banana with a man that he likes.
+====
+No tenor eats a banana.
+>>> -1
+}
+
+# not sure about this one
 {
 A tenor who has a black dog is a leading tenor.
 ====
 There is a black dog.
+>>> 1
+}
+
+{
+Every tenor who has a dog that every man likes appeared.
+====
+Every tenor who has a dog that some men like appeared.
 >>> 1
 }
 
@@ -305,3 +322,20 @@ A tenor is a black dog.
 }
 
 
+{
+Every professor hugged a dog in the garden.
+There is a dog in the garden.
+====
+No dog in the garden was hugged by every professor.
+>>> -1
+}
+
+
+# this one isn't right,
+{
+Every professor hugged a dog in the garden.
+John who is professor hugged Nancy who is a dog.
+====
+Mary who is a professor did not hug Nancy.
+>>> 0
+}
