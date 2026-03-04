@@ -157,8 +157,8 @@ Mary likes John.
 }
 
 {
-Mary likes every red dog that appeared.
-John is a red dog that appeared.
+Mary likes every black dog that appeared.
+John is a black dog that appeared.
 ====
 Mary likes John.
 >>> 1
@@ -178,49 +178,33 @@ Mary likes no dogs.
 >>> 1
 }
 
-{
-Mary eats an apple that John gives to a dog.
-====
-Mary likes John who is a dog.
->>> -1
-}
 
 {
-Every dog likes a banana that no man ate.
+Every dog likes a steak that nobody ate.
 ====
-No man ate a banana.
+Nobody ate a banana.
 >>> 0
 }
 
 {
-Every dog likes a banana that no man ate.
+Every dog likes a steak that nobody ate.
 ====
-There is a banana that no man ate.
+There is a steak that nobody ate.
 >>> 1
 }
 
 {
-Every dog likes a banana that no man ate.
+Every dog likes a steak that nobody ate.
 ====
-There is no dog that likes a banana.
+There is no dog that likes a steak.
 >>> -1
 }
 
 {
-Every dog likes a banana that no man ate.
+Every dog likes a steak that nobody ate.
 ====
-There are no bananas.
+There are no steaks.
 >>> -1
-}
-
-
-# can it do this??
-
-{
-A monkey eats every banana in the garden
-====
-The monkey is in the garden
->>> 1
 }
 
 {
@@ -229,14 +213,6 @@ A monkey eats every banana in the garden.
 There is a banana in the garden.
 >>> 0
 }
-
-{
-If there is a banana in the garden, then the monkey eats it.
-====
-A monkey eats every banana in the garden.
->>> 1
-}
-
 
 {
 No monkey eats every banana in the garden.
@@ -252,10 +228,27 @@ No monkey eats every banana in the garden.
 }
 
 {
-A monkey eats every banana in the garden.
-Every banana in the garden is Canadian.
+A monkey ate every banana in the garden.
+Every banana was ripe.
 ====
-The monkey eats every Canadian banana in the garden.
+The monkey ate a ripe banana in the garden.
+>>> 1
+}
+
+{
+A monkey ate every banana in the garden.
+Every banana in the garden was ripe.
+====
+The monkey ate every ripe banana in the garden.
+>>> 1
+}
+
+{
+There are bananas in a garden.
+A monkey ate every banana in the garden.
+Every banana was ripe.
+====
+The monkey ate a ripe banana in the garden.
 >>> 1
 }
 
@@ -297,18 +290,18 @@ Every tenor who has a dog appeared.
 >>> 0
 }
 
-
-# not sure about this one
-
 {
-Every tenor who has a dog that every man likes appeared.
+A tenor who has a black dog is a leading tenor.
 ====
-Every tenor who has a dog that some men like appears
+There is a black dog.
 >>> 1
 }
 
-
-
-
+{
+A tenor who has a black dog is a leading tenor.
+====
+A tenor is a black dog.
+>>> 0
+}
 
 

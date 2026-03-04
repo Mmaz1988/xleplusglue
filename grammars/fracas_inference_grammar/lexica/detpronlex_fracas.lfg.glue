@@ -79,6 +79,20 @@ There PRON *   (^PRON-TYPE) = expl_
 	             "(^NUM)"
 	             "inherit features from subject??"
 
+there PRON *   (^PRON-TYPE) = expl_
+	             (^PRON-FORM) = it
+	             (^ PERS) = 3
+	             (s::^ TYPE) = entity
+	             @(QUANT-SCOPE ^ %q)
+	             :$ lam(Q,merge(drs([X],[]),app(Q,X))) :
+                  ((s::^_e -o %q_t) -o %q_t) || noscope.
+
+	             "(^PERS) = 3 (^NUM) = sg"  "standard analysis, but some"
+	             "{(^NUM) =sg |(^NUM) = pl}"
+	             "(^NUM)"
+	             "inherit features from subject??"
+
+
 "relative who -- semantics are stored in the lexical entry because [] are not allowed in semantic c-structure annotations
 This requires a number of IOFA to work"
 
@@ -190,6 +204,23 @@ Every 	   D * @(SPEC-QUANT-PRED every)
 	      (^ NUM) = sg
  	      @UNIVERSAL-QUANT.
 
+Everybody N * (^ PRED) = 'everybody'
+       (^ PRON-TYPE) = quant
+       (^ PERS) = 3
+       (^ NUM) = sg
+       (^ HUMAN) = +
+       @(COUNT-NOUN-SEM person)
+       @(QUANT-SCOPE ^ %q)
+       @UNIVERSAL-QUANT.
+
+everybody N * (^ PRED) = 'everybody'
+       (^ PRON-TYPE) = quant
+       (^ PERS) = 3
+       (^ NUM) = sg
+       (^ HUMAN) = +
+       @(COUNT-NOUN-SEM person)
+       @(QUANT-SCOPE ^ %q)
+       @UNIVERSAL-QUANT.
 
 "new quantifiers"
 
@@ -203,6 +234,24 @@ Some D * @(SPEC-QUANT-PRED some)
 	      (^ DEF) = -
 	      "(^ NUM) = pl"
  	        @DEFAULT-EX-QUANT.
+
+Somebody N * (^ PRED) = 'somebody'
+       (^ PRON-TYPE) = quant
+       (^ PERS) = 3
+       (^ NUM) = sg
+       (^ HUMAN) = +
+       @(COUNT-NOUN-SEM person)
+       @(QUANT-SCOPE ^ %q)
+       @DEFAULT-EX-QUANT.
+
+somebody N * (^ PRED) = 'somebody'
+       (^ PRON-TYPE) = quant
+       (^ PERS) = 3
+       (^ NUM) = sg
+       (^ HUMAN) = +
+       @(COUNT-NOUN-SEM person)
+       @(QUANT-SCOPE ^ %q)
+       @DEFAULT-EX-QUANT.
 
 "preliminary semantics for all, copied from every"
 "also for Fracas Testsuite"
@@ -247,6 +296,26 @@ no D * @(SPEC-QUANT-PRED no)
        @(QUANT-SCOPE ^ %q)
        :$ lam(P,lam(Q,drs([],[not(merge(drs([X],[]),merge(app(P,X),app(Q,X))))]))) :
        	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+Nobody N * (^ PRED) = 'nobody'
+       (^ PRON-TYPE) = quant
+       (^ PERS) = 3
+       (^ NUM) = sg
+       (^ HUMAN) = +
+       @(COUNT-NOUN-SEM person)
+       @(QUANT-SCOPE ^ %q)
+       :$ lam(P,lam(Q,drs([],[not(merge(drs([X],[]),merge(app(P,X),app(Q,X))))]))) :
+              	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
+
+nobody N * (^ PRED) = 'nobody'
+       (^ PRON-TYPE) = quant
+       (^ PERS) = 3
+       (^ NUM) = sg
+       (^ HUMAN) = +
+       @(COUNT-NOUN-SEM person)
+       @(QUANT-SCOPE ^ %q)
+       :$ lam(P,lam(Q,drs([],[not(merge(drs([X],[]),merge(app(P,X),app(Q,X))))]))) :
+              	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Neither D * @(SPEC-QUANT-PRED no)
        @(SPEC-QUANT-TYPE negative)
