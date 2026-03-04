@@ -80,19 +80,19 @@
 #c VAR #d & #c RESTR #e &
 #b TEMP-REF #f &
 #b SIT #g
- ==>  #c GLUE lam(M,lam(P,lam(S,drs([],[imp(merge(drs([Z],[]),app(app(M,S),Z)),app(P,Z))])))) : ((#d_s -o (#e_s -o #c_t)) -o ((#g_s -o #g_t) -o (#f_s -o #f_t))) || noscope.
+ ==>  #c GLUE lam(M,lam(P,lam(S,drs([],[imp(merge(drs([Z],[]),app(app(M,S),Z)),app(P,Z))])))) : ((#d_s -o (#e_s -o #c_t)) -o ((#g_s -o #g_t) -o (#f_s -o #f_t))).
 
 //prv closure -- fixed
 #a s:: #b VIEWPOINT #c ASPECT 'prv' &
 #c VAR #d & #c RESTR #e &
 #b TEMP-REF #f &
 #b SIT #g
- ==>  #c GLUE lam(M,lam(P,lam(S,merge(drs([Z],[]),merge(app(app(M,S),Z),app(P,Z)))))) : ((#d_s -o (#e_s -o #c_t)) -o ((#g_s -o #g_t) -o (#f_s -o #f_t))) || noscope.
+ ==>  #c GLUE lam(M,lam(P,lam(S,merge(drs([Z],[]),merge(app(app(M,S),Z),app(P,Z)))))) : ((#d_s -o (#e_s -o #c_t)) -o ((#g_s -o #g_t) -o (#f_s -o #f_t))).
 
 #a s:: #b VIEWPOINT #c ASPECT 'undefined' &
 #b TEMP-REF #f &
 #b SIT #g
- ==>  #c GLUE lam(P,lam(S,merge(drs([],[]),app(P,S)))) : ((#g_s -o #g_t) -o (#f_s -o #f_t)) || noscope.
+ ==>  #c GLUE lam(P,lam(S,merge(drs([],[]),app(P,S)))) : ((#g_s -o #g_t) -o (#f_s -o #f_t)).
 
 //Tense values
 
@@ -126,7 +126,7 @@
 
 //absolute tense closure -- fixed
 #a s:: #b TEMP-REF #c T-REF %a & %a != 'undefined' & #c EVAL #d
-==> #c GLUE lam(T,lam(P,lam(S,merge(drs([R],[]),merge(app(app(T,R),S),app(P,R)))))) : ((#c_s -o (#d_s -o #c_t)) -o ((#c_s -o #c_t) -o (#d_s -o #d_t))) || noscope.
+==> #c GLUE lam(T,lam(P,lam(S,merge(drs([R],[]),merge(app(app(T,R),S),app(P,R)))))) : ((#c_s -o (#d_s -o #c_t)) -o ((#c_s -o #c_t) -o (#d_s -o #d_t))).
 
 //aspectual tense closure
 #a s:: #b ASP-TENSE #c A-REF %a &
@@ -136,7 +136,7 @@
 
 //unspec absolute closure
 #a s:: #b TEMP-REF #c T-REF %a & %a == 'undefined' & #c EVAL #d
-==> #c GLUE lam(P,lam(S,app(P,S))) : ((#c_s -o #c_t) -o (#d_s -o #d_t)) || noscope.
+==> #c GLUE lam(P,lam(S,app(P,S))) : ((#c_s -o #c_t) -o (#d_s -o #d_t)).
 
 //#a EVAL #b
 //==> #b GLUE lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((#b_s -o #b_t) -o #b_t).
