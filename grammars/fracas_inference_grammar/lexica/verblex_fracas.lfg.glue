@@ -243,9 +243,7 @@ contribute V-S XLE @(DITRANS-EV contribute).
 "comes: eg. 'comes cheap'"
 
 
-come V-S XLE    (^PRED) = 'come<(^PREDLINK)>(^SUBJ)'
-                           (^SUBJ) = (^ PREDLINK SUBJ)
-                           "@AUX-RAISE"
+come V-S XLE    (^PRED) = 'come<(^ SUBJ)(^PREDLINK)>'
                            @(EVENT come)
                            @(ARG1 (^ SUBJ)).
 

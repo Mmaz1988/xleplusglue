@@ -85,23 +85,22 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    @(INTRANS-EV P)
 	  }. 
 
-AUX-RAISE = (s::^ EV) = (s:: (^ PREDLINK) EV).
-
-BE-TRANS-EV = (^PRED) = 'be<(^PREDLINK)>(^SUBJ)'
-                     {(^SUBJ) = (^ PREDLINK SUBJ)
-                     |
-                     (^PREDLINK PTYPE)
-                     }
+BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
                      @(EVENT be)
-                     "@AUX-RAISE"
+                     {
                      %arg1 = (^ SUBJ {OBL-PART | OBJ}*) "EX. One of the ... is ..."
                      (s::%arg1 TYPE) =c entity
                      @(ARG1 %arg1) "EX. John is Italian"
                      {
-                     (s::(^ PREDLINK) TYPE) ~= entity
+                     ~[(s::(^ PREDLINK) TYPE)]
                      |
                      (s::(^ PREDLINK) TYPE) =c entity
                      @(ARG2 (^ PREDLINK)) "EX. John is an Italian"
+                     }
+                     |
+                     %arg1 = (^PREDLINK) "There is a ..."
+                     (^ SUBJ PRON-TYPE) =c expl
+                     @(ARG1 %arg1)
                      }.
 
                       "the dog was fast"

@@ -80,7 +80,7 @@ GLUE   BASIC   TEMPLATES (1.0)
        (((s::^ EV)_v -o (s::^ EV)_t) -o (s::ARG_e -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
 
 
-DEFAULT-NOUN-SEM(P) = {@(PRED P) | (^ PRED) = 'P<>(^SUBJ)'}
+DEFAULT-NOUN-SEM(P) =         @(PRED P)
                       	      "(s::^ TYPE) = entity"
                       		  { (^ NTYPE NSYN) =c common
                       		  @(COUNT-NOUN-SEM P)
@@ -103,14 +103,14 @@ DEF-NAME(P) = @(NAME-SCOPE ^ %n)
               ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)) || noscope.
 
 
-DEFAULT-ADJ-SEM(P)  = { @(PRED P)
+DEFAULT-ADJ-SEM(P)  = @(PRED P)
+                       {
                       (^ ATYPE) =c attributive
                       s::(ADJUNCT $ ^) = %s
                       :$ lam(X,drs([],[pred('P',X)])) : (s::^_e -o s::^_t),
                       :$ lam(Q,lam(R,lam(X,merge(app(Q,X),app(R,X))))) :
                                 ((s::^_e -o s::^_t) -o ((%s_e -o %s_t) -o (%s_e -o %s_t))) || noscope,
                      |
-                      (^PRED) = 'P<(^SUBJ)>'
                       (^ ATYPE) =c predicative
                       (s::(PREDLINK ^) EV) = %s
                       :$ lam(X,drs([],[pred('P',X)])) : (s::^_v -o s::^_t),

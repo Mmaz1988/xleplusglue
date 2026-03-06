@@ -8,7 +8,6 @@
 //Degree (gradable) adjectives
 #x PREDLINK #a & #x s:: #y EV #z &
 #a ATYPE 'predicative' & #a SEMTYPE 'degree' &
-#a SUBJ #b s:: #c &
 #a PRED %a &  #a s:: #s
 ==> & #s DEGREE #d & #s DEGREE-HOLDER #z & #s DEGREE-PRED #p &
 #p GLUE lam(P,lam(D,lam(X,drs([],[rel(strip(%a),X,D)])))) : ((#s_v -o #s_t) -o (#d_d -o (#s_v -o #s_t))).

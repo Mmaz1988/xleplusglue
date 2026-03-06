@@ -4,7 +4,7 @@ set-character-encoding stdio utf-8
 # performance vars
 set max_xle_scratch_storage 1000
 set start_skimming_when_scratch_storage_exceeds 1000
-set print_subtrees 1
+#set print_subtrees 1
 
 # set timeout lower; amounts are in seconds
 set timeout 10

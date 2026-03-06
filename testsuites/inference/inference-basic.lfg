@@ -121,15 +121,21 @@ A boxer with an injury did not lose a fight.
 # here Kascha starts
 
 {
-A dog who is slow appeared
+A dog that is slow appeared
 ====
 A dog appeared
 >>> 1
 }
 {
+A dog that is slow appeared
+====
+There is a slow dog.
+>>> 1
+}
+{
 A dog appeared
 ====
-A dog who is slow appeared
+A dog that is slow appeared
 >>> 0
 }
 {
@@ -182,7 +188,7 @@ Mary likes no dogs.
 {
 Every dog likes a steak that nobody ate.
 ====
-Nobody ate a banana.
+Nobody ate a steak.
 >>> 0
 }
 
@@ -257,7 +263,7 @@ There is no leading tenor who has no dog.
 Mary has a dog.
 ====
 Mary is a leading tenor
->>> -1
+>>> 0
 }
 
 {

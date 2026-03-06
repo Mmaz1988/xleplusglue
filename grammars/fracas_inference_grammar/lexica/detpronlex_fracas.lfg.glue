@@ -66,26 +66,20 @@ their   PRON * @(POSS-PRON they 3 pl).
 
 
 "expletive"
-There PRON *   (^PRON-TYPE) = expl_
-	             (^PRON-FORM) = it
-	             (^ PERS) = 3
-	             (s::^ TYPE) = entity
-	             @(QUANT-SCOPE ^ %q)
-	             :$ lam(Q,merge(drs([X],[]),app(Q,X))) :
-                  ((s::^_e -o %q_t) -o %q_t) || noscope.
+There PRON *     (^PRED) = 'pro'
+                 (^PRON-TYPE) = expl
+	             (^PRON-FORM) = there
+	             (^ PERS) = 3.
 
 	             "(^PERS) = 3 (^NUM) = sg"  "standard analysis, but some"
 	             "{(^NUM) =sg |(^NUM) = pl}"
 	             "(^NUM)"
 	             "inherit features from subject??"
 
-there PRON *   (^PRON-TYPE) = expl_
-	             (^PRON-FORM) = it
-	             (^ PERS) = 3
-	             (s::^ TYPE) = entity
-	             @(QUANT-SCOPE ^ %q)
-	             :$ lam(Q,merge(drs([X],[]),app(Q,X))) :
-                  ((s::^_e -o %q_t) -o %q_t) || noscope.
+there PRON *     (^PRED) = 'pro'
+                 (^PRON-TYPE) = expl
+	             (^PRON-FORM) = there
+	             (^ PERS) = 3.
 
 	             "(^PERS) = 3 (^NUM) = sg"  "standard analysis, but some"
 	             "{(^NUM) =sg |(^NUM) = pl}"

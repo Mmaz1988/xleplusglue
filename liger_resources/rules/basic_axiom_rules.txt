@@ -1,7 +1,8 @@
 --replace(true);
 
 #p PRED %p & strip(%p) == 'be' & #p PREDLINK #c s:: #s TYPE 'entity' ==>
-#p AXIOM all(X,all(Y,all(Z,imp(and(be(X),and(arg1(X,Y),arg2(X,Z))),eq(Y,Z))))).
+#p EQUAL-AX #e &
+#e AXIOM all(X,all(Y,all(Z,imp(and(be(X),and(arg1(X,Y),arg2(X,Z))),eq(Y,Z))))).
 
 //#p PRED %p & strip(%p) == 'have' & #p OBJ #o ==>
 //#p AXIOM all(X,all(Y,imp(and(have(X),arg2(X,Z)),be(X)))).
