@@ -1,4 +1,4 @@
-# XLE+Glue
+# Browser-based XLE+Glue with inference
 
 # Current TODOs
 
