@@ -1,4 +1,4 @@
-# XLE+Glue toolset
+# XLE+Glue
 
 # Current TODOs
 
