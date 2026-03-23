@@ -1,0 +1,185 @@
+"
+    Copyright (C) 2019–2020 Mary Dalrymple, Agnieszka Patejuk
+
+    This file is part of XLE+Glue (https://github.com/Mmaz1988/xle-glueworkbench-interface).
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+GLUE   BASIC   CONFIG (1.0)  
+  ROOTCAT   CP.  
+  FILES  .
+  LEXENTRIES   (ENGLISH BASIC).  
+  RULES   (ENGLISH BASIC).
+  TEMPLATES (ENGLISH BASIC) (GLUE BASIC).
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ?+ OBL?+ COMP XCOMP.
+  SEMANTICFUNCTIONS    ADJUNCT TOPIC FOCUS.  
+  NONDISTRIBUTIVES    NUM PERS.
+  EPSILON   e.  
+  CHARACTERENCODING utf-8.
+OPTIMALITYORDER NOGOOD.
+
+----
+
+"glue-basic-drt.lfg requires the following settings in xlerc: semParser 2, processDRT 1"
+
+"AVM representations of meaning constructors appear as members of the GLUE set at f-structure."
+
+ENGLISH   BASIC   RULES (1.0)
+
+   CP --> C'.
+
+   C' --> (C) 
+ 	  IP.
+
+   C =   Comp.
+
+   IP --> (NP: (^ SUBJ) = !) 
+ 	  I'.
+
+   I' --> (I)
+ 	  VP.
+
+   I = Aux.
+
+   VP --> V'.
+
+   V' --> (V)
+ 	  (NP: (^ OBJ) = !).
+
+   NP --> (D)
+ 	  N'.
+
+   N' --> (Adj: ! $ (^ ADJ))
+ 	  N.
+
+----
+
+ENGLISH   BASIC   LEXICON (1.0)
+
+"Complementizer"
+
+  that 	  Comp * (^ COMPFORM) = 'that'.
+
+"Nouns"
+
+  David   N * @(NAME david).
+
+  Chris   N * @(NAME chris).
+
+  Tracy   N * @(NAME tracy).
+
+  Kim   N * @(NAME kim).
+
+  man 	  N * @(NOUN man).
+
+  woman   N * @(NOUN woman).
+
+  book 	  N * @(NOUN book).
+
+  person  N * @(NOUN person).
+
+
+
+"Determiners"
+
+     "Quantifier"
+
+     a 	  D * (^ SPEC PRED) = 'a'
+     	      :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+     	      ((s::^_e -o s::^_t) -o AX_t.((s::^_e -o X_t) -o X_t)).
+
+     the 	  D * (^ SPEC PRED) = 'the'
+          	  :$ lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) :
+          	  ((s::^_e -o s::^_t) -o AX_t.((s::^_e -o X_t) -o X_t)).
+
+     every 	D * (^ SPEC PRED) = 'every'
+     	      :$ lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) :
+     	      ((s::^_e -o s::^_t) -o AX_t.((s::^_e -o X_t) -o X_t)).
+  
+
+"Verbs"
+
+  yawned  V * @(VERB-SUBJ yawn)
+	      @VPAST.
+
+  smiled  V * @(VERB-SUBJ smile)
+	      @VPAST.
+
+  saw 	  V * @(VERB-SUBJ-OBJ see)
+	      @VPAST.
+
+----
+
+ENGLISH   BASIC   TEMPLATES (1.0)
+
+   "Templates for argument structure. Need to be separate to avoid trouble with local names"
+   ARG1(ARG) =
+        %EV = (s::^ EV)
+       :$ lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) :
+       ((%EV_v -o %EV_t) -o (s::ARG_e -o (%EV_v -o %EV_t))).
+
+   ARG2(ARG) =
+       %EV = (s::^ EV)
+       :$ lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg2,E,X)]))))) :
+       ((%EV_v -o %EV_t) -o (s::ARG_e -o (%EV_v -o %EV_t))).
+
+"Nouns"
+
+NOUN(P) = (^ PRED) = 'P'
+      :$ lam(X,drs([],[pred(%stem,X)])) : (s::^_e -o s::^_t).
+
+NAME(P) = (^ PRED) = 'P'
+      :$ lam(X,drs([],[eq(X,%stem)])) : (s::^_e -o s::^_t),
+      :$ lam(Q,lam(R,merge(drs([X],[]),merge(app(Q,X),app(R,X))))) :
+      ((s::^_e -o s::^_t) -o AX_t.((s::^_e -o X_t) -o X_t)).
+
+"Verbs"
+
+   VERB-SUBJ(P) =
+	  (^ PRED) = 'P<(^ SUBJ)>'
+	  %EV = (s::^ EV)
+	  :$ lam(X,drs([E],[pred(P,E),rel(arg1,E,X)])) :
+	  (s::(^SUBJ)_e -o  %EV_t).
+	  
+   VERB-SUBJ-OBJ(P) =
+	  (^ PRED) = 'P<(^ SUBJ)(^ OBJ)>'
+	  %EV = (s::^ EV)
+	  :$ lam(X, lam(Y, drs([E],[pred(P,E),rel(arg1,E,X),rel(arg2,E,Y)]))) :
+	 (s::(^SUBJ)_e -o (s::(^OBJ)_e -o  %EV_t)).
+
+   VPAST = (^ VTYPE) = FIN
+	  (^ TENSE) = PST.
+
+----
+
+GLUE   BASIC   TEMPLATES (1.0)
+
+   LLIMP(N L R) = (N ANT) = L
+	  (N CONS) = R.
+
+   LLATOM(N L T) = (N RESOURCE) = L
+	  (N TYPE) = T.
+
+    LLQUANT(N B) = (N BINDER) = B.
+
+   LLCLOSURE(G) = G $ (g::* GLUE).
+
+   GLUE-MEANING(R M) =
+	  (R MEANING) = M.
+
+  NOSCOPE(G) = (G NOSCOPE) = +.
+
+
+----
