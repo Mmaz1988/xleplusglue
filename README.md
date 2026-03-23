@@ -42,8 +42,8 @@ Literal encoding
 
 | Grammar                  | Prover | semParser | processDRT | mcEncoding | transfer |
 |--------------------------|--------|-----------|------------|------------|----------|
-| glue-basic               | 0      | 0         | 0          | 0          | 0        |
-| glue-basic-semparser-drt | 0      | 2         | 1          | 0          | 0        |
+| glue-basic               | 0      | 0         | 0          | 1          | 0        |
+| glue-basic-semparser-drt | 0      | 2         | 1          | 1          | 0        |
 
 
 These are the settings intended for the different grammars. Using different settings might cause problems. 
