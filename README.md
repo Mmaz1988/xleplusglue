@@ -1,4 +1,4 @@
-# XLE+Glue toolset
+# XLE+Glue (local version)
 
 INFO: This branch contains the local version of XLE+Glue without the web interface. For a comprehensive overview consult the main branch at [XLE+Glue](https://github.com/Mmaz1988/xleplusglue)
 
