@@ -1,4 +1,4 @@
-# XLE+Glue toolset
+# XLE+Glue
 
 This is the main branch of XLE+Glue. It serves as a landing page for people interested in the tool set. However, specific uses of the tool set are developed in different branches of this repository. Thus, choosing the right branch can lead to a leaner experience in working with XLE+Glue. 
 
@@ -6,11 +6,11 @@ This is the main branch of XLE+Glue. It serves as a landing page for people inte
 
 The three following branches provide access to three main variants of XLE+Glue. 
 
- - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/2024_inference)
+ - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/lfg2026_pragmatic_parsing)
  - [UD+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_udplusglue)
  - [Local XLE+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_xlepluglue_local)
 
-The _XLE+Glue with Inference_ branch corresponds to the main branch of this repository providing the most comprehensive demonstration of the XLE+Glue toolset including inference. The _UD+Glue_ branch substitutes the XLE for Stanza's Universal Dependency parser which is couched in a Docker container. Thus, no extra installation is needed. The _Local XLE+Glue_ is a lean version of XLE+Glue that ommits the reasoning component (adding support for this is a future goal), and the Docker architecture including the Web interface. It is designed to allow users to use XLE+Glue within the original user interface of the XLE. 
+The _XLE+Glue with Inference_ branch corresponds to the main branch of this repository providing the most comprehensive demonstration of the XLE+Glue toolset including inference. The _UD+Glue_ branch substitutes the XLE for Stanza's Universal Dependency parser which is couched in a Docker container. Thus, no extra installation is needed. The _Local XLE+Glue_ is a more compact version of XLE+Glue that ommits the reasoning component (adding support for this is a future goal), and the Docker architecture including the Web interface. It is designed to allow users to use XLE+Glue within the original user interface of the XLE. 
 
 The corresponding branches contain sub-branches with demos for specific events/papers. From these, substantial updates are incorporated into the main braches regularly.
 
@@ -32,7 +32,7 @@ This repository contains:
 - Access to the XLE binaries (distributed via the **[University of Konstanz](https://ling.sprachwiss.uni-konstanz.de/pages/xle/index.html)**, requires signing a license with PARC)
 - **[Docker](https://www.docker.com/)**
 
-### For running local version:
+### For running local version
 
 - Java (jars are compiled at version 17; available at **[OpenJDK](https://jdk.java.net/13/)**
 - **[SWI-Prolog](https://www.swi-prolog.org/) (version > v6.xx)**
@@ -46,7 +46,7 @@ XLE="/bin/xle"
 grammar="/grammars/glue-basic-drt-tense.lfg.glue"
 OS="LINUX"
 ```
-Here, you also need to specify the grammar you intend to use before building the system. The grammar should be stored within the grammar folder in the repository. A system for uploading grammars and changing the grammar during use is in preparation.
+Here, you also need to specify the grammar you intend to use before building the system. The grammar should be stored within the grammars folder in the repository. All grammars in the grammars folder are available once the application has been started. However, to upload new grammars, the system must be restarted. 
 
 For the system to work properly, you need access to the XLE binaries for Linux. These need to be stored in a folder called _xle_ in the root directory of this repository. The Dockerfile-liger specifies where to copy the XLE binaries from if you want to store them elsewhere.
 
