@@ -23,17 +23,28 @@ This repository contains:
 ## Running the system 
 
 The system is fully integrated in XLE and is accessible when starting XLE from the main directory (/xleplusglue).
-It is recommended that grammars are stored in separate folders in the /grammars directory.
+It is recommended that grammars are stored in separate folders in the /grammars directory. to avoid clutter. However, grammars can be stored anywhere on the computer as long as their path is set correctly in the xlerc file. 
 
 
 ## Recommended settings (to be set in the xlerc file)
 
-| Grammar            | Prover | semParser | processDRT | mcEncoding | transfer |
-|--------------------|--------|-----------|------------|------------|----------|
-| glue-basic (lit.)  | 0      | 1         | 0          | 1          | 0        |
-| glue-basic (prolog)| 0      | 1         | 0          | 0          | 0        |
-| hybrid-basic       | any    | 2         | 1          | 1          | 1        |
-| multistage-basic   | 3      | 1         | 0          | 1          | 0        |
+F-structure encoding
+
+| Grammar                  | Prover | semParser | processDRT | mcEncoding | transfer |
+|--------------------------|--------|-----------|------------|------------|----------|
+| glue-basic               | 0      | 0         | 0          | 0          | 0        |
+| glue-basic-semparser     | 0      | 1         | 0          | 0          | 0        |
+| glue-basic-semstr        | 0      | 0         | 0          | 0          | 0        |
+| glue-basic-flat-encoding | 0      | 0         | 0          | 0          | 0        |
+
+Literal encoding
+
+
+| Grammar                  | Prover | semParser | processDRT | mcEncoding | transfer |
+|--------------------------|--------|-----------|------------|------------|----------|
+| glue-basic               | 0      | 0         | 0          | 0          | 0        |
+| glue-basic-semparser-drt | 0      | 2         | 1          | 0          | 0        |
+
 
 These are the settings intended for the different grammars. Using different settings might cause problems. 
 Generally, the HEPPLE prover (0) allows for linear quantification, while the LEV prover allows for more efficient solving, including the noscope flag.
@@ -41,6 +52,6 @@ Generally, the HEPPLE prover (0) allows for linear quantification, while the LEV
 
 ## Known bugs
 
-- Output only prints: "Proof:"
+
 
 
