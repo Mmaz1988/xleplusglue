@@ -29,7 +29,10 @@ proc relpath {path} {
 set defaultGlueTCL [relpath src/glue.tcl]
 
 #Here the grammar is loaded
-set defaultGlueParser [relpath grammars/fracas_inference_grammar/main_fracas_grammar.lfg.glue]
+set defaultGlueParser [relpath grammars/demo/fracas_inference_grammar/main_fracas_grammar.lfg.glue]
+
+#Set LiGER rule file
+set transferRuleFile [relpath liger_resources/rules/tam_rules.txt]
 
 proc tq {} {parse-testfile [relpath testsuites/parsing/fracas_quantifiers_testsuite.lfg] }
 
@@ -65,7 +68,7 @@ set processDRT 1
 set mcEncoding 1
 
 # activate rewrite with LiGER (1/0)
-set transfer 0
+set transfer 1
 
 # activate debug mode (1/0)
 set transferDebug 1

@@ -67,7 +67,7 @@ For further details, a documentation document will be made available soon.
 ## Recommended settings for testing grammars (to be set in the xlerc file)
 
 We demonstrate two groups of grammars: Those using the avm-based encoding and those using the "literal" encoding. The avm-based grammars can be found in grammars-fstr-notation and the grammars using the literal notation are found in grammars-literal-notation. These grammars are stored in separate folders as they produce auxiliary files which would clutter the folder otherwise. We recommend using this approach for all literal-notation grammars.
-Some branches might contain an additional demo folder containing a grammar demonstrating the capabilities of the respective branch. Here, we demonstrate the inference grammar. 
+Some branches might contain an additional demo folder containing a grammar demonstrating the capabilities of the respective branch. Here, we demonstrate the inference grammar with additional TAM rules (i.e., a hybrid grammar).
 
 F-structure encoding
 
@@ -92,7 +92,7 @@ Demo
 
 | Grammar             | Prover | semParser | processDRT | mcEncoding | transfer |
 |---------------------|--------|-----------|------------|------------|----------|
-| main_fracas_grammar | 1      | 2         | 1          | 1          | 0        |
+| main_fracas_grammar | 1      | 2         | 1          | 1          | 1        |
 
 
 
