@@ -1,12 +1,12 @@
-# XLE+Glue
+# XLE+Glue with inference capabilities
 
-This is the main branch of XLE+Glue. It serves as a landing page for people interested in the tool set. However, specific uses of the tool set are developed in different branches of this repository. Thus, choosing the right branch can lead to a leaner experience in working with XLE+Glue. 
+This branch contains the XLE+Glue tools required for inference based experiments and receives corresponding updates before they are added to the main branch.
 
 # Branches
 
 The three following branches provide access to three main variants of XLE+Glue. 
 
- - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/lfg2026_pragmatic_parsing)
+ - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/lfg2026_pragmatic_parsing) (CURRENT) 
  - [UD+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_udplusglue)
  - [Local XLE+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_xlepluglue_local)
 
