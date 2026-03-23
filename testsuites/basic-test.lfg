@@ -1,50 +1,38 @@
-#transitive
+# "
+#     Copyright (C) 2019–2020 Agnieszka Patejuk
+#
+#     This file is part of XLE+Glue (https://github.com/Mmaz1988/xle-glueworkbench-interface).
+#
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# "
 
-a big black dog appeared.
+Kim smiled
 
-#optional transitives
+David yawned
 
-a dog escaped.
+Tracy saw David
 
-a dog escaped the cage.
+Tracy thought that David yawned
 
-#transitive
+Chris gave David a book
 
-every dog devoured a bone.
+everyone yawned
 
-#di-transitive
+every person yawned
 
-Mary gave a student every grade.
+everyone saw a woman
 
-Mary gave a grade to a student.
+every person saw a woman
 
-#COMP-verb
-
-Mary thinks that a cat meowed.
-
-#XCOMPs
-
-a cat seemed to meow.
-
-a dog tried to meow.
-
-#passives
-
-a bone was devoured by a dog.
-
-a program was implemented by a developer.
-
-a solution was implemented.
-
-# The following two sentences need fixing in the basic grammar (clash with OT mark and unwanted semantics)
-
-a grade was given to every student by Mary.
-
-a student was given every grade by Mary.
-
-#PP-attachment
-
-a big black dog appeared on the table.
-
-Peter saw the monkey with the telescope.
-
+Chris gave David the interesting book
