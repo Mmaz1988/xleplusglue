@@ -4,7 +4,6 @@ xle/*
 resource_folders_old/*
 frontend/last_running/*
 grammars/**/*.fileindexdir
-grammars/**/*.lfg
 grammars/.#*
 jars/old_versions/*
 

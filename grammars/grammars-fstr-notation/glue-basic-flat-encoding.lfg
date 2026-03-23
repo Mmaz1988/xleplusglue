@@ -1,0 +1,350 @@
+"
+    Copyright (C) 2019–2020 Mary Dalrymple, Agnieszka Patejuk
+
+    This file is part of XLE+Glue (https://github.com/Mmaz1988/xle-glueworkbench-interface).
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+GLUE   BASIC   CONFIG (1.0)  
+  ROOTCAT   CP.  
+  FILES  .
+  LEXENTRIES   (ENGLISH BASIC).  
+  RULES   (ENGLISH BASIC).
+  TEMPLATES (ENGLISH BASIC) (GLUE BASIC).
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ?+ OBL?+ COMP XCOMP.
+  SEMANTICFUNCTIONS    ADJUNCT TOPIC FOCUS.  
+  NONDISTRIBUTIVES    NUM PERS.
+  EPSILON   e.  
+  CHARACTERENCODING utf-8.
+OPTIMALITYORDER NOGOOD.
+
+----
+
+"glue-basic-flat-encoding.lfg requires the following settings in xlerc: semParser 0, processDRT 0"
+
+"AVM representations of meaning constructors appear as members of the GLUE set at f-structure."
+
+ENGLISH   BASIC   RULES (1.0)
+
+   CP --> C'.
+
+   C' --> (C) 
+ 	  IP.
+
+   C =   Comp.
+
+   IP --> (NP: (^ SUBJ) = !) 
+ 	  I'.
+
+   I' --> (I)
+ 	  VP.
+
+   I = Aux.
+
+   VP --> V'.
+
+   V' --> (V)
+ 	  (NP: (^ OBJ) = !)
+ 	  (NP: (^ OBJ-TH) = !)
+ 	  (CP: (^ COMP) = !).
+
+   NP --> (Det)
+ 	  N'.
+
+   N' --> (Adj: ! $ (^ ADJ))
+ 	  N.
+
+----
+
+ENGLISH   BASIC   LEXICON (1.0)
+
+"Complementizer"
+
+  that 	  Comp * (^ COMPFORM) = 'that'.
+
+"Nouns"
+
+  David   N * @(PROPERNOUN David).
+
+  Chris   N * @(PROPERNOUN Chris).
+
+  Tracy   N * @(PROPERNOUN Tracy).
+
+  Kim   N * @(PROPERNOUN Kim).
+
+  man 	  N * @(NOUN0 man).
+
+  woman   N * @(NOUN0 woman).
+
+  book 	  N * @(NOUN0 book).
+
+  person  N * @(NOUN0 person).
+
+  everyone N * @(QUANT everyone every person).
+
+"Adjectives"
+
+  interesting Adj * @(ADJ interesting).
+
+"Determiners"
+
+  the 	  Det * @(SPEC the).
+
+  a 	  Det * @(SPEC a).
+
+  every   Det * @(SPEC every).
+  
+
+"Verbs"
+
+  yawned  V * @(VERB-SUBJ yawn)
+	      @VPAST.
+
+  smiled  V * @(VERB-SUBJ smile)
+	      @VPAST.
+
+  saw 	  V * @(VERB-SUBJ-OBJ see)
+	      @VPAST.
+
+  thought V * @(VERB-SUBJ-COMP think)
+	      @COMP-TENSE
+	      @VPAST.
+
+  gave 	  V * @(VERB-SUBJ-OBJ-OBJTH give)
+	      @VPAST.
+
+----
+
+ENGLISH   BASIC   TEMPLATES (1.0)
+
+"Nouns"
+
+   PROPERNOUN(P) = (^ PRED) = 'P'
+	  @(GLUE-PROPERNOUN P).
+
+   NOUN0(P) = (^ PRED) = 'P'
+	  @(GLUE-NOUN0 P).
+
+"Quantifiers like 'everyone' call the template for quantificational 
+determiners and the template for common nouns."
+
+   QUANT(P Q N) = (^ PRED) = 'P'
+          @(GLUE-QUANT-MC Q)
+          @(GLUE-NOUN0-MC N).
+
+"Adjectives"
+
+   ADJ(P) = (^ PRED) = 'P'
+	  @(GLUE-ADJ0 P).
+
+"Determiners"
+
+   SPEC(Q) = (^ SPEC PRED) = 'Q'
+	  @(GLUE-QUANT-DET Q).
+
+"Verbs"
+
+   VERB-SUBJ(P) =
+	  (^ PRED) = 'P<(^ SUBJ)>'
+	  @(GLUE-VERB-SUBJ P).
+	  
+   VERB-SUBJ-OBJ(P) =
+	  (^ PRED) = 'P<(^ SUBJ)(^ OBJ)>'
+	  @(GLUE-VERB-SUBJ-OBJ P).
+
+   VERB-SUBJ-COMP(P) =
+	  (^ PRED) = 'P<(^ SUBJ)(^ COMP)>'
+	  @(GLUE-VERB-SUBJ-COMP P).
+
+   VERB-SUBJ-OBJ-OBJTH(P) =
+	  (^ PRED) = 'P<(^ SUBJ)(^ OBJ)(^ OBJ-TH)>'
+	  @(GLUE-VERB-SUBJ-OBJ-OBJTH P).
+
+   COMP-TENSE = (^ COMP TENSE).
+
+   VPAST = (^ VTYPE) = FIN
+	  (^ TENSE) = PST.
+
+----
+
+GLUE   BASIC   TEMPLATES (1.0)
+
+"Templates called by lexical entries"
+
+   GLUE-PROPERNOUN(M) =
+	  @(GLUE-REL0-MC ^ e M).
+
+   GLUE-VERB-SUBJ(M) =
+	  @(GLUE-REL1-MC (^ SUBJ) e ^ t M).
+
+   GLUE-VERB-SUBJ-OBJ(M) =
+	  @(GLUE-REL2-MC (^ SUBJ) e (^ OBJ) e ^ t M).
+
+   GLUE-VERB-SUBJ-OBJ-OBJTH(M) =
+	  @(GLUE-REL3-MC (^ SUBJ) e (^ OBJ) e (^ OBJ-TH) e ^ t M).
+
+   GLUE-VERB-SUBJ-COMP(M) =
+	  @(GLUE-REL2-MC (^ SUBJ) e (^ COMP) t ^ t M).
+
+   GLUE-NOUN0(M) = "Meaning constructor for nouns associates the e->t-type meaning with the value of PRED"
+	  @(GLUE-NOUN0-MC M).
+
+   GLUE-ADJ0(M) = "Meaning constructors for prenominal adjectives provide the basic meaning and the meaning constructor that combines it with the noun"
+          @(GLUE-REL1-MC (^ PRED) e ^ t M)
+	  @(GLUE-ADJ-MODIFIER `/P`.`/Q`.`/x`.and`(P`(x`)`,Q`(x`)`)).
+
+   GLUE-QUANT-DET(M) = "Meaning constructor for quantificational determiners, with embedded implication and quantification over the scope structure"
+	  @(GLUE-QUANT-MC M).
+
+"Templates defining glue structures"
+
+"Zero-arity predicates."
+   GLUE-REL0-MC(R TY M) = 
+	  (%mc A1) = M
+	  (%mc A2) = `:
+	  (%mc A3) = R
+	  (%mc A4) = _
+	  (%mc A5) = TY
+	  %mc $ (R GLUE).
+
+"Predicates with one or more arguments.  These are the simple cases,
+which do not rely on attributes in the semantic structure.  Each
+argument has a semantic structure and a type."
+
+"1-place predicates" 
+   GLUE-REL1-MC(A1 A1TY R TY M) =
+      	  (%mc ARG01) = M
+	  (%mc ARG02) = `:`(
+	  (%mc ARG03) = A1
+	  (%mc ARG04) = _
+	  (%mc ARG05) = A1TY
+	  (%mc ARG06) = `-o
+	  (%mc ARG07) = R
+	  (%mc ARG08) = _
+	  (%mc ARG09) = TY
+	  (%mc ARG10) = `)
+	  %mc $ (R GLUE).
+
+"2-place predicates"	  
+   GLUE-REL2-MC(A1 A1TY A2 A2TY R TY M) =
+          (%mc ARG01) = M
+	  (%mc ARG02) = `:`(
+	  (%mc ARG03) = A1
+	  (%mc ARG04) = _
+	  (%mc ARG05) = A1TY
+	  (%mc ARG06) = `-o`(
+	  (%mc ARG07) = A2
+	  (%mc ARG08) = _
+	  (%mc ARG09) = A2TY
+	  (%mc ARG10) = `-o
+	  (%mc ARG11) = R
+	  (%mc ARG12) = _
+	  (%mc ARG13) = TY
+	  (%mc ARG14) = `)`)
+	  %mc $ (R GLUE).
+
+"3-place predicates"
+   GLUE-REL3-MC(A1 A1TY A2 A2TY A3 A3TY R TY M) = 
+          (%mc ARG01) = M
+	  (%mc ARG02) = `:`(
+	  (%mc ARG03) = A1
+	  (%mc ARG04) = _
+	  (%mc ARG05) = A1TY
+	  (%mc ARG06) = `-o`(
+	  (%mc ARG07) = A2
+	  (%mc ARG08) = _
+	  (%mc ARG09) = A2TY
+	  (%mc ARG10) = `-o`(
+	  (%mc ARG11) = A3
+	  (%mc ARG12) = _
+	  (%mc ARG13) = A3TY
+	  (%mc ARG14) = `-o
+	  (%mc ARG15) = R
+	  (%mc ARG16) = _
+	  (%mc ARG17) = TY
+	  (%mc ARG18) = `)`)`)
+	  %mc $ (R GLUE).
+
+"Special meaning constructor for nouns, with type
+(^ PRED)_e -o (^ PRED)_t.  This template is also used for quantifiers
+like 'everyone', so the local name %mcn in this template must be different
+from the one used in the quantifier template GLUE-QUANT-MC (%mc)."
+   GLUE-NOUN0-MC(M) =
+          (%mcn ARG01) = M
+	  (%mcn ARG02) = `:`(
+	  (%mcn ARG03) = (^ PRED)
+	  (%mcn ARG04) = _e`-o
+	  (%mcn ARG05) = (^ PRED)
+	  (%mcn ARG06) = _t`)
+	  %mcn $ (^ GLUE).
+
+" Special meaning constructor (encoded in the embedded format) 
+to combine basic adjective meanings 
+with the nouns they modify, with type
+((^ PRED)_e -o ^_t) -o 
+ ( ((ADJ $ ^) PRED)_e -o ((ADJ $ ^) PRED) -o 
+ ((ADJ $ ^) PRED)_e -o ((ADJ $ ^) PRED)). 
+It is possible to combine different premise encodings (embedded 
+and string-based) in the same grammar."
+   GLUE-ADJ-MODIFIER(M) =
+	  @(GLUE-MODIFIER1 (^ PRED) e ^ t ((ADJ $ ^) PRED) e ((ADJ $ ^) PRED) t M).
+ 
+"General template for one-place modifiers, e.g. adjectives"
+  GLUE-MODIFIER1(MODARG MODARGTY MODRES MODRESTY HEADARG HEADARGTY HEADRES HEADRESTY M) =
+         "Modifier"
+         @(GLUE-RESOURCE MODARG (%mcm ARG1 ARG1) MODARGTY)
+         @(GLUE-RESOURCE MODRES (%mcm ARG1) MODRESTY)
+         "Head"
+         @(GLUE-RESOURCE HEADARG (%mcm ARG2 ARG1) HEADARGTY)
+         @(GLUE-RESOURCE HEADRES (%mcm ARG2) HEADRESTY)
+	 "Result"
+         @(GLUE-RESOURCE HEADARG (%mcm ARG3) HEADARGTY)
+         @(GLUE-RESOURCE HEADRES %mcm HEADRESTY)
+	 @(GLUE-MEANING %mcm M) 
+	 %mcm $ (^ GLUE).
+	 
+"Special template for generalized quantifiers like 'every'."
+"M: (((^ PRED)_e -o (^ PRED)_t) -o AF%scope_t.((^_e -o F%scope_t) -o F%scope_t))"
+   GLUE-QUANT-MC(M) =
+          (%mc ARG01) = M
+	  (%mc ARG02) = `:`(`(
+	  (%mc ARG03) = (^ PRED)
+	  (%mc ARG04) = `_e`-o
+	  (%mc ARG05) = (^ PRED)
+	  (%mc ARG06) = `_t`)`-oAF
+	  (%mc ARG07) = %scope
+	  (%mc ARG08) = `_t`.`(`(
+	  (%mc ARG09) = ^
+	  (%mc ARG10) = `_e`-oF
+	  (%mc ARG11) = %scope
+	  (%mc ARG12) = `_t`)`-oF
+	  (%mc ARG13) = %scope
+	  (%mc ARG14) = `_t`)`)
+	  %mc $ (^ GLUE).
+
+"The base definitions for the embedded encoding.
+GLUE-RESOURCE is a term: a linguistic resource R and a type TY.
+GLUE-MEANING provides the meaning (left-hand side) of the full meaning constructor."
+
+"The structure TypedRES has the value R for RESOURCE, and the value TY for TYPE."
+   GLUE-RESOURCE(R TypedRES TY) = 
+	  (TypedRES RESOURCE) = R
+	  (TypedRES TYPE) = TY.
+
+"The meaning M appears as the value of the attribute MEANING in the structure TypedRES."
+   GLUE-MEANING(TypedRES M) =  
+	  (TypedRES MEANING) = M.
+
+----
