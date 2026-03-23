@@ -23,7 +23,7 @@ This repository contains:
 - The latest version of the Glue Semantics Workbench
 - The latest version of LiGER (Linguistic Graph Expansion and Rewriting) 
 - XLE+Glue_web: A browser-based user interface for the GSWB and LiGER
-- Sample Grammars for XLE+Glue
+- Sample Grammars for XLE+Glue (There are two encoding styles for grammars, an avm-based encoding and a "literal" encoding)
 - An interface to the Vampire theorem prover that is integrated in the web interface
 - A docker compose file for running the system on a local docker container
 
@@ -64,6 +64,40 @@ The system can be shut down by using the keyboard command _ctrl+c_ in the comman
 
 For further details, a documentation document will be made available soon. 
 
+## Recommended settings for testing grammars (to be set in the xlerc file)
+
+We demonstrate two groups of grammars: Those using the avm-based encoding and those using the "literal" encoding. The avm-based grammars can be found in grammars-fstr-notation and the grammars using the literal notation are found in grammars-literal-notation. These grammars are stored in separate folders as they produce auxiliary files which would clutter the folder otherwise. We recommend using this approach for all literal-notation grammars.
+Some branches might contain an additional demo folder containing a grammar demonstrating the capabilities of the respective branch. Here, we demonstrate the inference grammar. 
+
+F-structure encoding
+
+| Grammar                  | Prover | semParser | processDRT | mcEncoding | transfer |
+|--------------------------|--------|-----------|------------|------------|----------|
+| glue-basic               | 0      | 0         | 0          | 0          | 0        |
+| glue-basic-semparser     | 0      | 1         | 0          | 0          | 0        |
+| glue-basic-semstr        | 0      | 0         | 0          | 0          | 0        |
+| glue-basic-flat-encoding | 0      | 0         | 0          | 0          | 0        |
+
+Literal encoding
+
+
+| Grammar                  | Prover | semParser | processDRT | mcEncoding | transfer |
+|--------------------------|--------|-----------|------------|------------|----------|
+| glue-basic               | 0      | 0         | 0          | 1          | 0        |
+| glue-basic-drt           | 0      | 2         | 1          | 1          | 0        |
+
+
+Demo
+
+
+| Grammar             | Prover | semParser | processDRT | mcEncoding | transfer |
+|---------------------|--------|-----------|------------|------------|----------|
+| main_fracas_grammar | 1      | 2         | 1          | 1          | 0        |
+
+
+
+These are the settings intended for the different grammars. Using different settings might cause problems.
+Generally, the HEPPLE prover (0) allows for linear quantification, while the LEV prover allows for more efficient solving, including the noscope flag.
 
 ## Known issues
 
