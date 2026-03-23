@@ -10,7 +10,7 @@ This repository contains:
 - XLE+Glue: A simple user interface for using the Glue Semantics Workbench with XLE
 - The latest version of the Glue Semantics Workbench
 - The latest version of LiGER (Linguistic Graph Expansion and Rewriting)
-- Sample Grammars for XLE+Glue
+- Sample Grammars for XLE+Glue (There are two encoding styles for grammars, an avm-based encoding and a "literal" encoding)
 
 ## Requirements
 
@@ -26,7 +26,9 @@ The system is fully integrated in XLE and is accessible when starting XLE from t
 It is recommended that grammars are stored in separate folders in the /grammars directory. to avoid clutter. However, grammars can be stored anywhere on the computer as long as their path is set correctly in the xlerc file. 
 
 
-## Recommended settings (to be set in the xlerc file)
+## Recommended settings for testing grammars (to be set in the xlerc file)
+
+We demonstrate two groups of grammars: Those using the avm-based encoding and those using the "literal" encoding. The avm-based grammars can be found in grammars-fstr-notation and the grammars using the literal notation are found in grammars-literal-notation. These grammars are stored in separate folders as they produce auxiliary files which would clutter the folder otherwise. We recommend using this approach for all literal-notation grammars.
 
 F-structure encoding
 
