@@ -24,7 +24,7 @@ This repository contains:
 - XLE+Glue: A simple user interface for using the Glue Semantics Workbench with XLE
 - The latest version of the [Glue Semantics Workbench](https://github.com/Mmaz1988/GlueSemWorkbench_v2) (a set of theorem provers)
 - The latest version of [LiGER](https://github.com/Mmaz1988/liger) (Linguistic Graph Expansion and Rewriting) 
-- XLE+Glue_web: A browser-based user interface for the GSWB and LiGER
+- [XLE+Glue_web](https://github.com/Mmaz1988/xleplusglue-client): A browser-based user interface for the GSWB and LiGER
 - Sample Grammars for XLE+Glue (There are two encoding styles for grammars, an avm-based encoding and a "literal" encoding)
 - An interface to the [Vampire](https://vprover.github.io/) theorem prover that is integrated in the web interface
 - A docker compose file for running the system on a local Docker container
