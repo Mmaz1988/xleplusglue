@@ -61,8 +61,7 @@ NP --> "either a full NP or a PRON"
                          {"%LOCAL $ (^ ADJUNCT) The adjective is in the adjunct set of the NP"
                          (^ ADJUNCT $)=%LOCAL "BONUS instantiation (Set magic)"
                          (%LOCAL ADJUNCT $) = %COMP "The OBL-COMP is in the adjunct set of the adjective (i.e., modifying the adjective)"
-                         "%COMP $ (%LOCAL ADJUNCT)"
-                          |
+                         %COMP $ (%LOCAL ADJUNCT) |
                          %COMP $ (^ ADJUNCT)
                          (^ ADJUNCT $)=%COMP }
 
