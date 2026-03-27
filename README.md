@@ -1,33 +1,31 @@
-# XLE+Glue
+# XLE+Glue with inference capabilities
 
-This is the main branch of XLE+Glue. It serves as a landing page for people interested in the tool set. However, specific uses of the tool set are developed in different branches of this repository. Thus, choosing the right branch can lead to a more focused experience in working with XLE+Glue. 
+This branch contains the XLE+Glue tools required for inference based experiments and receives corresponding updates before they are added to the main branch.
 
 # Branches
 
 The three following branches provide access to three main variants of XLE+Glue. 
 
- - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/lfg2026_pragmatic_parsing)
- - [Local XLE+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_xlepluglue_local)
+ - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/lfg2026_pragmatic_parsing) (CURRENT) 
  - [UD+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_udplusglue)
+ - [Local XLE+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_xlepluglue_local)
 
-The _XLE+Glue with Inference_ branch corresponds to the main branch of this repository, providing the most comprehensive demonstration of the XLE+Glue toolset, including the web interface and inference.  The _Local XLE+Glue_ is a more compact version of XLE+Glue that omits the reasoning component (adding support for this is a future goal), and the Docker architecture, including the Web interface. It is designed to allow users to use XLE+Glue within the original user interface of the XLE. 
+The _XLE+Glue with Inference_ branch corresponds to the main branch of this repository providing the most comprehensive demonstration of the XLE+Glue toolset including inference. The _UD+Glue_ branch substitutes the XLE for Stanza's Universal Dependency parser which is couched in a Docker container. Thus, no extra installation is needed. The _Local XLE+Glue_ is a more compact version of XLE+Glue that ommits the reasoning component (adding support for this is a future goal), and the Docker architecture including the Web interface. It is designed to allow users to use XLE+Glue within the original user interface of the XLE. 
 
-The _UD+Glue_ branch is special in that it does not use XLE. It replaces the XLE with Stanza's Universal Dependency parser, which is packaged in a Docker container. Thus, no extra installation is needed. However, as the system still shares many properties with XLE+Glue, we also mention it here. For more information, see the corresponding branch. 
-
-The main branches mentioned here may contain sub-branches with demos for specific events/papers. From these, substantial updates are incorporated into the main branches regularly.
+The corresponding branches contain sub-branches with demos for specific events/papers. From these, substantial updates are incorporated into the main braches regularly.
 
 
 ## Intro
 
-This repository provides a toolset for working with XLE+Glue. Furthermore, it provides the means to create a Docker container for running the components in a virtual environment.
+This repository serves to provide a toolset for working with XLE+Glue. Furthermore, it provides the means to create a Docker container for running the components in a virtual environment.
 This repository contains:
 - XLE+Glue: A simple user interface for using the Glue Semantics Workbench with XLE
-- The latest version of the [Glue Semantics Workbench](https://github.com/Mmaz1988/GlueSemWorkbench_v2) (a set of theorem provers)
-- The latest version of [LiGER](https://github.com/Mmaz1988/liger) (Linguistic Graph Expansion and Rewriting) 
-- [XLE+Glue_web](https://github.com/Mmaz1988/xleplusglue-client): A browser-based user interface for the GSWB and LiGER
+- The latest version of the Glue Semantics Workbench
+- The latest version of LiGER (Linguistic Graph Expansion and Rewriting) 
+- XLE+Glue_web: A browser-based user interface for the GSWB and LiGER
 - Sample Grammars for XLE+Glue (There are two encoding styles for grammars, an avm-based encoding and a "literal" encoding)
-- An interface to the [Vampire](https://vprover.github.io/) theorem prover that is integrated in the web interface
-- A docker compose file for running the system on a local Docker container
+- An interface to the Vampire theorem prover that is integrated in the web interface
+- A docker compose file for running the system on a local docker container
 
 ## Requirements
 
@@ -54,7 +52,7 @@ For the system to work properly, you need access to the XLE binaries for Linux. 
 
 ## Running the system 
 
-The system can be started from the command line by navigating to the _./Docker_ folder within the repository. There, you need to execute the following command:
+The system can be started from the command line by navigating to the _./Docker_ folder within the repository. There you need to execute the following command:
 
 ```
 docker compose up --build
@@ -65,10 +63,6 @@ The system has been tested with Firefox and Chrome.
 The system can be shut down by using the keyboard command _ctrl+c_ in the command line where the docker container is running.
 
 For further details, a documentation document will be made available soon. 
-
-## Using the local version
-
-The local version requires users to have XLE installed on their system. It can then be used by running xle using the xlerc file provided in this repository. In the xlerc file, users can specify which grammar to use and which LiGER rule files to use, in case they want to produce a grammar that uses both co-description and description-by-analysis.  
 
 ## Recommended settings for testing grammars (to be set in the xlerc file)
 
