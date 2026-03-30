@@ -6,7 +6,7 @@
 XLE+Glue is developed actively on two branches:
 
  - [XLE+Glue with Inference](https://github.com/Mmaz1988/xleplusglue/tree/lfg2026_pragmatic_parsing)
- - [XLE+UD](https://github.com/Mmaz1988/xleplusglue/tree/2025_xleplusud) (CURRENT)
+ - [UD+Glue](https://github.com/Mmaz1988/xleplusglue/tree/2025_xleplusud) (CURRENT)
 
 As the name suggests, the different versions are interfaced with different syntactic parsers. Please use a version accordingly. 
 In the future, the main branch will coincide with the XLE+Glue with Inference branch, as it will be the main version of XLE+Glue.
