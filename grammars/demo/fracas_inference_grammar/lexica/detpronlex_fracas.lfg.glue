@@ -121,12 +121,12 @@ that PRON *      (^PRON-TYPE) = rel
 the 	  D *
           @(SPEC-DET-PRED the)
           (^DEF) = +        "encoded as det-type in inness"
-	      @DEFAULT-EX-QUANT-NOSCOPE.
+	      @DEFAULT-EX-QUANT.
 
 The 	  D *
           @(SPEC-DET-PRED the)
           (^DEF) = +
-	      @DEFAULT-EX-QUANT-NOSCOPE .
+	      @DEFAULT-EX-QUANT.
 
 
 a 	  D * @(SPEC-DET-PRED a)

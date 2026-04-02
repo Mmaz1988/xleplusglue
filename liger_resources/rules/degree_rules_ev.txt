@@ -33,8 +33,21 @@
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE lam(P,merge(drs([D:d],[]),merge(drs([],[greater(D,th_strip(%a)('strip(%x)'))]),app(P,D)))) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
-//Rules for comparative uses
-#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p &
+//Comparative rule for attributive uses
+#a ATYPE 'attributive' & #a DEGREE 'comparative' & #a PRED %p &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
+==>
+#o DEGREE #x & #o DEGREE-HOLDER #y &
+#d GLUE lam(P,lam(Q,lam(E,
+		merge(drs([D:d],[]),merge(app(app(P,D),E),drs([],[not(merge(drs([V],[]),app(app(Q,D),V)))])))))) :
+		((#d_d -o (#b_e -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_e -o #b_t))) || noscope &
+#m GLUE lam(D,lam(E,drs([],[rel(strip(%p),E,D)]))) : (#x_d -o (#y_v -o #m_t)) &
+#n GLUE lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) :
+		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))).
+
+//Comparative rule for predicative uses
+#a ATYPE 'predicative' & #a DEGREE 'comparative' & #a PRED %p &
 #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
 #a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
 ==>
