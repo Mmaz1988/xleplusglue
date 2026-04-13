@@ -81,15 +81,16 @@
 
 
    CPrel --> PRON:  (! PRON-TYPE) =c rel
-                    %rel = !
-                    (^ {SUBJ | OBJ}) = %rel
-                    (^ TOPIC) = %rel
+                    (^ {SUBJ | OBJ}) = !
+                    (^ TOPIC) = !
               	    ((ADJUNCT ^) PERS)  = (^TOPIC PERS)
               	    ((ADJUNCT ^) NUM)  = (^TOPIC NUM);
           (NP: (^ SUBJ) = !
-           (^ OBJ) = %rel)
+               (^ OBJ) = (^ TOPIC))
 		 "from Pargram: (^ TOPIC-REL {(OBJ)|(OBL-PART)} [SPEC (POSS)]*) = (^ PRON-REL)"
  	  VP[fin].
+
+"Every gift that was sent to Sue by John was red"
 
    CPto --> PARTinf VP[base].
 

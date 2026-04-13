@@ -239,6 +239,8 @@ give 	  V-S XLE @(DITRANS-EV give).
 
 contribute V-S XLE @(DITRANS-EV contribute).
 
+send V-S XLE @(DITRANS-EV send).
+
 
 "comes: eg. 'comes cheap'"
 
@@ -354,19 +356,20 @@ be   AUX[base] *  (^VFORM) = inf
               @(EVENT be)
               { @(ARG1 (^ PREDLINK)) | @(ARG1 (^ SUB J))}" "EX. There was an Italian vs. the dog was fast"
               ;
-     AUX[prog,base] *  (^VFORM) = inf
-                       "@(PERF -_)".
+     AUX[prog,base] *  (^VFORM) = inf.
 
 
 
 been     AUX[prog,base] *  (^VFORM) = inf.
+
+
                             "@(PERF +_)"
 
 
 "modals"
 
 
-can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
+can    AUX[modal,fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
                 @(EVENT %stem)
                  %s = s::(^ XCOMP)
                  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
@@ -378,7 +381,7 @@ can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
               @(PERF -_)
               @VPRESMODAL.
 
-could    AUX[fin] *  (^PRED) = 'could<(^SUBJ)(^XCOMP)>'
+could    AUX[modal,fin] *  (^PRED) = 'could<(^SUBJ)(^XCOMP)>'
                 @(EVENT %stem)
                  %s = s::(^ XCOMP)
                  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
@@ -390,7 +393,7 @@ could    AUX[fin] *  (^PRED) = 'could<(^SUBJ)(^XCOMP)>'
               @(PERF -_)
               @VPRESMODAL.
 
-would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
+would    AUX[modal,fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
                 @(EVENT %stem)
                  %s = s::(^ XCOMP)
                  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
@@ -402,7 +405,7 @@ would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
               @(PERF -_)
               @VPRESMODAL.
 
-should    AUX[fin] *  (^PRED) = 'should<(^SUBJ)(^XCOMP)>'
+should    AUX[modal,fin] *  (^PRED) = 'should<(^SUBJ)(^XCOMP)>'
                 @(EVENT %stem)
                  %s = s::(^ XCOMP)
                  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
@@ -416,10 +419,11 @@ should    AUX[fin] *  (^PRED) = 'should<(^SUBJ)(^XCOMP)>'
 
 
 did AUX[fin] * @VPAST;
-    AUXdo[fin] * @VPAST.
+  "Not sure if do support can appear in a nonfinite clause"
+    AUXdo * @VPAST.
 
-does AUXdo[fin] * @(TENSE pres)
-	                @(MOOD indicative).
+does AUXdo * @(TENSE pres)
+	         @(MOOD indicative).
 
 "For perfect forms"
 

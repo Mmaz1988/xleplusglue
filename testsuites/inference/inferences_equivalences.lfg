@@ -14,7 +14,7 @@ The cake was eaten.
 Mary ate the cake.
 ====
 The cake was not eaten by Mary.
->>> 0
+>>> -1
 }
 
 
@@ -31,7 +31,7 @@ Mary got a dog to the book.
 {
 John gave the monkey a banana.
 ====
-John gave a banana the the monkey.
+John gave a banana to the monkey.
 >>> 1
 }
 

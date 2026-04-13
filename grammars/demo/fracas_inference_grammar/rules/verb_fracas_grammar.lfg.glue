@@ -2,15 +2,7 @@ VERB ENGLISH RULES (1.0)
 
 
 VP[_form $ {cop fin perf prog base }] --> {VPv[_form] | VPperf[perf,_form] | VPprog[prog,_form] |  VPcop[_form]
-                                            | VPfut[fut,_form] | VPpass[pass,_form] | VPdo[_form]}.
-
-
-
-VPpass[pass,_form] --> (NP: (^ SUBJ) = !) "Why is this here"
-                       { AUX[pass,_form] |
-                       e: _form = nonfin }
-                       NEG*: ! $ (^ ADJUNCT);
-                       VPv[pass].
+                                            | VPfut[fut,_form] | VPpass[pass,_form] | VPmodal[modal,_form] | VPdo }.
 
 VPv[_form] -->
                       e: {
@@ -82,7 +74,7 @@ VPv[_form] -->
               PP: (^ PREDLINK) = ! "EX. ... is on the table"
               (! PTYPE) = sem
               |
-              VP[base]: (^ XCOMP) = !
+              VPv[base]: (^ XCOMP) = !
               |
               VPprog[prog,_form]: (^ XCOMP) = !
               |
@@ -96,6 +88,10 @@ VPfut[fut,_form] -->  AUX[fut,_form]
                       NEG*: ! $ (^ ADJUNCT);
                       VP[base].
 
+VPmodal[modal,_form] -->  AUX[modal,_form]
+                          NEG*: ! $ (^ ADJUNCT);
+                          VP[base]: (^ XCOMP) = !.
+
 VPprog[prog,_form] -->  AUX[prog,_form]
                         NEG*: ! $ (^ ADJUNCT);
                          VPv[prog].
@@ -104,10 +100,15 @@ VPperf[perf,_form] -->  AUX[perf,_form]
                          { VPv[perf]: (^ PARTICIPLE) =c past |
                            VPprog[prog,base] }.
 
+VPdo           -->  AUXdo
+                    NEG*: ! $ (^ ADJUNCT);
+                    VPv[base].
 
-VPdo[_form]        --> AUXdo[_form]
-                        NEG*: ! $ (^ ADJUNCT);
-                        VPv[base].
+VPpass[pass,_form] --> (NP: (^ SUBJ) = !) "Why is this here"
+                       { AUX[pass,_form] |
+                       e: _form = nonfin }
+                       NEG*: ! $ (^ ADJUNCT);
+                       VPv[pass].
 
 
 ----

@@ -95,10 +95,10 @@ who PRON *      (^PRON-TYPE) = rel
                 (^PRED) = 'PRO'
                 {(^NUM) =sg |(^NUM) = pl}
                 (s::^ TYPE) = entity
-                s::(ADJUNCT TOPIC ^) = %sem
                 (TOPIC ^) = %rel
+                s::(ADJUNCT %rel) = %sem
                 (s::%rel SIT) = %sit
-                 s::(%rel {SUBJ | OBJ}) = %arg
+                 s::^ = %arg
                  :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
                       ((%sem_e -o %sem_t) -o ((%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope.
 
@@ -107,12 +107,12 @@ that PRON *      (^PRON-TYPE) = rel
                 (^PRED) = 'PRO'
                 {(^NUM) =sg |(^NUM) = pl}
                 (s::^ TYPE) = entity
-                s::(ADJUNCT TOPIC ^) = %sem
-                    (TOPIC ^) = %rel
-                    (s::%rel SIT) = %sit
-                    s::(%rel {SUBJ | OBJ}) = %arg
-                :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
-                   ((%sem_e -o %sem_t) -o ((%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope,
+                (TOPIC ^) = %rel
+                s::(ADJUNCT %rel) = %sem
+                (s::%rel SIT) = %sit
+                 s::^ = %arg
+                 :$ lam(P,lam(Q,lam(X,merge(app(P,X),app(Q,X))))) :
+                      ((%sem_e -o %sem_t) -o ((%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope,
                    ;ETC.
 
 

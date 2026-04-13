@@ -4,7 +4,7 @@ set-character-encoding stdio utf-8
 # performance vars
 set max_xle_scratch_storage 1000
 set start_skimming_when_scratch_storage_exceeds 1000
-#set print_subtrees 1
+set print_subtrees 1
 
 # set timeout lower; amounts are in seconds
 set timeout 10
@@ -45,6 +45,8 @@ proc tr {} {parse-testfile [relpath testsuites/parsing/fracas_relative_testsuite
 proc tm {} {parse-testfile [relpath testsuites/parsing/marks-testsuite.lfg] }
 
 proc tn {} {parse-testfile [relpath testsuites/negation_testsuite.lfg] }
+
+proc ts {} {parse-testfile [relpath testsuites/parsing/syntactic_equivalences.lfg] }
 
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
