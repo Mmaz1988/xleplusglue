@@ -10,5 +10,10 @@
 #p PRED %p & strip(%p) == 'have' & #p OBJ #o ==>
 #p AXIOM all(X,all(Y,imp(and(have(X),arg2(X,Y)),some(U,some(V,(and(be(U),and(arg1(U,V),arg2(U,Y))))))))).
 
+// if an adjective is true of some entity, it is also true that there exists an eventuality such that that entity has that property
+#a ATYPE %u & #a PRED %p & #a ^(in_set>ADJUNCT) #n ==>
+#a ATTR-ADJ-AX #b & #b AXIOM all(X,imp(strip(%p)(X),some(Y,and(be(Y),and(arg1(Y, X), strip(%p)(Y)))))).
+
+// If there is some eventuality that asserts that some adjective is true of some event, than it is also true of the events's first argument
 #a ATYPE %u & #a PRED %p ==>
-#a AXIOM all(X,all(Y,imp(and(arg1(X, Y), strip(%p)(X)), strip(%p)(Y)))).
+#a PRED-ADJ-AX #b & #b AXIOM all(X,all(Y,imp(and(arg1(X, Y), strip(%p)(X)), strip(%p)(Y)))).

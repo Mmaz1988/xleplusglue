@@ -210,13 +210,14 @@ def single_vampire_request(request):
 
     # if logic_type is zero then use fof, otherwise use tff
     logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
-    logger.info("Using logic type: %s", logic_type)
+    model_building = True if request.vampire_preferences['model_building'] == True  else False
+    logger.info("Logic type=%s", logic_type)
 
     # use proof search based on model building in fof and mixed search in tff
     vampire_mode = []
-    if logic_type == "fof":
+    if logic_type == "fof" and model_building:
         vampire_mode = ["-sa", "fmb"]
-    elif logic_type == "tff":
+    else:
         vampire_mode = ["--mode", "casc"]
 
     # CHeck if vampire preferences have max_duration with default 45 seconds
@@ -235,7 +236,7 @@ def single_vampire_request(request):
     if not request.context:
         new_context = hypotheses
         new_active_indices = [i for i in range(len(hypotheses))]
-        logger.info("No context provided. Returning hypotheses.")
+        logger.info("No context provided; returning hypotheses")
 
     else:
         logger.info("Context provided. Processing hypotheses.")
@@ -313,13 +314,14 @@ def multiple_vampire_request(request):
 
     # if logic_type is zero then use fof, otherwise use tff
     logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
-    logger.info("Using logic type: %s", logic_type)
+    model_building = True if request.vampire_preferences['model_building'] == True  else False
+    logger.info("Logic type=%s", logic_type)
 
     # use proof search based on model building in fof and mixed search in tff
     vampire_mode = []
-    if logic_type == "fof":
+    if logic_type == "fof" and model_building:
         vampire_mode = ["-sa", "fmb"]
-    elif logic_type == "tff":
+    else:
         vampire_mode = ["--mode", "casc"]
 
     # CHeck if vampire preferences have max_duration with default 45 seconds
@@ -350,7 +352,6 @@ def multiple_vampire_request(request):
                         for reading2 in second:
                             merged = mergeDrs(reading1, reading2)
                             for drs in merged:
-                                logger.info("Proccesing drs: %s", drs)
                                 if drs not in merged_list:
                                     merged_list.append(drs)
                                     logger.info("Updated merged list: %s", merged_list)
@@ -443,6 +444,4 @@ def wrap_hyphenated_words(text):
 #     pattern = r"fof\(\w+,\w+,(.*?)\)\s*"
 #     match = re.search(pattern, text)
 #     return match.group(1)
-
-
 

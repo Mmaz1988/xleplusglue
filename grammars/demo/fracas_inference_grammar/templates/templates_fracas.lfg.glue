@@ -72,13 +72,6 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 
    INTRANS-OBL(P) = (^ PRED) = 'P<(^SUBJ)(^OBL)>'.
 
-   "FOL + lambda calculus"
-   OPT-TRANS(P) = { (^ PRED) = 'P<(^SUBJ)(^OBJ)>' "P is a variable"
-	    :$ [/x_e.[/y_e.P(x,y)]] : (s::(^SUBJ)_e -o (s::(^OBJ)_e -o s::^_t)),
-	          | (^ PRED) = 'P<(^SUBJ)>'
-		  :$ [/x_e.P(x)] : (s::(^ SUBJ)_e -o s::^_t),
-		  }.  "this template takes one argument:  P"
-
    "lambda DRT"
    OPT-TRANS-EV(P) = { @(TRANS-EV P)
 	   |

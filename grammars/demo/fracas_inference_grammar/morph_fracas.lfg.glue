@@ -106,8 +106,7 @@ MORPH   ENGLISH   LEXICON (1.0)
 		   @(PROG -_)
 		   @(PERF -_).
 
-+PastPerf TNS XLE @PASTP
-                  {(^ PASSIVE) = +}. "PASSIVE should be optional"
++PastPerf TNS XLE @PASTP. "PASSIVE should be optional"
 
 +Prog 	  ASP XLE @VPROG.
 

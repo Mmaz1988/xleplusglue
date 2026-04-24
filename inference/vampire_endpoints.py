@@ -38,7 +38,7 @@ def process_vampire_request_single(request: VampireRequest):
         return single_vampire_request(request)
 
     except Exception as e:
-        logger.error("Exception occurred", exc_info=True)
+        logger.error("Unhandled exception in single request", exc_info=True)
         if os.path.exists("tmp"):
             shutil.rmtree("tmp")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
@@ -50,12 +50,12 @@ def process_vampire_request_multiple(request: VampireMultipleRequest):
     API endpoint to process vampireRequest.
     """
     try:
-        logger.info("Received request: " + str(request))
+        logger.info("Received multiple request: items=%d", len(request.nli_items))
 
         return multiple_vampire_request(request)
 
     except Exception as e:
-        logger.error("Exception occurred", exc_info=True)
+        logger.error("Unhandled exception in multiple request", exc_info=True)
         if os.path.exists("tmp"):
             shutil.rmtree("tmp")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

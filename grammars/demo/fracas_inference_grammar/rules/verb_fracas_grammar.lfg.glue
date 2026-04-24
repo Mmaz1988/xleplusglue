@@ -13,8 +13,9 @@ VPv[_form] -->
                              (^ TNS-ASP PROG) =c +
                               |
                             _form = pass
-                            (^ PASSIVE) = +
-                            (^ PARTICIPLE) =c past }
+                            (^ PASSIVE) =c +
+                            (^ PARTICIPLE) =c past
+                             @(OT-MARK pass)}
                             |
                               _form = base
                              (^ VFORM) =c inf

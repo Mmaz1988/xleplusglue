@@ -374,4 +374,3 @@ def determine_informativity(data):
         return True, False
 
     return False, False
-

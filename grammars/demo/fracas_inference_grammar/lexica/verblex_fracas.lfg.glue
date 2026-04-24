@@ -127,6 +127,7 @@ wait 	  V-S XLE { @(INTRANS-EV wait) |
 		(^ OBL PFORM) =c on
 		(^ PSEM) =c nosem }.
 
+yawn       V-S XLE @(INTRANS-EV %stem).
 
 "Optional transitives"
 
@@ -295,14 +296,14 @@ was   AUX[fin] *  @BE-TRANS-EV
            @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
-		   {@S-AGR @(OT-MARK Be-3pl)
+		   {@S-AGR
 		   |
 		   (^ SUBJ PERS) = 2
 	       (^ SUBJ NUM) = sg};
        AUX[pass,fin] * @VPAST
        		           @S-AGR
        		           (^VFORM) = fin
-       		           (^PASSIVE) = +;
+       		           (^PASSIVE) =c +;
        AUX[prog,fin] * @VPAST
                       @S-AGR
                       @(PERF -_)
