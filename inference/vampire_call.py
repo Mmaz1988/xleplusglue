@@ -147,6 +147,10 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
 
     except subprocess.TimeoutExpired as e:
         logger.warning("Vampire process timed out after %d seconds", timeout)
+        result["Termination Reason"] = "Timeout"
+        result["Termination Phase"] = "Timeout"
+        result["Finite Model Found"] = "Unknown"
+        result["SZS Status"] = "Timeout"
         if e.stdout:
             logger.warning("Partial STDOUT before timeout:\n%s", e.stdout)
         if e.stderr:

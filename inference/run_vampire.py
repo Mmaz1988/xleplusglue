@@ -190,6 +190,21 @@ def conversion(formula,tptp_type="fof"):
     return new_fols, prologs
 
 
+def run_vampire_batch(ctx_tptp, hypothesis_tptp, axioms, logic_type, vampire_mode, max_duration, output_folder):
+    proof_files = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
+                                      output_folder=output_folder)
+    results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+
+    timeout_count = sum(1 for result in results if result.get("Termination Reason") == "Timeout")
+    if vampire_mode == ["-sa", "fmb"] and results and timeout_count > len(results) / 2:
+        logger.info("Timeout majority (%d/%d); retrying with casc", timeout_count, len(results))
+        proof_files = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
+                                          output_folder=output_folder)
+        results = massacer(output_folder, mode=["--mode", "casc"], timeout=max_duration, vampire_path="bin")
+
+    return proof_files, results
+
+
 #what a DRT input should look like
 #class Formula(BaseModel):
 #    formula: str
@@ -250,9 +265,15 @@ def single_vampire_request(request):
         for ctx in active_contexts:
             for hypothesis in hypotheses:
                 output_folder = "tmp/current/"
-                proof_files = generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
-                                        output_folder=output_folder)
-                results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+                proof_files, results = run_vampire_batch(
+                    ctx.tptp,
+                    hypothesis.tptp,
+                    request.axioms,
+                    logic_type,
+                    vampire_mode,
+                    max_duration,
+                    output_folder,
+                )
                 logger.debug("Vampire Results: %s", results)
 
                 consistent, informative, maxim_of_relevance = discourse_checks(data=results)
@@ -402,9 +423,15 @@ def multiple_vampire_request(request):
                 for fof_premise in fof_premises:
                     for fof_hypothesis in fof_hypotheses:
                         logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
-                        proof_files = generate_tptp_files(fof_premise, fof_hypothesis, axioms=nli_item['axioms'], logic=logic_type,
-                                    output_folder=output_folder)
-                        results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+                        proof_files, results = run_vampire_batch(
+                            fof_premise,
+                            fof_hypothesis,
+                            nli_item['axioms'],
+                            logic_type,
+                            vampire_mode,
+                            max_duration,
+                            output_folder,
+                        )
                         logger.debug("Vampire Results: %s", results)
 
                         consistent, informative, maxim_of_relevance = discourse_checks(data=results)
@@ -444,4 +471,3 @@ def wrap_hyphenated_words(text):
 #     pattern = r"fof\(\w+,\w+,(.*?)\)\s*"
 #     match = re.search(pattern, text)
 #     return match.group(1)
-
