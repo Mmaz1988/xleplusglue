@@ -100,7 +100,7 @@ PROPER-NOUN-SEM(P) = (s::^ TYPE) = entity
 
 DEF-NAME(P) = @(NAME-SCOPE ^ %n)
               :$ lam(Q,lam(R,merge(drs([X],[]),merge(app(Q,X),app(R,X))))) :
-              ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)) || noscope.
+              ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)).
 
 
 DEFAULT-ADJ-SEM(P)  = @(PRED P)

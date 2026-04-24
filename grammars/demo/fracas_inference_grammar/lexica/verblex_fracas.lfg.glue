@@ -111,6 +111,8 @@ get V-S XLE {@(DITRANS-EV %stem) |
 
 appear 	  V-S XLE @(INTRANS-EV %stem).
 
+bark 	  V-S XLE @(INTRANS-EV %stem).
+
 disappear V-S XLE @(INTRANS-EV %stem).
 
 laugh 	  V-S XLE @(INTRANS-EV %stem).

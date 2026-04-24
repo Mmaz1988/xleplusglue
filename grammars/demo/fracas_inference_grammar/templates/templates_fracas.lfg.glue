@@ -127,8 +127,8 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 	      ARG3 = (^ OBL-TO)
 	     |
 	      (^ DATIVE-SHIFT) =c +
-	      ARG3 = (^ OBJ)
-	      ARG2 = (^ OBJ2)
+	      ARG2 = (^ OBJ)
+	      ARG3 = (^ OBJ2)
 	    }
 	   |
 	    (^ PASSIVE) =c +
@@ -140,12 +140,12 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 	    }
 	    { 
 	      (^ DATIVE-SHIFT) =c -
-	      ARG2 = (^ SUBJ)
-	      ARG3 = (^ OBL-TO)
+	      ARG3 = (^ SUBJ)
+	      ARG2 = (^ OBL-TO)
 	     |
 	      (^ DATIVE-SHIFT) =c +
-	      ARG2 = (^ OBJ2)
-	      ARG3 = (^ SUBJ)
+	      ARG3 = (^ OBJ2)
+	      ARG2 = (^ SUBJ)
 	    }
 	  }.
 

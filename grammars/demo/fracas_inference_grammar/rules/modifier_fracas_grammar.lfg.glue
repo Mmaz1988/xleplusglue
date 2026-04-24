@@ -81,12 +81,12 @@
 
 
    CPrel --> PRON:  (! PRON-TYPE) =c rel
-                    (^ {SUBJ | OBJ}) = !
+                    (^ {SUBJ | OBJ | OBJ2}) = !
                     (^ TOPIC) = !
               	    ((ADJUNCT ^) PERS)  = (^TOPIC PERS)
               	    ((ADJUNCT ^) NUM)  = (^TOPIC NUM);
           (NP: (^ SUBJ) = !
-               (^ OBJ) = (^ TOPIC))
+               (^ {OBJ | OBJ2}) = (^ TOPIC))
 		 "from Pargram: (^ TOPIC-REL {(OBJ)|(OBL-PART)} [SPEC (POSS)]*) = (^ PRON-REL)"
  	  VP[fin].
 
