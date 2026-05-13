@@ -30,6 +30,7 @@ COPY inference/run_vampire.py /vampire/
 COPY inference/vampire_call.py /vampire/
 COPY inference/vampire_models.py /vampire/
 COPY inference/vampire_endpoints.py /vampire/
+COPY inference/vampire_redis_calls.py /vampire/
 
 COPY inference/requirements.txt /vampire/
 

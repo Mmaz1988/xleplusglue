@@ -12,6 +12,7 @@ import logging
 
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest, VampireMultipleResponse
+from vampire_redis_calls import save_last_session
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -441,15 +442,23 @@ def multiple_vampire_request(request):
                         check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance, proof_files=proof_files)
 
                         inference_checks.append(check)
+                        inference_results[id] = inference_checks
+                        try:
+                            save_last_session(VampireMultipleResponse(results=inference_results).dict())
+                        except Exception:
+                            logger.warning("Unable to persist last_session to Redis CRUD service", exc_info=True)
 
         inference_results[id] = inference_checks
 
-    result = VampireMultipleResponse(results=inference_results)
+    try:
+        save_last_session(VampireMultipleResponse(results=inference_results).dict())
+    except Exception:
+        logger.warning("Unable to persist final last_session to Redis CRUD service", exc_info=True)
 
     if os.path.exists("tmp"):
         shutil.rmtree("tmp")
 
-    return result
+    return {"status": "ok"}
 
 
 """

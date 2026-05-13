@@ -1,4 +1,19 @@
 services:
+  redis:
+    build:
+      dockerfile: Docker/Dockerfile-redis
+      context: ..
+    ports:
+      - '6379:6379'
+      - '8083:8083'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   liger:
     build:
       dockerfile: Docker/Dockerfile-liger
@@ -18,6 +33,10 @@ services:
     ports:
       - '8082:8082'
     privileged: true  # Add this to enable privileged mode
+    environment:
+      REDIS_API_URL: http://redis:8083
+    depends_on:
+      - redis
   gswb:
     build:
       dockerfile: Docker/Dockerfile-gswb
@@ -35,4 +54,5 @@ services:
         - liger
     restart: always
 
-
+volumes:
+  redis-data:

@@ -25,6 +25,7 @@ This repository contains:
 - XLE+Glue_web: A browser-based user interface for the GSWB and LiGER
 - Sample Grammars for XLE+Glue (There are two encoding styles for grammars, an avm-based encoding and a "literal" encoding)
 - An interface to the Vampire theorem prover that is integrated in the web interface
+- A Redis container for shared session data across modules
 - A docker compose file for running the system on a local docker container
 
 ## Requirements
@@ -59,6 +60,10 @@ docker compose up --build
 ```
 This will start the system and provide access to the browser-based user interface. It is hosted on _http://localhost:80_ 
 The system has been tested with Firefox and Chrome. 
+
+Redis is available to the other containers on the compose network at `redis:6379`. It starts with a `last_session` key containing a JSON string, so modules can read and overwrite that state as needed.
+
+The Redis API is exposed on `http://localhost:8083`, including `GET /last_session`, `PUT /last_session`, and `GET /last_session_summary` for the default session.
 
 The system can be shut down by using the keyboard command _ctrl+c_ in the command line where the docker container is running.
 
@@ -102,8 +107,4 @@ Generally, the HEPPLE prover (0) allows for linear quantification, while the LEV
 ## Known issues
 
 - Due to XLE's and Vampire's architecture, the Docker-based XLE interface and the inference interface are a bit slow on ARM machines.
-
-
-
-
 
