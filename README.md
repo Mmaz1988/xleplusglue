@@ -61,7 +61,7 @@ docker compose up --build
 This will start the system and provide access to the browser-based user interface. It is hosted on _http://localhost:80_ 
 The system has been tested with Firefox and Chrome. 
 
-Redis is available to the other containers on the compose network at `redis:6379`. It starts with a `last_session` key containing a JSON string, so modules can read and overwrite that state as needed.
+Redis is available to the other containers on the compose network at `redis:6379`. It stores its AOF/RDB data in the host folder `./redis-data`, so session state survives container rebuilds.
 
 The Redis API is exposed on `http://localhost:8083`, including `GET /last_session`, `PUT /last_session`, and `GET /last_session_summary` for the default session.
 
@@ -107,4 +107,3 @@ Generally, the HEPPLE prover (0) allows for linear quantification, while the LEV
 ## Known issues
 
 - Due to XLE's and Vampire's architecture, the Docker-based XLE interface and the inference interface are a bit slow on ARM machines.
-

@@ -1,0 +1,77 @@
+import json
+import os
+from urllib import error, request
+
+
+def _crud_base_url():
+    return os.getenv("REDIS_API_URL", "http://redis:8083")
+
+
+def _call(path, method="GET", payload=None):
+    url = f"{_crud_base_url()}{path}"
+    data = None
+    headers = {}
+    if payload is not None:
+        data = json.dumps(payload).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+
+    req = request.Request(url, data=data, headers=headers, method=method)
+    with request.urlopen(req, timeout=10) as resp:
+        body = resp.read().decode("utf-8")
+        return json.loads(body) if body else None
+
+
+def load_last_session(session_key="last_session"):
+    try:
+        return _call(f"/last_session/{session_key}")
+    except error.URLError:
+        return {"results": {}}
+
+
+def save_last_session(payload, session_key="last_session"):
+    return _call(f"/last_session/{session_key}", method="PUT", payload=payload)
+
+
+def clear_last_session(session_key="last_session"):
+    return _call(f"/last_session/{session_key}", method="DELETE")
+
+
+def list_recent_sessions():
+    try:
+        return _call("/regression_sessions")
+    except error.URLError:
+        return []
+
+
+def load_regression_session(session_key):
+    try:
+        return _call(f"/regression_session/{session_key}")
+    except error.URLError:
+        return {}
+
+
+def save_regression_session(session_key, payload):
+    return _call(f"/regression_session/{session_key}", method="PUT", payload=payload)
+
+
+def delete_regression_session(session_key):
+    return _call(f"/regression_session/{session_key}", method="DELETE")
+
+
+def summarize_last_session(session_key="last_session"):
+    try:
+        return _call(f"/last_session/{session_key}/summary")
+    except error.URLError:
+        return {"item_count": 0, "proof_count": 0}
+
+
+def merge_and_save_last_session(session_key, payload):
+    existing = load_last_session(session_key)
+    existing_results = existing.get("results", {}) if isinstance(existing, dict) else {}
+    incoming_results = payload.get("results", {}) if isinstance(payload, dict) else {}
+
+    merged_results = dict(existing_results) if isinstance(existing_results, dict) else {}
+    if isinstance(incoming_results, dict):
+        merged_results.update(incoming_results)
+
+    return save_last_session({"results": merged_results}, session_key=session_key)

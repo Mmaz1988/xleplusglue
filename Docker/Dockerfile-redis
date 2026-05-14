@@ -1,0 +1,18 @@
+FROM python:3.9-slim
+
+WORKDIR /redis
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends redis-server && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY Redis/requirements.txt /redis/
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+COPY Redis /redis/Redis
+COPY Docker/redis-init.sh /usr/local/bin/redis-init.sh
+RUN chmod +x /usr/local/bin/redis-init.sh
+
+EXPOSE 6379 8083
+
+ENTRYPOINT ["/usr/local/bin/redis-init.sh"]

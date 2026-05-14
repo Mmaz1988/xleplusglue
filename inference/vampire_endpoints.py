@@ -10,7 +10,15 @@ import shutil
 import logging
 
 from vampire_models import VampireRequest, VampireMultipleRequest
-from vampire_redis_calls import clear_last_session, load_last_session, summarize_last_session
+from vampire_redis_calls import (
+    clear_last_session,
+    delete_regression_session,
+    list_recent_sessions,
+    load_last_session,
+    load_regression_session,
+    save_regression_session,
+    summarize_last_session,
+)
 
 app = FastAPI()
 # Enable CORS for all origins (Modify for security in production)
@@ -99,4 +107,40 @@ def delete_named_session(session_key: str):
         return {"status": "ok"}
     except Exception as e:
         logger.error("Unable to clear named session", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.get("/regression_sessions")
+def get_regression_sessions():
+    try:
+        return list_recent_sessions()
+    except Exception as e:
+        logger.error("Unable to list regression sessions", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.get("/regression_session/{session_key}")
+def get_regression_session(session_key: str):
+    try:
+        return load_regression_session(session_key)
+    except Exception as e:
+        logger.error("Unable to load regression session", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.put("/regression_session/{session_key}")
+def put_regression_session(session_key: str, payload: dict):
+    try:
+        return save_regression_session(session_key, payload)
+    except Exception as e:
+        logger.error("Unable to save regression session", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.delete("/regression_session/{session_key}")
+def delete_regression_session_endpoint(session_key: str):
+    try:
+        return delete_regression_session(session_key)
+    except Exception as e:
+        logger.error("Unable to delete regression session", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

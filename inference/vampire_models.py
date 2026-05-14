@@ -29,6 +29,7 @@ class VampireMultipleRequest(BaseModel):
     nli_items: dict  # A dictionary mapping ids to VampireNLI objects
     pruning: bool
     vampire_preferences: dict
+    session_key: str = "last_session"
 
 class VampireNLI(BaseModel):
     premises: List[str]

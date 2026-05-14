@@ -7,7 +7,7 @@ services:
       - '6379:6379'
       - '8083:8083'
     volumes:
-      - redis-data:/data
+      - ../redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -53,6 +53,3 @@ services:
         - gswb
         - liger
     restart: always
-
-volumes:
-  redis-data:
