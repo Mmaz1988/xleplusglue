@@ -383,10 +383,11 @@ def multiple_vampire_request(request):
                 nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
 
         else:
-            readings = extract_drs_blocks(nli_item['premises'][0])
-            nli_item['premises'] = [[readings[0]]] if readings else [[]]
+            nli_item['premises'] = [extract_drs_blocks(nli_item['premises'][0])]
 
         premise_semantics = nli_item['premises'][0]
+        if request.pruning:
+            premise_semantics = [premise_semantics[0]]
         logger.info("Premise semantics: %s", premise_semantics)
 
         # This might require fixing if there are multiple hyptheses
@@ -394,6 +395,8 @@ def multiple_vampire_request(request):
         for item in nli_item['hypothesis']:
             hypothesis_semantics += extract_drs_blocks(item)
 
+        if request.pruning:
+            hypothesis_semantics = [hypothesis_semantics[0]]
         logger.info("Hypothesis semantics: %s", hypothesis_semantics)
 
         inference_checks = []
