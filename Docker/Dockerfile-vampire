@@ -1,5 +1,5 @@
-# Use the official Python base image
-FROM python:3.9
+# Use a slimmer Python base image
+FROM python:3.9-slim
 
 EXPOSE 8082
 
@@ -15,8 +15,11 @@ RUN apt-get update && \
 # Set the working directory
 WORKDIR /vampire
 
-# Copy the pre-built Vampire binary and make it executable
-COPY vampire_build/vampire /vampire/
+# Create the runtime bin directory explicitly.
+RUN mkdir -p /vampire/bin
+
+# Copy only the pre-built Vampire binary and make it executable
+COPY vampire_build/vampire/bin/vampire /vampire/bin/vampire
 RUN chmod +x /vampire/bin/vampire
 
 # Optionally install Python libraries (if needed)
@@ -47,6 +50,6 @@ COPY BB-DRT/boxer /vampire/boxer
 
 # Set the command to run the Python script
 #CMD ["python", "run_vampire.py"]
-CMD ["uvicorn", "vampire_endpoints:app", "--host", "0.0.0.0", "--port", "8082", "--reload"]
+CMD ["uvicorn", "vampire_endpoints:app", "--host", "0.0.0.0", "--port", "8082"]
 #CMD ["fastapi", "run", "run_vampire.py", "--port", "8082"]
 #uvicorn main:app --host 0.0.0.0 --port 80

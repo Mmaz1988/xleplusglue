@@ -11,7 +11,7 @@ import logging
 
 
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
-from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest, VampireMultipleResponse
+from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
 from vampire_redis_calls import merge_and_save_last_session
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -116,10 +116,7 @@ def inputToFof(inputstring):
 def conversion(formula,tptp_type="fof"):
     logger.info("Converting formula to TPTP: %s", formula)
     if os.path.exists("tmp"):
-        #delete contents if not empty
-        for file in os.listdir("tmp"):
-            os.remove(os.path.join("tmp", file))
-        os.rmdir("tmp")
+        shutil.rmtree("tmp")
     os.makedirs("tmp", exist_ok=True)
     #if formula contains app or merge, resolve first.
 
@@ -185,7 +182,7 @@ def conversion(formula,tptp_type="fof"):
 
     os.remove(resolve_file) if os.path.exists(resolve_file) else None
 
-    os.rmdir("tmp")
+    shutil.rmtree("tmp")
     print(f'Generated TPTP formulas: %s', new_fols)
 
     return new_fols, prologs
@@ -379,14 +376,15 @@ def multiple_vampire_request(request):
                                     logger.info("Updated merged list: %s", merged_list)
                 else:
                     merged = mergeDrs(first[0], second[0])
-                    for drs in merged:
-                        merged_list.append(drs)
+                    if merged:
+                        merged_list.append(merged[0])
 
                 #make merged_list first item of nli_items and ignore second item
                 nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
 
         else:
-            nli_item['premises'] = [extract_drs_blocks(nli_item['premises'][0])]
+            readings = extract_drs_blocks(nli_item['premises'][0])
+            nli_item['premises'] = [[readings[0]]] if readings else [[]]
 
         premise_semantics = nli_item['premises'][0]
         logger.info("Premise semantics: %s", premise_semantics)
@@ -444,16 +442,14 @@ def multiple_vampire_request(request):
                         inference_checks.append(check)
                         inference_results[id] = inference_checks
                         try:
-                            merge_and_save_last_session(getattr(request, "session_key", "last_session"), VampireMultipleResponse(results=inference_results).dict())
+                            merge_and_save_last_session(
+                                getattr(request, "session_key", "last_session"),
+                                {"results": {id: [item.dict() for item in inference_checks]}},
+                            )
                         except Exception:
                             logger.warning("Unable to persist last_session to Redis CRUD service", exc_info=True)
 
         inference_results[id] = inference_checks
-
-    try:
-        merge_and_save_last_session(getattr(request, "session_key", "last_session"), VampireMultipleResponse(results=inference_results).dict())
-    except Exception:
-        logger.warning("Unable to persist final last_session to Redis CRUD service", exc_info=True)
 
     if os.path.exists("tmp"):
         shutil.rmtree("tmp")

@@ -66,12 +66,4 @@ def summarize_last_session(session_key="last_session"):
 
 
 def merge_and_save_last_session(session_key, payload):
-    existing = load_last_session(session_key)
-    existing_results = existing.get("results", {}) if isinstance(existing, dict) else {}
-    incoming_results = payload.get("results", {}) if isinstance(payload, dict) else {}
-
-    merged_results = dict(existing_results) if isinstance(existing_results, dict) else {}
-    if isinstance(incoming_results, dict):
-        merged_results.update(incoming_results)
-
-    return save_last_session({"results": merged_results}, session_key=session_key)
+    return _call(f"/last_session/{session_key}/merge", method="PUT", payload=payload)

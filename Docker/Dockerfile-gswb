@@ -9,6 +9,7 @@ RUN apt-get install --yes swi-prolog
 
 # set jemalloc as default malloc in env variable
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+ENV JAVA_TOOL_OPTIONS=-Xmx512m
 
 # Copy from build stage to keep image size small
 COPY jars/gswb.jar app.jar

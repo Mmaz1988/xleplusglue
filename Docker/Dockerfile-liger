@@ -15,6 +15,7 @@ RUN apt-get update && \
 
 # set jemalloc as default malloc in env variable
 ENV LD_PRELOAD=libjemalloc.so.2
+ENV JAVA_TOOL_OPTIONS=-Xmx1g
 
 COPY BB-DRT/boxer /liger_resources/boxer
 COPY BB-DRT/lambdaDRT.pl /liger_resources/lambdaDRT.pl
