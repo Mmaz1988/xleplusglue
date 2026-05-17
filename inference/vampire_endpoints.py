@@ -16,6 +16,7 @@ from vampire_redis_calls import (
     list_recent_sessions,
     load_last_session,
     load_regression_session,
+    request_vampire_cancel,
     save_regression_session,
     summarize_last_session,
 )
@@ -88,6 +89,15 @@ def get_named_session_summary(session_key: str):
         return summarize_last_session(session_key)
     except Exception as e:
         logger.error("Unable to load named session summary", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.post("/vampire_progress/{session_key}/cancel")
+def cancel_vampire_progress(session_key: str):
+    try:
+        return request_vampire_cancel(session_key)
+    except Exception as e:
+        logger.error("Unable to request Vampire cancel", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 

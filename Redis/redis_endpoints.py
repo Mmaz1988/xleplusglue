@@ -12,6 +12,7 @@ from Redis.redis_store import (
     load_regression_session,
     list_recent_sessions,
     merge_last_session,
+    request_vampire_cancel,
     save_gswb_batch_session,
     save_last_session,
     save_vampire_progress,
@@ -147,6 +148,14 @@ def get_vampire_progress(session_key: str):
 def put_vampire_progress(session_key: str, payload: dict):
     try:
         return save_vampire_progress(session_key, payload)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/vampire_progress/{session_key}/cancel")
+def post_vampire_progress_cancel(session_key: str):
+    try:
+        return request_vampire_cancel(session_key)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 

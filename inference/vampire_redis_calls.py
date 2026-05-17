@@ -36,6 +36,25 @@ def clear_last_session(session_key="last_session"):
     return _call(f"/last_session/{session_key}", method="DELETE")
 
 
+def load_vampire_progress(session_key="last_session"):
+    try:
+        return _call(f"/vampire_progress/{session_key}")
+    except error.URLError:
+        return {"state": "idle", "cancelRequested": False}
+
+
+def save_vampire_progress(session_key, payload):
+    return _call(f"/vampire_progress/{session_key}", method="PUT", payload=payload)
+
+
+def request_vampire_cancel(session_key="last_session"):
+    return _call(f"/vampire_progress/{session_key}/cancel", method="POST")
+
+
+def clear_vampire_progress(session_key="last_session"):
+    return _call(f"/vampire_progress/{session_key}", method="DELETE")
+
+
 def list_recent_sessions():
     try:
         return _call("/regression_sessions")

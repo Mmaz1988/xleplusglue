@@ -208,6 +208,7 @@ def _default_vampire_progress(session_key):
         "sessionKey": session_key,
         "runId": None,
         "state": "idle",
+        "cancelRequested": False,
         "activeItemId": None,
         "completedItemIds": [],
         "changedItemIds": [],
@@ -234,6 +235,7 @@ def load_vampire_progress(session_key="last_session", client=None):
             payload.setdefault("sessionKey", session_key)
             payload.setdefault("runId", None)
             payload.setdefault("state", "idle")
+            payload.setdefault("cancelRequested", False)
             payload.setdefault("activeItemId", None)
             payload.setdefault("completedItemIds", [])
             payload.setdefault("changedItemIds", [])
@@ -257,6 +259,16 @@ def save_vampire_progress(session_key, payload, client=None):
     prepared["updatedAt"] = prepared.get("updatedAt") or _now_iso()
     client.set(_vampire_progress_key(session_key), json.dumps(prepared))
     return prepared
+
+
+def request_vampire_cancel(session_key, client=None):
+    client = client or redis_client()
+    progress = load_vampire_progress(session_key, client=client)
+    progress["state"] = "cancel_requested"
+    progress["cancelRequested"] = True
+    progress["updatedAt"] = _now_iso()
+    client.set(_vampire_progress_key(session_key), json.dumps(progress))
+    return progress
 
 
 def clear_vampire_progress(session_key, client=None):

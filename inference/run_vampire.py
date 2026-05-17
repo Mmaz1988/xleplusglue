@@ -12,7 +12,7 @@ import logging
 
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
-from vampire_redis_calls import merge_and_save_last_session
+from vampire_redis_calls import merge_and_save_last_session, load_vampire_progress, save_vampire_progress
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -21,6 +21,45 @@ vampire_command = 'vampire'
 
 # Retrieve the helper file path from the environment variable
 BOXER = os.getenv("BOXER_PATH", "boxer")
+
+
+class VampireCancelled(Exception):
+    pass
+
+
+def _vampire_session_key(request):
+    return getattr(request, "session_key", "last_session")
+
+
+def _is_vampire_cancel_requested(session_key):
+    try:
+        progress = load_vampire_progress(session_key)
+    except Exception:
+        return False
+
+    return bool(progress.get("cancelRequested")) or progress.get("state") == "cancel_requested"
+
+
+def _update_vampire_progress(session_key, **updates):
+    try:
+        progress = load_vampire_progress(session_key)
+    except Exception:
+        progress = {"sessionKey": session_key}
+
+    progress.update(updates)
+    progress.setdefault("completedItemIds", [])
+    progress.setdefault("changedItemIds", [])
+    progress.setdefault("itemResults", {})
+    progress.setdefault("itemCount", 0)
+    progress.setdefault("proofCount", 0)
+    progress.setdefault("totalItemCount", 0)
+    progress["sessionKey"] = session_key
+    save_vampire_progress(session_key, progress)
+
+
+def _ensure_not_cancelled(session_key):
+    if _is_vampire_cancel_requested(session_key):
+        raise VampireCancelled()
 
 # function for calling predicate with a specific knowledgebase and input
 def useProlog(knowledgeBase, inputString):
@@ -330,6 +369,7 @@ def single_vampire_request(request):
 
 # Define the Pydantic model for request validation
 def multiple_vampire_request(request):
+    session_key = _vampire_session_key(request)
 
     # if logic_type is zero then use fof, otherwise use tff
     logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
@@ -348,113 +388,140 @@ def multiple_vampire_request(request):
     logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
 
     # Inference id to Check
-    results = {}
     inference_results = {}
 
-    for id, nli_item in request.nli_items.items():
-        output_folder = "tmp/current/"
-        # merge premises into one drs
+    def snapshot_progress(state: str, active_item_id=None):
+        _update_vampire_progress(
+            session_key,
+            state=state,
+            cancelRequested=(state == "cancelled"),
+            activeItemId=active_item_id,
+            itemCount=len(inference_results),
+            proofCount=sum(len(check_list) for check_list in inference_results.values()),
+            completedItemIds=list(inference_results.keys()),
+            itemResults={key: [item.dict() for item in checks] for key, checks in inference_results.items()},
+            totalItemCount=len(request.nli_items),
+        )
 
-        if len(nli_item['premises']) > 1:
-            while len(nli_item['premises']) > 1:
-                #premise semantics
+    snapshot_progress("running")
 
-                #if first is a string extract drs, if first is a list do nothing
-                logger.info("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
-                first = extract_drs_blocks(nli_item['premises'][0]) if isinstance(nli_item['premises'][0], str) else nli_item['premises'][0]
-                second = extract_drs_blocks(nli_item['premises'][1]) if isinstance(nli_item['premises'][1], str) else nli_item['premises'][1]
+    try:
+        for id, nli_item in request.nli_items.items():
+            _ensure_not_cancelled(session_key)
+            output_folder = "tmp/current/"
+            # merge premises into one drs
 
-                merged_list = []
+            if len(nli_item['premises']) > 1:
+                while len(nli_item['premises']) > 1:
+                    _ensure_not_cancelled(session_key)
+                    logger.info("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
+                    first = extract_drs_blocks(nli_item['premises'][0]) if isinstance(nli_item['premises'][0], str) else nli_item['premises'][0]
+                    second = extract_drs_blocks(nli_item['premises'][1]) if isinstance(nli_item['premises'][1], str) else nli_item['premises'][1]
 
-                if not request.pruning:
-                    for reading1 in first:
-                        for reading2 in second:
-                            merged = mergeDrs(reading1, reading2)
-                            for drs in merged:
-                                if drs not in merged_list:
-                                    merged_list.append(drs)
-                                    logger.info("Updated merged list: %s", merged_list)
-                else:
-                    merged = mergeDrs(first[0], second[0])
-                    if merged:
-                        merged_list.append(merged[0])
+                    merged_list = []
 
-                #make merged_list first item of nli_items and ignore second item
-                nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
+                    if not request.pruning:
+                        for reading1 in first:
+                            for reading2 in second:
+                                _ensure_not_cancelled(session_key)
+                                merged = mergeDrs(reading1, reading2)
+                                for drs in merged:
+                                    if drs not in merged_list:
+                                        merged_list.append(drs)
+                                        logger.info("Updated merged list: %s", merged_list)
+                    else:
+                        merged = mergeDrs(first[0], second[0])
+                        if merged:
+                            merged_list.append(merged[0])
 
-        else:
-            readings = extract_drs_blocks(nli_item['premises'][0])
-            nli_item['premises'] = [[readings[0]]] if readings else [[]]
+                    nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
 
-        premise_semantics = nli_item['premises'][0]
-        logger.info("Premise semantics: %s", premise_semantics)
+            else:
+                readings = extract_drs_blocks(nli_item['premises'][0])
+                nli_item['premises'] = [[readings[0]]] if readings else [[]]
 
-        # This might require fixing if there are multiple hyptheses
-        hypothesis_semantics = []
-        for item in nli_item['hypothesis']:
-            hypothesis_semantics += extract_drs_blocks(item)
+            premise_semantics = nli_item['premises'][0]
+            logger.info("Premise semantics: %s", premise_semantics)
 
-        logger.info("Hypothesis semantics: %s", hypothesis_semantics)
+            # This might require fixing if there are multiple hyptheses
+            hypothesis_semantics = []
+            for item in nli_item['hypothesis']:
+                _ensure_not_cancelled(session_key)
+                hypothesis_semantics += extract_drs_blocks(item)
 
-        inference_checks = []
+            logger.info("Hypothesis semantics: %s", hypothesis_semantics)
 
-        #Efficiency addition so that each formula only has to be converted once
-        p_conversions = {}
-        h_conversions = {}
+            inference_checks = []
 
-        for i,sem in enumerate(premise_semantics):
-            prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type)
-            p_conversions[f'p_{i}'] = (prolog_premises, fof_premises)
+            #Efficiency addition so that each formula only has to be converted once
+            p_conversions = {}
+            h_conversions = {}
 
-        for j,sem in enumerate(hypothesis_semantics):
-            prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type)
-            h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
+            for i,sem in enumerate(premise_semantics):
+                _ensure_not_cancelled(session_key)
+                prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type)
+                p_conversions[f'p_{i}'] = (prolog_premises, fof_premises)
 
-        logger.info("Premise conversions: %s", p_conversions)
-        logger.info("Hypothesis conversions: %s", h_conversions)
+            for j,sem in enumerate(hypothesis_semantics):
+                _ensure_not_cancelled(session_key)
+                prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type)
+                h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
 
-        for p_key in p_conversions.keys():
-            for h_key in h_conversions.keys():
+            logger.info("Premise conversions: %s", p_conversions)
+            logger.info("Hypothesis conversions: %s", h_conversions)
 
-                prolog_premises, fof_premises = p_conversions[p_key]
-                prolog_hypotheses, fof_hypotheses = h_conversions[h_key]
+            for p_key in p_conversions.keys():
+                for h_key in h_conversions.keys():
+                    _ensure_not_cancelled(session_key)
 
-                for fof_premise in fof_premises:
-                    for fof_hypothesis in fof_hypotheses:
-                        logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
-                        proof_files, results = run_vampire_batch(
-                            fof_premise,
-                            fof_hypothesis,
-                            nli_item['axioms'],
-                            logic_type,
-                            vampire_mode,
-                            max_duration,
-                            output_folder,
-                        )
-                        logger.debug("Vampire Results: %s", results)
+                    prolog_premises, fof_premises = p_conversions[p_key]
+                    prolog_hypotheses, fof_hypotheses = h_conversions[h_key]
 
-                        consistent, informative, maxim_of_relevance = discourse_checks(data=results)
-                        logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
-
-                        svg_output = generate_svg_glyph(results)
-                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance, proof_files=proof_files)
-
-                        inference_checks.append(check)
-                        inference_results[id] = inference_checks
-                        try:
-                            merge_and_save_last_session(
-                                getattr(request, "session_key", "last_session"),
-                                {"results": {id: [item.dict() for item in inference_checks]}},
+                    for fof_premise in fof_premises:
+                        for fof_hypothesis in fof_hypotheses:
+                            _ensure_not_cancelled(session_key)
+                            logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
+                            proof_files, results = run_vampire_batch(
+                                fof_premise,
+                                fof_hypothesis,
+                                nli_item['axioms'],
+                                logic_type,
+                                vampire_mode,
+                                max_duration,
+                                output_folder,
                             )
-                        except Exception:
-                            logger.warning("Unable to persist last_session to Redis CRUD service", exc_info=True)
+                            logger.debug("Vampire Results: %s", results)
 
-        inference_results[id] = inference_checks
+                            consistent, informative, maxim_of_relevance = discourse_checks(data=results)
+                            logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
 
-    if os.path.exists("tmp"):
-        shutil.rmtree("tmp")
+                            svg_output = generate_svg_glyph(results)
+                            check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant=maxim_of_relevance, proof_files=proof_files)
 
-    return {"status": "ok"}
+                            inference_checks.append(check)
+                            inference_results[id] = inference_checks
+                            try:
+                                merge_and_save_last_session(
+                                    session_key,
+                                    {"results": {id: [item.dict() for item in inference_checks]}},
+                                )
+                            except Exception:
+                                logger.warning("Unable to persist last_session to Redis CRUD service", exc_info=True)
+
+                            snapshot_progress("running", id)
+
+            inference_results[id] = inference_checks
+            snapshot_progress("running", id)
+
+        snapshot_progress("completed")
+
+        return {"status": "ok"}
+    except VampireCancelled:
+        snapshot_progress("cancelled")
+        return {"status": "cancelled", "results": {key: [item.dict() for item in checks] for key, checks in inference_results.items()}}
+    finally:
+        if os.path.exists("tmp"):
+            shutil.rmtree("tmp")
 
 
 """
