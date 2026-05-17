@@ -67,33 +67,3 @@ def summarize_last_session(session_key="last_session"):
 
 def merge_and_save_last_session(session_key, payload):
     return _call(f"/last_session/{session_key}/merge", method="PUT", payload=payload)
-
-
-def merge_last_session(session_key, payload):
-    return _call(f"/last_session/{session_key}/merge", method="PUT", payload=payload)
-
-
-def load_vampire_progress(session_key="last_session"):
-    try:
-        return _call(f"/vampire_progress/{session_key}")
-    except error.URLError:
-        return {
-            "sessionKey": session_key,
-            "runId": None,
-            "state": "idle",
-            "activeItemId": None,
-            "completedItemIds": [],
-            "changedItemIds": [],
-            "itemResults": {},
-            "itemCount": 0,
-            "proofCount": 0,
-            "totalItemCount": 0,
-        }
-
-
-def save_vampire_progress(session_key, payload):
-    return _call(f"/vampire_progress/{session_key}", method="PUT", payload=payload)
-
-
-def clear_vampire_progress(session_key):
-    return _call(f"/vampire_progress/{session_key}", method="DELETE")
