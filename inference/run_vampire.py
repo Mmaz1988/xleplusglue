@@ -8,11 +8,17 @@ import traceback
 import time
 import shutil
 import logging
+import sys
+from pathlib import Path
 
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
-from vampire_redis_calls import merge_and_save_last_session
+from Redis.redis_store import merge_last_session, save_vampire_progress, clear_vampire_progress
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -347,117 +353,200 @@ def multiple_vampire_request(request):
     max_duration = int(request.vampire_preferences.get('max_duration', 45))
     logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
 
+    session_key = getattr(request, "session_key", "last_session")
+    run_id = str(int(time.time() * 1000))
+
     # Inference id to Check
     results = {}
     inference_results = {}
+    completed_item_ids = []
+    item_results = {}
+    processed_proof_count = 0
 
-    for id, nli_item in request.nli_items.items():
-        output_folder = "tmp/current/"
-        # merge premises into one drs
+    try:
+            save_vampire_progress(
+                session_key,
+                {
+                    "runId": run_id,
+                    "state": "running",
+                    "activeItemId": None,
+                    "completedItemIds": [],
+                    "changedItemIds": [],
+                    "itemResults": {},
+                    "itemCount": 0,
+                    "proofCount": 0,
+                    "totalItemCount": len(request.nli_items),
+                },
+        )
 
-        if len(nli_item['premises']) > 1:
-            while len(nli_item['premises']) > 1:
-                #premise semantics
+        for id, nli_item in request.nli_items.items():
+            output_folder = "tmp/current/"
+            # merge premises into one drs
 
-                #if first is a string extract drs, if first is a list do nothing
-                logger.info("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
-                first = extract_drs_blocks(nli_item['premises'][0]) if isinstance(nli_item['premises'][0], str) else nli_item['premises'][0]
-                second = extract_drs_blocks(nli_item['premises'][1]) if isinstance(nli_item['premises'][1], str) else nli_item['premises'][1]
+            save_vampire_progress(
+                session_key,
+                {
+                    "runId": run_id,
+                    "state": "running",
+                    "activeItemId": id,
+                    "completedItemIds": completed_item_ids,
+                    "changedItemIds": [id],
+                    "itemResults": item_results,
+                    "itemCount": len(completed_item_ids),
+                    "proofCount": processed_proof_count,
+                    "totalItemCount": len(request.nli_items),
+                },
+            )
 
-                merged_list = []
+            if len(nli_item['premises']) > 1:
+                while len(nli_item['premises']) > 1:
+                    #premise semantics
 
-                if not request.pruning:
-                    for reading1 in first:
-                        for reading2 in second:
-                            merged = mergeDrs(reading1, reading2)
-                            for drs in merged:
-                                if drs not in merged_list:
-                                    merged_list.append(drs)
-                                    logger.info("Updated merged list: %s", merged_list)
-                else:
-                    merged = mergeDrs(first[0], second[0])
-                    if merged:
-                        merged_list.append(merged[0])
+                    #if first is a string extract drs, if first is a list do nothing
+                    logger.info("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
+                    first = extract_drs_blocks(nli_item['premises'][0]) if isinstance(nli_item['premises'][0], str) else nli_item['premises'][0]
+                    second = extract_drs_blocks(nli_item['premises'][1]) if isinstance(nli_item['premises'][1], str) else nli_item['premises'][1]
 
-                #make merged_list first item of nli_items and ignore second item
-                nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
+                    merged_list = []
 
-        else:
-            nli_item['premises'] = [extract_drs_blocks(nli_item['premises'][0])]
+                    if not request.pruning:
+                        for reading1 in first:
+                            for reading2 in second:
+                                merged = mergeDrs(reading1, reading2)
+                                for drs in merged:
+                                    if drs not in merged_list:
+                                        merged_list.append(drs)
+                                        logger.info("Updated merged list: %s", merged_list)
+                    else:
+                        merged = mergeDrs(first[0], second[0])
+                        if merged:
+                            merged_list.append(merged[0])
 
-        premise_semantics = nli_item['premises'][0]
-        if request.pruning:
-            premise_semantics = [premise_semantics[0]]
-        logger.info("Premise semantics: %s", premise_semantics)
+                    #make merged_list first item of nli_items and ignore second item
+                    nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
 
-        # This might require fixing if there are multiple hyptheses
-        hypothesis_semantics = []
-        for item in nli_item['hypothesis']:
-            hypothesis_semantics += extract_drs_blocks(item)
+            else:
+                nli_item['premises'] = [extract_drs_blocks(nli_item['premises'][0])]
 
-        if request.pruning:
-            hypothesis_semantics = [hypothesis_semantics[0]]
-        logger.info("Hypothesis semantics: %s", hypothesis_semantics)
+            premise_semantics = nli_item['premises'][0]
+            if request.pruning:
+                premise_semantics = [premise_semantics[0]]
+            logger.info("Premise semantics: %s", premise_semantics)
 
-        inference_checks = []
+            # This might require fixing if there are multiple hyptheses
+            hypothesis_semantics = []
+            for item in nli_item['hypothesis']:
+                hypothesis_semantics += extract_drs_blocks(item)
 
-        #Efficiency addition so that each formula only has to be converted once
-        p_conversions = {}
-        h_conversions = {}
+            if request.pruning:
+                hypothesis_semantics = [hypothesis_semantics[0]]
+            logger.info("Hypothesis semantics: %s", hypothesis_semantics)
 
-        for i,sem in enumerate(premise_semantics):
-            prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type)
-            p_conversions[f'p_{i}'] = (prolog_premises, fof_premises)
+            inference_checks = []
 
-        for j,sem in enumerate(hypothesis_semantics):
-            prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type)
-            h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
+            #Efficiency addition so that each formula only has to be converted once
+            p_conversions = {}
+            h_conversions = {}
 
-        logger.info("Premise conversions: %s", p_conversions)
-        logger.info("Hypothesis conversions: %s", h_conversions)
+            for i,sem in enumerate(premise_semantics):
+                prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type)
+                p_conversions[f'p_{i}'] = (prolog_premises, fof_premises)
 
-        for p_key in p_conversions.keys():
-            for h_key in h_conversions.keys():
+            for j,sem in enumerate(hypothesis_semantics):
+                prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type)
+                h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
 
-                prolog_premises, fof_premises = p_conversions[p_key]
-                prolog_hypotheses, fof_hypotheses = h_conversions[h_key]
+            logger.info("Premise conversions: %s", p_conversions)
+            logger.info("Hypothesis conversions: %s", h_conversions)
 
-                for fof_premise in fof_premises:
-                    for fof_hypothesis in fof_hypotheses:
-                        logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
-                        proof_files, results = run_vampire_batch(
-                            fof_premise,
-                            fof_hypothesis,
-                            nli_item['axioms'],
-                            logic_type,
-                            vampire_mode,
-                            max_duration,
-                            output_folder,
-                        )
-                        logger.debug("Vampire Results: %s", results)
+            for p_key in p_conversions.keys():
+                for h_key in h_conversions.keys():
 
-                        consistent, informative, maxim_of_relevance = discourse_checks(data=results)
-                        logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
+                    prolog_premises, fof_premises = p_conversions[p_key]
+                    prolog_hypotheses, fof_hypotheses = h_conversions[h_key]
 
-                        svg_output = generate_svg_glyph(results)
-                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance, proof_files=proof_files)
-
-                        inference_checks.append(check)
-                        inference_results[id] = inference_checks
-                        try:
-                            merge_and_save_last_session(
-                                getattr(request, "session_key", "last_session"),
-                                {"results": {id: [item.dict() for item in inference_checks]}},
+                    for fof_premise in fof_premises:
+                        for fof_hypothesis in fof_hypotheses:
+                            logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
+                            proof_files, results = run_vampire_batch(
+                                fof_premise,
+                                fof_hypothesis,
+                                nli_item['axioms'],
+                                logic_type,
+                                vampire_mode,
+                                max_duration,
+                                output_folder,
                             )
-                        except Exception:
-                            logger.warning("Unable to persist last_session to Redis CRUD service", exc_info=True)
+                            logger.debug("Vampire Results: %s", results)
 
-        inference_results[id] = inference_checks
+                            consistent, informative, maxim_of_relevance = discourse_checks(data=results)
+                            logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
 
-    if os.path.exists("tmp"):
-        shutil.rmtree("tmp")
+                            svg_output = generate_svg_glyph(results)
+                            check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance, proof_files=proof_files)
 
-    return {"status": "ok"}
+                            inference_checks.append(check)
+
+            inference_results[id] = inference_checks
+            completed_item_ids.append(id)
+            processed_proof_count += sum(len(item.proof_files or []) for item in inference_checks)
+
+            merge_last_session(
+                session_key,
+                {"results": {id: [item.dict() for item in inference_checks]}},
+            )
+
+            item_results[id] = [item.dict() for item in inference_checks]
+            save_vampire_progress(
+                session_key,
+                {
+                    "runId": run_id,
+                    "state": "running",
+                    "activeItemId": id,
+                    "completedItemIds": completed_item_ids,
+                    "itemResults": item_results,
+                    "itemCount": len(completed_item_ids),
+                    "proofCount": processed_proof_count,
+                    "totalItemCount": len(request.nli_items),
+                },
+            )
+
+        save_vampire_progress(
+            session_key,
+            {
+                "runId": run_id,
+                "state": "done",
+                "activeItemId": None,
+                "completedItemIds": completed_item_ids,
+                "changedItemIds": [],
+                "itemResults": item_results,
+                "itemCount": len(completed_item_ids),
+                "proofCount": processed_proof_count,
+                "totalItemCount": len(request.nli_items),
+            },
+        )
+
+        return {"status": "ok"}
+    except Exception as exc:
+        save_vampire_progress(
+            session_key,
+            {
+                "runId": run_id,
+                "state": "error",
+                "error": str(exc),
+                "activeItemId": None,
+                "completedItemIds": completed_item_ids,
+                "changedItemIds": [],
+                "itemResults": item_results,
+                "itemCount": len(completed_item_ids),
+                "proofCount": processed_proof_count,
+                "totalItemCount": len(request.nli_items),
+            },
+        )
+        raise
+    finally:
+        if os.path.exists("tmp"):
+            shutil.rmtree("tmp")
 
 
 """
