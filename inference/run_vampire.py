@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
 
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
-from Redis.redis_store import merge_last_session, save_vampire_progress, clear_vampire_progress
+from vampire_redis_calls import merge_last_session, save_vampire_progress, clear_vampire_progress
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -364,19 +364,19 @@ def multiple_vampire_request(request):
     processed_proof_count = 0
 
     try:
-            save_vampire_progress(
-                session_key,
-                {
-                    "runId": run_id,
-                    "state": "running",
-                    "activeItemId": None,
-                    "completedItemIds": [],
-                    "changedItemIds": [],
-                    "itemResults": {},
-                    "itemCount": 0,
-                    "proofCount": 0,
-                    "totalItemCount": len(request.nli_items),
-                },
+        save_vampire_progress(
+            session_key,
+            {
+                "runId": run_id,
+                "state": "running",
+                "activeItemId": None,
+                "completedItemIds": [],
+                "changedItemIds": [],
+                "itemResults": {},
+                "itemCount": 0,
+                "proofCount": 0,
+                "totalItemCount": len(request.nli_items),
+            },
         )
 
         for id, nli_item in request.nli_items.items():
@@ -496,15 +496,17 @@ def multiple_vampire_request(request):
                 {"results": {id: [item.dict() for item in inference_checks]}},
             )
 
-            item_results[id] = [item.dict() for item in inference_checks]
+            item_result_payload = [item.dict() for item in inference_checks]
+            item_results[id] = item_result_payload
             save_vampire_progress(
                 session_key,
                 {
                     "runId": run_id,
                     "state": "running",
                     "activeItemId": id,
-                    "completedItemIds": completed_item_ids,
-                    "itemResults": item_results,
+                    "completedItemIds": list(completed_item_ids),
+                    "changedItemIds": [id],
+                    "itemResults": dict(item_results),
                     "itemCount": len(completed_item_ids),
                     "proofCount": processed_proof_count,
                     "totalItemCount": len(request.nli_items),
@@ -517,9 +519,9 @@ def multiple_vampire_request(request):
                 "runId": run_id,
                 "state": "done",
                 "activeItemId": None,
-                "completedItemIds": completed_item_ids,
+                "completedItemIds": list(completed_item_ids),
                 "changedItemIds": [],
-                "itemResults": item_results,
+                "itemResults": dict(item_results),
                 "itemCount": len(completed_item_ids),
                 "proofCount": processed_proof_count,
                 "totalItemCount": len(request.nli_items),
@@ -535,7 +537,7 @@ def multiple_vampire_request(request):
                 "state": "error",
                 "error": str(exc),
                 "activeItemId": None,
-                "completedItemIds": completed_item_ids,
+                "completedItemIds": list(completed_item_ids),
                 "changedItemIds": [],
                 "itemResults": item_results,
                 "itemCount": len(completed_item_ids),
