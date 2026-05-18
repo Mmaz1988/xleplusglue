@@ -192,8 +192,8 @@ def massacer(folder_path, mode=["-sa", "fmb"], timeout=15,vampire_path ="bin"):
             result = bloodsuck(file_path, mode, timeout, vampire_path)
             results.append(result)
 
-    # delete all files
-    shutil.rmtree("tmp/current")
+    # delete all files from the run-specific output folder
+    shutil.rmtree(folder_path, ignore_errors=True)
 
     return results
 

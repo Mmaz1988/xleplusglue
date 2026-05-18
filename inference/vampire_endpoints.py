@@ -50,7 +50,7 @@ def process_vampire_request_single(request: VampireRequest):
 
     except Exception as e:
         logger.error("Unhandled exception in single request", exc_info=True)
-        if os.path.exists("tmp"):
+        if os.path.isdir("tmp") and not os.listdir("tmp"):
             shutil.rmtree("tmp")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
@@ -69,7 +69,7 @@ def process_vampire_request_multiple(request: VampireMultipleRequest):
 
     except Exception as e:
         logger.error("Unhandled exception in multiple request", exc_info=True)
-        if os.path.exists("tmp"):
+        if os.path.isdir("tmp") and not os.listdir("tmp"):
             shutil.rmtree("tmp")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 

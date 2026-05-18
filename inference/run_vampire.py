@@ -8,6 +8,7 @@ import traceback
 import time
 import shutil
 import logging
+import uuid
 
 
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
@@ -25,6 +26,16 @@ BOXER = os.getenv("BOXER_PATH", "boxer")
 
 class VampireCancelled(Exception):
     pass
+
+
+def _make_vampire_tmp_root(session_key: str) -> str:
+    safe_session_key = re.sub(r"[^A-Za-z0-9_.-]+", "_", session_key or "session")
+    return os.path.join("tmp", f"{safe_session_key}-{uuid.uuid4().hex}")
+
+
+def _cleanup_tmp_root(tmp_root=None):
+    if tmp_root:
+        shutil.rmtree(tmp_root, ignore_errors=True)
 
 
 def _vampire_session_key(request):
@@ -99,41 +110,44 @@ def useProlog(knowledgeBase, inputString):
         return None
 
 #merge two DRSs
-def mergeDrs(firstOne,secondOne):
+def mergeDrs(firstOne, secondOne, tmp_root="tmp"):
     logger.info("Merging DRSs: %s, %s", firstOne, secondOne)
-    callToMerge = "presupDRT:printMerged(" + firstOne + "," + secondOne + ",'mergedRes.txt')."
+    os.makedirs(tmp_root, exist_ok=True)
+    merged_file = os.path.join(tmp_root, "mergedRes.txt")
+    callToMerge = "presupDRT:printMerged(" + firstOne + "," + secondOne + ",'" + merged_file + "')."
     useProlog(f"[{os.path.join(BOXER,'presupDRT')}].",callToMerge)
 
-    filepath = 'mergedRes.txt'
+    filepath = merged_file
     mergedRes = open(filepath, 'r').read()
 
     pattern = r"\d+? ((?:drs|merge)\(.*?\))\n"
     matches = re.findall(pattern, mergedRes, re.DOTALL)  # Use DOTALL to match across multiple lines
     logger.info("Extracted merged Drs: %s", matches)
 
-    if os.path.exists('mergedRes.txt'):
-        os.remove('mergedRes.txt')
+    if os.path.exists(merged_file):
+        os.remove(merged_file)
     return matches
 
 #print boxer output
-def printDRS(Drs):
-    if not os.path.exists("tmp"):
-        os.makedirs("tmp", exist_ok=True)
+def printDRS(Drs, tmp_root="tmp"):
+    if not os.path.exists(tmp_root):
+        os.makedirs(tmp_root, exist_ok=True)
 
     # logger.info("Trying to print DRS: %s", Drs)
 
     Drs = wrap_hyphenated_words(Drs)
 
-    inputDrs = "printDrs:saveToFile(" + Drs + ",'tmp/boxing.txt')."
+    boxing_file = os.path.join(tmp_root, "boxing.txt")
+    inputDrs = "printDrs:saveToFile(" + Drs + ",'" + boxing_file + "')."
     useProlog(f"[{os.path.join(BOXER,'printDrs')}].",inputDrs)
 
-    filepath = "tmp/boxing.txt"
+    filepath = boxing_file
     boxed = open(filepath, 'r').read()
 
     # logger.info("Generated following DRS: %s", boxed)
 
-    if os.path.exists("tmp/boxing.txt"):
-        os.remove("tmp/boxing.txt")
+    if os.path.exists(boxing_file):
+        os.remove(boxing_file)
     return boxed
 
 
@@ -152,16 +166,15 @@ def inputToFof(inputstring):
 
 
 #convert drs to fol to tptp and get the vampire output from that
-def conversion(formula,tptp_type="fof"):
+def conversion(formula, tptp_type="fof", tmp_root="tmp"):
     logger.info("Converting formula to TPTP: %s", formula)
-    if os.path.exists("tmp"):
-        shutil.rmtree("tmp")
-    os.makedirs("tmp", exist_ok=True)
+    _cleanup_tmp_root(tmp_root)
+    os.makedirs(tmp_root, exist_ok=True)
     #if formula contains app or merge, resolve first.
 
     formulas = []
 
-    resolve_file = "tmp/unpure.txt"
+    resolve_file = os.path.join(tmp_root, "unpure.txt")
     if "app(" in formula or "merge(" in formula:
         logger.info("Resolving application or merge in formula: %s", formula)
         resolve_input = "presupDRT:resolve2file(" + formula + ",'" + resolve_file + "')."
@@ -180,7 +193,7 @@ def conversion(formula,tptp_type="fof"):
     prologs = []
     #get prolog output of drs to fol
     for formula in formulas:
-        drs2fol_file = "tmp/folly.txt"
+        drs2fol_file = os.path.join(tmp_root, "folly.txt")
         betterformula = "drs2fol:printfol(" + formula + ",'"+ drs2fol_file +"')."
         logger.info("Calling Prolog to convert DRS to FOL: %s", betterformula)
         useProlog(f"[{os.path.join(BOXER,'drs2fol')}].",betterformula)
@@ -189,7 +202,7 @@ def conversion(formula,tptp_type="fof"):
         newfol = open(drs2fol_file, 'r').read()
         logger.info("Function conversion generated following formula: " + newfol)
         #now get TPTP string from Prolog
-        fof_file = "tmp/fof.txt"
+        fof_file = os.path.join(tmp_root, "fof.txt")
 
         # tptp conversion file
         tptp_prolog = ""
@@ -221,7 +234,7 @@ def conversion(formula,tptp_type="fof"):
 
     os.remove(resolve_file) if os.path.exists(resolve_file) else None
 
-    shutil.rmtree("tmp")
+    _cleanup_tmp_root(tmp_root)
     print(f'Generated TPTP formulas: %s', new_fols)
 
     return new_fols, prologs
@@ -248,13 +261,13 @@ def run_vampire_batch(ctx_tptp, hypothesis_tptp, axioms, logic_type, vampire_mod
 #   newformula: str
 
 def single_vampire_request(request):
+    tmp_root = _make_vampire_tmp_root(_vampire_session_key(request))
     new_context = []
     new_active_indices = []
     current_checks = []
 
     # Delete tmp folder and all contents with shutil
-    if os.path.exists("tmp"):
-        shutil.rmtree("tmp")
+    _cleanup_tmp_root(tmp_root)
 
     logger.info("Received Vampire Request: %s", request)
     readings = extract_drs_blocks(request.hypothesis)
@@ -278,11 +291,11 @@ def single_vampire_request(request):
 
     hypotheses = []
     for reading in readings:
-        prolog_hypotheses, fof_hypotheses = conversion(reading, tptp_type=logic_type)
+        prolog_hypotheses, fof_hypotheses = conversion(reading, tptp_type=logic_type, tmp_root=tmp_root)
         for prolog_hypothesis, fof_hypothesis in zip(prolog_hypotheses, fof_hypotheses):
             # fof_hypothesis = extract_fof(fof_hypothesis)
             context = Context(original=request.text, prolog_drs=reading, prolog_fol=prolog_hypothesis,
-                              tptp=fof_hypothesis, box=printDRS(reading))
+                              tptp=fof_hypothesis, box=printDRS(reading, tmp_root=tmp_root))
             hypotheses.append(context)
 
     if not request.context:
@@ -301,7 +314,7 @@ def single_vampire_request(request):
 
         for ctx in active_contexts:
             for hypothesis in hypotheses:
-                output_folder = "tmp/current/"
+                output_folder = os.path.join(tmp_root, "current")
                 proof_files, results = run_vampire_batch(
                     ctx.tptp,
                     hypothesis.tptp,
@@ -319,16 +332,16 @@ def single_vampire_request(request):
                 #Placeholder code
                 if consistent and informative:
                     # Create new context
-                    new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs)
+                    new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs, tmp_root=tmp_root)
                     for prolog in new_prolog:
                         # Should be singleton lists because mergeDrs above already resolves ambiguities
-                        prolog_hypotheses, fof_hypotheses = conversion(prolog,tptp_type=logic_type)
+                        prolog_hypotheses, fof_hypotheses = conversion(prolog,tptp_type=logic_type, tmp_root=tmp_root)
                         prolog_hypothesis = prolog_hypotheses[0]
                         fof_hypothesis = fof_hypotheses[0]
                         # fof_hypothesis = extract_fof(fof_hypothesis)
                         context = Context(original=ctx.original + " " + hypothesis.original,
                                           prolog_drs=prolog, prolog_fol=prolog_hypothesis,
-                                          tptp=fof_hypothesis, box=printDRS(prolog))
+                                          tptp=fof_hypothesis, box=printDRS(prolog, tmp_root=tmp_root))
                         if context not in new_context:
                             new_context.append(context)
                             svg_output = generate_svg_glyph(results)
@@ -362,14 +375,14 @@ def single_vampire_request(request):
     result = VampireResponse(context=new_context,
                                  active_indices=new_active_indices,
                                  context_checks_mapping=context_checks_mapping)
-    if os.path.exists("tmp"):
-        shutil.rmtree("tmp")
+    _cleanup_tmp_root(tmp_root)
     return result
 
 
 # Define the Pydantic model for request validation
 def multiple_vampire_request(request):
     session_key = _vampire_session_key(request)
+    tmp_root = _make_vampire_tmp_root(session_key)
 
     # if logic_type is zero then use fof, otherwise use tff
     logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
@@ -408,7 +421,7 @@ def multiple_vampire_request(request):
     try:
         for id, nli_item in request.nli_items.items():
             _ensure_not_cancelled(session_key)
-            output_folder = "tmp/current/"
+            output_folder = os.path.join(tmp_root, "current")
             # merge premises into one drs
 
             if len(nli_item['premises']) > 1:
@@ -424,13 +437,13 @@ def multiple_vampire_request(request):
                         for reading1 in first:
                             for reading2 in second:
                                 _ensure_not_cancelled(session_key)
-                                merged = mergeDrs(reading1, reading2)
+                                merged = mergeDrs(reading1, reading2, tmp_root=tmp_root)
                                 for drs in merged:
                                     if drs not in merged_list:
                                         merged_list.append(drs)
                                         logger.info("Updated merged list: %s", merged_list)
                     else:
-                        merged = mergeDrs(first[0], second[0])
+                        merged = mergeDrs(first[0], second[0], tmp_root=tmp_root)
                         if merged:
                             merged_list.append(merged[0])
 
@@ -459,12 +472,12 @@ def multiple_vampire_request(request):
 
             for i,sem in enumerate(premise_semantics):
                 _ensure_not_cancelled(session_key)
-                prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type)
+                prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type, tmp_root=tmp_root)
                 p_conversions[f'p_{i}'] = (prolog_premises, fof_premises)
 
             for j,sem in enumerate(hypothesis_semantics):
                 _ensure_not_cancelled(session_key)
-                prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type)
+                prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type, tmp_root=tmp_root)
                 h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
 
             logger.info("Premise conversions: %s", p_conversions)
@@ -520,8 +533,7 @@ def multiple_vampire_request(request):
         snapshot_progress("cancelled")
         return {"status": "cancelled", "results": {key: [item.dict() for item in checks] for key, checks in inference_results.items()}}
     finally:
-        if os.path.exists("tmp"):
-            shutil.rmtree("tmp")
+        _cleanup_tmp_root(tmp_root)
 
 
 """
