@@ -13,7 +13,7 @@ import uuid
 
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
-from vampire_redis_calls import merge_and_save_last_session, load_vampire_progress, save_vampire_progress
+from vampire_redis_calls import clear_vampire_progress, merge_and_save_last_session, load_vampire_progress, save_vampire_progress
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -168,7 +168,6 @@ def inputToFof(inputstring):
 #convert drs to fol to tptp and get the vampire output from that
 def conversion(formula, tptp_type="fof", tmp_root="tmp"):
     logger.info("Converting formula to TPTP: %s", formula)
-    _cleanup_tmp_root(tmp_root)
     os.makedirs(tmp_root, exist_ok=True)
     #if formula contains app or merge, resolve first.
 
@@ -234,7 +233,6 @@ def conversion(formula, tptp_type="fof", tmp_root="tmp"):
 
     os.remove(resolve_file) if os.path.exists(resolve_file) else None
 
-    _cleanup_tmp_root(tmp_root)
     print(f'Generated TPTP formulas: %s', new_fols)
 
     return new_fols, prologs
@@ -265,9 +263,6 @@ def single_vampire_request(request):
     new_context = []
     new_active_indices = []
     current_checks = []
-
-    # Delete tmp folder and all contents with shutil
-    _cleanup_tmp_root(tmp_root)
 
     logger.info("Received Vampire Request: %s", request)
     readings = extract_drs_blocks(request.hypothesis)
@@ -531,7 +526,12 @@ def multiple_vampire_request(request):
         return {"status": "ok"}
     except VampireCancelled:
         snapshot_progress("cancelled")
-        return {"status": "cancelled", "results": {key: [item.dict() for item in checks] for key, checks in inference_results.items()}}
+        cancelled_result = {"status": "cancelled", "results": {key: [item.dict() for item in checks] for key, checks in inference_results.items()}}
+        try:
+            clear_vampire_progress(session_key)
+        except Exception:
+            logger.warning("Unable to clear Vampire progress after cancel", exc_info=True)
+        return cancelled_result
     finally:
         _cleanup_tmp_root(tmp_root)
 
