@@ -128,18 +128,80 @@ def _safe_len(value):
     return len(value) if isinstance(value, list) else 0
 
 
+def _section(payload, *path):
+    current = payload if isinstance(payload, dict) else {}
+    for key in path:
+        if not isinstance(current, dict):
+            return {}
+        current = current.get(key, {})
+    return current if isinstance(current, dict) else {}
+
+
+def _prepare_regression_session_payload(session_key, payload):
+    prepared = dict(payload or {})
+    prepared["schemaVersion"] = 2
+
+    metadata = dict(_section(prepared, "metadata"))
+    now = _now_iso()
+    metadata["id"] = metadata.get("id") or metadata.get("redisSessionKey") or session_key
+    metadata["redisSessionKey"] = metadata.get("redisSessionKey") or session_key or metadata["id"]
+    metadata["updatedAt"] = now
+    metadata["createdAt"] = metadata.get("createdAt") or now
+    metadata.setdefault("testsuiteUpdateMode", "write")
+    metadata["hasRunVampire"] = bool(metadata.get("hasRunVampire"))
+    metadata["disambiguationMode"] = bool(metadata.get("disambiguationMode"))
+    prepared["metadata"] = metadata
+
+    inputs = dict(_section(prepared, "inputs"))
+    inputs.setdefault("grammarPath", "")
+    inputs.setdefault("testsuite", {"filename": "", "text": "", "loadedText": ""})
+    inputs.setdefault("rules", {"filename": "", "text": "", "loadedText": ""})
+    inputs.setdefault("axioms", {"filename": "", "text": "", "loadedText": ""})
+    inputs.setdefault("gswbPreferences", {})
+    inputs.setdefault("vampirePreferences", {})
+    prepared["inputs"] = inputs
+
+    analysis = dict(_section(prepared, "analysis"))
+    system = dict(_section(analysis, "system"))
+    human = dict(_section(analysis, "human"))
+    save_state = dict(_section(analysis, "save_state"))
+    system.setdefault("sentenceMap", {})
+    system.setdefault("regressionTestItems", [])
+    system.setdefault("regressionTestResults", [])
+    system.setdefault("inferenceResults", [])
+    human.setdefault("selectedSolutionIdsBySentence", {})
+    human.setdefault("selectedScopeIdsBySentence", {})
+    human.setdefault("selectedMcIdsBySentence", {})
+    save_state.setdefault("lastGswbOutputs", None)
+    save_state.setdefault("lastAnnotations", None)
+    save_state.setdefault("lastVampireResults", None)
+    save_state.setdefault("lastLogicType", "fof")
+    save_state.setdefault("lastVampireScopeIdsBySentence", {})
+    save_state.setdefault("lastVampireMcIdsBySentence", {})
+    save_state.setdefault("lastVampireSolutionIdsBySentence", {})
+    save_state.setdefault("sortedMCmap", {})
+    analysis["system"] = system
+    analysis["human"] = human
+    analysis["save_state"] = save_state
+    prepared["analysis"] = analysis
+
+    return prepared
+
+
 def _build_session_summary(session_key, payload):
+    metadata = _section(payload, "metadata")
+    system = _section(payload, "analysis", "system")
     return {
         "sessionKey": session_key,
-        "displayLabel": payload.get("displayLabel")
-        or payload.get("id")
+        "displayLabel": metadata.get("redisSessionKey")
+        or metadata.get("id")
         or session_key,
-        "createdAt": payload.get("createdAt") or _now_iso(),
-        "updatedAt": payload.get("updatedAt") or _now_iso(),
-        "parseCount": _safe_len(payload.get("regressionTestResults")),
-        "inferenceCount": _safe_len(payload.get("inferenceResults")),
-        "hasParseResults": _safe_len(payload.get("regressionTestResults")) > 0,
-        "hasInferenceResults": _safe_len(payload.get("inferenceResults")) > 0,
+        "createdAt": metadata.get("createdAt") or _now_iso(),
+        "updatedAt": metadata.get("updatedAt") or _now_iso(),
+        "parseCount": _safe_len(system.get("regressionTestResults")),
+        "inferenceCount": _safe_len(system.get("inferenceResults")),
+        "hasParseResults": _safe_len(system.get("regressionTestResults")) > 0,
+        "hasInferenceResults": _safe_len(system.get("inferenceResults")) > 0,
     }
 
 
@@ -168,10 +230,7 @@ def list_recent_sessions(client=None):
 
 def save_regression_session(session_key, payload, client=None):
     client = client or redis_client()
-    payload = dict(payload or {})
-    payload["updatedAt"] = _now_iso()
-    if not payload.get("createdAt"):
-        payload["createdAt"] = payload["updatedAt"]
+    payload = _prepare_regression_session_payload(session_key, payload)
     client.set(_session_storage_key(session_key), json.dumps(payload))
 
     sessions = _load_sessions_index(client)
