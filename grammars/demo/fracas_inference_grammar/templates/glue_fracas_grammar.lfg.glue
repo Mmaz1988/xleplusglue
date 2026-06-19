@@ -87,7 +87,7 @@ DEFAULT-NOUN-SEM(P) =         @(PRED P)
                       		  |
                       		  (^ NTYPE NSYN) =c proper
                       		  @(PROPER-NOUN-SEM P)
-                      		  @(DEF-NAME P)
+                      		  @DEF-NAME
                       		  }.
 
 
@@ -98,7 +98,7 @@ COUNT-NOUN-SEM(P) =
 PROPER-NOUN-SEM(P) = (s::^ TYPE) = entity
                              :$ lam(X,drs([],[eq(X,'P')])) : (s::^_e -o s::^_t).
 
-DEF-NAME(P) = @(NAME-SCOPE ^ %n)
+DEF-NAME = @(NAME-SCOPE ^ %n)
               :$ lam(Q,lam(R,merge(drs([X],[]),merge(app(Q,X),app(R,X))))) :
               ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)).
 

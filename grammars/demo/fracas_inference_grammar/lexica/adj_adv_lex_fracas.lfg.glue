@@ -20,6 +20,9 @@ successful ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 fast 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 		             (^SEMTYPE) = degree.
 
+warm    ADJ-S XLE   @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = degree.
+
 clever 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
                     (^SEMTYPE) = degree.
 

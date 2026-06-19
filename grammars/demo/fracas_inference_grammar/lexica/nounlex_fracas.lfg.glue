@@ -19,6 +19,9 @@ New` York N *   (^ PRED)='New` York'
 Nobel     NMod *  (^ PRED) = 'Nobel'
              	  (^ TYPE) = kind.
 
+Eiffel     NMod *  (^ PRED) = 'Eiffel'
+             	  (^ TYPE) = kind.
+
 "nouns that can take an XCOMP" "eg. the right to appear"
 
 right	  N * (^PRED) = 'right<(^XCOMP)>'
@@ -50,21 +53,21 @@ Scandinavia     N *   @(PRED %stem)
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
                 @(PROPER-NOUN-SEM %stem)
-                @(DEF-NAME %stem).
+                @DEF-NAME.
 
 Sweden     N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
                 @(PROPER-NOUN-SEM %stem)
-                @(DEF-NAME %stem).
-
+                @DEF-NAME.
+ 
 Portugal   N *   @(PRED %stem)
                 (^NUM) = sg
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
                 @(PROPER-NOUN-SEM %stem)
-                @(DEF-NAME %stem).
+                @DEF-NAME.
 
 
 European    N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
@@ -85,7 +88,7 @@ Europe     N *   @(PRED %stem)
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = location
                 @(PROPER-NOUN-SEM %stem)
-                @(DEF-NAME %stem).
+                @DEF-NAME.
 
 
 
@@ -175,6 +178,14 @@ Pavarotti   N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
                 (^NTYPE NSYN) = proper
                 (^NTYPE NSEM PROPER) = name
                 @(PROPER-NOUN-SEM %stem).
+
+Karma  N * @(PRED %stem)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = name
+                @(PROPER-NOUN-SEM %stem)
+                @DEF-NAME.
+
 
 
 

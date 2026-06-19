@@ -28,7 +28,9 @@ she 	  PRON * @(PRON she 3 sg pers)
 		 @(CASE nom)
 		 @(DEFAULT-PRON-NOSCOPE female).
 
-it	  PRON * @(PRON it 3 sg pers).
+It	  PRON * @PERS-OR-EXPL.
+
+it	  PRON * @PERS-OR-EXPL.
 
 We 	  PRON * @(PRON we 1 pl pers)
 		 @(CASE nom).

@@ -65,6 +65,9 @@ DEMO   ENGLISH   TEMPLATES (1.0)
                     (^OBL PFORM) =c in.
 
 
+   EXPLETIVE-EV(P) = (^ PRED) = 'P<> (^SUBJ)'
+	  @(EVENT P).
+
    "lambda DRT"
    INTRANS-EV(P) = (^ PRED) = 'P<(^SUBJ)>'
 	  @(EVENT P)
@@ -91,9 +94,13 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
                      @(ARG2 (^ PREDLINK)) "EX. John is an Italian"
                      }
                      |
-                     %arg1 = (^PREDLINK) "There is a ..."
                      (^ SUBJ PRON-TYPE) =c expl
+                     {
                      @(ARG1 %arg1)
+                     (^ PREDLINK NTYPE)
+                     %arg1 = (^PREDLINK) "There is a ..." |
+                     (^ PREDLINK ATYPE)
+                     }
                      }.
 
                       "the dog was fast"
@@ -226,6 +233,9 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 	  (^ PERS) = Z
 	  (^ PRON-TYPE) = T
 	  (^ NTYPE) = pron. 
+
+   PERS-OR-EXPL = { @(PRON it 3 sg pers) |
+                    @(PRON it 3 sg expl) }.
 
 "template for possessive pronouns, as these have conflicting heads in regular template"
 

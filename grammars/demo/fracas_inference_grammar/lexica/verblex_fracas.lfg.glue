@@ -123,6 +123,10 @@ sleep 	  V-S XLE @(INTRANS-EV %stem).
 
 live       V-S XLE @(INTRANS-EV %stem).
 
+rain    V-S XLE @(EXPLETIVE-EV %stem).
+
+shine   V-S XLE @(INTRANS-EV %stem).
+
 wait 	  V-S XLE { @(INTRANS-EV wait) |
 		@(INTRANS-OBL wait)
 		"this is the non-semantic OBL wait on a customer use"
@@ -194,6 +198,8 @@ see 	  V-S XLE @(TRANS-EV %stem).
 obtain    V-S XLE @(TRANS-EV %stem).
 
 finish   V-S XLE @(TRANS-EV %stem).
+
+pass  V-S XLE @(TRANS-EV %stem).
 
 photograph  V-S XLE @(TRANS-EV %stem).
 
@@ -437,7 +443,7 @@ has AUX[perf,fin] * @(TENSE pres)
                     @(MOOD indicative).
 
 have AUX[perf,base] * (^VFORM) = inf;
-      V-S XLE @(TRANS-EV %stem).
+     V-S XLE @(TRANS-EV %stem).
 
 
 "did       V-S XLE @(INTRANS-EV %stem)."

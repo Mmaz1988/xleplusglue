@@ -40,8 +40,16 @@ The sublexcial items are the POS assigned to the various tags in morph-lex.lfg"
    N --> N-S_BASE "noun stem"
  	 N-POS_BASE
  	 (N-NAME_BASE) "allow for +Giv or +Place in names"
- 	 (N-GEND_BASE) "allow for gender information" 
- 	 N-NUM_BASE.
+ 	 (N-GEND_BASE) "allow for gender information"
+ 	 {N-LOC_BASE "allow for locative information"
+ 	  {N-LOC-TYPE_BASE "allow for locative type information"
+ 	  |
+ 	  COUNTRY_BASE
+ 	  }
+ 	  |
+ 	 N-MOD_BASE "allow for modifiers of nouns"
+ 	  |
+ 	 N-NUM_BASE}.
 
    A --> ADJ-S_BASE
  	 ADJ-POS_BASE
@@ -155,6 +163,12 @@ MORPH   ENGLISH   LEXICON (1.0)
 +Fem 	  N-GEND XLE (^GEND) = fem. 
 
 +Masc 	  N-GEND XLE (^GEND) = masc.
+
++Place    N-LOC XLE (^ PROPER-TYPE) = location.
+
++City     N-LOC-TYPE XLE (^ LOCATION-TYPE) = city.
+
++Misc     N-MOD XLE .
 
 
 "other"
