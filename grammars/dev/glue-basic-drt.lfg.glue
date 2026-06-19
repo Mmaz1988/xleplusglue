@@ -1,0 +1,241 @@
+"
+    Copyright (C) 2019–2026 Mark-Matthias Zymla
+
+    This file is part of XLE+Glue (https://github.com/Mmaz1988/xleplusglue)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+GLUE   BASIC   CONFIG (1.0)  
+  ROOTCAT   CP.  
+  FILES  .
+  LEXENTRIES   (ENGLISH BASIC).  
+  RULES   (ENGLISH BASIC).
+  TEMPLATES (ENGLISH BASIC) (GLUE BASIC).
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ-TH OBJ?+ OBL?+ COMP XCOMP.
+  SEMANTICFUNCTIONS    ADJUNCT TOPIC FOCUS.
+  NONDISTRIBUTIVES    NUM PERS.
+  EPSILON   e.
+  CHARACTERENCODING utf-8.
+OPTIMALITYORDER NOGOOD.
+
+----
+
+"glue-basic-drt.lfg requires the following settings in xlerc: semParser 2, processDRT 1"
+
+"AVM representations of meaning constructors appear as members of the GLUE set at f-structure."
+
+ENGLISH   BASIC   RULES (1.0)
+
+   CP --> C'.
+
+   C' --> (C)
+ 	  IP.
+
+   C =   Comp.
+
+   IP --> (NP: (^ SUBJ) = !)
+ 	  I'.
+
+   I' --> (I)
+ 	  VP.
+
+   I = Aux.
+
+   VP --> V'.
+
+   V' --> (V)
+ 	  (NP: (^ OBJ) = !)
+ 	  (NP: (^ OBJ-TH) = !)
+ 	  (CP: (^ COMP) = !).
+
+   NP --> (D)
+ 	  N'.
+
+   N' --> (Adj: ! $ (^ ADJ))
+ 	  N.
+
+----
+
+ENGLISH   BASIC   LEXICON (1.0)
+
+"Complementizer"
+
+  that 	  Comp * (^ COMPFORM) = 'that'.
+
+"Nouns"
+
+  David   N * @(NAME david).
+
+  Chris   N * @(NAME chris).
+
+  Tracy   N * @(NAME tracy).
+
+  Kim   N * @(NAME kim).
+
+  man 	  N * @(NOUN man).
+
+  woman   N * @(NOUN woman).
+
+  book 	  N * @(NOUN book).
+
+  person  N * @(NOUN person).
+
+
+
+"Determiners"
+
+     "Quantifier"
+
+     a 	  D * (^ SPEC PRED) = 'a'
+              @(QUANT-SCOPE ^ %s)
+     	      :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+     	      ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)).
+
+     the 	  D * (^ SPEC PRED) = 'the'
+              @(QUANT-SCOPE ^ %s)
+          	  :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+          	  ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)) || noscope.
+
+     every 	D * (^ SPEC PRED) = 'every'
+               @(QUANT-SCOPE ^ %s)
+     	      :$ (\P.(\Q.([],[([x],[]) + P@x -> Q@x]))) :
+     	      ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)).
+
+     everyone 	N * (^ PRED) = 'everyone'
+          	      @(QUANT-SCOPE ^ %s)
+                  :$ (\P.(\Q.([],[([x],[]) + P@x -> Q@x]))) :
+                  ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)),
+          	      :$ (\x.([],[person(x)])) : (s::^_e -o s::^_t).
+
+
+
+"Verbs"
+
+  yawned  V * @(VERB-SUBJ yawn)
+	          @VPAST.
+
+  smiled  V * @(VERB-SUBJ smile)
+	          @VPAST.
+
+  saw 	  V * @(VERB-SUBJ-OBJ see)
+	          @VPAST.
+
+  gave    V * @(VERB-SUBJ-OBJ-OBJ2 give)
+              @VPAST.
+
+  thought V * @(VERB-SUBJ-COMP think)
+              @VPAST.
+
+"Adjectives"
+
+  interesting Adj * (^ PRED) = 'interesting'.
+
+
+
+----
+
+ENGLISH   BASIC   TEMPLATES (1.0)
+
+   "Templates for argument structure. Need to be separate to avoid trouble with local names"
+   ARG1(ARG) =
+        %EV = (s::^ EV)
+       :$ (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) :
+       ((%EV_v -o %EV_t) -o (s::ARG_e -o (%EV_v -o %EV_t))) || noscope.
+
+   ARG2(ARG) =
+       %EV = (s::^ EV)
+       :$ (\V.(\x.(\e.(V@e + ([],[arg2(e,x)]))))) :
+       ((%EV_v -o %EV_t) -o (s::ARG_e -o (%EV_v -o %EV_t))) || noscope.
+
+   ARG3(ARG) =
+       %EV = (s::^ EV)
+       :$ (\V.(\x.(\e.(V@e + ([],[arg3(e,x)]))))) :
+       ((%EV_v -o %EV_t) -o (s::ARG_e -o (%EV_v -o %EV_t))) || noscope.
+
+"Nouns"
+
+NOUN(P) = (^ PRED) = 'P'
+      :$ (\x.([],[%stem(x)])) : (s::^_e -o s::^_t).
+
+NAME(P) = (^ PRED) = 'P'
+      @(QUANT-SCOPE ^ %s)
+      :$ (\x.([],[x=%stem])) : (s::^_e -o s::^_t),
+      :$ (\Q.(\R.([x],[]) + Q@x + R@x)) :
+      ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)) || noscope.
+
+"Verbs"
+
+   VERB-SUBJ(P) =
+	  (^ PRED) = 'P<(^ SUBJ)>'
+	  @(EVENT P)
+	  @(ARG1 (^SUBJ)).
+
+   VERB-SUBJ-OBJ(P) =
+	  (^ PRED) = 'P<(^ SUBJ)(^ OBJ)>'
+	   @(EVENT P)
+	  @(ARG1 (^SUBJ))
+	  @(ARG2 (^OBJ)).
+
+
+    VERB-SUBJ-OBJ-OBJ2(P) =
+        (^ PRED) = 'P<(^ SUBJ)(^ OBJ)(^ OBJ-TH)>'
+         @(EVENT P)
+        @(ARG1 (^SUBJ))
+        @(ARG2 (^OBJ))
+        @(ARG3 (^OBJ-TH)).
+
+    VERB-SUBJ-COMP(P) =
+        (^ PRED) = 'P<(^ SUBJ)(^ COMP)>'
+        @(EVENT P)
+        @(ARG1 (^SUBJ))
+        %s = s::(^ COMP)
+        :$ (\Q.(\S.(\e.(Q@e + ([],[cont(e):S]))))) :
+        (((s::^ EV)_v -o (s::^ EV)_t) -o (%s_t -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
+
+   VPAST = (^ VTYPE) = FIN
+	  (^ TENSE) = PST.
+
+
+----
+
+GLUE   BASIC   TEMPLATES (1.0)
+
+   LLIMP(N L R) = (N ANT) = L
+	  (N CONS) = R.
+
+   LLATOM(N L T) = (N RESOURCE) = L
+	  (N TYPE) = T.
+
+    LLQUANT(N B) = (N BINDER) = B.
+
+   LLCLOSURE(G) = G $ (g::* GLUE).
+
+   GLUE-MEANING(R M) =
+	  (R MEANING) = M.
+
+  NOSCOPE(G) = (G NOSCOPE) = +.
+
+   QUANT-SCOPE(UP NAME) =
+   %name = ({SUBJ | OBJ | OBJ-TH | XCOMP | COMP | OBL-TO | OBL-AG | OBL | ADJUNCT | $}+ ^)
+   (%name TENSE)
+   NAME = s::%name.
+
+   EVENT(P) =  %EV = (s::^ EV)
+           :$ (\e.([],[P(e)])) :
+           (%EV_v -o %EV_t),
+           :$ (\Q.([e],[]) + Q@e) :
+           ((%EV_v -o %EV_t) -o s::^_t).
+
+----
