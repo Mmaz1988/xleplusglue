@@ -17,10 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 "
 
-GLUE   BASIC   CONFIG (1.0)  
-  ROOTCAT   CP.  
+GLUE   BASIC   CONFIG (1.0)
+  ROOTCAT   CP.
   FILES  .
-  LEXENTRIES   (ENGLISH BASIC).  
+  LEXENTRIES   (ENGLISH BASIC).
   RULES   (ENGLISH BASIC).
   TEMPLATES (ENGLISH BASIC) (GLUE BASIC).
   GOVERNABLERELATIONS    SUBJ OBJ OBJ-TH OBJ?+ OBL?+ COMP XCOMP.
@@ -58,13 +58,22 @@ ENGLISH   BASIC   RULES (1.0)
    V' --> (V)
  	  (NP: (^ OBJ) = !)
  	  (NP: (^ OBJ-TH) = !)
+ 	  (PP: (^ OBL) = !)
  	  (CP: (^ COMP) = !).
 
-   NP --> (D)
- 	  N'.
+   NP -->   {
+            ({D |
+            PRON: (^ PRON-TYPE) =c poss })
+ 	        N'
+ 	        |
+ 	        PRON: (^ PRON-TYPE) ~= poss
+ 	        }.
 
    N' --> (Adj: ! $ (^ ADJ))
  	  N.
+
+   PP --> P
+          NP: (^ OBJ) = !.
 
 ----
 
@@ -92,6 +101,55 @@ ENGLISH   BASIC   LEXICON (1.0)
 
   person  N * @(NOUN person).
 
+he 	  PRON * @(PRON he 3 sg pers)
+		 @(CASE nom)
+		 @(QUANT-SCOPE ^ %s)
+         @(NP-INDEX %n)
+         :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+          ((%n_e -o %n_t) -o ((%n_e -o %s_t) -o %s_t)) || insitu,
+         :$ (\x.([],[ant(x)])) : (%n_e -o %n_t).
+
+she 	  PRON * @(PRON she 3 sg pers)
+		 @(CASE nom).
+
+it	  PRON * @(PRON it 3 sg pers).
+
+we 	  PRON * @(PRON we 1 pl pers)
+		 @(CASE nom).
+
+us 	  PRON * @(PRON us 1 pl pers)
+		 @(CASE acc).
+
+they 	  PRON * @(PRON they 3 pl pers)
+		 @(CASE nom).
+
+them 	  PRON * @(PRON them 3 pl pers)
+		 @(CASE acc).
+
+my	PRON * @(PRON my 1 sg poss).
+
+her	PRON * @(PRON her 3 sg poss).
+
+him 	  PRON * @(PRON he 3 sg pers)
+		 @(CASE acc)
+		 @(QUANT-SCOPE ^ %s1)
+         @(NP-INDEX %n1)
+         :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+          ((%n1_e -o %n1_t) -o ((%n1_e -o %s1_t) -o %s1_t)) || insitu,
+         :$ (\x.([],[ant(x)])) : (%n1_e -o %n1_t).
+
+herself  PRON * @(PRON 3 sg fem refl).
+
+himself  PRON * @(PRON himself 3 sg refl)
+                (^ GEND) = masc
+                 @(QUANT-SCOPE ^ %s)
+                 @(NP-INDEX %n)
+                 :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+                 ((%n_e -o %n_t) -o ((%n_e -o %s_t) -o %s_t)) || insitu,
+                 :$ (\x.([],[ant(x)])) : (%n_e -o %n_t).
+
+
+
 
 
 "Determiners"
@@ -107,7 +165,7 @@ ENGLISH   BASIC   LEXICON (1.0)
      the 	  D * (^ SPEC PRED) = 'the'
               (s::^ INDEX) = %index
               @(QUANT-SCOPE ^ %s)
-          	  :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+          	  :$ (\P.(\Q.p(([x],[bind(x)]) + P@x) + Q@x)) :
           	  ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)) || noscope.
 
      every 	D * (^ SPEC PRED) = 'every'
@@ -125,6 +183,7 @@ ENGLISH   BASIC   LEXICON (1.0)
 
 
 
+
 "Verbs"
 
   yawned  V * @(VERB-SUBJ yawn)
@@ -139,8 +198,15 @@ ENGLISH   BASIC   LEXICON (1.0)
   gave    V * @(VERB-SUBJ-OBJ-OBJ2 give)
               @VPAST.
 
+
+  told     V * @(VERB-SUBJ-OBJ-OBL told)
+               @(VPAST).
+
   thought V * @(VERB-SUBJ-COMP think)
               @VPAST.
+
+  said V * @(VERB-SUBJ-COMP think)
+                @VPAST.
 
 "Adjectives"
 
@@ -148,9 +214,23 @@ ENGLISH   BASIC   LEXICON (1.0)
 
 
 
+"Prepositions"
+
+about 	  P * @(PREP about).
+
+
 ----
 
 ENGLISH   BASIC   TEMPLATES (1.0)
+
+  PRON(P Z N T) = (^ PRED) = 'P'
+  	  (^ NUM) = N
+  	  (^ PERS) = Z
+  	  (^ PRON-TYPE) = T
+  	  (^ NTYPE) = pron.
+
+  PREP(P) =   (^ PRED) = 'P<(^OBJ)>'
+              (^ PFORM) = P.
 
    "Templates for argument structure. Need to be separate to avoid trouble with local names"
    ARG1(ARG) =
@@ -178,7 +258,9 @@ NAME(P) = (^ PRED) = 'P'
       (s::^ INDEX) = %index
       :$ (\x.([],[x=%stem])) : (s::^_e -o s::^_t),
       :$ (\Q.(\R.([x],[]) + Q@x + R@x)) :
-      ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)) || noscope.
+      ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)) || insitu.
+
+CASE(C) = (^ CASE) = C.
 
 "Verbs"
 
@@ -201,6 +283,16 @@ NAME(P) = (^ PRED) = 'P'
         @(ARG2 (^OBJ))
         @(ARG3 (^OBJ-TH)).
 
+
+       VERB-SUBJ-OBJ-OBL(P) =
+           (^ PRED) = 'P<(^ SUBJ)(^ OBJ)(^ OBL)>'
+            @(EVENT P)
+           @(ARG1 (^SUBJ))
+           @(ARG2 (^OBJ))
+           @(ARG3 (^OBL)).
+
+
+
     VERB-SUBJ-COMP(P) =
         (^ PRED) = 'P<(^ SUBJ)(^ COMP)>'
         @(EVENT P)
@@ -208,6 +300,9 @@ NAME(P) = (^ PRED) = 'P'
         %s = s::(^ COMP)
         :$ (\Q.(\S.(\e.(Q@e + ([],[cont(e):S]))))) :
         (((s::^ EV)_v -o (s::^ EV)_t) -o (%s_t -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
+
+
+
 
    VPAST = (^ VTYPE) = FIN
 	  (^ TENSE) = PST.
@@ -225,17 +320,24 @@ GLUE   BASIC   TEMPLATES (1.0)
 
     LLQUANT(N B) = (N BINDER) = B.
 
-   LLCLOSURE(G) = G $ (g::* GLUE).
+    LLCLOSURE(G) = G $ (g::* GLUE).
 
    GLUE-MEANING(R M) =
 	  (R MEANING) = M.
 
   NOSCOPE(G) = (G NOSCOPE) = +.
+  INSITU(G) = (G INSITU) = +.
 
    QUANT-SCOPE(UP NAME) =
    %name = ({SUBJ | OBJ | OBJ-TH | XCOMP | COMP | OBL-TO | OBL-AG | OBL | ADJUNCT | $}+ ^)
    (%name TENSE)
    NAME = s::%name.
+
+
+  NP-INDEX(NP) = { ~(OBL OBJ ^)
+                    NP = s::^ |
+                    (OBL OBJ ^)
+                    NP = s::(OBJ ^)}.
 
    EVENT(P) =  %EV = (s::^ EV)
               (s::^ INDEX) = %index
