@@ -1,5 +1,5 @@
-# Start from a jdk base image
-FROM eclipse-temurin:17.0.9_9-jdk
+# The JAR is built outside the image, so only a runtime is needed here.
+FROM eclipse-temurin:17.0.9_9-jre
 
 EXPOSE 8080
 
@@ -11,7 +11,8 @@ RUN apt-get update && \
         tcl8.6 \
         tk8.6 \
         swi-prolog && \
-    apt-get clean
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # set jemalloc as default malloc in env variable
 ENV LD_PRELOAD=libjemalloc.so.2

@@ -7,7 +7,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY Redis/requirements.txt /redis/
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY Redis /redis/Redis
 COPY Docker/redis-init.sh /usr/local/bin/redis-init.sh

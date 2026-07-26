@@ -30,7 +30,7 @@ proc relpath {path} {
 set defaultGlueTCL [relpath src/glue.tcl]
 
 #Here the grammar is loaded
-set defaultGlueParser [relpath grammars/kascha/glue-basic-drt.lfg.glue]
+set defaultGlueParser [relpath grammars/dev/glue-basic-drt.lfg.glue]
 
 #Set LiGER rule file
 set transferRuleFile [relpath liger_resources/rules/tam_rules.txt]

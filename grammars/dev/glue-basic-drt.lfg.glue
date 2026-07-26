@@ -23,7 +23,7 @@ GLUE   BASIC   CONFIG (1.0)
   LEXENTRIES   (ENGLISH BASIC).
   RULES   (ENGLISH BASIC).
   TEMPLATES (ENGLISH BASIC) (GLUE BASIC).
-  GOVERNABLERELATIONS    SUBJ OBJ OBJ-TH OBJ?+ OBL?+ COMP XCOMP.
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ-TH OBJ?+ OBL OBL-?+ COMP XCOMP.
   SEMANTICFUNCTIONS    ADJUNCT TOPIC FOCUS.
   NONDISTRIBUTIVES    NUM PERS.
   EPSILON   e.
@@ -38,7 +38,12 @@ OPTIMALITYORDER NOGOOD.
 
 ENGLISH   BASIC   RULES (1.0)
 
-   CP --> C'.
+   CP --> { C'
+            | CP PERIOD
+            | @(CP-COORD CP)
+            | CPcond: ! $ (^ ADJ); (COMMA) C' }.
+
+    CPcond --> Cond CP: (^OBJ) = !.
 
    C' --> (C)
  	  IP.
@@ -75,6 +80,16 @@ ENGLISH   BASIC   RULES (1.0)
    PP --> P
           NP: (^ OBJ) = !.
 
+  CP-COORD(CAT) = CAT: ! $ ^;
+            PERIOD
+            CAT: ! $ ^;
+            PERIOD .
+
+
+
+
+
+
 ----
 
 ENGLISH   BASIC   LEXICON (1.0)
@@ -83,15 +98,40 @@ ENGLISH   BASIC   LEXICON (1.0)
 
   that 	  Comp * (^ COMPFORM) = 'that'.
 
+  if Cond * (^ PRED) = 'if<(^OBJ)>'
+            %ant = s::(^OBJ)
+            %cons = s::(ADJ $ ^)
+            :$ (\P.(\Q.([],[P -> Q]))) :
+            (%ant_t -o (%cons_t -o %cons_t)).
+
+  to Aux * (^ VFORM) =c inf.
+
+  had Aux * (^ VFORM) =c perf.
+
+  "or make this an aux?"
+  would V *   (^ PRED) = 'P<(^ SUBJ)(^ XCOMP)>'
+                (^ VFORM) = modal
+                @(ARG1 (^SUBJ))
+                (^ XCOMP SUBJ) = (^SUBJ)
+                @(EVENT P).
+
 "Nouns"
+
+  Alan N * @(NAME alan).
+
+  Bertie   N * @(NAME bertie).
 
   David   N * @(NAME david).
 
   Chris   N * @(NAME chris).
 
-  Tracy   N * @(NAME tracy).
+  John N * @(NAME john).
 
   Kim   N * @(NAME kim).
+
+  Mary N * @(NAME mary).
+
+  Tracy   N * @(NAME tracy).
 
   man 	  N * @(NOUN man).
 
@@ -101,18 +141,30 @@ ENGLISH   BASIC   LEXICON (1.0)
 
   person  N * @(NOUN person).
 
+  friend N * @(NOUN friend) (^ NUM) = sg.
+
+  candidate  N * @(NOUN candidate).
+
+  linguist  N * @(NOUN linguist).
+
+  problem N * @(NOUN problem).
+
+  snake N * @(NOUN snake).
+
+
+who PRON * (^PRON-TYPE) = rel
+             (^PRED) = 'who'
+             {(^NUM) =sg |(^NUM) = pl}.
+
 he 	  PRON * @(PRON he 3 sg pers)
 		 @(CASE nom)
-		 @(QUANT-SCOPE ^ %s)
-         @(NP-INDEX %n)
-         :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
-          ((%n_e -o %n_t) -o ((%n_e -o %s_t) -o %s_t)) || insitu,
-         :$ (\x.([],[ant(x)])) : (%n_e -o %n_t).
+         (^ GEND) = masc.
 
 she 	  PRON * @(PRON she 3 sg pers)
 		 @(CASE nom).
 
-it	  PRON * @(PRON it 3 sg pers).
+it	  PRON * @(PRON it 3 sg pers)
+             (^GEND) = neut.
 
 we 	  PRON * @(PRON we 1 pl pers)
 		 @(CASE nom).
@@ -128,25 +180,18 @@ them 	  PRON * @(PRON them 3 pl pers)
 
 my	PRON * @(PRON my 1 sg poss).
 
-her	PRON * @(PRON her 3 sg poss).
+her	PRON * @(PRON her 3 sg poss)
+           (^GEND) = fem.
 
 him 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE acc)
-		 @(QUANT-SCOPE ^ %s1)
-         @(NP-INDEX %n1)
-         :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
-          ((%n1_e -o %n1_t) -o ((%n1_e -o %s1_t) -o %s1_t)) || insitu,
-         :$ (\x.([],[ant(x)])) : (%n1_e -o %n1_t).
+		  @(CASE acc)
+		  (^ GEND) = masc.
 
-herself  PRON * @(PRON 3 sg fem refl).
+herself  PRON * @(PRON 3 sg fem refl)
+                (^GEND) = fem.
 
 himself  PRON * @(PRON himself 3 sg refl)
-                (^ GEND) = masc
-                 @(QUANT-SCOPE ^ %s)
-                 @(NP-INDEX %n)
-                 :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
-                 ((%n_e -o %n_t) -o ((%n_e -o %s_t) -o %s_t)) || insitu,
-                 :$ (\x.([],[ant(x)])) : (%n_e -o %n_t).
+                (^ GEND) = masc.
 
 
 
@@ -185,28 +230,77 @@ himself  PRON * @(PRON himself 3 sg refl)
   yawned  V * @(VERB-SUBJ yawn)
 	          @VPAST.
 
+  arrived V * @(VERB-SUBJ arrive)
+	          @VPAST.
+
+ sat V * @(VERB-SUBJ sit)
+	          @VPAST.
+
+
+  leave V * @(VERB-SUBJ leave) (^ VFORM) = inf.
+
+  win V * @(VERB-SUBJ win) (^ VFORM) = inf.
+
+  appeared V * @(VERB-SUBJ appear)
+	          @VPAST.
+
   smiled  V * @(VERB-SUBJ smile)
+	          @VPAST.
+
+   was 	  V * @(VERB-SUBJ-OBJ be)
+	          @VPAST.
+
+  liked V * @(VERB-SUBJ-OBJ like)
+	          @VPAST.
+
+  likes V * @(VERB-SUBJ-OBJ like)
+	          @VPRES.
+
+  solved V * @(VERB-SUBJ-OBJ solve)
 	          @VPAST.
 
   saw 	  V * @(VERB-SUBJ-OBJ see)
 	          @VPAST.
+
+  seen V *  @(VERB-SUBJ-OBJ see)
+	          @VPAST
+	          (^VFORM) = perf.
+
+  supports	  V * @(VERB-SUBJ-OBJ support)
+	          @VPRES.
+
+  has	  V * @(VERB-SUBJ-OBJ have)
+	          @VPRES.
+
+  talk   V * {@(VERB-SUBJ-OBL talk) |@(VERB-SUBJ talk) }
+	          (^ VFORM) = inf.
 
   gave    V * @(VERB-SUBJ-OBJ-OBJ2 give)
               @VPAST.
 
 
   told     V * @(VERB-SUBJ-OBJ-OBL told)
-               @(VPAST).
+               @VPAST.
 
   thought V * @(VERB-SUBJ-COMP think)
               @VPAST.
 
-  said V * @(VERB-SUBJ-COMP think)
-                @VPAST.
+  knew V * @(VERB-SUBJ-COMP know)
+              @VPAST.
+
+  said V * @(VERB-SUBJ-COMP say)
+              @VPAST.
+
+  wanted V * {@(VERB-SUBJ-XCOMP want) | @(VERB-SUBJ-OBJ-XCOMP want)}
+              @VPAST.
 
 "Adjectives"
 
   interesting Adj * (^ PRED) = 'interesting'.
+
+  difficult Adj * (^PRED) = 'difficult'.
+
+  down Adv * (^PRED) = 'down'.
 
 
 
@@ -214,7 +308,16 @@ himself  PRON * @(PRON himself 3 sg refl)
 
 about 	  P * @(PREP about).
 
+near      P * @(PREP near).
 
+
+
+""
+
+. PERIOD *   .
+
+
+, COMMA *   .
 ----
 
 ENGLISH   BASIC   TEMPLATES (1.0)
@@ -223,7 +326,15 @@ ENGLISH   BASIC   TEMPLATES (1.0)
   	  (^ NUM) = N
   	  (^ PERS) = Z
   	  (^ PRON-TYPE) = T
-  	  (^ NTYPE) = pron.
+  	  (^ NTYPE) = pron
+  	  @PRON-SEM.
+
+  PRON-SEM = (s::^ INDEX) = %index
+                 @(QUANT-SCOPE ^ %s)
+                 @(NP-INDEX %n)
+                 :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+                  ((%n_e -o %n_t) -o ((%n_e -o %s_t) -o %s_t)) || insitu,
+                  :$ (\x.([],[ant(x)])) : (%n_e -o %n_t).
 
   PREP(P) =   (^ PRED) = 'P<(^OBJ)>'
               (^ PFORM) = P.
@@ -243,6 +354,10 @@ ENGLISH   BASIC   TEMPLATES (1.0)
        %EV = (s::^ EV)
        :$ (\V.(\x.(\e.(V@e + ([],[arg3(e,x)]))))) :
        ((%EV_v -o %EV_t) -o (s::ARG_e -o (%EV_v -o %EV_t))) || noscope.
+
+   CLAUSAL-ARG(ARG) =
+   :$ (\Q.(\S.(\e.(Q@e + ([],[cont(e):S]))))) :
+           (((s::^ EV)_v -o (s::^ EV)_t) -o (s::ARG_t -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
 
 "Nouns"
 
@@ -266,18 +381,23 @@ CASE(C) = (^ CASE) = C.
 
    VERB-SUBJ-OBJ(P) =
 	  (^ PRED) = 'P<(^ SUBJ)(^ OBJ)>'
-	   @(EVENT P)
+	  @(EVENT P)
 	  @(ARG1 (^SUBJ))
 	  @(ARG2 (^OBJ)).
 
 
     VERB-SUBJ-OBJ-OBJ2(P) =
         (^ PRED) = 'P<(^ SUBJ)(^ OBJ)(^ OBJ-TH)>'
-         @(EVENT P)
+        @(EVENT P)
         @(ARG1 (^SUBJ))
         @(ARG2 (^OBJ))
         @(ARG3 (^OBJ-TH)).
 
+    VERB-SUBJ-OBL(P) =
+	   (^ PRED) = 'P<(^ SUBJ)(^ OBL)>'
+	   @(EVENT P)
+	   @(ARG1 (^SUBJ))
+	   @(ARG2 (^OBL)).
 
        VERB-SUBJ-OBJ-OBL(P) =
            (^ PRED) = 'P<(^ SUBJ)(^ OBJ)(^ OBL)>'
@@ -292,16 +412,30 @@ CASE(C) = (^ CASE) = C.
         (^ PRED) = 'P<(^ SUBJ)(^ COMP)>'
         @(EVENT P)
         @(ARG1 (^SUBJ))
-        %s = s::(^ COMP)
-        :$ (\Q.(\S.(\e.(Q@e + ([],[cont(e):S]))))) :
-        (((s::^ EV)_v -o (s::^ EV)_t) -o (%s_t -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
+        @(CLAUSAL-ARG (^ COMP)).
 
+    VERB-SUBJ-XCOMP(P) =
+        (^ PRED) = 'P<(^ SUBJ)(^ XCOMP)>'
+        (^ XCOMP SUBJ) = (^SUBJ)
+        @(EVENT P)
+        @(ARG1 (^SUBJ))
+        @(CLAUSAL-ARG (^ XCOMP)).
 
+   VERB-SUBJ-OBJ-XCOMP(P) =
+        (^ PRED) = 'P<(^ SUBJ)(^OBJ)(^ XCOMP)>'
+
+        (^ XCOMP SUBJ) = (^OBJ)
+       @(EVENT P)
+       @(ARG1 (^SUBJ))
+       @(ARG2 (^OBJ))
+       @(CLAUSAL-ARG (^ XCOMP)).
 
 
    VPAST = (^ VTYPE) = FIN
 	  (^ TENSE) = PST.
 
+VPRES = (^ VTYPE) = FIN
+	  (^ TENSE) = PRES.
 
 ----
 
