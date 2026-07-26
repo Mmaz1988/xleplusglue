@@ -157,25 +157,21 @@ himself  PRON * @(PRON himself 3 sg refl)
      "Quantifier"
 
      a 	  D * (^ SPEC PRED) = 'a'
-              (s::^ INDEX) = %index
               @(QUANT-SCOPE ^ %s)
      	      :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
      	      ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)).
 
      the 	  D * (^ SPEC PRED) = 'the'
-              (s::^ INDEX) = %index
               @(QUANT-SCOPE ^ %s)
           	  :$ (\P.(\Q.p(([x],[bind(x)]) + P@x) + Q@x)) :
           	  ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)) || noscope.
 
      every 	D * (^ SPEC PRED) = 'every'
-                (s::^ INDEX) = %index
                @(QUANT-SCOPE ^ %s)
      	      :$ (\P.(\Q.([],[([x],[]) + P@x -> Q@x]))) :
      	      ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)).
 
      everyone 	N * (^ PRED) = 'everyone'
-            	  (s::^ INDEX) = %index
           	      @(QUANT-SCOPE ^ %s)
                   :$ (\P.(\Q.([],[([x],[]) + P@x -> Q@x]))) :
                   ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)),
@@ -255,7 +251,6 @@ NOUN(P) = (^ PRED) = 'P'
 
 NAME(P) = (^ PRED) = 'P'
       @(QUANT-SCOPE ^ %s)
-      (s::^ INDEX) = %index
       :$ (\x.([],[x=%stem])) : (s::^_e -o s::^_t),
       :$ (\Q.(\R.([x],[]) + Q@x + R@x)) :
       ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)) || insitu.
@@ -340,7 +335,6 @@ GLUE   BASIC   TEMPLATES (1.0)
                     NP = s::(OBJ ^)}.
 
    EVENT(P) =  %EV = (s::^ EV)
-              (s::^ INDEX) = %index
            :$ (\e.([],[P(e)])) :
            (%EV_v -o %EV_t),
            :$ (\Q.([e],[]) + Q@e) :
