@@ -236,6 +236,8 @@ himself  PRON * @(PRON himself 3 sg refl)
  sat V * @(VERB-SUBJ sit)
 	          @VPAST.
 
+  introduced    V * @(VERB-SUBJ-OBJ-OBL give)
+               @VPAST.
 
   leave V * @(VERB-SUBJ leave) (^ VFORM) = inf.
 
@@ -310,6 +312,8 @@ about 	  P * @(PREP about).
 
 near      P * @(PREP near).
 
+to    P * @(PREP to).
+
 
 
 ""
@@ -362,7 +366,8 @@ ENGLISH   BASIC   TEMPLATES (1.0)
 "Nouns"
 
 NOUN(P) = (^ PRED) = 'P'
-      :$ (\x.([],[%stem(x)])) : (s::^_e -o s::^_t).
+          @(NP-INDEX %n)
+         :$ (\x.([],[%stem(x)])) : (%n_e -o %n_t).
 
 NAME(P) = (^ PRED) = 'P'
       @(QUANT-SCOPE ^ %s)
