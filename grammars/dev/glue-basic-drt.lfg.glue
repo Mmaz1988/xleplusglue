@@ -203,8 +203,9 @@ himself  PRON * @(PRON himself 3 sg refl)
 
      a 	  D * (^ SPEC PRED) = 'a'
               @(QUANT-SCOPE ^ %s)
+              @(NP-INDEX %n)
      	      :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
-     	      ((s::^_e -o s::^_t) -o ((s::^_e -o %s_t) -o %s_t)).
+     	      ((%n_e -o %n_t) -o ((%n_e -o %s_t) -o %s_t)).
 
      the 	  D * (^ SPEC PRED) = 'the'
               @(QUANT-SCOPE ^ %s)
@@ -236,7 +237,7 @@ himself  PRON * @(PRON himself 3 sg refl)
  sat V * @(VERB-SUBJ sit)
 	          @VPAST.
 
-  introduced    V * @(VERB-SUBJ-OBJ-OBL give)
+  introduced    V * @(VERB-SUBJ-OBJ-OBL introduce)
                @VPAST.
 
   leave V * @(VERB-SUBJ leave) (^ VFORM) = inf.

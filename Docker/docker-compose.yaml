@@ -43,6 +43,10 @@ services:
       context: ..
     ports:
       - '8081:8081'
+    environment:
+      LIGER_API_URL: http://liger:8080
+    depends_on:
+      - liger
   frontend:
     build:
       dockerfile: Docker/Dockerfile-frontend
