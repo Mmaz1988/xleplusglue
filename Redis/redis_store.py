@@ -5,6 +5,9 @@ from datetime import datetime, timezone
 import redis
 
 
+ANALYSIS_DOCUMENT_TTL_SECONDS = int(os.getenv("ANALYSIS_DOCUMENT_TTL_SECONDS", "900"))
+
+
 def redis_client():
     return redis.Redis(
         host=os.getenv("REDIS_HOST", "localhost"),
@@ -61,6 +64,47 @@ def _prepare_last_session_payload(payload):
 def clear_last_session(session_key, client=None):
     client = client or redis_client()
     client.delete(session_key)
+
+
+def _analysis_document_key(session_key):
+    return f"analysis_document:{session_key}"
+
+
+def load_analysis_document(session_key, client=None):
+    client = client or redis_client()
+    raw = client.get(_analysis_document_key(session_key))
+    if not raw:
+        return None
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8")
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+
+
+def save_analysis_document(session_key, payload, client=None):
+    client = client or redis_client()
+    current = load_analysis_document(session_key, client=client)
+    document = dict(payload or {})
+    now = _now_iso()
+    document["documentId"] = document.get("documentId") or session_key
+    document["semanticType"] = document.get("semanticType") or "lfgxdrt"
+    document["createdAt"] = document.get("createdAt") or (current or {}).get("createdAt") or now
+    document["updatedAt"] = now
+    document["revision"] = int((current or {}).get("revision", 0)) + 1
+    client.setex(
+        _analysis_document_key(session_key),
+        ANALYSIS_DOCUMENT_TTL_SECONDS,
+        json.dumps(document),
+    )
+    return {"status": "ok", "document": document}
+
+
+def clear_analysis_document(session_key, client=None):
+    client = client or redis_client()
+    client.delete(_analysis_document_key(session_key))
+    return {"status": "ok"}
 
 
 def _gswb_batch_session_key(session_key):

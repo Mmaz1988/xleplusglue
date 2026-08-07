@@ -3,10 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from Redis.redis_store import (
     clear_gswb_batch_session,
+    clear_analysis_document,
     clear_last_session,
     clear_vampire_progress,
     delete_regression_session,
     load_gswb_batch_session,
+    load_analysis_document,
     load_last_session,
     load_vampire_progress,
     load_regression_session,
@@ -14,6 +16,7 @@ from Redis.redis_store import (
     merge_last_session,
     request_vampire_cancel,
     save_gswb_batch_session,
+    save_analysis_document,
     save_last_session,
     save_vampire_progress,
     save_regression_session,
@@ -100,6 +103,30 @@ def get_last_session_summary(session_key: str):
 def get_default_last_session_summary():
     try:
         return summarize_last_session(load_last_session())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/analysis_document/{session_key}")
+def get_analysis_document(session_key: str):
+    try:
+        return load_analysis_document(session_key)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.put("/analysis_document/{session_key}")
+def put_analysis_document(session_key: str, payload: dict):
+    try:
+        return save_analysis_document(session_key, payload)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.delete("/analysis_document/{session_key}")
+def delete_analysis_document(session_key: str):
+    try:
+        return clear_analysis_document(session_key)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
