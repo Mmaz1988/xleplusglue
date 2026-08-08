@@ -62,18 +62,54 @@ further example-driven tests:
 
 Run directly:   python3 tests/test_full_analysis_workflow.py
 Run via pytest: pytest tests/test_full_analysis_workflow.py -v -s
+
+Every HTTP request/response this file makes is also dumped as JSON under
+tests/tmp/<run>/<NN>-<endpoint>.json (see DUMP_REQUESTS / _request_json), one
+subdirectory per test/example run, numbered in call order -- useful for
+inspecting exactly what LiGER/GSWB/Redis returned at each step without
+re-running anything. tests/tmp/ is gitignored and cleared at the start of
+each `python3 tests/test_full_analysis_workflow.py` invocation; set
+DUMP_REQUESTS=0 to disable it (e.g. under pytest, where it stays enabled by
+default but accumulates across runs instead of being cleared).
 """
 import json
 import os
+import shutil
 import sys
 import urllib.error
 import urllib.request
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
+TMP_DIR = os.path.join(TESTS_DIR, "tmp")
 
 LIGER_URL = os.environ.get("LIGER_URL", "http://localhost:8080")
 GSWB_URL = os.environ.get("GSWB_URL", "http://localhost:8081")
 REDIS_URL = os.environ.get("REDIS_API_URL", "http://localhost:8083")
+
+DUMP_REQUESTS = os.environ.get("DUMP_REQUESTS", "1") != "0"
+_dump_state = {"run": "unlabeled", "step": 0}
+
+
+def set_dump_run(run_name):
+    """Start a new numbered dump sequence under tests/tmp/<run_name>/,
+    called at the top of each test function/example iteration so requests
+    from different examples land in separate, non-overwriting directories.
+    """
+    _dump_state["run"] = run_name
+    _dump_state["step"] = 0
+
+
+def _dump_request(url, method, payload, response):
+    if not DUMP_REQUESTS:
+        return
+    endpoint = url.split("/", 3)[-1].replace("/", "-") or "root"
+    _dump_state["step"] += 1
+    run_dir = os.path.join(TMP_DIR, _dump_state["run"])
+    os.makedirs(run_dir, exist_ok=True)
+    path = os.path.join(run_dir, f"{_dump_state['step']:02d}-{method}-{endpoint}.json")
+    with open(path, "w") as f:
+        json.dump({"url": url, "method": method, "request": payload, "response": response}, f, indent=2)
 
 # Same defaults the browser client loads on startup; see
 # ../xleplusglue-client/src/app/app-defaults.ts. These are resolved by the
@@ -253,7 +289,20 @@ def _request_json(method, url, payload=None):
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
             body = response.read().decode("utf-8")
-            return json.loads(body) if body else {}
+            parsed = json.loads(body) if body else {}
+            _dump_request(url, method, payload, parsed)
+            return parsed
+    except urllib.error.HTTPError as error:
+        error_body = error.read().decode("utf-8", errors="replace")
+        try:
+            error_response = json.loads(error_body) if error_body else {}
+        except json.JSONDecodeError:
+            error_response = {"raw": error_body}
+        _dump_request(url, method, payload, {"httpStatus": error.code, "error": error_response})
+        raise RuntimeError(
+            f"Request to {url} failed (HTTP Error {error.code}: {error_body[:500]}). "
+            f"Is the stack running? Start it with `docker compose up --build` from Docker/."
+        ) from error
     except urllib.error.URLError as error:
         raise RuntimeError(
             f"Request to {url} failed ({error}). Is the stack running? "
@@ -643,6 +692,7 @@ def run_discourse_postprocessing(structure_json, drs_graph, merged_semantic, sem
 
 
 def test_full_analysis_workflow():
+    set_dump_run("full_analysis_workflow")
     print(f"\n=== Step 0: initialization (rules + grammar) ===")
     rule_string = load_rules()
     select_grammar()
@@ -726,10 +776,12 @@ def test_sequence_examples():
     find an antecedent here, and each example asserts that happens rather
     than silently falling back to a manually spliced mapping.
     """
+    set_dump_run("sequence_examples_init")
     rule_string = load_rules()
     select_grammar()
 
     for label, sentence_1, sentence_2 in SEQUENCE_EXAMPLES:
+        set_dump_run(f"sequence_{label}")
         print(f"\n#### Sequence example: {label} ({sentence_1!r} + {sentence_2!r}) ####")
         seq_solution, sol1, current_solution, merged = run_sequence_semantics(sentence_1, sentence_2, rule_string)
         merged_semantic = merged.get("semantic")
@@ -750,10 +802,12 @@ def test_single_sentence_discourse_examples():
     discourse post-processing runs directly against that sentence's own
     structure and DRS graph.
     """
+    set_dump_run("single_sentence_discourse_examples_init")
     rule_string = load_rules()
     select_grammar()
 
     for label, sentence in SINGLE_SENTENCE_DISCOURSE_EXAMPLES:
+        set_dump_run(f"single_{label}")
         print(f"\n#### Single-sentence discourse example: {label} ({sentence!r}) ####")
         _, _, sol, syntax, semantic = parse_and_deduce(sentence, rule_string, label=label)
 
@@ -773,6 +827,11 @@ ALL_TESTS = [
 
 
 if __name__ == "__main__":
+    if DUMP_REQUESTS:
+        shutil.rmtree(TMP_DIR, ignore_errors=True)
+        os.makedirs(TMP_DIR, exist_ok=True)
+        print(f"Dumping every request/response as JSON under {TMP_DIR}")
+
     failures = []
     for test in ALL_TESTS:
         print(f"\n{'=' * 20} Running {test.__name__} {'=' * 20}")

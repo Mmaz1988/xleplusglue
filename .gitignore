@@ -9,6 +9,8 @@ jars/old_versions/*
 
 inference/vampire_test/generated_testfiles/*.p
 
+/tests/tmp/
+
 *.lfg
 /grammars/*/*.fileindexdir/
 
