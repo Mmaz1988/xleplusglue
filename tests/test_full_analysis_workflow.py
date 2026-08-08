@@ -265,19 +265,51 @@ def _post_json(url, payload):
     return _request_json("POST", url, payload)
 
 
+def _with_local_fallback(request_fn, configured_path, fallback_path, env_var_name, label):
+    """Try request_fn(configured_path); if it fails and the caller did not
+    explicitly set env_var_name, retry once against fallback_path -- an
+    absolute path derived from this repo's own location on disk.
+
+    GRAMMAR_PATH/RULES_PATH default to paths relative to the LiGER *server*
+    process's own working directory, which is `/` in the Docker image (where
+    Dockerfile-liger places grammars/ and liger_resources/ at the root) but
+    is this repo's sibling checkout directory (e.g. ../liger) for a
+    locally-started LiGER process such as one launched from an IDE -- which
+    can't see "./grammars/..." there, but can see this repo's own absolute
+    path directly, since both processes run on the same machine.
+    """
+    try:
+        return request_fn(configured_path)
+    except RuntimeError:
+        if env_var_name in os.environ or configured_path == fallback_path:
+            raise
+        print(f"[liger] {label}({configured_path!r}) failed; retrying with absolute path "
+              f"{fallback_path!r} (looks like a locally-started LiGER process whose working "
+              f"directory differs from the Docker image's `/`)")
+        return request_fn(fallback_path)
+
+
 def load_rules():
     """POST /load_rules -- mirrors RuleLoaderComponent.ngOnInit()."""
-    response = _post_json(f"{LIGER_URL}/load_rules", {"grammar": RULES_PATH})
-    rule_string = response["grammar"]
-    print(f"[liger] /load_rules -> {len(rule_string)} chars from {RULES_PATH}")
-    return rule_string
+    def do_load(path):
+        response = _post_json(f"{LIGER_URL}/load_rules", {"grammar": path})
+        rule_string = response["grammar"]
+        print(f"[liger] /load_rules -> {len(rule_string)} chars from {path}")
+        return rule_string
+
+    fallback = os.path.join(REPO_ROOT, "liger_resources", "rules", "basic_axiom_rules.txt")
+    return _with_local_fallback(do_load, RULES_PATH, fallback, "LIGER_RULES_PATH", "/load_rules")
 
 
 def select_grammar():
     """POST /change_grammar -- mirrors GrammarLoaderComponent.ngOnInit()."""
-    response = _post_json(f"{LIGER_URL}/change_grammar", {"grammar": GRAMMAR_PATH})
-    print(f"[liger] /change_grammar({GRAMMAR_PATH}) -> {response}")
-    assert response.get("grammar") == "success", f"Grammar change failed: {response}"
+    def do_select(path):
+        response = _post_json(f"{LIGER_URL}/change_grammar", {"grammar": path})
+        print(f"[liger] /change_grammar({path}) -> {response}")
+        assert response.get("grammar") == "success", f"Grammar change failed: {response}"
+
+    fallback = os.path.join(REPO_ROOT, "grammars", "dev", "glue-basic-drt.lfg.glue")
+    _with_local_fallback(do_select, GRAMMAR_PATH, fallback, "LIGER_GRAMMAR_PATH", "/change_grammar")
 
 
 def liger_annotate(sentence, rule_string):
