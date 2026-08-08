@@ -408,8 +408,12 @@ def pick_selected_solution(liger_response):
     return liger_response["solutions"][0]
 
 
-def build_proof_inputs(liger_response):
-    """Reproduce ChatComponent's `proofInputs` construction."""
+def build_proof_inputs(liger_response, sentence_id=None):
+    """Reproduce ChatComponent's `proofInputs` construction. `sentence_id` mirrors
+    liger-vis.component.ts's proofInputsFor(), which now threads the document's
+    stable Sentence.id through as GswbProofInput.sentenceId so GswbController can
+    seed distinct solution ids across independent /deduce calls for the same
+    sequence (see SolutionObject.sentenceId / GswbController.formatSolutionsAndDiscriminants)."""
     proofs = []
     for index, solution in enumerate(liger_response["solutions"]):
         mcs = solution.get("meaningConstructors") or ""
@@ -418,6 +422,7 @@ def build_proof_inputs(liger_response):
         proofs.append(
             {
                 "proofId": solution.get("solutionKey") or f"sentence-{index + 1}",
+                "sentenceId": sentence_id,
                 "solutionKey": solution.get("solutionKey"),
                 "meaningConstructors": mcs,
                 "structure": solution.get("structureJson"),
@@ -595,7 +600,7 @@ def delete_analysis_document(session_key):
     print(f"[redis] DELETE /analysis_document/{session_key}")
 
 
-def parse_and_deduce(sentence, rule_string, label="sentence"):
+def parse_and_deduce(sentence, rule_string, label="sentence", sentence_id=None):
     """Steps 1/2: parse + rewrite one sentence with LiGER, then compose its
     semantics with GSWB. Returns (liger_response, selected, sol, syntax,
     semantic) -- 'selected' is the chosen LiGER solution, 'sol' the chosen
@@ -605,7 +610,7 @@ def parse_and_deduce(sentence, rule_string, label="sentence"):
     print(f"\n=== parse + compose semantics for {label}: {sentence!r} ===")
     liger_response = liger_annotate(sentence, rule_string)
     selected = pick_selected_solution(liger_response)
-    proofs = build_proof_inputs(liger_response)
+    proofs = build_proof_inputs(liger_response, sentence_id=sentence_id)
     mcs = "\n".join(p["meaningConstructors"] for p in proofs)
     assert mcs.strip(), f"No meaning constructors extracted for {sentence!r}"
     gswb_response = gswb_deduce(mcs, selected["structureJson"], proofs)
@@ -623,10 +628,10 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
     addSentence()), and merge the two semantic graphs into the final
     Sequence DRS. Returns (seq_solution, sol1, current_solution, merged).
     """
-    _, _, sol1, syntax1, _ = parse_and_deduce(sentence_1, rule_string, label="sentence 1")
+    _, _, sol1, syntax1, _ = parse_and_deduce(sentence_1, rule_string, label="sentence 1", sentence_id="sentence-1")
 
     liger2, selected2, sol2_standalone, syntax2, _ = parse_and_deduce(
-        sentence_2, rule_string, label="sentence 2 (standalone)"
+        sentence_2, rule_string, label="sentence 2 (standalone)", sentence_id="sentence-2"
     )
 
     print(f"\n=== merge syntax of both sentences into one sequence ===")
@@ -648,6 +653,7 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
         [
             {
                 "proofId": current_part.get("solutionKey") or "sequence-current-sentence",
+                "sentenceId": "sentence-2",
                 "solutionKey": current_part.get("solutionKey"),
                 "meaningConstructors": current_part["meaningConstructors"],
                 "structure": seq_solution["structureJson"],
