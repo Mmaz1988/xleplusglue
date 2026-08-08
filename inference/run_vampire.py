@@ -72,6 +72,60 @@ def _ensure_not_cancelled(session_key):
     if _is_vampire_cancel_requested(session_key):
         raise VampireCancelled()
 
+
+def _item_value(item, key, default=None):
+    if isinstance(item, dict):
+        return item.get(key, default)
+    return getattr(item, key, default)
+
+
+def generate_translated_check_files(checks, axioms="", logic="fof", output_folder="tmp/current/", context_tptp=""):
+    os.makedirs(output_folder, exist_ok=True)
+    files = []
+    for name in ("info_pos_check", "info_neg_check", "cons_pos_check", "cons_neg_check"):
+        formula = checks[name]["tptp"]
+        context_axiom = f"{logic}(context, axiom, ({context_tptp})).\n" if context_tptp else ""
+        content = f"{axioms}\n\n{context_axiom}{logic}({name}, axiom, ({formula})).\n"
+        path = os.path.join(output_folder, f"sem_{name}.p")
+        with open(path, "w") as file:
+            file.write(content)
+        files.append(content)
+    return files
+
+
+def run_tptp_vampire_batch(checks, axioms, logic_type, vampire_mode,
+                           max_duration, output_folder, context_tptp=""):
+    proof_files = generate_translated_check_files(
+        checks, axioms=axioms, logic=logic_type, output_folder=output_folder,
+        context_tptp=context_tptp)
+    results = massacer(output_folder, mode=vampire_mode,
+                       timeout=max_duration, vampire_path="bin")
+    return proof_files, results
+
+
+def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration):
+    current_checks = []
+    for index, tptp_bundle in enumerate(request.tptp_checks):
+        checks = _item_value(tptp_bundle, "checks", tptp_bundle)
+        output_folder = os.path.join(tmp_root, "tptp", str(index))
+        proof_files, results = run_tptp_vampire_batch(
+            checks, request.axioms, logic_type, vampire_mode,
+            max_duration, output_folder,
+            _item_value(tptp_bundle, "context_tptp", ""))
+        consistent, informative, relevant = discourse_checks(data=results)
+        svg_output = generate_svg_glyph(results)
+        current_checks.append(Check(
+            glyph=svg_output,
+            informative=informative,
+            consistent=consistent,
+            relevant=relevant,
+            proof_files=proof_files))
+
+    return VampireResponse(
+        context=[],
+        active_indices=list(range(len(current_checks))),
+        context_checks_mapping={i: check for i, check in enumerate(current_checks)})
+
 # function for calling predicate with a specific knowledgebase and input
 def useProlog(knowledgeBase, inputString):
     """
@@ -265,6 +319,16 @@ def single_vampire_request(request):
     current_checks = []
 
     logger.info("Received Vampire Request: %s", request)
+
+    if request.tptp_checks:
+        logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
+        model_building = request.vampire_preferences['model_building'] is True
+        vampire_mode = ["-sa", "fmb"] if logic_type == "fof" and model_building else ["--mode", "casc"]
+        max_duration = int(request.vampire_preferences.get('max_duration', 45))
+        result = _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration)
+        _cleanup_tmp_root(tmp_root)
+        return result
+
     readings = extract_drs_blocks(request.hypothesis)
     logger.debug("Readings extracted: %s", readings)
 
@@ -374,6 +438,29 @@ def single_vampire_request(request):
     return result
 
 
+def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
+                   max_duration, tmp_root, session_key):
+    checks = []
+    branch_index = 0
+    for tptp_bundle in _item_value(nli_item, "tptp_checks", []):
+        _ensure_not_cancelled(session_key)
+        branch_root = os.path.join(tmp_root, "tptp", str(branch_index))
+        tptp_checks = _item_value(tptp_bundle, "checks", tptp_bundle)
+        proof_files, results = run_tptp_vampire_batch(
+            tptp_checks, axioms, logic_type, vampire_mode,
+            max_duration, branch_root)
+        consistent, informative, relevance = discourse_checks(data=results)
+        svg_output = generate_svg_glyph(results)
+        checks.append(Check(
+            glyph=svg_output,
+            informative=informative,
+            consistent=consistent,
+            relevant=relevance,
+            proof_files=proof_files))
+        branch_index += 1
+    return checks
+
+
 # Define the Pydantic model for request validation
 def multiple_vampire_request(request):
     session_key = _vampire_session_key(request)
@@ -416,6 +503,17 @@ def multiple_vampire_request(request):
     try:
         for id, nli_item in request.nli_items.items():
             _ensure_not_cancelled(session_key)
+            if _item_value(nli_item, "tptp_checks"):
+                inference_results[id] = _run_tptp_item(
+                    nli_item,
+                    _item_value(nli_item, "axioms", ""),
+                    logic_type,
+                    vampire_mode,
+                    max_duration,
+                    tmp_root,
+                    session_key)
+                snapshot_progress("running", id)
+                continue
             output_folder = os.path.join(tmp_root, "current")
             # merge premises into one drs
 
