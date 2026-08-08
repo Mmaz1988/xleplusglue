@@ -45,6 +45,21 @@ LiGER/GSWB request/response DTOs in ../liger and ../GlueSemWorkbench_v2.
 Requires the `liger`, `gswb`, and `redis` services running (`docker compose
 up --build` from Docker/, or equivalent local runs on ports 8080/8081/8083).
 
+test_full_analysis_workflow() runs the full pipeline above (steps 1-11) once,
+against SENTENCE_1/SENTENCE_2. The steps are also factored into reusable
+helpers -- parse_and_deduce() (steps 1/2), run_sequence_semantics() (steps
+1-5), and run_discourse_postprocessing() (steps 6-9) -- exercised by two
+further example-driven tests:
+
+  - test_sequence_examples() re-runs steps 1-9 over SEQUENCE_EXAMPLES,
+    additional sentence pairs that exercise the same SYN-ID/SRC offsetting
+    that addSentence() (liger-vis.component.ts) applies when a sentence is
+    appended to a sequence, with real (non-proper-name) antecedents so the
+    pronoun-binding rules are expected to actually resolve them.
+  - test_single_sentence_discourse_examples() runs steps 1 and 6-9 over
+    SINGLE_SENTENCE_DISCOURSE_EXAMPLES, sentences with in-sentence anaphora
+    (reflexives, pronouns in embedded clauses) that need no sequence merge.
+
 Run directly:   python3 tests/test_full_analysis_workflow.py
 Run via pytest: pytest tests/test_full_analysis_workflow.py -v -s
 """
@@ -94,6 +109,26 @@ GSWB_PREFERENCES = {
 # pronoun-antecedent sequencing without needing a custom lexicon.
 SENTENCE_1 = "Kim arrived."
 SENTENCE_2 = "she smiled."
+
+# Additional sequence examples (beyond SENTENCE_1/SENTENCE_2, which already
+# has its own dedicated full test below), chosen to exercise the SYN-ID/SRC
+# offsetting fix in addSentence() (liger-vis.component.ts) and the
+# NLI_RULES pronoun-binding rules below with real (non-proper-name)
+# antecedents and ambiguity between two indefinites. Each tuple is
+# (label, sentence_1, sentence_2) for the two-sentence sequence pipeline.
+SEQUENCE_EXAMPLES = [
+    ("man-he", "a man appeared.", "he smiled."),
+    ("man-man-ambiguous", "a man saw a man.", "he saw him."),
+]
+
+# Single-sentence discourse examples: no sequence merge is needed (there is
+# only one sentence), so these run steps 1 and 6-9 directly against that
+# sentence's own structure/DRS instead of a merged Sequence.
+SINGLE_SENTENCE_DISCOURSE_EXAMPLES = [
+    ("reflexive", "Kim told a man about himself."),
+    ("embedded-pronouns", "Kim said that he saw him."),
+    ("doubly-embedded-pronouns", "Kim thought that he said that he saw a man."),
+]
 
 TIMEOUT_SECONDS = 120
 
@@ -425,37 +460,42 @@ def delete_analysis_document(session_key):
     print(f"[redis] DELETE /analysis_document/{session_key}")
 
 
-def test_full_analysis_workflow():
-    print(f"\n=== Step 0: initialization (rules + grammar) ===")
-    rule_string = load_rules()
-    select_grammar()
+def parse_and_deduce(sentence, rule_string, label="sentence"):
+    """Steps 1/2: parse + rewrite one sentence with LiGER, then compose its
+    semantics with GSWB. Returns (liger_response, selected, sol, syntax,
+    semantic) -- 'selected' is the chosen LiGER solution, 'sol' the chosen
+    GSWB semantic solution, 'syntax' its matching LiGER structure, and
+    'semantic' the DRS text.
+    """
+    print(f"\n=== parse + compose semantics for {label}: {sentence!r} ===")
+    liger_response = liger_annotate(sentence, rule_string)
+    selected = pick_selected_solution(liger_response)
+    proofs = build_proof_inputs(liger_response)
+    mcs = "\n".join(p["meaningConstructors"] for p in proofs)
+    assert mcs.strip(), f"No meaning constructors extracted for {sentence!r}"
+    gswb_response = gswb_deduce(mcs, selected["structureJson"], proofs)
+    sol = first_semantic_solution(gswb_response)
+    syntax = matching_syntax(liger_response["solutions"], sol.get("solutionKey"), selected["structureJson"])
+    semantic = sol.get("semantic") or sol.get("solution")
+    print(f"[trace] {label} DRS: {semantic}")
+    return liger_response, selected, sol, syntax, semantic
 
-    print(f"\n=== Step 1: parse + compose semantics for sentence 1: {SENTENCE_1!r} ===")
-    liger1 = liger_annotate(SENTENCE_1, rule_string)
-    selected1 = pick_selected_solution(liger1)
-    proofs1 = build_proof_inputs(liger1)
-    mcs1 = "\n".join(p["meaningConstructors"] for p in proofs1)
-    assert mcs1.strip(), f"No meaning constructors extracted for {SENTENCE_1!r}"
-    gswb1 = gswb_deduce(mcs1, selected1["structureJson"], proofs1)
-    sol1 = first_semantic_solution(gswb1)
-    syntax1 = matching_syntax(liger1["solutions"], sol1.get("solutionKey"), selected1["structureJson"])
-    semantic1 = sol1.get("semantic") or sol1.get("solution")
-    print(f"[trace] sentence 1 DRS: {semantic1}")
 
-    print(f"\n=== Step 2: parse + compose semantics for sentence 2 (standalone): {SENTENCE_2!r} ===")
-    liger2 = liger_annotate(SENTENCE_2, rule_string)
-    selected2 = pick_selected_solution(liger2)
-    proofs2 = build_proof_inputs(liger2)
-    mcs2 = "\n".join(p["meaningConstructors"] for p in proofs2)
-    assert mcs2.strip(), f"No meaning constructors extracted for {SENTENCE_2!r}"
-    gswb2 = gswb_deduce(mcs2, selected2["structureJson"], proofs2)
-    sol2_standalone = first_semantic_solution(gswb2)
-    syntax2 = matching_syntax(liger2["solutions"], sol2_standalone.get("solutionKey"), selected2["structureJson"])
-    print(f"[trace] sentence 2 DRS (standalone, own referent numbering): "
-          f"{sol2_standalone.get('semantic') or sol2_standalone.get('solution')}")
+def run_sequence_semantics(sentence_1, sentence_2, rule_string):
+    """Steps 1-5: parse both sentences, merge their syntax into one sequence,
+    recompute sentence 2's semantics *within* that sequence's referent
+    numbering (this is what exercises the SYN-ID/SRC offsetting fix in
+    addSentence()), and merge the two semantic graphs into the final
+    Sequence DRS. Returns (seq_solution, sol1, current_solution, merged).
+    """
+    _, _, sol1, syntax1, semantic1 = parse_and_deduce(sentence_1, rule_string, label="sentence 1")
 
-    print(f"\n=== Step 3: merge syntax of both sentences into one sequence ===")
-    sequence = liger_sequence([SENTENCE_1, SENTENCE_2], rule_string, [[syntax1], [syntax2]])
+    liger2, selected2, sol2_standalone, syntax2, _ = parse_and_deduce(
+        sentence_2, rule_string, label="sentence 2 (standalone)"
+    )
+
+    print(f"\n=== merge syntax of both sentences into one sequence ===")
+    sequence = liger_sequence([sentence_1, sentence_2], rule_string, [[syntax1], [syntax2]])
     seq_solution = sequence["solutions"][0]
     sequence_parts = seq_solution.get("sequenceParts") or []
     assert sequence_parts, f"Merged sequence has no sequenceParts: {seq_solution}"
@@ -466,7 +506,7 @@ def test_full_analysis_workflow():
     print(f"[trace] sequence has {len(sequence_parts)} part(s); "
           f"current part sourceIndex={current_part.get('sourceIndex')}")
 
-    print(f"\n=== Step 4: recompute sentence 2's semantics within the sequence's referent numbering ===")
+    print(f"\n=== recompute sentence 2's semantics within the sequence's referent numbering ===")
     gswb_seq = gswb_deduce(
         current_part["meaningConstructors"],
         seq_solution["structureJson"],
@@ -483,7 +523,7 @@ def test_full_analysis_workflow():
     print(f"[trace] sentence 2 DRS (re-indexed within sequence): "
           f"{current_solution.get('semantic') or current_solution.get('solution')}")
 
-    print(f"\n=== Step 5: merge the two semantic graphs into the final Sequence DRS ===")
+    print(f"\n=== merge the two semantic graphs into the final Sequence DRS ===")
     pair_id = f"pxq-1-{current_solution.get('id', '1')}"
     merged = gswb_merge_sequence_semantics(
         graphs=[sol1["graph"], current_solution["graph"]],
@@ -507,17 +547,32 @@ def test_full_analysis_workflow():
         f"Unexpected merged solution id: {merged.get('id')!r}"
     )
 
-    print("\n=== Step 6: merge the Sequence's syntax with its DRS graph (discourse post-processing) ===")
-    merge_response = liger_merge_structure(seq_solution["structureJson"], merged["graph"])
+    return seq_solution, sol1, current_solution, merged
 
-    print("\n=== Step 7: apply pronoun-binding rules to the merged structure ===")
-    rules_response = liger_apply_rules_to_structure(
-        merge_response["structureJson"], NLI_RULES, "merged-graph-test.json"
-    )
+
+def run_discourse_postprocessing(structure_json, drs_graph, merged_semantic, semantic_solution_id,
+                                  rule_string=NLI_RULES, content_id="merged-graph-test.json",
+                                  require_real_antecedent=False):
+    """Steps 6-9: merge a syntax structure with its DRS graph, apply
+    pronoun-binding rules, generate PCDRS anaphora-mapping candidates, and
+    collapse one candidate into a resolved DRS. Works the same whether
+    structure_json/drs_graph come from a merged Sequence or a single
+    sentence's own analysis -- both are just a LiGER structure + a GSWB
+    semantic graph to overlay.
+
+    If require_real_antecedent is True, assert that at least one PCDRS
+    candidate actually found an antecedent via rule_string (rather than
+    falling back to a manually spliced mapping); use this for sentences
+    chosen specifically to exercise the rule engine's antecedent search.
+    """
+    print("\n=== merge the syntax structure with its DRS graph (discourse post-processing) ===")
+    merge_response = liger_merge_structure(structure_json, drs_graph)
+
+    print("\n=== apply pronoun-binding rules to the merged structure ===")
+    rules_response = liger_apply_rules_to_structure(merge_response["structureJson"], rule_string, content_id)
     annotation = rules_response["annotations"][0]
 
-    print("\n=== Step 8: generate PCDRS anaphora-mapping candidates ===")
-    semantic_solution_id = merged["id"]
+    print("\n=== generate PCDRS anaphora-mapping candidates ===")
     pcdrs_response = gswb_generate_pcdrs(merged_semantic, semantic_solution_id, annotation["structureJson"])
     pcdrs_candidates = pcdrs_response["solutions"]
     candidate_with_mapping = next(
@@ -526,12 +581,17 @@ def test_full_analysis_workflow():
     if candidate_with_mapping:
         print(f"[trace] PCDRS candidate anaphoraRelations: {candidate_with_mapping.get('anaphoraRelations')}")
     else:
-        # basic_axiom_rules.txt's POSSIBLE-ANT rules found no antecedent for "she" in this
-        # merged structure -- a genuine finding about the rule pipeline for this sentence
-        # pair, not a bug in the anaphoraRelations plumbing being tested here. Splice an
-        # explicit mapping onto GSWB's own (already-valid) DRS string, matching DRS.toString()'s
-        # "(...),A:[a(pronoun,antecedent)]" format, so the rest of this test can still prove the
-        # structured round-trip end-to-end with a real DRS.
+        assert not require_real_antecedent, (
+            f"Expected the rule engine to find a real antecedent, but no PCDRS candidate did: "
+            f"{pcdrs_candidates}"
+        )
+        # The rule engine found no antecedent for this sentence/pair -- a
+        # genuine finding about the rule pipeline for this input, not a bug
+        # in the anaphoraRelations plumbing being tested here. Splice an
+        # explicit mapping onto GSWB's own (already-valid) DRS string,
+        # matching DRS.toString()'s "(...),A:[a(pronoun,antecedent)]"
+        # format, so the rest of this test can still prove the structured
+        # round-trip end-to-end with a real DRS.
         base_candidate = pcdrs_candidates[0]
         print(f"[trace] no PCDRS candidate found a possible antecedent (semantic="
               f"{base_candidate.get('semantic')!r}); splicing in a manual mapping to still "
@@ -539,12 +599,28 @@ def test_full_analysis_workflow():
         candidate_with_mapping = dict(base_candidate)
         candidate_with_mapping["semantic"] = f"{base_candidate['semantic']},A:[a(x3,x1)]"
 
-    print("\n=== Step 9: collapse one candidate's anaphora mapping into a resolved DRS ===")
+    print("\n=== collapse one candidate's anaphora mapping into a resolved DRS ===")
     collapsed = gswb_collapse_anaphora(candidate_with_mapping["semantic"], candidate_with_mapping["id"])
     print(f"[trace] collapsed DRS: {collapsed.get('semantic')}")
     assert collapsed.get("semantic") and collapsed["semantic"].strip(), f"Anaphora collapse produced no DRS: {collapsed}"
     assert collapsed.get("anaphoraRelations"), (
         f"Collapse response did not carry the resolved structured anaphoraRelations: {collapsed}"
+    )
+
+    return annotation, pcdrs_candidates, candidate_with_mapping, collapsed
+
+
+def test_full_analysis_workflow():
+    print(f"\n=== Step 0: initialization (rules + grammar) ===")
+    rule_string = load_rules()
+    select_grammar()
+
+    seq_solution, sol1, current_solution, merged = run_sequence_semantics(SENTENCE_1, SENTENCE_2, rule_string)
+    merged_semantic = merged.get("semantic")
+    semantic_solution_id = merged["id"]
+
+    annotation, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
+        seq_solution["structureJson"], merged["graph"], merged_semantic, semantic_solution_id
     )
 
     print("\n=== Step 10: assemble a DiscourseUpdate and round-trip it through Redis ===")
@@ -608,12 +684,74 @@ def test_full_analysis_workflow():
     return discourse_update
 
 
+def test_sequence_examples():
+    """Runs the sequence-merge + discourse-postprocessing pipeline (steps
+    1-9, without the Redis round-trip already covered by
+    test_full_analysis_workflow) over SEQUENCE_EXAMPLES. These pairs use a
+    real indefinite ("a man") rather than a proper name as the antecedent, so
+    -- unlike SENTENCE_1/SENTENCE_2's "Kim"/"she", which basic_axiom_rules.txt
+    does not bind -- the NLI_RULES pronoun rules are expected to actually
+    find an antecedent here, and each example asserts that happens rather
+    than silently falling back to a manually spliced mapping.
+    """
+    rule_string = load_rules()
+    select_grammar()
+
+    for label, sentence_1, sentence_2 in SEQUENCE_EXAMPLES:
+        print(f"\n#### Sequence example: {label} ({sentence_1!r} + {sentence_2!r}) ####")
+        seq_solution, sol1, current_solution, merged = run_sequence_semantics(sentence_1, sentence_2, rule_string)
+        merged_semantic = merged.get("semantic")
+        semantic_solution_id = merged["id"]
+
+        _, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
+            seq_solution["structureJson"], merged["graph"], merged_semantic, semantic_solution_id,
+            content_id=f"{label}-merged-graph-test.json", require_real_antecedent=True,
+        )
+        print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "
+              f"resolved antecedent(s)={[relation.get('antecedent') for relation in collapsed.get('anaphoraRelations') or []]}")
+
+
+def test_single_sentence_discourse_examples():
+    """Runs steps 1 and 6-9 for SINGLE_SENTENCE_DISCOURSE_EXAMPLES: each is
+    one sentence with in-sentence anaphora (a reflexive, or pronouns in
+    embedded clauses), so there is no second sentence to sequence-merge --
+    discourse post-processing runs directly against that sentence's own
+    structure and DRS graph.
+    """
+    rule_string = load_rules()
+    select_grammar()
+
+    for label, sentence in SINGLE_SENTENCE_DISCOURSE_EXAMPLES:
+        print(f"\n#### Single-sentence discourse example: {label} ({sentence!r}) ####")
+        _, _, sol, syntax, semantic = parse_and_deduce(sentence, rule_string, label=label)
+
+        _, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
+            syntax, sol["graph"], semantic, sol["id"],
+            content_id=f"{label}-merged-graph-test.json", require_real_antecedent=True,
+        )
+        print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "
+              f"resolved antecedent(s)={[relation.get('antecedent') for relation in collapsed.get('anaphoraRelations') or []]}")
+
+
+ALL_TESTS = [
+    test_full_analysis_workflow,
+    test_sequence_examples,
+    test_single_sentence_discourse_examples,
+]
+
+
 if __name__ == "__main__":
-    try:
-        test_full_analysis_workflow()
-    except AssertionError as error:
-        print(f"\nFAILED: {error}", file=sys.stderr)
+    failures = []
+    for test in ALL_TESTS:
+        print(f"\n{'=' * 20} Running {test.__name__} {'=' * 20}")
+        try:
+            test()
+        except AssertionError as error:
+            print(f"\nFAILED: {test.__name__}: {error}", file=sys.stderr)
+            failures.append(test.__name__)
+        except RuntimeError as error:
+            print(f"\nERROR: {test.__name__}: {error}", file=sys.stderr)
+            sys.exit(2)
+    if failures:
+        print(f"\n{len(failures)} test(s) failed: {failures}", file=sys.stderr)
         sys.exit(1)
-    except RuntimeError as error:
-        print(f"\nERROR: {error}", file=sys.stderr)
-        sys.exit(2)
