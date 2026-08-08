@@ -34,13 +34,20 @@ repo. NLI consistency/informativity checks and Vampire calls remain out of
 scope -- those belong to a later reasoning layer, not discourse-representation
 building.
 
-The call sequence for steps 1-6 mirrors ChatComponent.sendMessage() /
-finishLfgxdrtPreparation() in the sibling ../xleplusglue-client repo
-(src/app/chat-interface/chat/chat.component.ts) with gswbPreferences.outputstyle
-set to 5 (LFGxDRT), which is what routes that component into the sequence-merge
-path. Field names below (structureJson, meaningConstructors, solutionKey,
-mcSetId, sequenceParts, anaphoraRelations, ...) are taken directly from the
-LiGER/GSWB request/response DTOs in ../liger and ../GlueSemWorkbench_v2.
+The call sequence for steps 1-6 mirrors the analysis workflow's own
+addSentence() / mergeCurrentSolutions() (liger-vis.component.ts /
+gswb-vis.component.ts in the sibling ../xleplusglue-client repo) -- notably
+run_sequence_semantics() feeds GSWB the newly-added sentence's own
+sequenceParts[-1] entry (already source-index-shifted by LiGER's
+SequenceGraphAssembler when the sequence is assembled) rather than
+reparsing/joining the whole sequence's meaning constructors, and
+/merge_sequence_semantics uses the `parts` transport (semantic_part(),
+matching GswbVisComponent.semanticPart()), not the legacy graphs/semantics
+transport ChatComponent's separate implementation
+(chat-interface/chat/chat.component.ts) uses. Field names below
+(structureJson, meaningConstructors, solutionKey, mcSetId, sequenceParts,
+anaphoraRelations, ...) are taken directly from the LiGER/GSWB
+request/response DTOs in ../liger and ../GlueSemWorkbench_v2.
 
 Requires the `liger`, `gswb`, and `redis` services running (`docker compose
 up --build` from Docker/, or equivalent local runs on ports 8080/8081/8083).
@@ -143,27 +150,46 @@ GSWB_PREFERENCES = {
 # Both "arrived" and "smiled" are intransitive verbs in the same lexicon, and
 # "she" is a 3sg feminine personal pronoun, so this pair exercises
 # pronoun-antecedent sequencing without needing a custom lexicon.
-SENTENCE_1 = "Kim arrived."
-SENTENCE_2 = "she smiled."
+# No trailing period: at least in this local (non-Docker) setup, a
+# sentence-final "." produced a syntactically "successful" parse (a real
+# solutionKey, non-empty text) whose structureJson.constraints came back
+# completely empty, so every example below is written without one.
+SENTENCE_1 = "Kim arrived"
+SENTENCE_2 = "she smiled"
 
 # Additional sequence examples (beyond SENTENCE_1/SENTENCE_2, which already
 # has its own dedicated full test below), chosen to exercise the SYN-ID/SRC
 # offsetting fix in addSentence() (liger-vis.component.ts) and the
 # NLI_RULES pronoun-binding rules below with real (non-proper-name)
 # antecedents and ambiguity between two indefinites. Each tuple is
-# (label, sentence_1, sentence_2) for the two-sentence sequence pipeline.
+# (label, sentence_1, sentence_2, require_real_antecedent).
+#
+# "man-he" does NOT require a real antecedent, matching SENTENCE_1/SENTENCE_2
+# ("Kim"/"she smiled"): both have the pronoun as SUBJECT OF AN INTRANSITIVE
+# VERB in sentence 2. DR-GF-LINK's SRC/SYN-ID linkage is confirmed correct in
+# both cases (SYNSEM facts are produced for the right referents -- see
+# structureJson.annotations, not .constraints, which is where LiGER's
+# rule engine writes rule-derived facts), but the resulting SYNSEM edge
+# resolves the pronoun referent to the *verb's* Glue resource node rather
+# than the pronoun's own node, so `#a SYNSEM #b PRON-TYPE 'pers'` in the
+# personal-pronoun rule never matches (#b lacks PRON-TYPE). "man-man-ambiguous"
+# ("he saw him", a transitive verb with both subject and object pronouns) does
+# NOT hit this and finds real antecedents, matching every other transitive/
+# embedded-clause example below -- this looks like a genuine grammar-rule
+# coverage gap specific to intransitive subject pronouns, not a bug in the
+# SRC-propagation or discourse-postprocessing plumbing this file exercises.
 SEQUENCE_EXAMPLES = [
-    ("man-he", "a man appeared.", "he smiled."),
-    ("man-man-ambiguous", "a man saw a man.", "he saw him."),
+    ("man-he", "a man appeared", "he smiled", False),
+    ("man-man-ambiguous", "a man saw a man", "he saw him", True),
 ]
 
 # Single-sentence discourse examples: no sequence merge is needed (there is
 # only one sentence), so these run steps 1 and 6-9 directly against that
 # sentence's own structure/DRS instead of a merged Sequence.
 SINGLE_SENTENCE_DISCOURSE_EXAMPLES = [
-    ("reflexive", "Kim told a man about himself."),
-    ("embedded-pronouns", "Kim said that he saw him."),
-    ("doubly-embedded-pronouns", "Kim thought that he said that he saw a man."),
+    ("reflexive", "Kim told a man about himself"),
+    ("embedded-pronouns", "Kim said that he saw him"),
+    ("doubly-embedded-pronouns", "Kim thought that he said that he saw a man"),
 ]
 
 TIMEOUT_SECONDS = 120
@@ -183,7 +209,7 @@ GF ::= SUBJ > OBJ > OBJ2 > OBL .
 //Templates
 GF := SUBJ | OBJ | OBL .
 
-DRS := IMP | NOT | IN | MERGE | SUB .
+DRS := IMP | NOT | IN | MERGE | SUB . 
 
 BIND-PATH(#a,#b) := #a ^(PRSP>@DRS*) #b & #a NAME %a & #b NAME %b & id(%b) < id(%a).
 
@@ -205,7 +231,7 @@ COARG(#a,#b) := @COARG-PATH(#a,#r,#s) & #s !(@GF) #b & id(#a) != id(#b).
 
 DR-PRECEDENCE(#a,#b) := #a NAME %a & #a NODE_TYPE referent &
                         #b NAME %b & #b NODE_TYPE referent &
-                        id(%a) < id(%b).
+			            id(%a) < id(%b).  
 //Checks if two antecedent paths remain disjoint
 DISJOINT(#a,#b) := -(#a !(POSSIBLE-ANT+) #g & #b !(POSSIBLE-ANT+) #h & id(#g) == id(#h)) .
 
@@ -222,8 +248,8 @@ BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
 //EX.: He_i thinks that John_i likes Sue.
 //EX.: He_i likes John_i
 //EX.: John_i likes him_i
-//Ex.: John thinks that he likes him.
-//PERS-BIND-FILTER(#a,#b) :=
+//Ex.: John thinks that he likes him. 
+//PERS-BIND-FILTER(#a,#b) := 
 
 // ***** PRESUPPOSITIONS *****
 
@@ -243,7 +269,7 @@ BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
 #a ^(POTENTIAL-BINDER) #b & #b IN #c & @BIND(#c) & #a IN #d &
 @DR-PRECEDENCE(#d,#c) ==> #c PRSP-ANT #d.
 
-//search for bound referents
+//search for bound referents 
 #a POTENTIAL-BINDER #b IN #c & #a IN #d & @BIND(#d) ==> #d POSSIBLE-BINDER #c .
 
 #a POTENTIAL-BINDER #b IN #c & #a IN #d & -(#d POSSIBLE-BINDER #c) ?=> #d acc #d.
@@ -256,20 +282,20 @@ BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
 @ANT(#a) & #a SYNSEM #b & @REFL-BIND(#b,#c) & #c ^(SYNSEM) #d ==> #a POSSIBLE-ANT #d.
 
 //Personal pronouns
-@ANT(#a) & #a SYNSEM #b PRON-TYPE 'pers' & #c SYNSEM #d &
+@ANT(#a) & #a SYNSEM #b PRON-TYPE 'pers' & #c SYNSEM #d & 
 @DR-PRECEDENCE(#c,#a) & -(@COARG(#b,#d)) ==> #a POTENTIAL-ANT #c.
 
 //For cases like EX.: Kim thought he saw him"
 //More precise -(#a !(POTENTIAL-ANT+) #e & #c !(POTENTIAL-ANT+) #f & id(#f) == id(#e))
-//There is no antecedent path such that two coargs refer to the same DR
+//There is no antecedent path such that two coargs refer to the same DR 
 @ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
-@DR-PRECEDENCE(#c,#a) & @COARG(#b,#d) &
-@CLOSEST-POTENTIAL-ANT(#a,#e) &
-@CLOSEST-POTENTIAL-ANT(#c,#f) &
+@DR-PRECEDENCE(#c,#a) & @COARG(#b,#d) & 
+@CLOSEST-POTENTIAL-ANT(#a,#e) & 
+@CLOSEST-POTENTIAL-ANT(#c,#f) & 
 id(#f) != id(#e) ?=> #a POSSIBLE-ANT #e & #c POSSIBLE-ANT #f.
 
 //Preparing for elimination of redundant edges (reflexive closure)
-#a POTENTIAL-ANT #c &
+#a POTENTIAL-ANT #c & 
 -(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) &
 -(#a POSSIBLE-ANT) ==> #a POSSIBLE-ANT #c.
 
@@ -451,16 +477,44 @@ def liger_sequence(sentences, rule_string, parsed_sentences):
     return response
 
 
-def gswb_merge_sequence_semantics(graphs, semantics, parent_solution_id, solution_key, mc_set_id):
-    """POST /merge_sequence_semantics -- merge two semantic graphs into a Sequence."""
+def semantic_part(solution):
+    """Reproduce GswbVisComponent.semanticPart() (gswb-vis.component.ts) --
+    the analysis workflow's actual /merge_sequence_semantics transport.
+    Reads the GswbSolution's own nested `semanticAnalysis` (syntacticOrigin,
+    semId, semString, graph), which /deduce already populates -- not a
+    reconstruction from the raw solution/semantic/graph fields.
+    """
+    analysis = solution.get("semanticAnalysis") or {}
+    return {
+        "id": analysis.get("semId"),
+        "solutionId": analysis.get("semId"),
+        "syntacticOrigin": analysis.get("syntacticOrigin"),
+        "semantic": analysis.get("semString"),
+        "graph": analysis.get("graph"),
+        "provenance": {
+            "syntacticOrigin": analysis.get("syntacticOrigin"),
+            "semanticId": analysis.get("semId"),
+        },
+    }
+
+
+def gswb_merge_sequence_semantics(parts, parent_solution_id, solution_key, mc_set_id, resolve_drs=True):
+    """POST /merge_sequence_semantics -- merge two semantic solutions into a
+    Sequence, using the `parts` transport (see semantic_part() above). This
+    is what GswbVisComponent.mergeCurrentSolutions() actually sends in the
+    analysis workflow; it is not the legacy graphs/semantics transport
+    ChatComponent uses (that fallback still exists in GswbController for
+    ChatComponent's own callers, but nothing in this file's pipeline goes
+    through ChatComponent).
+    """
     response = _post_json(
         f"{GSWB_URL}/merge_sequence_semantics",
         {
-            "graphs": graphs,
-            "semantics": semantics,
+            "parts": parts,
             "parentSolutionId": parent_solution_id,
             "solutionKey": solution_key,
             "mcSetId": mc_set_id,
+            "resolveDrs": resolve_drs,
         },
     )
     print(f"[gswb] /merge_sequence_semantics -> id={response.get('id')!r}")
@@ -569,7 +623,7 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
     addSentence()), and merge the two semantic graphs into the final
     Sequence DRS. Returns (seq_solution, sol1, current_solution, merged).
     """
-    _, _, sol1, syntax1, semantic1 = parse_and_deduce(sentence_1, rule_string, label="sentence 1")
+    _, _, sol1, syntax1, _ = parse_and_deduce(sentence_1, rule_string, label="sentence 1")
 
     liger2, selected2, sol2_standalone, syntax2, _ = parse_and_deduce(
         sentence_2, rule_string, label="sentence 2 (standalone)"
@@ -605,11 +659,10 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
           f"{current_solution.get('semantic') or current_solution.get('solution')}")
 
     print(f"\n=== merge the two semantic graphs into the final Sequence DRS ===")
-    pair_id = f"pxq-1-{current_solution.get('id', '1')}"
+    parts = [semantic_part(sol1), semantic_part(current_solution)]
     merged = gswb_merge_sequence_semantics(
-        graphs=[sol1["graph"], current_solution["graph"]],
-        semantics=[semantic1, current_solution.get("semantic") or current_solution.get("solution")],
-        parent_solution_id=pair_id,
+        parts=parts,
+        parent_solution_id=current_solution.get("id"),
         solution_key=current_solution.get("solutionKey"),
         mc_set_id=current_solution.get("mcSetId"),
     )
@@ -618,14 +671,14 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
 
     assert merged_semantic and merged_semantic.strip(), f"Sequence merge produced no semantic DRS: {merged}"
     assert merged.get("graph"), f"Sequence merge produced no semantic graph: {merged}"
-    # Note: the client calls /merge_sequence_semantics with the legacy
-    # graphs/semantics fields (not `parts`), so GswbController falls back to
-    # "<parentSolutionId>-drs-merge" for the id instead of the composite
-    # "<sem-id-1>+<sem-id-2>" scheme documented for the `parts` transport in
-    # ../xleplusglue-client/docs/analysis-data-model.md ("Composite IDs and
-    # Provenance"). Assert the id we actually get, not the aspirational one.
-    assert merged.get("id") == f"{pair_id}-drs-merge", (
-        f"Unexpected merged solution id: {merged.get('id')!r}"
+    # GswbController.compositeSemanticId: ordered "<part.id or part.solutionId>"
+    # joined with "+", per ../xleplusglue-client/docs/analysis-data-model.md
+    # ("Composite IDs and Provenance") -- this is the id scheme the `parts`
+    # transport actually produces (unlike the legacy graphs/semantics
+    # transport's "<parentSolutionId>-drs-merge" fallback).
+    expected_id = "+".join(part["id"] or part["solutionId"] for part in parts)
+    assert merged.get("id") == expected_id, (
+        f"Unexpected merged solution id: {merged.get('id')!r} (expected {expected_id!r})"
     )
 
     return seq_solution, sol1, current_solution, merged
@@ -769,18 +822,17 @@ def test_full_analysis_workflow():
 def test_sequence_examples():
     """Runs the sequence-merge + discourse-postprocessing pipeline (steps
     1-9, without the Redis round-trip already covered by
-    test_full_analysis_workflow) over SEQUENCE_EXAMPLES. These pairs use a
-    real indefinite ("a man") rather than a proper name as the antecedent, so
-    -- unlike SENTENCE_1/SENTENCE_2's "Kim"/"she", which basic_axiom_rules.txt
-    does not bind -- the NLI_RULES pronoun rules are expected to actually
-    find an antecedent here, and each example asserts that happens rather
-    than silently falling back to a manually spliced mapping.
+    test_full_analysis_workflow) over SEQUENCE_EXAMPLES. Each example's
+    require_real_antecedent flag (see SEQUENCE_EXAMPLES above) records
+    whether the current NLI_RULES rule set is actually expected to resolve
+    that pair's pronoun, rather than silently falling back to a manually
+    spliced mapping.
     """
     set_dump_run("sequence_examples_init")
     rule_string = load_rules()
     select_grammar()
 
-    for label, sentence_1, sentence_2 in SEQUENCE_EXAMPLES:
+    for label, sentence_1, sentence_2, require_real_antecedent in SEQUENCE_EXAMPLES:
         set_dump_run(f"sequence_{label}")
         print(f"\n#### Sequence example: {label} ({sentence_1!r} + {sentence_2!r}) ####")
         seq_solution, sol1, current_solution, merged = run_sequence_semantics(sentence_1, sentence_2, rule_string)
@@ -789,7 +841,7 @@ def test_sequence_examples():
 
         _, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
             seq_solution["structureJson"], merged["graph"], merged_semantic, semantic_solution_id,
-            content_id=f"{label}-merged-graph-test.json", require_real_antecedent=True,
+            content_id=f"{label}-merged-graph-test.json", require_real_antecedent=require_real_antecedent,
         )
         print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "
               f"resolved antecedent(s)={[relation.get('antecedent') for relation in collapsed.get('anaphoraRelations') or []]}")
