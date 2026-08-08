@@ -107,6 +107,50 @@ def clear_analysis_document(session_key, client=None):
     return {"status": "ok"}
 
 
+CHAT_DOCUMENT_TTL_SECONDS = int(os.getenv("CHAT_DOCUMENT_TTL_SECONDS", "1800"))
+
+
+def _chat_document_key(session_key):
+    return f"chat_document:{session_key}"
+
+
+def load_chat_document(session_key, client=None):
+    client = client or redis_client()
+    raw = client.get(_chat_document_key(session_key))
+    if not raw:
+        return None
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8")
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+
+
+def save_chat_document(session_key, payload, client=None):
+    client = client or redis_client()
+    current = load_chat_document(session_key, client=client)
+    document = dict(payload or {})
+    now = _now_iso()
+    document["documentId"] = document.get("documentId") or session_key
+    document["semanticType"] = document.get("semanticType") or "lfgxdrt"
+    document["createdAt"] = document.get("createdAt") or (current or {}).get("createdAt") or now
+    document["updatedAt"] = now
+    document["revision"] = int((current or {}).get("revision", 0)) + 1
+    client.setex(
+        _chat_document_key(session_key),
+        CHAT_DOCUMENT_TTL_SECONDS,
+        json.dumps(document),
+    )
+    return {"status": "ok", "document": document}
+
+
+def clear_chat_document(session_key, client=None):
+    client = client or redis_client()
+    client.delete(_chat_document_key(session_key))
+    return {"status": "ok"}
+
+
 def _gswb_batch_session_key(session_key):
     return f"gswb_batch_session:{session_key}"
 

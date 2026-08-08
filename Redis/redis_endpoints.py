@@ -2,11 +2,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from Redis.redis_store import (
+    clear_chat_document,
     clear_gswb_batch_session,
     clear_analysis_document,
     clear_last_session,
     clear_vampire_progress,
     delete_regression_session,
+    load_chat_document,
     load_gswb_batch_session,
     load_analysis_document,
     load_last_session,
@@ -15,6 +17,7 @@ from Redis.redis_store import (
     list_recent_sessions,
     merge_last_session,
     request_vampire_cancel,
+    save_chat_document,
     save_gswb_batch_session,
     save_analysis_document,
     save_last_session,
@@ -127,6 +130,30 @@ def put_analysis_document(session_key: str, payload: dict):
 def delete_analysis_document(session_key: str):
     try:
         return clear_analysis_document(session_key)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/chat_document/{session_key}")
+def get_chat_document(session_key: str):
+    try:
+        return load_chat_document(session_key)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.put("/chat_document/{session_key}")
+def put_chat_document(session_key: str, payload: dict):
+    try:
+        return save_chat_document(session_key, payload)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.delete("/chat_document/{session_key}")
+def delete_chat_document(session_key: str):
+    try:
+        return clear_chat_document(session_key)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
