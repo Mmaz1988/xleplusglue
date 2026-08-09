@@ -18,6 +18,8 @@ monorepo task runner — the system is driven by Docker Compose and shell/Tcl sc
 **Read `WORKFLOW.md` first** for the full pipeline architecture (parse → LiGER → GSWB → DRS →
 Vampire/LiGER post-processing) and how each component/directory maps to a pipeline stage. `AGENTS.md`
 has a shorter version of the repo shape and working rules — its rules apply here too.
+**Read `docs/PIPELINE_STATUS.md`** for current status and open work across all five repos — what's
+implemented, what's in progress, and where the open plan docs live. Keep it updated as work lands.
 
 ### The frontend lives in a sibling repo
 
