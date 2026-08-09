@@ -7,9 +7,12 @@ grammars/**/*.fileindexdir
 grammars/.#*
 jars/old_versions/*
 
-inference/vampire_test/generated_testfiles/*.p
+inference/vampire_test/generated_testfiles*/*.p
 
 /tests/tmp/
+
+__pycache__/
+.DS_Store
 
 *.lfg
 /grammars/*/*.fileindexdir/
@@ -30,5 +33,15 @@ inference/vampire_test/generated_testfiles/*.p
 /testsuites/testsuite_pron.lfg.errors
 /testsuites/testsuite_pron.lfg.new
 /testsuites/testsuite_pron.lfg.stats
+/testsuites/*.errors
+/testsuites/*.new
+/testsuites/*.new~
+/testsuites/*.stats
+/testsuites/*.stats~
+/testsuites/parsing/*.errors
+/testsuites/parsing/*.new
+/testsuites/parsing/*.new~
+/testsuites/parsing/*.stats
+/testsuites/parsing/*.stats~
 /.idea/vcs.xml
 /.idea/xleplusglue.iml
