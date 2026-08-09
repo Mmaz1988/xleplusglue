@@ -42,32 +42,50 @@ version, phase by phase, against this doc's own Phase 1-6 structure:
   **NOT DONE**.
 - **Phase 4 (GSWB sequence/NLI prep, §4.1-4.3)**: §4.1 DONE — `/merge_sequence_semantics`
   now accepts optional-graph part records and dispatches to `DrsGraphParser`/
-  `DrsParser` correctly. §4.2 **PARTIAL** — `/reasoning_check_asts`,
-  `/reasoning_checks`, and `/generate_pcdrs` exist and are individually
-  correct, but aren't unified into the one "preparation operation" this
-  section calls for, and none of them carry reading/branch/check provenance.
-  §4.3 **PARTIAL** — single `/deduce` supports structured `GswbProofInput`
-  and resolves `(sentenceId, solutionKey) → structure`; the *batch* endpoint
+  `DrsParser` correctly. §4.2 revised below (**working for Chat**, via a
+  different mechanism than this section originally specified). §4.3
+  **PARTIAL** — single `/deduce` supports structured `GswbProofInput` and
+  resolves `(sentenceId, solutionKey) → structure`; the *batch* endpoint
   (`/gswb_batch_proof`, `GswbBatchRequest.premises`) was never extended past a
-  plain string map, so this doesn't work for batch/regression runs.
-- **Phase 5 (Vampire batch orchestration, §5.1-5.4)**: §5.1's named
+  plain string map, so this doesn't work for batch/regression runs — same
+  root cause as the Phase 6 gap below.
+- **§4.2 and Phase 5, CORRECTED 2026-08-09 — this doc previously described a
+  false gap here.** §4.2 calls for one unified "preparation operation";
+  `/reasoning_check_asts`, `/generate_pcdrs`, and `/collapse_and_tptp_batch`
+  are indeed three separate GSWB endpoints rather than one, but chained by
+  the **Angular client** (`chat.component.ts`'s
+  `postProcessReasoningCheckAsts`) they already do everything §4.2 and §5
+  ask for: assemble the check ASTs (via LFGxDRT's `DrsReasoningCheckBuilder`,
+  which GSWB calls in-process — GSWB depends on LFGxDRT directly as a Maven
+  library, `de.ukon.lfgxdrt:LFGxDRT`), merge with syntax via LiGER, generate
+  anaphora-mapping candidates, and collapse each mapping into complete TPTP
+  for the context and all four checks in one batched call. §5.1's named
   now-unused methods (`_convert_lfgxdrt_batch_reading()`, pairwise
   `merge_contexts()`, `_lfgxdrt_semantic_branches()`) are confirmed gone,
-  replaced by `_single_lfgxdrt_request()`. §5.2's non-templating TPTP writer
-  exists (`generate_translated_check_files`), though its branch directories
-  are flatter than specified. §5.3/§5.4 (result interpretation, Prolog
-  preservation) hold. **But nothing calls the LFGxDRT adapter from Python** —
-  no subprocess, no HTTP call, no Java anywhere in the Vampire image. The
+  replaced by `_single_lfgxdrt_request()`, which simply runs Vampire on the
+  `tptp_checks` the Angular chain already assembled — **there is no missing
+  Python-to-Java link; none was ever needed.** §5.2's non-templating TPTP
+  writer exists (`generate_translated_check_files`), though its branch
+  directories are flatter than specified. §5.3/§5.4 (result interpretation,
+  Prolog preservation) hold. This entire chain is live and working in Chat
+  today, including anaphora/pronoun-resolution post-processing. The
   `inference/tests/test_model_aware_vampire.py` this section's "Test Plan"
-  wants extended does not exist — `inference/tests/` is empty.
-- **Phase 6 (Angular regression contracts)**: **NOT DONE**. No
-  `VampireNliSide`-equivalent type in `models.ts`. Worse than "silently
-  omitting" a missing reading: `regression-testing-interface.component.ts`'s
-  `postProcessNliChecks()` throws on a missing/unresolved reading, and because
-  it runs inside `forkJoin(preparationRequests)`, that failure kills the
-  *entire batch*, not just the one item. Chat renders semantics as joined
-  plain text (`chat.component.ts`'s `semanticText`), not the SVG this plan
-  calls for; `semantic_svg`/`semanticSvg` doesn't appear anywhere in `src/app`.
+  wants extended does not exist — `inference/tests/` is empty — so none of
+  this has automated regression coverage, but it is functionally working.
+- **Phase 6 (Angular regression contracts)**: working for **Chat**, via the
+  mechanism above. **Not working for regression testing** — this is the real
+  gap, and it's the same root cause as §4.3's batch-provenance gap.
+  `regression-testing-interface.component.ts` has its own separate, less
+  mature implementation of the same orchestration (`postProcessNliChecks`,
+  vs. Chat's `postProcessReasoningCheckAsts`) with no `VampireNliSide`-
+  equivalent type, and where a single missing/unresolved reading throws and,
+  because it runs inside `forkJoin(preparationRequests)`, kills the *entire
+  batch* rather than just that item — unlike Chat's version, which wraps each
+  mapping in `catchError(() => of(null))` and filters. Chat also renders
+  semantics as joined plain text (`chat.component.ts`'s `semanticText`), not
+  the SVG this plan calls for; `semantic_svg`/`semanticSvg` doesn't appear
+  anywhere in `src/app` — that part is a real, if lower-priority, gap in both
+  places.
 
 ## Purpose
 

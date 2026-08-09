@@ -45,27 +45,52 @@ so it should keep its existing DRS-level merge as-is.
   all. The uploaded-structure sequence endpoint and testsuite batch
   provenance are not started.
 - **GSWB** (§2-3 here): sequence part records now accept semantic-only
-  (graph-optional) parts. Structured reasoning composition exists as separate
-  pieces (`/reasoning_check_asts`, `/reasoning_checks`, `/generate_pcdrs`) but
-  isn't unified into one operation, and none of the reasoning endpoints carry
-  provenance IDs yet. Batch deduction (`/gswb_batch_proof`) was never extended
-  to structured proof inputs — only single `/deduce` was.
-- **Vampire/Python** (§4-5, §7): the legacy per-sentence LFGxDRT translation
-  methods are gone, replaced by `_single_lfgxdrt_request()`, and a proper
-  non-templating TPTP writer (`generate_translated_check_files`) exists. But
-  **there is still no wiring from Python to the LFGxDRT adapter at all** — no
-  subprocess call, no HTTP call, no Java in `Dockerfile-vampire`. It's unclear
-  today how `request.tptp_checks` gets populated before it reaches
-  `_single_lfgxdrt_request()`; that's a real architecture gap, not just an
-  unchecked box, and worth a design conversation before continuing §7.
-- **Angular** (§6): not started. No `semantic_model`/`VampireNliSide`-shaped
-  types; a missing reading currently throws and kills the whole `forkJoin`
-  batch instead of producing a per-item structured failure; chat renders
-  semantic content as plain joined text, not an SVG.
+  (graph-optional) parts. `/reasoning_check_asts`, `/generate_pcdrs`, and
+  `/collapse_and_tptp_batch` together **already form a working, currently-used
+  reasoning pipeline** — see the correction below. They aren't unified into
+  one server-side operation (the orchestration lives in the Angular client
+  instead) and don't carry provenance IDs (sentence/solution/branch), which
+  matters for regression testing (see Angular note below) even though it
+  doesn't block Chat. Batch deduction (`/gswb_batch_proof`) was never
+  extended to structured proof inputs — only single `/deduce` was.
+- **Vampire/Python and the "adapter wiring" question — CORRECTED
+  2026-08-09, this section previously described a false gap.** An earlier
+  version of this doc assumed the LFGxDRT adapter needed a subprocess/HTTP
+  call from the Python Vampire service, found none, and flagged that as the
+  headline blocker. That assumption was wrong: GSWB depends on LFGxDRT
+  directly as a Maven library (`GlueSemWorkbench_v2/pom.xml`:
+  `de.ukon.lfgxdrt:LFGxDRT`), so `jars/gswb.jar` already contains LFGxDRT's
+  classes and calls `DrsReasoningCheckBuilder` in-process — no
+  subprocess/HTTP hop needed or expected. `request.tptp_checks` is populated
+  by the **Angular client**, which orchestrates GSWB's
+  `/reasoning_check_asts` → `/generate_pcdrs` → `/collapse_and_tptp_batch`
+  and assembles the results before calling `callVampire()`. This chain is
+  real, already runs in Chat today (`chat-interface/chat/chat.component.ts`,
+  method `postProcessReasoningCheckAsts`), and includes working
+  anaphora/pronoun-resolution post-processing. The legacy per-sentence
+  translation methods being gone and `generate_translated_check_files`
+  existing (both still true) were never blocked on anything Python-side —
+  they were already sufficient. §7's "package the adapter into
+  Dockerfile-vampire" items are very likely **unnecessary entirely**, not
+  just unchecked — LFGxDRT doesn't need to run inside the Vampire container,
+  it already runs inside GSWB's. Confirm that before doing any of §7.
+- **Angular** (§6): working for **Chat** via the mechanism above, including
+  pronoun-resolution post-processing. **Not working for regression testing**
+  — `regression-testing-interface.component.ts` has its own separate, less
+  mature implementation of the same flow (`postProcessNliChecks`, vs. Chat's
+  `postProcessReasoningCheckAsts`) where a single missing/unresolved reading
+  throws inside a `forkJoin` and aborts the entire batch, instead of the
+  per-item `catchError`/filter pattern Chat's version uses. This — not
+  Angular reasoning support in general — is the real open item, and it's a
+  substantial one (a second implementation of the same orchestration to
+  bring up to Chat's level, not a small fix).
 - **§8 Regression and acceptance tests**: none of the 18 items exist yet —
   GSWB doesn't even have its test classes wired into the Maven test lifecycle
   (`src/test/java` doesn't exist; `@Test` classes live under `src/main/java`
-  and never run under `mvn test`).
+  and never run under `mvn test`). Separately from test *coverage*, note that
+  "regression" in this section's title refers to automated regression tests,
+  not the regression-testing UI feature — the UI's own reasoning integration
+  gap is called out under Angular above.
 
 ## Goal
 
@@ -264,24 +289,31 @@ the exact base commit for each new branch before making changes.
       sequence results without flattening semantic strings. —
       `DrsReasoningCheckBuilder.buildAsts(premise, hypothesis)` builds the four
       boxed ASTs from the merged `Q`/`P` objects directly.
-- [ ] Merge the complete semantic structure with the syntax graph through the
-      existing LiGER merge endpoint. — **NOT DONE**: no such LiGER call from
-      GSWB's reasoning path exists; liger's own uploaded-sequence endpoint
-      (§3.2 below / companion plan) doesn't exist yet either, so there's
-      nothing to call.
-- [ ] Apply the configured LiGER post-processing rules once to each complete
-      reasoning structure. — **NOT DONE**, same reason as above.
+- [x] Merge the complete semantic structure with the syntax graph through the
+      existing LiGER merge endpoint. — **CORRECTED, was wrongly marked NOT
+      DONE**: this happens, just orchestrated by the Angular client rather
+      than server-side. `chat.component.ts`'s `postProcessReasoningCheckAsts`
+      calls `dataService.ligerMergeStructure({ syntax, drs: merged.graph })`.
+      No dedicated "uploaded-sequence" endpoint was needed for this to work.
+- [x] Apply the configured LiGER post-processing rules once to each complete
+      reasoning structure. — **CORRECTED, was wrongly marked NOT DONE**: same
+      chain, via `applyNliRules()` → `dataService.ligerApplyRulesToStructure()`.
 - [ ] Preserve every returned rule annotation and annotated structure.
-- [~] Extract anaphora candidates from every complete annotated structure. —
-      **PARTIAL**: `/generate_pcdrs` does this, but only on one already-merged
-      structure passed in by the caller, not automatically on the reasoning
-      endpoints' output.
-- [~] Generate and collapse all required anaphora branches using the existing
-      GSWB operations or their shared implementation. — **PARTIAL**: the
-      pieces exist (`/generate_pcdrs`, `/collapse_anaphora`,
-      `/collapse_and_tptp_batch`) but a caller must manually chain
-      `reasoning_check_asts` → `generate_pcdrs` (per check) →
-      `collapse_anaphora`; there is no single operation that does this.
+- [x] Extract anaphora candidates from every complete annotated structure. —
+      **CORRECTED, was marked PARTIAL**: `/generate_pcdrs` is called on each
+      merged+rule-applied structure in `postProcessReasoningCheckAsts`
+      (`mappingsWithStructure$`), one call per rule branch — this is exactly
+      "every complete annotated structure," it's just client-driven, not a
+      single server call.
+- [x] Generate and collapse all required anaphora branches using the existing
+      GSWB operations or their shared implementation. — **CORRECTED, was
+      marked PARTIAL**: the client-side chain `reasoning_check_asts` (once,
+      shared) → `generate_pcdrs` (per rule branch) →
+      `collapse_and_tptp_batch` (per mapping, batching context + all 4 checks
+      together using that mapping's `anaphoraRelations`) *is* this — there's
+      no single GSWB-internal operation, but the plan's requirement was to
+      generate and collapse every branch, which this chain does, working,
+      today.
 - [x] Preserve the empty-mapping branch as one valid branch. —
       `expandAnaphoraMappings` seeds `results` with one empty map
       (`GswbController.java:1061-1077`).
@@ -344,16 +376,16 @@ the exact base commit for each new branch before making changes.
 
 ### 5. Refactor the Python inference service
 
-- [ ] Route `lfgxdrt` through the Java adapter or equivalent LFGxDRT CLI, which
+- [x] Route `lfgxdrt` through the Java adapter or equivalent LFGxDRT CLI, which
       receives complete semantic structures and returns complete TPTP checks.
-      — **NOT DONE, this is the real gap**: `_single_lfgxdrt_request()`
-      (`inference/run_vampire.py:106`) already consumes pre-built
-      `request.tptp_checks` correctly, but nothing in the Python service calls
-      the LFGxDRT adapter (`ReasoningCli`) to *produce* those checks — no
-      subprocess, no HTTP call, nothing. It's unclear today what upstream
-      component (GSWB? the Angular client?) is expected to call the adapter
-      and populate `tptp_checks` — worth resolving before more work goes into
-      either side.
+      — **DONE, correcting an earlier wrong "NOT DONE" here**: this doesn't
+      happen via a Python-to-Java call, and doesn't need to. GSWB depends on
+      LFGxDRT directly (Maven, `de.ukon.lfgxdrt:LFGxDRT`) and builds the
+      checks in-process; the Angular client orchestrates
+      GSWB `/reasoning_check_asts` → `/generate_pcdrs` →
+      `/collapse_and_tptp_batch` and populates `tptp_checks` before calling
+      Vampire. `_single_lfgxdrt_request()` (`inference/run_vampire.py:106`)
+      consumes that as designed. This chain is live in Chat today.
 - [x] Route explicit `prolog-drt` through the existing SWI-Prolog converter,
       including its existing premise-merging behavior. — untouched
       (`single_vampire_request`/`multiple_vampire_request` still use
@@ -384,6 +416,14 @@ the exact base commit for each new branch before making changes.
       this doc specifies elsewhere.
 
 ### 6. Update the request and response APIs
+
+Clarification: the items below are about typed request/response contracts and
+SVG display polish, not about whether reasoning itself works — it does, in
+Chat (see the corrected §5 note above). Chat already sends the right
+computational payload (structured `tptp_checks`, not a display string); what's
+missing here is the typed API surface and richer display, plus the separate,
+much bigger regression-testing gap called out in the reading-boundaries item
+below.
 
 - [ ] Add `semantic_model` to `VampireRequest` and preserve the selected path.
 - [ ] Add `semantic_model` and canonical semantic fields to `Context`.
@@ -422,14 +462,24 @@ the exact base commit for each new branch before making changes.
 
 ### 7. Package and deploy the implementation
 
-Blocked on §5's open architecture question (nothing calls the adapter yet) —
-none of this can be meaningfully started until that's resolved.
+**Likely moot, not just unstarted — correcting an earlier "blocked" note
+here.** This whole section assumed the LFGxDRT adapter would need to run
+inside (or alongside) the Vampire container, reached over a
+subprocess/HTTP/sidecar hop from Python. That's not how it works: LFGxDRT
+already ships inside `jars/gswb.jar` via GSWB's Maven dependency and runs in
+GSWB's own container, which is already built and deployed. There is no
+missing adapter deployment step for the path Chat actually uses. Before
+doing any item below, confirm there's a real second consumer that needs
+LFGxDRT reachable from *outside* GSWB's JVM (e.g. directly from Python) —
+if not, this section can likely be closed as unnecessary rather than
+completed.
 
-- [ ] Build and pin the LFGxDRT adapter version.
+- [ ] Build and pin the LFGxDRT adapter version. — N/A if the above holds;
+      GSWB's own Maven dependency on LFGxDRT already pins a version.
 - [ ] Add the adapter artifact to `xleplusglue/Docker/Dockerfile-vampire`. —
-      **confirmed NOT DONE**: read the full file; it's `python:3.9-slim` +
-      `swi-prolog` + the Vampire binary, no `openjdk`/`java` package, no jar
-      `COPY`, no adapter sidecar reference.
+      confirmed not present (`python:3.9-slim` + `swi-prolog` + the Vampire
+      binary, no `openjdk`/`java`/jar), but likely correctly so — see note
+      above.
 - [ ] Add the Java runtime or a dedicated adapter sidecar to the compose stack.
 - [ ] Configure the adapter path and timeout through environment variables.
 - [ ] Keep `xleplusglue` as the deployment source of truth.

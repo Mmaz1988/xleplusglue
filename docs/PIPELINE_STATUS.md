@@ -54,55 +54,73 @@ at a glance:
 
 ### 2. Chat — discourse reasoning via Vampire
 
-Two parallel reasoning routes exist, at very different levels of completion:
+Two reasoning routes exist. **Both work for Chat.** The LFGxDRT route does
+not run through a separate Python-side adapter — GSWB depends on LFGxDRT
+directly as a Maven library (`pom.xml`: `de.ukon.lfgxdrt:LFGxDRT`), so
+`jars/gswb.jar` already contains LFGxDRT's classes and calls them in-process.
+There is no subprocess/HTTP hop to add; earlier drafts of this doc described
+a missing "Python calls a Java adapter" link that isn't actually part of the
+architecture.
 
-**Prolog-DRT route — working, unchanged by any current effort.** GSWB
-composes a Prolog-style DRS, the Python adapter (`inference/run_vampire.py`,
-`inference/vampire_call.py`) merges/converts it through Boxer/SWI-Prolog to
-TPTP, and Vampire runs the four discourse checks (`info_pos_check`,
-`info_neg_check`, `cons_pos_check`, `cons_neg_check` — consistency and
-informativity, positive and negative). This is what Chat runs today.
+**Prolog-DRT route.** GSWB composes a Prolog-style DRS, the Python adapter
+(`inference/run_vampire.py`, `inference/vampire_call.py`) merges/converts it
+through Boxer/SWI-Prolog to TPTP, and Vampire runs the four discourse checks
+(`info_pos_check`, `info_neg_check`, `cons_pos_check`, `cons_neg_check` —
+consistency and informativity, positive and negative).
 
-**LFGxDRT route ("reasoning-v2") — partially built, not wired end-to-end.**
-Goal: run the same four checks through LFGxDRT's own AST/DRS representation
-instead of Prolog, with proper anaphora accessibility across premise/
-conclusion sequences. Status by repo, most-built to least-built:
+**LFGxDRT route ("reasoning-v2").** The real, working call chain, driven from
+`chat-interface/chat/chat.component.ts`:
 
-1. **LFGxDRT itself**: the adapter is real and tested —
-   `ReasoningCli`'s `reasoning_checks` operation + `DrsReasoningCheckBuilder`
-   build the four boxed DRS expressions, run beta reduction/merge resolution/
-   anaphora collapse with correct left-to-right accessibility, and produce
-   canonical DRS + graph + SVG + TPTP per check. One design point just
-   resolved: the check-builder must *not* merge a second copy of the premise
-   context (`Q`) into the check DRS (that made anaphora mapping ambiguous
-   between the two copies) — `Q` needs to be reattached as a separate TPTP
-   conjunct after translation instead. That reattachment step is the
-   concrete next thing to build here.
-2. **GSWB**: sequence-part records and the individual reasoning-check
-   endpoints (`/reasoning_check_asts`, `/reasoning_checks`,
-   `/generate_pcdrs`) exist and work individually, but aren't unified into
-   one operation and don't carry provenance (sentence/solution/branch IDs).
-   Batch deduction (`/gswb_batch_proof`) wasn't extended to structured proof
-   inputs the way single `/deduce` was.
-3. **liger**: per-sentence meaning-constructor loss in sequence assembly is
-   fixed, but there's no uploaded-structure sequence endpoint yet for the
-   LFGxDRT route to merge syntax through, and regression-batch output still
-   doesn't preserve per-variant provenance.
-4. **xleplusglue / Vampire**: the legacy sentence-by-sentence LFGxDRT
-   translation path is already removed and a proper "write already-complete
-   TPTP checks" path exists (`generate_translated_check_files`) — but
-   **nothing calls the LFGxDRT adapter**. No subprocess, no HTTP call, no
-   Java anywhere in `Docker/Dockerfile-vampire`. This is the biggest
-   structural gap: even once every other piece above is finished, there's no
-   wiring from the Python service to LFGxDRT's `ReasoningCli`.
-5. **xleplusglue-client**: not started. No semantic-model-aware request
-   types; a single missing/unresolved reading currently fails an entire
-   batch of NLI checks instead of just that item; chat renders semantics as
-   plain text rather than the SVG the design calls for.
+1. GSWB `/reasoning_check_asts` builds the four check ASTs via LFGxDRT's
+   `DrsReasoningCheckBuilder` (in-process, same JVM).
+2. In parallel: LiGER merges syntax+semantics, applies NLI post-processing
+   rules, then GSWB `/generate_pcdrs` produces the anaphora-mapping
+   candidates — this *is* the pronoun-resolution post-processing, and it
+   already works. Each mapping is computed exactly once here and threaded
+   through explicitly to the next step, rather than re-derived per check —
+   avoiding the referent-duplication ambiguity described below.
+3. GSWB `/collapse_and_tptp_batch` takes the context + all four check ASTs
+   together with one mapping's `anaphoraRelations`, and returns complete
+   TPTP for each in one batched call.
+4. The client assembles these into `tptp_checks` and calls Vampire the normal
+   way (`inference/run_vampire.py`'s `_single_lfgxdrt_request()`, which
+   already exists and just runs Vampire on the pre-built formulas).
+
+This is genuinely working end to end, including anaphora/pronoun-resolution
+post-processing — not a gap. Chat's implementation is also reasonably
+defensive: per-mapping failures are caught and filtered
+(`catchError(() => of(null))`) rather than aborting the whole request.
+
+One real, still-open design point in step 1: `DrsReasoningCheckBuilder` must
+not merge a second copy of the premise context (`Q`) into the check DRS
+itself (that made anaphora mapping ambiguous between the outer merged copy
+and the copy embedded in the implication's antecedent) — `Q` needs to be
+reattached as a separate TPTP conjunct after translation instead. That
+reattachment step doesn't exist yet; see
+`docs/plans/LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md`'s "Implementation
+Correction" note for the full reasoning.
+
+**What's actually not built: the same integration in regression testing.**
+`regression-testing-interface.component.ts` has its own separate, less mature
+implementation of this flow (`postProcessNliChecks`, vs. chat's
+`postProcessReasoningCheckAsts`) — same GSWB endpoints, but a single
+missing/unresolved reading throws inside a `forkJoin` and aborts the *entire*
+batch instead of failing just that item. This is the actual next construction
+site for LFGxDRT reasoning, not the Chat path.
+
+Other loose ends, none of them blocking Chat: GSWB's reasoning endpoints
+don't carry provenance (sentence/solution/branch IDs) and aren't unified into
+one operation; batch deduction (`/gswb_batch_proof`) wasn't extended to
+structured proof inputs the way single `/deduce` was; liger has no
+uploaded-structure sequence endpoint yet (not currently needed by the working
+Chat path, which merges syntax through LiGER's existing rule-application
+endpoint instead); regression-batch output doesn't preserve per-variant
+provenance.
 
 Full detail, per-item verified status, and citations:
 `docs/plans/LFGXDRT_REASONING_PLAN.md` and
-`docs/plans/LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md`.
+`docs/plans/LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md` — both corrected in the
+same pass as this section.
 
 ## Immediate TODO: give discourse/reasoning checks a home in the data model
 
