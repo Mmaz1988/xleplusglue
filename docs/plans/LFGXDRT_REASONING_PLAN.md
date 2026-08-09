@@ -8,18 +8,29 @@ against actual code/tests across all 5 repos; items below are checked off only
 where confirmed by direct evidence (code + passing test where one exists).
 Unchecked does not always mean "not started" — see the inline notes.
 
-**Regression found, needs a decision before anything here is committed**: the
+**Not a regression — an intentional, correct, but incomplete fix.** The
 current *uncommitted* working-tree change to
-`LFGxDRT/src/main/java/de/ukon/lfgxdrt/DrsReasoningCheckBuilder.java` drops the
-required outer `Q +` `DrsMerge` wrapper for `info_pos_check`, `info_neg_check`,
-and `cons_neg_check` — it now produces `~(Q=>P)` instead of the spec's
-`Q + ([],[~([],[Q=>P])])`. The accompanying test edit in the same diff was
-weakened (removed `assertInstanceOf(DrsMerge.class, ...)` assertions) to match
-the new shape rather than catching the regression, so `mvn test` passes despite
-the spec violation. `Q & ~(Q=>P)` is classically equivalent to `~(Q=>P)` alone,
-so this may be an intentional simplification — but it contradicts this doc's
-explicit required AST shapes and should be a deliberate call, not a silent
-side effect of an in-progress edit.
+`LFGxDRT/src/main/java/de/ukon/lfgxdrt/DrsReasoningCheckBuilder.java` drops
+the outer `Q +` `DrsMerge` wrapper for `info_pos_check`, `info_neg_check`, and
+`cons_neg_check`. Confirmed with the implementer: merging a second copy of
+`Q` into the check DRS (as originally specified) requires standardizing that
+copy apart, and anaphora mapping computed over the resulting structure then
+becomes ambiguous for every referent in `P` — it can't tell the outer merged
+copy of `Q`'s referents from the inner copy embedded as the implication's
+antecedent, and re-deriving anaphora with that duplicated "prior" present
+makes every mapping ambiguous against the real external context too. Dropping
+the DRS-level duplication is correct. What's still missing: the dropped `Q`
+needs to be reattached as a separate conjunct **at the TPTP level**
+(translate `Q` once, independently, then `<Q_tptp> & (<check_tptp>)` — sound
+because top-level-conjoined TPTP formulas are scopally independent), not
+silently omitted as it currently is. See the companion doc's "Implementation
+Correction" note (`LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md`) for the full
+reasoning. The paired test edit in the same diff was weakened to match the
+current (Q-less) output rather than asserting the eventual TPTP-reattached
+shape — worth tightening once the reattachment step is built, so the test
+doesn't silently accept "`Q` missing entirely" as done. `cons_pos_check` is
+unaffected — `Q` appears only once there (`DrsMerge(Q,P)`, no implication),
+so it should keep its existing DRS-level merge as-is.
 
 **By phase**, roughly:
 - **LFGxDRT itself** (adapter/CLI, AST foundations, graph round-trip): mostly

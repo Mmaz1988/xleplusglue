@@ -10,19 +10,24 @@ version, phase by phase, against this doc's own Phase 1-6 structure:
 - **Phase 1 (LFGxDRT AST foundations, §1.1-1.4)**: mostly DONE and tested —
   `DrsReasoningCheckBuilder`, `DrsAstCopier`, ordered/accessibility-aware
   sequence collapse, and `ReasoningCli`'s `reasoning_checks` operation all
-  exist and pass their tests. **Exception, needs a decision**: the current
-  *uncommitted* working-tree edit to `DrsReasoningCheckBuilder.java` drops the
-  outer `Q +` wrapper this doc's own "Correct LFGxDRT Box Structure" section
-  requires for `info_pos_check`/`info_neg_check`/`cons_neg_check` (produces
-  `~(Q=>P)` instead of `Q + ([],[~([],[Q=>P])])`). The paired test edit was
-  weakened to match rather than catching it. `Q & ~(Q=>P)` is classically
-  equivalent to `~(Q=>P)`, so this may be intentional — but as written it
-  contradicts this doc's explicit "these are wrong and must be rejected by
-  tests" list, so it should be a deliberate call, not a side effect.
-  Separately, §1.2's underlying risk callout (`DiscourseReferent.alphaRename()`
-  mutating in place) is still true — `DrsAstCopier` works around it for the
-  reasoning-check path but doesn't fix the source method, which is still used
-  elsewhere (`DRS.java:364`, `collapseAnaphoraUnchecked`).
+  exist and pass their tests. The *uncommitted* working-tree edit that drops
+  the outer `Q +` wrapper for `info_pos_check`/`info_neg_check`/`cons_neg_check`
+  is **not a regression** — it's a correct fix for a real problem: merging a
+  second copy of `Q` into the check DRS (as the "Required AST shapes" below
+  literally specify) requires standardizing that copy apart, and running
+  anaphora mapping over the resulting structure then makes every mapping in
+  `P` ambiguous between the outer merged copy of `Q`'s referents and the inner
+  copy embedded as the implication's antecedent — the mapper has no way to
+  know they denote the same entities. Re-deriving anaphora with that
+  duplicated "prior" present also makes every mapping ambiguous between the
+  real external accessible context and the reintroduced copy. See the
+  "Implementation Correction" note added below the AST-shapes block — the fix
+  is real but currently incomplete: the dropped `Q` needs to be reattached at
+  the TPTP level, not silently omitted, and that reattachment step doesn't
+  exist yet. Separately, §1.2's underlying risk callout (`DiscourseReferent
+  .alphaRename()` mutating in place) is still true — `DrsAstCopier` works
+  around it for the reasoning-check path but doesn't fix the source method,
+  which is still used elsewhere (`DRS.java:364`, `collapseAnaphoraUnchecked`).
 - **Phase 2 (graph round-trip, "Phase 2" section)**: DONE for the four checks
   and tested (`DrsReasoningCheckBuilderTest.graphRoundTripPreservesEveryCheckOperatorNesting`).
   The "duplicated negation" blocker this doc describes appears fixed in
@@ -180,6 +185,49 @@ Q + ([],[~(Q -> ~P)])
 ```
 
 In both cases the negation scopes directly over an operator rather than over a DRS box.
+
+### Implementation Correction: `Q` Must Not Be Duplicated at the DRS/AST Level (2026-08-09)
+
+The AST shapes above are logically correct but must **not** be built as a
+single merged DRS/AST for `info_pos_check`, `info_neg_check`, and
+`cons_neg_check`. Building `DrsMerge(Q, box(...Q...))` requires a second deep
+copy of `Q`, standardized apart from the first, and running anaphora-mapping
+computation over that merged structure produces a spurious ambiguity for
+every mapping in `P`: each candidate antecedent effectively appears twice —
+once via the outer merged copy of `Q`'s referents, once via the inner copy
+embedded as the implication's antecedent — with no way for the mapper to know
+they denote the same discourse entities. Re-running anaphora resolution with
+that duplicated "prior" present also makes every mapping ambiguous between
+the real external accessible context and the reintroduced copy.
+
+**Corrected approach**: build and anaphora-resolve only the single-`Q`
+check-core structure — `([],[~([],[Q -> P])])` for `info_pos_check`, etc.,
+i.e. drop the outer `Q +`. This is what the current (uncommitted)
+`DrsReasoningCheckBuilder` change does. `Q`'s own referents remain properly
+accessible to `P` through ordinary DRT implication-antecedent accessibility,
+so no duplication is needed for that part. Anaphora mapping must run exactly
+once, over the actually-accessible context, not be recomputed with `Q`
+merged in a second time.
+
+The dropped outer `Q` must then be reattached **after** translation, at the
+TPTP level, not at the DRS level: translate `Q` to TPTP once — independently
+of the check-specific translation, using the already-resolved `Q` rather than
+a fresh copy — and conjoin it as `<Q_tptp> & (<check_tptp>)`. This is sound
+specifically because top-level-conjoined TPTP/FOL formulas are scopally
+independent: each formula's quantifiers only bind within that formula, so
+reused referent/variable names between the two conjuncts are not a capture
+risk, unlike at the DRS/AST level where accessibility and anaphora resolution
+are structure-sensitive.
+
+**This reattachment step is not yet implemented.** As of the 2026-08-09
+verification pass, dropping the outer merge currently just loses `Q` from the
+check entirely — a runtime probe showed `info_pos_check.canonical_semantic`
+with no leading `Q &`/`Q +` at all, just the bare `~(Q=>P)`-shaped formula.
+That's the concrete next step for this file, not a bug to revert.
+
+`cons_pos_check` (`DrsMerge(Q, P)`, no implication) is unaffected by any of
+this — `Q` appears exactly once there, so the duplication problem never
+arises, and it should keep its current direct DRS-level merge unchanged.
 
 ### Implication Semantics Checkpoint
 
