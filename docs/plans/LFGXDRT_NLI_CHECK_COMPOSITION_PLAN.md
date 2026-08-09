@@ -1,5 +1,69 @@
 # LFGxDRT Reasoning Sequence Composition Plan
 
+## Verified Status (2026-08-09)
+
+This doc has no checkboxes, so status is tracked here instead of inline. Full
+verification detail (with code citations) lives in the companion
+`LFGXDRT_REASONING_PLAN.md`'s "Verified Status" section — this is the short
+version, phase by phase, against this doc's own Phase 1-6 structure:
+
+- **Phase 1 (LFGxDRT AST foundations, §1.1-1.4)**: mostly DONE and tested —
+  `DrsReasoningCheckBuilder`, `DrsAstCopier`, ordered/accessibility-aware
+  sequence collapse, and `ReasoningCli`'s `reasoning_checks` operation all
+  exist and pass their tests. **Exception, needs a decision**: the current
+  *uncommitted* working-tree edit to `DrsReasoningCheckBuilder.java` drops the
+  outer `Q +` wrapper this doc's own "Correct LFGxDRT Box Structure" section
+  requires for `info_pos_check`/`info_neg_check`/`cons_neg_check` (produces
+  `~(Q=>P)` instead of `Q + ([],[~([],[Q=>P])])`). The paired test edit was
+  weakened to match rather than catching it. `Q & ~(Q=>P)` is classically
+  equivalent to `~(Q=>P)`, so this may be intentional — but as written it
+  contradicts this doc's explicit "these are wrong and must be rejected by
+  tests" list, so it should be a deliberate call, not a side effect.
+  Separately, §1.2's underlying risk callout (`DiscourseReferent.alphaRename()`
+  mutating in place) is still true — `DrsAstCopier` works around it for the
+  reasoning-check path but doesn't fix the source method, which is still used
+  elsewhere (`DRS.java:364`, `collapseAnaphoraUnchecked`).
+- **Phase 2 (graph round-trip, "Phase 2" section)**: DONE for the four checks
+  and tested (`DrsReasoningCheckBuilderTest.graphRoundTripPreservesEveryCheckOperatorNesting`).
+  The "duplicated negation" blocker this doc describes appears fixed in
+  practice (the compiler never emits both representations), but there's no
+  regression test guarding against a malformed graph that has both, unlike the
+  equivalent guard that exists for implication multiplicity.
+- **Phase 3 (LiGER sequence capabilities, §3.1-3.3)**: §3.1 DONE
+  (`LigerController.applyRuleRequestXLESequence()` + `SequenceGraphAssembler`
+  no longer drop all but the last sentence's MCs) but **untested** — no test
+  file references `SequenceGraphAssembler` at all. §3.2 (`/assemble_uploaded_sequence`)
+  and §3.3 (`applyRulesToTestsuiteNew` variant/provenance preservation) are
+  **NOT DONE**.
+- **Phase 4 (GSWB sequence/NLI prep, §4.1-4.3)**: §4.1 DONE — `/merge_sequence_semantics`
+  now accepts optional-graph part records and dispatches to `DrsGraphParser`/
+  `DrsParser` correctly. §4.2 **PARTIAL** — `/reasoning_check_asts`,
+  `/reasoning_checks`, and `/generate_pcdrs` exist and are individually
+  correct, but aren't unified into the one "preparation operation" this
+  section calls for, and none of them carry reading/branch/check provenance.
+  §4.3 **PARTIAL** — single `/deduce` supports structured `GswbProofInput`
+  and resolves `(sentenceId, solutionKey) → structure`; the *batch* endpoint
+  (`/gswb_batch_proof`, `GswbBatchRequest.premises`) was never extended past a
+  plain string map, so this doesn't work for batch/regression runs.
+- **Phase 5 (Vampire batch orchestration, §5.1-5.4)**: §5.1's named
+  now-unused methods (`_convert_lfgxdrt_batch_reading()`, pairwise
+  `merge_contexts()`, `_lfgxdrt_semantic_branches()`) are confirmed gone,
+  replaced by `_single_lfgxdrt_request()`. §5.2's non-templating TPTP writer
+  exists (`generate_translated_check_files`), though its branch directories
+  are flatter than specified. §5.3/§5.4 (result interpretation, Prolog
+  preservation) hold. **But nothing calls the LFGxDRT adapter from Python** —
+  no subprocess, no HTTP call, no Java anywhere in the Vampire image. The
+  `inference/tests/test_model_aware_vampire.py` this section's "Test Plan"
+  wants extended does not exist — `inference/tests/` is empty.
+- **Phase 6 (Angular regression contracts)**: **NOT DONE**. No
+  `VampireNliSide`-equivalent type in `models.ts`. Worse than "silently
+  omitting" a missing reading: `regression-testing-interface.component.ts`'s
+  `postProcessNliChecks()` throws on a missing/unresolved reading, and because
+  it runs inside `forkJoin(preparationRequests)`, that failure kills the
+  *entire batch*, not just the one item. Chat renders semantics as joined
+  plain text (`chat.component.ts`'s `semanticText`), not the SVG this plan
+  calls for; `semantic_svg`/`semanticSvg` doesn't appear anywhere in `src/app`.
+
 ## Purpose
 
 This document is an implementation handoff for adding an LFGxDRT reasoning

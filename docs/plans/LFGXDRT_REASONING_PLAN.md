@@ -1,5 +1,61 @@
 # LFGxDRT Reasoning Integration Plan
 
+## Verified Status (2026-08-09)
+
+The checklist below previously showed every item unchecked, which understated
+real progress on branch `lfg2026_pragmatic_parsing=reasoning-v2`. Checked
+against actual code/tests across all 5 repos; items below are checked off only
+where confirmed by direct evidence (code + passing test where one exists).
+Unchecked does not always mean "not started" — see the inline notes.
+
+**Regression found, needs a decision before anything here is committed**: the
+current *uncommitted* working-tree change to
+`LFGxDRT/src/main/java/de/ukon/lfgxdrt/DrsReasoningCheckBuilder.java` drops the
+required outer `Q +` `DrsMerge` wrapper for `info_pos_check`, `info_neg_check`,
+and `cons_neg_check` — it now produces `~(Q=>P)` instead of the spec's
+`Q + ([],[~([],[Q=>P])])`. The accompanying test edit in the same diff was
+weakened (removed `assertInstanceOf(DrsMerge.class, ...)` assertions) to match
+the new shape rather than catching the regression, so `mvn test` passes despite
+the spec violation. `Q & ~(Q=>P)` is classically equivalent to `~(Q=>P)` alone,
+so this may be an intentional simplification — but it contradicts this doc's
+explicit required AST shapes and should be a deliberate call, not a silent
+side effect of an in-progress edit.
+
+**By phase**, roughly:
+- **LFGxDRT itself** (adapter/CLI, AST foundations, graph round-trip): mostly
+  built and tested. `ReasoningCli`'s `reasoning_checks` operation already *is*
+  the "small Java LFGxDRT adapter" §4 asks for. Known unfixed risk:
+  `DiscourseReferent.alphaRename()`/`DRS.alphaRename()` still mutate in place;
+  the new `DrsAstCopier` is a parallel safe-copy utility used only by the
+  reasoning-check builder, not a fix at the source, and the old mutating path
+  is still live elsewhere (`DRS.java:364`, `collapseAnaphoraUnchecked`).
+- **liger** (§3 in the companion doc): sequence result loss is fixed
+  (`SequenceGraphAssembler`), but untested — no test file references it at
+  all. The uploaded-structure sequence endpoint and testsuite batch
+  provenance are not started.
+- **GSWB** (§2-3 here): sequence part records now accept semantic-only
+  (graph-optional) parts. Structured reasoning composition exists as separate
+  pieces (`/reasoning_check_asts`, `/reasoning_checks`, `/generate_pcdrs`) but
+  isn't unified into one operation, and none of the reasoning endpoints carry
+  provenance IDs yet. Batch deduction (`/gswb_batch_proof`) was never extended
+  to structured proof inputs — only single `/deduce` was.
+- **Vampire/Python** (§4-5, §7): the legacy per-sentence LFGxDRT translation
+  methods are gone, replaced by `_single_lfgxdrt_request()`, and a proper
+  non-templating TPTP writer (`generate_translated_check_files`) exists. But
+  **there is still no wiring from Python to the LFGxDRT adapter at all** — no
+  subprocess call, no HTTP call, no Java in `Dockerfile-vampire`. It's unclear
+  today how `request.tptp_checks` gets populated before it reaches
+  `_single_lfgxdrt_request()`; that's a real architecture gap, not just an
+  unchecked box, and worth a design conversation before continuing §7.
+- **Angular** (§6): not started. No `semantic_model`/`VampireNliSide`-shaped
+  types; a missing reading currently throws and kills the whole `forkJoin`
+  batch instead of producing a per-item structured failure; chat renders
+  semantic content as plain joined text, not an SVG.
+- **§8 Regression and acceptance tests**: none of the 18 items exist yet —
+  GSWB doesn't even have its test classes wired into the Maven test lifecycle
+  (`src/test/java` doesn't exist; `@Test` classes live under `src/main/java`
+  and never run under `mvn test`).
+
 ## Goal
 
 Add an LFGxDRT input path to the existing Vampire inference workflow while
@@ -135,17 +191,30 @@ the exact base commit for each new branch before making changes.
 ### 1. Define the semantic model contract
 
 - [ ] Add an explicit semantic model enum/value: `lfgxdrt` and
-      `prolog-drt`.
+      `prolog-drt`. — **NOT DONE**: no `semantic_model`/`lfgxdrt`/`prolog-drt`
+      string anywhere in `inference/*.py` (verified 2026-08-09); dispatch is
+      currently structural (whether `request.tptp_checks` is populated), not
+      by an explicit tag.
 - [ ] Select `lfgxdrt` or `prolog-drt` explicitly in GSWB, the client, and the
       Vampire request model.
 - [ ] Document any default change separately; this plan does not remove the
       established Prolog default implicitly.
-- [ ] Keep `prolog-drt` available as an explicit compatibility mode.
+- [ ] Keep `prolog-drt` available as an explicit compatibility mode. — the
+      Prolog path (`single_vampire_request`/`multiple_vampire_request`,
+      `mergeDrs()`/`conversion()`) is untouched and still works, but there's no
+      *explicit* mode tag yet since the enum from the item above doesn't exist.
 - [ ] Add `semanticModel` or `semantic_format` to GSWB solution and Vampire
-      context/request DTOs.
-- [ ] Preserve canonical LFGxDRT text separately from display text and TPTP.
+      context/request DTOs. — **NOT DONE** on the Vampire side (no such field
+      in `inference/vampire_models.py`); GSWB side not conclusively checked.
+- [ ] Preserve canonical LFGxDRT text separately from display text and TPTP. —
+      done *inside* LFGxDRT's own `ReasoningCli` output
+      (`canonical_semantic`/`tptp` are separate fields), not yet confirmed to
+      propagate end-to-end through GSWB → Vampire.
 - [ ] Define a stable solution/provenance ID across sequence assembly,
-      post-processing, collapse, and reasoning.
+      post-processing, collapse, and reasoning. — **NOT DONE**: GSWB's
+      `/reasoning_check_asts` and `/reasoning_checks` DTOs carry no
+      `id`/`sentenceId`/`solutionKey` at all (contrast with
+      `/merge_sequence_semantics`, which does thread IDs through).
 
 ### 2. Make GSWB produce reasoning-ready LFGxDRT output
 
@@ -153,78 +222,155 @@ the exact base commit for each new branch before making changes.
       semantic model.
 - [ ] Ensure the default run context enables beta reduction when reasoning is
       requested.
-- [ ] Keep the assembled semantic expression available even when graph output
-      is unavailable.
+- [x] Keep the assembled semantic expression available even when graph output
+      is unavailable. — confirmed done via `GSWB_SEMANTIC_POST_PROCESSING_PLAN.md`
+      ("Ensure beta-reduced but unresolved DRSs can be converted to both SVG
+      and LiGER graph output"; "If a graph cannot be produced, return the
+      semantic text and SVG rather than failing the entire `/deduce` request" —
+      both already checked off there and not re-verified here).
 - [ ] Return canonical LFGxDRT semantic text in `GswbSolution.semantic`.
 - [ ] Return an LFGxDRT SVG rendering alongside the canonical semantic text.
 - [ ] Return the LFGxDRT graph and source/provenance information needed by
-      post-processing.
+      post-processing. — the new `GswbSemanticMergePart` record has an
+      optional `graph` field, but that's input-side, not solution/provenance
+      output.
 - [ ] Reject or report unresolved lambda/application expressions before they
       reach TPTP conversion.
 - [ ] Add tests for both explicit semantic-model paths and Prolog compatibility.
+      — **confirmed NOT DONE**: GSWB has no `src/test/java`; its `@Test`
+      classes live under `src/main/java` and are never executed by `mvn test`
+      (verified 2026-08-09, "Tests run: 0").
 
 ### 3. Execute sequence composition and post-processing before inference
 
 - [ ] Identify the selected or all eligible semantic solutions according to the
       existing discriminant behavior.
-- [ ] Assemble ordered premise and conclusion parts through the canonical GSWB
-      sequence merge operation.
-- [ ] Build the selected reasoning-check semantic structure from those merged
-      sequence results without flattening semantic strings.
+- [x] Assemble ordered premise and conclusion parts through the canonical GSWB
+      sequence merge operation. — `DrsSequenceMerger.merge(...)` is called for
+      both sides before `resolveMerges()` in `/reasoning_check_asts` and
+      `/reasoning_checks` (`GswbController.java`).
+- [x] Build the selected reasoning-check semantic structure from those merged
+      sequence results without flattening semantic strings. —
+      `DrsReasoningCheckBuilder.buildAsts(premise, hypothesis)` builds the four
+      boxed ASTs from the merged `Q`/`P` objects directly.
 - [ ] Merge the complete semantic structure with the syntax graph through the
-      existing LiGER merge endpoint.
+      existing LiGER merge endpoint. — **NOT DONE**: no such LiGER call from
+      GSWB's reasoning path exists; liger's own uploaded-sequence endpoint
+      (§3.2 below / companion plan) doesn't exist yet either, so there's
+      nothing to call.
 - [ ] Apply the configured LiGER post-processing rules once to each complete
-      reasoning structure.
+      reasoning structure. — **NOT DONE**, same reason as above.
 - [ ] Preserve every returned rule annotation and annotated structure.
-- [ ] Extract anaphora candidates from every complete annotated structure.
-- [ ] Generate and collapse all required anaphora branches using the existing
-      GSWB operations or their shared implementation.
-- [ ] Preserve the empty-mapping branch as one valid branch.
-- [ ] Use each collapsed semantic as the reasoning input.
+- [~] Extract anaphora candidates from every complete annotated structure. —
+      **PARTIAL**: `/generate_pcdrs` does this, but only on one already-merged
+      structure passed in by the caller, not automatically on the reasoning
+      endpoints' output.
+- [~] Generate and collapse all required anaphora branches using the existing
+      GSWB operations or their shared implementation. — **PARTIAL**: the
+      pieces exist (`/generate_pcdrs`, `/collapse_anaphora`,
+      `/collapse_and_tptp_batch`) but a caller must manually chain
+      `reasoning_check_asts` → `generate_pcdrs` (per check) →
+      `collapse_anaphora`; there is no single operation that does this.
+- [x] Preserve the empty-mapping branch as one valid branch. —
+      `expandAnaphoraMappings` seeds `results` with one empty map
+      (`GswbController.java:1061-1077`).
+- [ ] Use each collapsed semantic as the reasoning input. — not automatic, see
+      manual-chaining note above.
 - [ ] Render the collapsed LFGxDRT SVG for the reasoning result while retaining
       the mapped and uncollapsed SVGs for provenance where applicable.
 - [ ] Retain the original semantic, composed semantic, mapping, and collapsed
-      semantic in reasoning provenance.
+      semantic in reasoning provenance. — **NOT DONE**: `/reasoning_check_asts`
+      and `/reasoning_checks` DTOs carry no provenance fields.
 - [ ] Define behavior when no anaphora mapping is found: reason over the
       post-processed DRS directly.
-- [ ] Define behavior when rule application or anaphora generation fails: return a
+- [~] Define behavior when rule application or anaphora generation fails: return a
       per-reading conversion error rather than silently using the unprocessed
-      semantic.
+      semantic. — **PARTIAL, and going the wrong way**: `reasoningChecks`/
+      `reasoningCheckAsts` currently throw on any parse/merge failure, failing
+      the *whole request* rather than returning a per-reading structured error
+      (contrast with `/collapse_and_tptp_batch`, which already does per-item
+      try/catch). The Angular regression-testing UI has the same problem one
+      layer up (see §6 below) — a single missing reading currently kills an
+      entire `forkJoin` batch.
 
 ### 4. Add LFGxDRT normalization and TPTP conversion
 
-- [ ] Add a small Java LFGxDRT adapter, preferably a line-oriented JSON CLI,
-      using `DrsParser` and the AST operations in LFGxDRT.
-- [ ] Support parse, beta reduction, merge resolution, anaphora collapse, and
-      TPTP rendering in the adapter.
+- [x] Add a small Java LFGxDRT adapter, preferably a line-oriented JSON CLI,
+      using `DrsParser` and the AST operations in LFGxDRT. — this is
+      `ReasoningCli`'s `reasoning_checks` operation
+      (`LFGxDRT/src/main/java/de/ukon/lfgxdrt/ReasoningCli.java`); it exists
+      and is tested (`ReasoningCliTest`, 10/10 passing). **Not yet wired into
+      the Python Vampire service**, see §5 below — the adapter itself is done,
+      the integration isn't.
+- [x] Support parse, beta reduction, merge resolution, anaphora collapse, and
+      TPTP rendering in the adapter. — confirmed via the CLI's staged pipeline
+      (`parsed_premise` → `beta_reduced_premise` → `merged_premise` →
+      `contextualized_premise` → collapse anaphora → build checks → TPTP),
+      exercised by `ReasoningCliTest`.
 - [ ] Validate that no unresolved `FuncApp`, `LambdaFunction`, or `DrsMerge`
-      remains before TPTP rendering.
-- [ ] Report unsupported anaphora or presupposition mappings explicitly.
-- [ ] Do not silently drop mappings during TPTP conversion.
-- [ ] Return canonical text, Prolog-style text where useful, raw TPTP, warnings,
-      and structured errors.
-- [ ] Keep `fof(...)`/`tff(...)` wrapping in the Python TPTP writer; the
-      LFGxDRT library returns raw formula text.
-- [ ] Support typed and untyped output according to Vampire preferences.
+      remains before TPTP rendering. — `validateBoxing()` validates negation/
+      implication box shape, not explicitly confirmed for unresolved
+      `FuncApp`/`LambdaFunction`.
+- [x] Report unsupported anaphora or presupposition mappings explicitly. —
+      `ReasoningCliTest.reportsStructuredErrorWhenRequiredPronounMappingIsMissing`
+      (`unresolved_mapping` / stage `contextual_mapping`).
+- [x] Do not silently drop mappings during TPTP conversion. — same evidence.
+- [~] Return canonical text, Prolog-style text where useful, raw TPTP, warnings,
+      and structured errors. — **PARTIAL**: `canonical_semantic`/`tptp`/
+      `warnings`/`errors` all present; no separate "Prolog-style text" field
+      (LFGxDRT doesn't produce Prolog output, so this may not apply here).
+- [x] Keep `fof(...)`/`tff(...)` wrapping in the Python TPTP writer; the
+      LFGxDRT library returns raw formula text. — `generate_translated_check_files`
+      in `inference/run_vampire.py:82-93` wraps each pre-complete formula in
+      `fof(<name>, axiom, (<formula>)).` without re-templating.
+- [x] Support typed and untyped output according to Vampire preferences. —
+      `ReasoningCliTest.returnsExactlyFourReasoningChecksInFofAndTffModes`
+      confirms both FOF and TFF modes.
 - [ ] Test variable sanitization, quoted predicates, comparisons, negation,
-      implication, quantification, and empty DRS bodies.
+      implication, quantification, and empty DRS bodies. — not confirmed as a
+      dedicated test set; negation/implication are covered incidentally by the
+      four-check tests, the rest aren't verified.
 
 ### 5. Refactor the Python inference service
 
 - [ ] Route `lfgxdrt` through the Java adapter or equivalent LFGxDRT CLI, which
       receives complete semantic structures and returns complete TPTP checks.
-- [ ] Route explicit `prolog-drt` through the existing SWI-Prolog converter,
-      including its existing premise-merging behavior.
-- [ ] Make reading extraction and request handling model-aware.
-- [ ] Do not call `mergeDrs()` or `printDRS()` for LFGxDRT requests.
-- [ ] Do not perform individual sentence or intermediate semantic merges in the
-      LFGxDRT Python path.
-- [ ] Keep the four existing Vampire checks unchanged at the normalized TPTP
-      layer.
+      — **NOT DONE, this is the real gap**: `_single_lfgxdrt_request()`
+      (`inference/run_vampire.py:106`) already consumes pre-built
+      `request.tptp_checks` correctly, but nothing in the Python service calls
+      the LFGxDRT adapter (`ReasoningCli`) to *produce* those checks — no
+      subprocess, no HTTP call, nothing. It's unclear today what upstream
+      component (GSWB? the Angular client?) is expected to call the adapter
+      and populate `tptp_checks` — worth resolving before more work goes into
+      either side.
+- [x] Route explicit `prolog-drt` through the existing SWI-Prolog converter,
+      including its existing premise-merging behavior. — untouched
+      (`single_vampire_request`/`multiple_vampire_request` still use
+      `mergeDrs()`/`conversion()`/`printDRS()`).
+- [ ] Make reading extraction and request handling model-aware. — no
+      `semantic_model` field exists yet to be aware of (see §1).
+- [x] Do not call `mergeDrs()` or `printDRS()` for LFGxDRT requests. — grepped,
+      neither name appears anywhere in the LFGxDRT batch path.
+- [x] Do not perform individual sentence or intermediate semantic merges in the
+      LFGxDRT Python path. — confirmed: `_convert_lfgxdrt_batch_reading()`,
+      pairwise `merge_contexts()`, and `_lfgxdrt_semantic_branches()` (the
+      plan's named "methods to stop using") no longer exist anywhere in the
+      repo.
+- [x] Keep the four existing Vampire checks unchanged at the normalized TPTP
+      layer. — `discourse_checks()`/`determine_consistency()`/
+      `determine_informativity()` untouched.
 - [ ] Return structured conversion failures in the response and logs.
-- [ ] Preserve the LFGxDRT SVG separately from the Vampire diagnostic glyph.
-- [ ] Preserve cancellation, timeout, progress, and Redis session behavior.
-- [ ] Ensure temporary files are isolated per request and per semantic branch.
+- [ ] Preserve the LFGxDRT SVG separately from the Vampire diagnostic glyph. —
+      not confirmed either way on the Python/DTO side; confirmed **NOT DONE**
+      on the Angular side (see §6).
+- [ ] Preserve cancellation, timeout, progress, and Redis session behavior. —
+      not verified, presumed unaffected since the surrounding code wasn't
+      touched.
+- [~] Ensure temporary files are isolated per request and per semantic branch.
+      — **PARTIAL**: branch directories are currently
+      `tmp/<session>/tptp/<index>/` (a flat index), not the fully nested
+      `tmp/<session>/<item>/<assignment>/<rule-branch>/<anaphora-branch>/`
+      this doc specifies elsewhere.
 
 ### 6. Update the request and response APIs
 
@@ -236,24 +382,43 @@ the exact base commit for each new branch before making changes.
 - [ ] Keep semantic SVG and Vampire check glyphs as separate fields; do not
       overload `Check.glyph`.
 - [ ] Keep old Prolog fields optional for compatibility.
-- [ ] Update the Angular request interfaces and service methods.
+- [ ] Update the Angular request interfaces and service methods. — **NOT
+      DONE**: no `VampireNliSide`-equivalent type or `semantic_model` field
+      anywhere in `models.ts`.
 - [ ] Send canonical LFGxDRT semantics rather than only concatenated display
-      strings.
+      strings. — **NOT DONE**: `chat.component.ts` still builds `semanticText`
+      as `newContext.map(item => item.semantic || item.prolog_drs).filter(Boolean).join('\n')`,
+      a joined plain string.
 - [ ] Update the chat interface to store semantic SVGs with each reasoning
-      response/context.
+      response/context. — **NOT DONE**.
 - [ ] Render the semantic SVG in chat history, with safe HTML sanitization or a
-      controlled SVG rendering path.
-- [ ] Continue rendering Vampire consistency/informativity glyphs separately
-      from the semantic SVG.
+      controlled SVG rendering path. — **NOT DONE**: `chat.component.html`
+      renders semantics as a `variant="text"` pill (badge `DRS`), not SVG;
+      grepping `src/app` for `semantic_svg`/`semanticSvg` returns nothing.
+- [x] Continue rendering Vampire consistency/informativity glyphs separately
+      from the semantic SVG. — true today only because there's no semantic SVG
+      yet to conflict with; the glyph pill (`badge="V"`) and DRS-text pill are
+      already separate UI elements, so this should hold once SVG lands.
 - [ ] Preserve semantic SVGs when contexts are expanded, pruned, or restored
-      from session state.
-- [ ] Ensure multiple-reading requests preserve reading boundaries.
+      from session state. — N/A until the SVG field exists.
+- [ ] Ensure multiple-reading requests preserve reading boundaries. — **NOT
+      DONE, and currently worse than "not preserved"**: a single NLI item with
+      a missing/unresolved reading throws inside
+      `regression-testing-interface.component.ts`'s `postProcessNliChecks()`,
+      and since it's fed through `forkJoin(preparationRequests)`, RxJS fails
+      the *entire batch* on that one error rather than isolating it.
 - [ ] Version or document the API contract so old clients remain diagnosable.
 
 ### 7. Package and deploy the implementation
 
+Blocked on §5's open architecture question (nothing calls the adapter yet) —
+none of this can be meaningfully started until that's resolved.
+
 - [ ] Build and pin the LFGxDRT adapter version.
-- [ ] Add the adapter artifact to `xleplusglue/Docker/Dockerfile-vampire`.
+- [ ] Add the adapter artifact to `xleplusglue/Docker/Dockerfile-vampire`. —
+      **confirmed NOT DONE**: read the full file; it's `python:3.9-slim` +
+      `swi-prolog` + the Vampire binary, no `openjdk`/`java` package, no jar
+      `COPY`, no adapter sidecar reference.
 - [ ] Add the Java runtime or a dedicated adapter sidecar to the compose stack.
 - [ ] Configure the adapter path and timeout through environment variables.
 - [ ] Keep `xleplusglue` as the deployment source of truth.
@@ -264,6 +429,13 @@ the exact base commit for each new branch before making changes.
 - [ ] Add a Docker smoke test covering an LFGxDRT request through port 8082.
 
 ### 8. Regression and acceptance tests
+
+**Confirmed NOT DONE, entirely** — GSWB has no `src/test/java` directory at
+all; its `@Test`-annotated classes live under `src/main/java/test` and
+`src/main/java/prover/ProverTest.java`, which Maven's Surefire plugin never
+discovers (`mvn test` succeeds but runs 0 tests). None of the 18 items below
+can be meaningfully "done" until GSWB's test infrastructure is fixed to
+actually run its tests.
 
 - [ ] Compare simple DRS reasoning in LFGxDRT and Prolog-D​​RT modes.
 - [ ] Test multiple readings and context expansion.
@@ -281,8 +453,15 @@ the exact base commit for each new branch before making changes.
 - [ ] Test timeout and cancellation.
 - [ ] Test explicit LFGxDRT mode.
 - [ ] Test explicit Prolog-DRT compatibility mode and its unchanged behavior.
-- [ ] Run focused LFGxDRT Maven tests.
-- [ ] Run GSWB Maven tests.
+- [ ] Run focused LFGxDRT Maven tests. — the LFGxDRT repo itself *does* have a
+      working, passing focused test suite for its own AST/graph work
+      (`DrsReasoningCheckBuilderTest`, `ReasoningCliTest`,
+      `DrsGraphParserTest`, `LigerGraphCompilerTest`, `testDrsSequenceMerger`
+      all pass under `mvn test`) — this item is about the cross-repo
+      regression matrix, which doesn't exist yet, not about LFGxDRT's own
+      unit tests, which do.
+- [ ] Run GSWB Maven tests. — see note above; would need GSWB's test
+      infrastructure fixed first.
 - [ ] Run the Python Vampire harness.
 - [ ] Build the Docker stack and perform an end-to-end frontend request.
 

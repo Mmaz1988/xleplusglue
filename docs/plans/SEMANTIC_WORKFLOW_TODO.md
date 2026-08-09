@@ -34,6 +34,11 @@ semantics, and the graph inspector.
   to `true` during serialization, so payloads and subsequent semantic
   processing can disagree with the in-memory graph. Add a false-value round-trip
   test.
+  **Confirmed still present 2026-08-09**:
+  `liger/src/main/java/de/ukon/liger/syntax/GraphConstraint.java:155-157` still
+  does `if (this.projection != null) { this.projection = true; ... }`,
+  reproducing the bug exactly as described. No test exists for
+  `GraphConstraint` at all.
 
 - [ ] Make fact target typing explicit in the client payload. The inspector
   currently treats a numeric `fsValue`/`targetNode` as a node ID and prefixes it
