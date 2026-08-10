@@ -122,49 +122,53 @@ Full detail, per-item verified status, and citations:
 `docs/plans/LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md` — both corrected in the
 same pass as this section.
 
-## Immediate TODO: give discourse/reasoning checks a home in the data model
+## In progress: reasoning checks in the data model, regression testing onto it
 
-Chat's reasoning checks and Analysis's `XlePlusGlueDocument` are two
-disconnected data flows today. `analysis-data-model.md` explicitly excludes
-"final pragmatic/NLI reasoning" from its scope, and nothing in the reasoning-v2
-plans above describes how a check result would attach to a `Sentence` or
-`Sequence` once it exists. **This needs a design pass before the reasoning-v2
-wiring work above lands**, or the result will be reasoning output with nowhere
-principled to live in the document the rest of the frontend already
-understands.
+**Design resolved; model layer landed.** Owning doc:
+`docs/plans/REASONING_IN_DOCUMENT_PLAN.md`. Model spec: the "Reasoning Results"
+section of `../xleplusglue-client/docs/analysis-data-model.md`, which no longer
+declares NLI reasoning out of scope.
 
-The existing `DiscourseUpdate` layer is the closest precedent and probably the
-right shape to extend or sit alongside: it already stacks pragmatic
-annotations (anaphora mappings) on a completed `Sentence`/`Sequence` as a
-parallel, id-referenced structure rather than new fields on
-`SentenceAnalysis`/`SequenceAnalysis` — the same pattern (`SOURCE_ELEMENT_ID`/
-`SOURCE_ELEMENT_KIND`, a mapping from semantic/discourse origin to result
-branches, `STRUCTURE_ID`-keyed shared structures) would need to generalize to
-also cover a reasoning-check result: which `Sentence`/`Sequence` pair (or
-premise/conclusion set) it was computed over, which of the four checks it is,
-its canonical semantic + TPTP + Vampire verdict, and its own anaphora-mapping
-provenance (since reasoning-check anaphora collapse is a distinct pass from
-`DiscourseUpdate`'s, per the LFGxDRT design note above about not re-deriving
-mappings with a duplicated prior).
+`ReasoningUpdate` stacks on `Sentence`/`Sequence` the way `DiscourseUpdate`
+does — a parallel, id-referenced structure, not new fields on
+`SentenceAnalysis`/`SequenceAnalysis`. The three previously-open questions are
+answered:
 
-Open questions to resolve as part of this:
+- **Anaphora provenance:** a reasoning result *references* a `DiscourseUpdate`
+  rather than computing or copying its own mapping — `discourseUpdateId` +
+  `discourseId` point at the `DiscourseAnalysis` branch whose relations were
+  used. This matches the working chat path (one `/generate_pcdrs` pass, threaded
+  through explicitly) and preserves the "don't re-derive with a duplicated
+  prior" constraint. `validateReasoningUpdate` enforces both hops, so it is a
+  mechanical invariant rather than a convention.
+- **Scope:** a premise/conclusion pair, held as ordered *lists* of element ids
+  per side — a regression NLI item has N premises and M conclusions, and chat is
+  the degenerate 1+1 case of the same shape. Per-side semantic ids are
+  positionally aligned with the element ids, and that alignment is validated.
+- **Where results live:** `XlePlusGlueDocument.reasoningUpdates[].assignments[]`,
+  one assignment per reading × rule-branch × anaphora-branch, each holding the
+  four checks' TPTP plus that bundle's Vampire verdict. The verdict sits on the
+  assignment, not the check: Vampire folds all four prover runs into one
+  consistent/informative/relevant triple with one proof-file list, so a per-check
+  verdict does not exist and cannot be reconstructed.
 
-- Does a reasoning-check result reference one `DiscourseUpdate` (reusing its
-  anaphora resolution) or compute its own, given the "don't re-derive
-  anaphora with a duplicated prior" constraint from the LFGxDRT design note
-  above?
-- Is a reasoning check scoped to one element (`Sentence`/`Sequence`) or
-  inherently a premise/conclusion *pair* across two elements — closer to
-  `DiscourseUpdate`'s single-source shape or to the coordinated two-element
-  merge shape used for `Sequence` construction?
-- Where do the four check results (and their TPTP/Vampire verdicts) live so
-  Chat can render them without the frontend maintaining a second,
-  document-external result store the way it effectively does today?
+Remaining steps (full checklist in the owning doc): reconcile the
+merged-structure tiers across the three views, extract a shared
+`ReasoningPipelineService`, have chat write `ReasoningUpdate`s, then regression
+session v3 embedding an `XlePlusGlueDocument`.
 
-This doesn't have an owning plan doc yet — write one (in
-`docs/plans/`, since it's inherently cross-repo: the model lives in
-`xleplusglue-client`, the checks are computed by GSWB/LFGxDRT/Vampire) once
-the shape is decided, and update this file's status line for it.
+Two defects found during the design pass and scheduled alongside it:
+
+- LiGER's `/merge_uploaded_structures` only **unions** the merged syntax and
+  merged semantics — `LinguisticStructureMerger.merge` creates no edges between
+  the two sides. The **post-processing rules** do the syn↔sem linking. Regression
+  skips that call entirely and feeds merged semantics alone into the rules, so no
+  link can be created and its anaphora mappings derive from a graph with no
+  syntax in it. A correctness defect, not a stylistic one.
+- `inference/run_vampire.py` reads `context_tptp` while both clients send
+  `contextTptp`, so the `fof(context, axiom, ...)` line has never actually been
+  emitted — the backend half of the "reattach `Q` as a separate conjunct" gap
+  described below. The batch path doesn't pass it at all.
 
 ## Open TODOs at a glance
 
@@ -172,6 +176,7 @@ the shape is decided, and update this file's status line for it.
 
 | Doc | Status |
 |---|---|
+| `REASONING_IN_DOCUMENT_PLAN.md` | Reasoning results in `XlePlusGlueDocument` + regression v3; design resolved, step 1 (model layer) landed |
 | `LFGXDRT_REASONING_PLAN.md` | Reasoning-v2 master checklist, verified against code 2026-08-09 — see "Chat" section above |
 | `LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md` | Reasoning-v2 implementation handoff, same verification pass |
 | `SEMANTIC_WORKFLOW_TODO.md` | liger/GSWB/client graph-inspector issues; 4 high-priority items open incl. a confirmed-still-present `GraphConstraint.toJson()` bug |

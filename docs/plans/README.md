@@ -4,6 +4,10 @@ Docs here describe work spanning ≥2 of liger / GSWB / LFGxDRT / xleplusglue-cl
 vampire that is still open. Repo-local plans live in each repo's own `docs/plans/`
 instead (e.g. `../../../liger/docs/plans/`, `../../../GlueSemWorkbench_v2/docs/plans/`).
 
+- **REASONING_IN_DOCUMENT_PLAN.md** — owning plan for giving reasoning-check results a
+  home in `XlePlusGlueDocument` (`ReasoningUpdate`) and migrating the regression-testing
+  interface off its idiosyncratic session JSON onto that model. Design questions are
+  resolved and the model layer has landed; steps 2-7 remain.
 - **LFGXDRT_REASONING_PLAN.md** — backend plan for adding an LFGxDRT reasoning path
   through Vampire alongside the existing Prolog-DRT path.
 - **LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md** — companion plan for composing NLI-style
