@@ -156,11 +156,11 @@ who PRON * (^PRON-TYPE) = rel
              (^PRED) = 'who'
              {(^NUM) =sg |(^NUM) = pl}.
 
-he 	  PRON * @(PRON he 3 sg pers)
+he 	  PRON * @(PRON-GEND he male 3 sg pers)
 		 @(CASE nom)
          (^ GEND) = masc.
 
-she 	  PRON * @(PRON she 3 sg pers)
+she 	  PRON * @(PRON-GEND she female 3 sg pers)
 		 @(CASE nom).
 
 it	  PRON * @(PRON it 3 sg pers)
@@ -178,19 +178,19 @@ they 	  PRON * @(PRON they 3 pl pers)
 them 	  PRON * @(PRON them 3 pl pers)
 		 @(CASE acc).
 
-my	PRON * @(PRON my 1 sg poss).
+my	PRON * @(PRON-GEND my 1 sg poss).
 
-her	PRON * @(PRON her 3 sg poss)
+her	PRON * @(PRON-GEND her male 3 sg poss)
            (^GEND) = fem.
 
-him 	  PRON * @(PRON he 3 sg pers)
+him 	  PRON * @(PRON-GEND he male 3 sg pers)
 		  @(CASE acc)
 		  (^ GEND) = masc.
 
-herself  PRON * @(PRON 3 sg fem refl)
+herself  PRON * @(PRON-GEND female 3 sg fem refl)
                 (^GEND) = fem.
 
-himself  PRON * @(PRON himself 3 sg refl)
+himself  PRON * @(PRON-GEND himself male 3 sg refl)
                 (^ GEND) = masc.
 
 
@@ -327,19 +327,33 @@ to    P * @(PREP to).
 
 ENGLISH   BASIC   TEMPLATES (1.0)
 
-  PRON(P Z N T) = (^ PRED) = 'P'
+  PRON-GEND(P G Z N T) = (^ PRED) = 'P'
   	  (^ NUM) = N
   	  (^ PERS) = Z
   	  (^ PRON-TYPE) = T
   	  (^ NTYPE) = pron
-  	  @PRON-SEM.
+  	  @(PRON-SEM-GEND G).
 
-  PRON-SEM = (s::^ INDEX) = %index
-                 @(QUANT-SCOPE ^ %s)
-                 @(NP-INDEX %n)
+    PRON(P Z N T) = (^ PRED) = 'P'
+    	  (^ NUM) = N
+    	  (^ PERS) = Z
+    	  (^ PRON-TYPE) = T
+    	  (^ NTYPE) = pron
+    	  @(PRON-SEM).
+
+  PRON-SEM-GEND(G) = (s::^ INDEX) = %index
+                  @(QUANT-SCOPE ^ %s)
+                  @(NP-INDEX %n)
                  :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
                   ((%n_e -o %n_t) -o ((%n_e -o %s_t) -o %s_t)) || insitu,
-                  :$ (\x.([],[ant(x)])) : (%n_e -o %n_t).
+                  :$ (\x.([],[ant(x),G(x)])) : (%n_e -o %n_t).
+
+    PRON-SEM = (s::^ INDEX) = %index
+                   @(QUANT-SCOPE ^ %s)
+                   @(NP-INDEX %n)
+                   :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+                    ((%n_e -o %n_t) -o ((%n_e -o %s_t) -o %s_t)) || insitu,
+                    :$ (\x.([],[ant(x)])) : (%n_e -o %n_t).
 
   PREP(P) =   (^ PRED) = 'P<(^OBJ)>'
               (^ PFORM) = P.

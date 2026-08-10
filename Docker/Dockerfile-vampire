@@ -23,7 +23,6 @@ RUN mkdir -p /vampire/bin
 # Copy only the pre-built Vampire binary and make it executable
 COPY vampire_build/vampire/bin/vampire /vampire/bin/vampire
 RUN chmod +x /vampire/bin/vampire
-
 # Optionally install Python libraries (if needed)
 # Install the Python bridge without retaining pip's download cache.
 RUN pip install --no-cache-dir -U pyswip
