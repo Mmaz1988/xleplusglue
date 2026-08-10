@@ -45,3 +45,17 @@ __pycache__/
 /testsuites/parsing/*.stats~
 /.idea/vcs.xml
 /.idea/xleplusglue.iml
+
+# Local runtime, build and model artifacts -- large, machine-specific, never in git.
+# See CLAUDE.md "Working rules": these are generated/runtime artifacts, not sources.
+/.idea/
+/Stanza/
+/models/
+/vampire_build_mac/
+/redis-data/
+/tmp/
+
+# XLE testsuite backup files (the non-~ variants are already ignored above)
+/testsuites/*.errors~
+/testsuites/parsing/*.errors~
+/testsuites/inference/*.errors~
