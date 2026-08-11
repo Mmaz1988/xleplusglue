@@ -200,6 +200,22 @@ guarded by `isDebugEnabled()`, with a comment saying why. What the plan missed i
 `LigerController` is the pair of per-rule-branch fact dumps at INFO (~72 per discourse);
 those are now FINE.
 
+A second pass (`cd0bd90`) took the same principle into the query path, after a live run
+showed `QueryParser` announcing "Template registry present, but query contains no
+template invocation" several times per rule application:
+
+> Classes called inside per-branch or per-node loops log at DEBUG. INFO belongs at the
+> endpoint boundary, where `LigerController` already logs one line per request.
+
+`parseQueryWithTemplates` runs per rule per branch (`RuleParser:169`, `:384`) and
+recurses through `NegationExpression`, so its two INFO lines, `TemplateExpander`'s
+per-invocation line, the duplicated "stripped embedded query definitions" line,
+`CStructureTraverser`'s per-node proof-tree dumps and `GlueSemantics`' temp-file
+chatter all moved to DEBUG. Deliberately left alone: `XLEoperator:186`/`:219` echo the
+XLE subprocess's own stdout line by line at INFO — noisy per parse, but silencing
+another process's diagnostics is how parse failures become invisible, so that one wants
+a decision rather than a demotion.
+
 ### gswb
 
 New `src/main/resources/logback-spring.xml` modelled on liger's, including the
