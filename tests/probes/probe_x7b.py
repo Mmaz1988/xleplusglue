@@ -1,6 +1,6 @@
 """Per-node comparison: which i-node does each DRS referent's SRC point at, and which
 f-node does it end up SYNSEM-linked to, in B (all at once) vs C (sequence+sentence)?"""
-import sys, json, collections
+import os, sys, json, collections
 
 sys.path.insert(0, "tests")  # run from the repo root
 import test_full_analysis_workflow as w  # noqa: E402
