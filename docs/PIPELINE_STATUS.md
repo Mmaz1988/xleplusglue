@@ -88,18 +88,34 @@ consistency and informativity, positive and negative).
    already exists and just runs Vampire on the pre-built formulas).
 
 This is genuinely working end to end, including anaphora/pronoun-resolution
-post-processing — not a gap. Chat's implementation is also reasonably
-defensive: per-mapping failures are caught and filtered
-(`catchError(() => of(null))`) rather than aborting the whole request.
+post-processing — not a gap. Chat's steps 1-3 now live in the shared
+`ReasoningPipelineService`, which records a failed branch as a `failure` and a
+branch that lost its anaphora binding as a `degradation` instead of dropping
+either silently; chat renders both. (The older
+`catchError(() => of(null))` that discarded them survives only in the
+regression component — see below.)
 
-One real, still-open design point in step 1: `DrsReasoningCheckBuilder` must
-not merge a second copy of the premise context (`Q`) into the check DRS
-itself (that made anaphora mapping ambiguous between the outer merged copy
-and the copy embedded in the implication's antecedent) — `Q` needs to be
-reattached as a separate TPTP conjunct after translation instead. That
-reattachment step doesn't exist yet; see
-`docs/plans/LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md`'s "Implementation
-Correction" note for the full reasoning.
+**Design point in step 1, now half-addressed.** `DrsReasoningCheckBuilder` must
+not merge a second copy of the premise context (`Q`) into the check DRS itself
+(that made anaphora mapping ambiguous between the outer merged copy and the copy
+embedded in the implication's antecedent). That part is done — `copyPair` is used
+throughout and only `cons_pos_check` still merges directly, which is correct.
+`Q` was then supposed to be reattached as a separate TPTP conjunct after
+translation, and **the plumbing for that now exists**: the `contextTptp` /
+`context_tptp` key mismatch is fixed, so `fof(context, axiom, ...)` is emitted on
+both the single and batch paths.
+
+**What is conjoined is not yet `Q`, though.** The client sends the *merged*
+premise+hypothesis context (the PCDRS mapping's own semantic), where
+`LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md`'s "Implementation Correction" specifies
+the premise alone. Top-level TPTP conjuncts are scopally independent (that is the
+note's own argument for why reattachment is sound at this level), so an
+existentially-closed extra conjunct sharing no constants is not expected to
+decide a check — and the same three-sentence chat discourse produced identical
+consistent/informative/relevant triples before and after the mechanism went live.
+That is evidence, not proof: an isolated A/B over the four checks with and
+without the axiom has not been run. **Decide whether to send `Q` alone before
+relying on this conjunct for anything.**
 
 **What's actually not built: the same integration in regression testing.**
 Chat's flow now lives in a shared `ReasoningPipelineService`, but
@@ -127,7 +143,7 @@ same pass as this section.
 
 ## In progress: reasoning checks in the data model, regression testing onto it
 
-**Design resolved; model layer landed.** Owning doc:
+**Design resolved; steps 1-4 landed, 5-7 open.** Owning doc:
 `docs/plans/REASONING_IN_DOCUMENT_PLAN.md`. Model spec: the "Reasoning Results"
 section of `../xleplusglue-client/docs/analysis-data-model.md`, which no longer
 declares NLI reasoning out of scope.
@@ -175,22 +191,20 @@ dispatch, the v3 session shape embedding an `XlePlusGlueDocument`, and
 regression's NLI path onto the shared `ReasoningPipelineService`. Working
 handoff with file-level detail: `docs/plans/REGRESSION_V3_HANDOFF.md`.
 
-Two defects found during the design pass and scheduled alongside it:
+Two defects were found during the design pass. One is fixed, one is still open:
 
-- LiGER's `/merge_uploaded_structures` only **unions** the merged syntax and
-  merged semantics — `LinguisticStructureMerger.merge` creates no edges between
-  the two sides. The **post-processing rules** do the syn↔sem linking. Regression
-  skips that call entirely and feeds merged semantics alone into the rules, so no
-  link can be created and its anaphora mappings derive from a graph with no
-  syntax in it. A correctness defect, not a stylistic one.
-- `inference/run_vampire.py` reads `context_tptp` while both clients send
-  `contextTptp`, so the `fof(context, axiom, ...)` line has never actually been
-  emitted, and the batch path doesn't pass it at all. **Not a blocker**: the
-  pipeline is built around `Q` not being conjoined at the top level, and
-  `copyPair(premise, hypothesis)` still places `Q` in the implication's
-  antecedent, so no check is missing `Q` outright. Prefixing the TPTP with the
-  prior context is an optional enrichment, worth fixing because the mechanism
-  exists and silently does nothing, not because reasoning is broken without it.
+- **Still open (this is step 7).** LiGER's `/merge_uploaded_structures` only
+  **unions** the merged syntax and merged semantics — `LinguisticStructureMerger
+  .merge` creates no edges between the two sides. The **post-processing rules**
+  do the syn↔sem linking. Regression skips that call entirely and feeds merged
+  semantics alone into the rules, so no link can be created and its anaphora
+  mappings derive from a graph with no syntax in it. A correctness defect, not a
+  stylistic one. Chat does not have it: `ReasoningPipelineService` performs the
+  union first.
+- **Fixed.** `inference/run_vampire.py` read `context_tptp` while both clients
+  send `contextTptp`, so `fof(context, axiom, ...)` was never emitted and the
+  batch path did not pass it at all. Both spellings are now accepted on both
+  paths. See the caveat above about *what* is currently conjoined.
 
 ## Open TODOs at a glance
 
@@ -203,7 +217,7 @@ Two defects found during the design pass and scheduled alongside it:
 | `SUPPLIED_STRUCTURE_ANAPHORA_PLAN.md` | Closed 2026-08-11; keeps two residual findings worth their own doc |
 | `LFGXDRT_REASONING_PLAN.md` | Reasoning-v2 master checklist, verified against code 2026-08-09 — see "Chat" section above |
 | `LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md` | Reasoning-v2 implementation handoff, same verification pass |
-| `SEMANTIC_WORKFLOW_TODO.md` | liger/GSWB/client graph-inspector issues; 4 high-priority items open incl. a confirmed-still-present `GraphConstraint.toJson()` bug |
+| `SEMANTIC_WORKFLOW_TODO.md` | liger/GSWB/client graph-inspector issues; 4 high-priority items open incl. the `GraphConstraint.toJson()` bug, re-confirmed present 2026-08-11 (`projection` is still forced to `true` on serialize). `toJson()` also never serializes the `root` flag — see the hygiene note in `SUPPLIED_STRUCTURE_ANAPHORA_PLAN.md` |
 | `GSWB_SEMANTIC_POST_PROCESSING_PLAN.md` | Implementation done; only regression-test coverage remains (~60% → tests only) |
 | `DRS_TO_LIGER_PLAN.md` | Destination package now exists in LFGxDRT; doc's "Open Shape Decisions" were never reconciled against what was actually built |
 | `neurosymbolic.md` | Aspirational neuro-symbolic coreference design; no code exists for any of it yet |
@@ -213,7 +227,7 @@ Two defects found during the design pass and scheduled alongside it:
 | Repo | Doc | Status |
 |---|---|---|
 | `liger` | `docs/plans/REWRITE_DELETION_PLAN.md` | Atom-scoped deletion done+tested; protected `+acc` edge syntax not started |
-| `liger` | `docs/plans/mc-index-reordering-plan.md` | Functionally done (as `SYN-ID`/`i<n>`, not literal `INDEX`); no dedicated test |
+| `liger` | `docs/plans/mc-index-reordering-plan.md` | Functionally done (as `SYN-ID`/`i<n>`, not literal `INDEX`). Its "no dedicated test exists" note is now stale: `SyntheticMcIndexTest` covers the numbering and the supplied-structure case |
 | `GlueSemWorkbench_v2` | `docs/plans/todo.md` | `combinePremises` provenance bug half-fixed (still live via `History.calculateSolutions`); lexicon/Lev-prover backlog open |
 | `xleplusglue-client` | `docs/plans/regression-backend-detach-plan.md` | Explicitly "postponed" by its own header; confirm still wanted |
 
