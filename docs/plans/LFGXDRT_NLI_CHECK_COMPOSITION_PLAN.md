@@ -237,11 +237,16 @@ reused referent/variable names between the two conjuncts are not a capture
 risk, unlike at the DRS/AST level where accessibility and anaphora resolution
 are structure-sensitive.
 
-**This reattachment step is not yet implemented.** As of the 2026-08-09
-verification pass, dropping the outer merge currently just loses `Q` from the
-check entirely — a runtime probe showed `info_pos_check.canonical_semantic`
-with no leading `Q &`/`Q +` at all, just the bare `~(Q=>P)`-shaped formula.
-That's the concrete next step for this file, not a bug to revert.
+**This reattachment step is implemented as of 2026-08-11.** Dropping the outer
+merge did lose `Q` entirely for a while — a 2026-08-09 runtime probe showed
+`info_pos_check.canonical_semantic` with no leading `Q &`/`Q +` at all, just the
+bare `~(Q=>P)`-shaped formula. `Q` now comes back at the TPTP level as
+`fof(context, axiom, ...)`, and **`Q` is the prior**: A for sentences A + B, the
+merged A + B for a sequence A + B + C. The client supplies it explicitly
+(`ReasoningPairRequest.premiseSemantic`) rather than reusing the merged
+premise+conclusion, which would have put the conclusion into the axiom the checks
+are tested against. `tests/probes/probe_context_prior.py` in the `xleplusglue`
+repo is the guard.
 
 `cons_pos_check` (`DrsMerge(Q, P)`, no implication) is unaffected by any of
 this — `Q` appears exactly once there, so the duplication problem never

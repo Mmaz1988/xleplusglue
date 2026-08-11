@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from Redis.redis_store import (
+    UnsupportedSchemaVersion,
     clear_chat_document,
     clear_gswb_batch_session,
     clear_analysis_document,
@@ -170,6 +171,11 @@ def get_regression_sessions():
 def get_regression_session(session_key: str):
     try:
         return load_regression_session(session_key)
+    except UnsupportedSchemaVersion as exc:
+        # 409, not 500: the store is fine, this server is simply older than what is in it.
+        # A client that gets a 500 retries; one that gets this should tell the user to
+        # update rather than silently show an empty session.
+        raise HTTPException(status_code=409, detail=str(exc))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
@@ -178,6 +184,8 @@ def get_regression_session(session_key: str):
 def put_regression_session(session_key: str, payload: dict):
     try:
         return save_regression_session(session_key, payload)
+    except UnsupportedSchemaVersion as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 

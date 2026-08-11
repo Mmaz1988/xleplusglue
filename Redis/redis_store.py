@@ -225,9 +225,83 @@ def _section(payload, *path):
     return current if isinstance(current, dict) else {}
 
 
+class UnsupportedSchemaVersion(Exception):
+    """A stored or submitted regression session declares a version we do not handle.
+
+    Raised rather than guessed at: a v2 session read as v3 (or the reverse) is not a
+    parse error, it silently reads the wrong fields, which is precisely what the
+    versioning exists to prevent.
+    """
+
+    def __init__(self, version, supported=None):
+        self.version = version
+        self.supported = list(supported or SUPPORTED_REGRESSION_SCHEMA_VERSIONS)
+        super().__init__(
+            f"regression session schemaVersion {version!r} is not supported "
+            f"(this server understands {self.supported})"
+        )
+
+
+# v3 embeds an XlePlusGlueDocument under analysis.document and derives the parse/
+# inference result views from it; v2 keeps them as three parallel arrays. Both are
+# readable. See docs/plans/REGRESSION_V3_HANDOFF.md.
+REGRESSION_SCHEMA_VERSION = 3
+SUPPORTED_REGRESSION_SCHEMA_VERSIONS = (2, 3)
+
+
+def _declared_schema_version(payload):
+    """The version a payload claims. Absent means v2 -- the shape that predates the field
+    being written by anything other than this module."""
+    raw = payload.get("schemaVersion") if isinstance(payload, dict) else None
+    if raw is None:
+        return 2
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        raise UnsupportedSchemaVersion(raw)
+
+
+def _empty_analysis_document():
+    """The v3 document skeleton. Mirrors createXlePlusGlueDocument() in the client's
+    models.ts -- an upgraded v2 session has no reasoning results, not absent ones."""
+    return {
+        "SENTENCES": {},
+        "SEQUENCES": {},
+        "ELEMENTS": [],
+        "discourseUpdates": [],
+        "reasoningUpdates": [],
+    }
+
+
+def _upgrade_regression_session_to_v3(payload):
+    """v2 -> v3, on read, without touching what is stored.
+
+    v2 sessions stay readable rather than becoming read-only: the dashboard lists every
+    stored session and a session it can list but not open is worse than one it silently
+    mis-parses. The upgrade is in-memory only -- the stored payload stays v2 until the
+    client saves it back, at which point it is written as v3.
+    """
+    upgraded = dict(payload or {})
+    analysis = dict(_section(upgraded, "analysis"))
+    analysis.setdefault("document", _empty_analysis_document())
+    # v2 wrote either spelling depending on which client version saved it. Settle it here
+    # so the reader does not have to sniff keys.
+    if "saveState" in analysis and "save_state" not in analysis:
+        analysis["save_state"] = analysis.pop("saveState")
+    upgraded["analysis"] = analysis
+    upgraded["schemaVersion"] = REGRESSION_SCHEMA_VERSION
+    upgraded["upgradedFrom"] = 2
+    return upgraded
+
+
 def _prepare_regression_session_payload(session_key, payload):
     prepared = dict(payload or {})
-    prepared["schemaVersion"] = 2
+    # Honour the version the writer declared instead of stamping every payload v2, which
+    # is what made an old and a new session indistinguishable on read.
+    version = _declared_schema_version(prepared)
+    if version not in SUPPORTED_REGRESSION_SCHEMA_VERSIONS:
+        raise UnsupportedSchemaVersion(version)
+    prepared["schemaVersion"] = version
 
     metadata = dict(_section(prepared, "metadata"))
     now = _now_iso()
@@ -271,25 +345,46 @@ def _prepare_regression_session_payload(session_key, payload):
     analysis["system"] = system
     analysis["human"] = human
     analysis["save_state"] = save_state
+    if version >= 3:
+        # The document is v3's own carrier for reasoning results. It is defaulted, never
+        # synthesized from the arrays above: only the client can build a real one.
+        analysis.setdefault("document", _empty_analysis_document())
     prepared["analysis"] = analysis
 
     return prepared
 
 
+def _reasoning_assignment_count(document):
+    updates = document.get("reasoningUpdates") if isinstance(document, dict) else None
+    if not isinstance(updates, list):
+        return 0
+    return sum(_safe_len(update.get("assignments")) for update in updates
+               if isinstance(update, dict))
+
+
 def _build_session_summary(session_key, payload):
     metadata = _section(payload, "metadata")
     system = _section(payload, "analysis", "system")
+    document = _section(payload, "analysis", "document")
+    # v3 derives the inference view from the document's reasoning updates, so the listing
+    # counts whichever of the two a session actually carries. The dashboard must keep
+    # listing v2 and v3 sessions side by side; a v3 session showing "0 inferences"
+    # because it stopped writing the old array would read as a broken run.
+    inference_count = _safe_len(system.get("inferenceResults")) \
+        or _safe_len(document.get("reasoningUpdates"))
     return {
         "sessionKey": session_key,
+        "schemaVersion": _declared_schema_version(payload),
         "displayLabel": metadata.get("redisSessionKey")
         or metadata.get("id")
         or session_key,
         "createdAt": metadata.get("createdAt") or _now_iso(),
         "updatedAt": metadata.get("updatedAt") or _now_iso(),
         "parseCount": _safe_len(system.get("regressionTestResults")),
-        "inferenceCount": _safe_len(system.get("inferenceResults")),
+        "inferenceCount": inference_count,
         "hasParseResults": _safe_len(system.get("regressionTestResults")) > 0,
-        "hasInferenceResults": _safe_len(system.get("inferenceResults")) > 0,
+        "hasInferenceResults": inference_count > 0,
+        "assignmentCount": _reasoning_assignment_count(document),
     }
 
 
@@ -330,6 +425,12 @@ def save_regression_session(session_key, payload, client=None):
 
 
 def load_regression_session(session_key, client=None):
+    """Read a stored session, dispatching on its declared schemaVersion.
+
+    Never guesses: an older session is upgraded explicitly and says so
+    (`upgradedFrom`), and a session newer than this server understands is refused rather
+    than read with the wrong field expectations.
+    """
     client = client or redis_client()
     raw = client.get(_session_storage_key(session_key))
     if not raw:
@@ -337,9 +438,18 @@ def load_regression_session(session_key, client=None):
     if isinstance(raw, bytes):
         raw = raw.decode("utf-8")
     try:
-        return json.loads(raw)
+        payload = json.loads(raw)
     except json.JSONDecodeError:
         return {}
+    if not isinstance(payload, dict):
+        return {}
+
+    version = _declared_schema_version(payload)
+    if version == REGRESSION_SCHEMA_VERSION:
+        return payload
+    if version == 2:
+        return _upgrade_regression_session_to_v3(payload)
+    raise UnsupportedSchemaVersion(version)
 
 
 def delete_regression_session(session_key, client=None):

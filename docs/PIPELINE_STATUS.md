@@ -105,17 +105,24 @@ translation, and **the plumbing for that now exists**: the `contextTptp` /
 `context_tptp` key mismatch is fixed, so `fof(context, axiom, ...)` is emitted on
 both the single and batch paths.
 
-**What is conjoined is not yet `Q`, though.** The client sends the *merged*
-premise+hypothesis context (the PCDRS mapping's own semantic), where
-`LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md`'s "Implementation Correction" specifies
-the premise alone. Top-level TPTP conjuncts are scopally independent (that is the
-note's own argument for why reattachment is sound at this level), so an
-existentially-closed extra conjunct sharing no constants is not expected to
-decide a check — and the same three-sentence chat discourse produced identical
-consistent/informative/relevant triples before and after the mechanism went live.
-That is evidence, not proof: an isolated A/B over the four checks with and
-without the axiom has not been run. **Decide whether to send `Q` alone before
-relying on this conjunct for anything.**
+**What is conjoined is now `Q`, the prior** (decided 2026-08-11). The client used
+to send the *merged* premise+hypothesis context (the PCDRS mapping's own
+semantic), which put the conclusion inside the axiom the four checks are tested
+against. The context is now the prior alone: for sentences A + B that is A, and
+for a sequence A + B + C it is the merged A + B, with C as the conclusion —
+`ReasoningPairRequest.premiseSemantic`, sent as the batch's `context` item. The
+merged whole is still translated, as a separate `sequence` item, because it is
+what chat displays and carries forward as the *next* turn's prior; it is not sent
+to Vampire.
+
+Making that work needed one GSWB fix: `/collapse_and_tptp_batch` and
+`/collapse_anaphora` now `resolveMerges()` before requiring a DRS. A multi-
+sentence prior comes back from `/merge_sequence_semantics` as an unresolved
+`A + B` merge string, and the endpoints rejected it — which the batch path turned
+into an empty `tptp` for that item, indistinguishable from a translation that
+produced nothing. Guard: `tests/probes/probe_context_prior.py` (needs liger+gswb
+up), which checks that the prior translates, is not degraded, and is strictly
+narrower than the sequence, at both turn 2 and turn 3.
 
 **What's actually not built: the same integration in regression testing.**
 Chat's flow now lives in a shared `ReasoningPipelineService`, but

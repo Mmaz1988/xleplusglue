@@ -11,6 +11,7 @@ import logging
 
 from vampire_models import VampireRequest, VampireMultipleRequest
 from vampire_redis_calls import (
+    RedisApiError,
     clear_last_session,
     delete_regression_session,
     list_recent_sessions,
@@ -133,6 +134,12 @@ def get_regression_sessions():
 def get_regression_session(session_key: str):
     try:
         return load_regression_session(session_key)
+    except RedisApiError as e:
+        # Forward the store's own status. A schema refusal (409) turned into a 500 here
+        # would tell the client "the server is broken" instead of "this session is newer
+        # than the code reading it".
+        logger.warning("Regression session refused by the store: %s", e.detail)
+        raise HTTPException(status_code=e.status, detail=e.detail)
     except Exception as e:
         logger.error("Unable to load regression session", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
@@ -142,6 +149,9 @@ def get_regression_session(session_key: str):
 def put_regression_session(session_key: str, payload: dict):
     try:
         return save_regression_session(session_key, payload)
+    except RedisApiError as e:
+        logger.warning("Regression session rejected by the store: %s", e.detail)
+        raise HTTPException(status_code=e.status, detail=e.detail)
     except Exception as e:
         logger.error("Unable to save regression session", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

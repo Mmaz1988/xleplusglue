@@ -7,6 +7,21 @@ def _crud_base_url():
     return os.getenv("REDIS_API_URL", "http://redis:8083")
 
 
+class RedisApiError(Exception):
+    """The redis CRUD service answered with an error status.
+
+    Its own class, not `urllib.error.HTTPError`: HTTPError is a subclass of URLError, and
+    the loaders below turn URLError into an empty result meaning "service unreachable".
+    A refusal (e.g. a regression session stored in a schema this server does not
+    understand) would then be indistinguishable from an absent session.
+    """
+
+    def __init__(self, status, detail):
+        self.status = status
+        self.detail = detail
+        super().__init__(f"redis api returned {status}: {detail}")
+
+
 def _call(path, method="GET", payload=None):
     url = f"{_crud_base_url()}{path}"
     data = None
@@ -16,9 +31,17 @@ def _call(path, method="GET", payload=None):
         headers["Content-Type"] = "application/json"
 
     req = request.Request(url, data=data, headers=headers, method=method)
-    with request.urlopen(req, timeout=10) as resp:
-        body = resp.read().decode("utf-8")
-        return json.loads(body) if body else None
+    try:
+        with request.urlopen(req, timeout=10) as resp:
+            body = resp.read().decode("utf-8")
+            return json.loads(body) if body else None
+    except error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        try:
+            detail = json.loads(body).get("detail", body)
+        except (json.JSONDecodeError, AttributeError):
+            detail = body
+        raise RedisApiError(exc.code, detail) from exc
 
 
 def load_last_session(session_key="last_session"):
@@ -63,6 +86,9 @@ def list_recent_sessions():
 
 
 def load_regression_session(session_key):
+    """Pass-through. Version dispatch lives in Redis/redis_store.py, which is the only
+    layer that sees the stored bytes; duplicating it here would give two places to
+    disagree about what a v2 session means."""
     try:
         return _call(f"/regression_session/{session_key}")
     except error.URLError:
