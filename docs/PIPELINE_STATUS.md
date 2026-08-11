@@ -231,6 +231,63 @@ Both defects from the design pass are now fixed:
   are accepted on both paths, and what is conjoined is now the prior — see the
   Chat section.
 
+## Logging settings
+
+**Default is INFO in all three services** — nothing to set for a normal run. At
+INFO you get startup, one line per request on arrival and one on completion with
+counts/ids/runtime, plus every warning and error. DEBUG adds the per-branch and
+per-item detail (Vampire subprocess invocations, DRS/TPTP payloads, PCDRS branch
+mappings, per-rule-branch fact dumps, prover derivations) — which is what all
+three emitted unconditionally before the 2026-08-11 hygiene pass.
+
+| Service | Variable | Default | Where it is read |
+|---|---|---|---|
+| vampire (`inference/`) | `LOG_LEVEL`, plus optional `LOG_DIR` | `INFO` | `inference/logging_config.py` |
+| liger | `LIGER_LOG_LEVEL` | `INFO` | `../liger/src/main/resources/logback-spring.xml` |
+| gswb | `GSWB_LOG_LEVEL` | `INFO` | `../GlueSemWorkbench_v2/src/main/resources/logback-spring.xml` |
+
+All three are declared per service in `Docker/docker-compose.yaml` and pass the
+host environment through, so:
+
+```bash
+# quiet (the default)
+docker compose up
+
+# verbose, no rebuild needed
+LOG_LEVEL=DEBUG LIGER_LOG_LEVEL=DEBUG GSWB_LOG_LEVEL=DEBUG docker compose up
+
+# a jar directly: env var or -D, both work
+GSWB_LOG_LEVEL=DEBUG java -jar jars/gswb.jar -web
+java -DLIGER_LOG_LEVEL=DEBUG -jar jars/liger.jar -web
+```
+
+In IntelliJ these go in the run configuration's *Environment variables* field
+(or *VM options* as `-DGSWB_LOG_LEVEL=DEBUG`).
+
+Worth knowing:
+
+- **The Java levels move the application loggers only** (`de.ukon.liger`;
+  `webservice`, `prover`, `glueSemantics`, `main`, `utilities`). Root stays INFO,
+  so DEBUG does not drag in Spring and Tomcat internals. Both jars now forward
+  Spring's `--` options too, so `--logging.level.<logger>=DEBUG` works for
+  one-off targeting.
+- **The Java code logs via `java.util.logging`**, where the DEBUG-equivalent call
+  is `LOGGER.fine(...)`; `LevelChangePropagator`/`resetJUL` in each logback config
+  is what maps it. You never set "FINE" yourself.
+- **`-web` mode only.** `logback-spring.xml` is a Spring-specific filename, so a
+  jar run in CLI mode (no `-web`) never loads it and keeps logback's chatty
+  built-in default. Unchanged by the hygiene pass.
+- **Per-run log files**: `-log <dir>` (or `--logging.file.name=<path>`) after
+  `-web` for either jar; `LOG_DIR` for vampire, which writes
+  `LOG_DIR/<session key>.log` per request so a log lines up with that run's
+  `tmp/<session key>-<uuid>` proof directory. Note that Spring's `base.xml`
+  attaches its rolling `FILE` appender unconditionally, so without a path both
+  jars still write `${java.io.tmpdir}/spring.log` — see
+  `docs/plans/LOGGING_HYGIENE_PLAN.md` for why that was left alone.
+- **The checked-in jars predate this**: `jars/liger.jar` and `jars/gswb.jar` still
+  carry the old DEBUG-by-default config until rebuilt
+  (`mvn -o package -DskipTests` in the sibling repo, then copy into `jars/`).
+
 ## Open TODOs at a glance
 
 ### Cross-repo (`xleplusglue/docs/plans/`)
