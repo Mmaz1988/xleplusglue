@@ -54,11 +54,17 @@ per-check verdict does not exist.
   `parseReasoningAssignmentId`, `majorityVote`, `nliLabelFromVerdicts`,
   `majorityVerdict`, `validateReasoningUpdate` in `analysis-model.ts`; 18 tests
   in `analysis-model.spec.ts`. No behaviour change.
-- [ ] **2. Reconcile the merged-structure tiers.** See "The three operations"
-  below. Prerequisite for step 4's pointers being trustworthy.
-- [ ] **3. `ReasoningPipelineService`.** Extract chat's
-  `postProcessReasoningCheckAsts` into an injectable both chat and regression
-  consume; chat behaviour-identical.
+- [x] **2. Reconcile the merged-structure tiers.** See "The three operations"
+  below. Landed in `xleplusglue-client` `47e9d69`.
+- [x] **3. `ReasoningPipelineService`.** Chat's `postProcessReasoningCheckAsts`
+  extracted into `src/app/reasoning/reasoning-pipeline.service.ts`, consumed by
+  chat; behaviour-identical. Landed in `xleplusglue-client` `d35094b`. Regression
+  still has its own older copy — that swap is step 7.
+- [x] **3.5 Unblock: `SUPPLIED_STRUCTURE_ANAPHORA_PLAN.md`.** Supplied structures
+  no longer break anaphora binding, a failed collapse degrades instead of
+  returning empty TPTP, and degraded branches are surfaced in chat. Chat and the
+  analysis view verified to agree. That doc is closed; two pre-existing residual
+  findings are recorded at its end.
 - [ ] **4. Chat writes `ReasoningUpdate`s**, id-based verdict pairing, and the
   `context_tptp` fix (below).
 - [ ] **5. Backend regression-session v3** with real read-side version dispatch.
@@ -95,15 +101,24 @@ merged *semantics only* into the rules, so no syn-sem link can be created and it
 anaphora mappings derive from a semantics-only graph. That is a correctness
 defect, not a stylistic one.
 
-## Known defect: `context_tptp` is never applied
+## Dormant mechanism: `context_tptp` is never applied
 
 `inference/run_vampire.py` reads `_item_value(tptp_bundle, "context_tptp", "")`
 while both clients send `contextTptp`, so `generate_translated_check_files`
 always receives `""` and the `fof(context, axiom, ...)` line is never emitted.
-The batch path `_run_tptp_item` does not pass it at all. This is the backend half
-of the "reattach Q as a separate TPTP conjunct" gap described in
-`LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md`'s Implementation Correction note — the
-mechanism exists, the key name simply does not match. Fixed in step 4.
+The batch path `_run_tptp_item` does not pass it at all.
+
+**This is not a correctness blocker.** The pipeline is designed around `Q` not
+being conjoined at the top level of the check: LFGxDRT's `copyPair(premise,
+hypothesis)` still places `Q` in the implication's antecedent, so no check is
+missing `Q` outright, and removing the outer `DrsMerge` removed a *duplicate*
+copy — the duplication that made anaphora mapping ambiguous between the outer
+copy and the embedded one. Prefixing the translated TPTP with the prior context
+is an optional enrichment on top of that.
+
+Worth fixing in step 4 regardless, because a mechanism that exists and silently
+does nothing is worse than one that is absent: the key mismatch makes it look
+wired up when it is not.
 
 ## Related
 

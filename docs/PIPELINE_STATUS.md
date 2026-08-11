@@ -152,10 +152,20 @@ answered:
   consistent/informative/relevant triple with one proof-file list, so a per-check
   verdict does not exist and cannot be reconstructed.
 
-Remaining steps (full checklist in the owning doc): reconcile the
-merged-structure tiers across the three views, extract a shared
-`ReasoningPipelineService`, have chat write `ReasoningUpdate`s, then regression
-session v3 embedding an `XlePlusGlueDocument`.
+Steps 1-3 have landed: the model layer, the merged-structure tier
+reconciliation, and the shared `ReasoningPipelineService`
+(`xleplusglue-client/src/app/reasoning/`), which chat now consumes. The
+supplied-structure blocker between steps 3 and 4 is also cleared — see
+`docs/plans/SUPPLIED_STRUCTURE_ANAPHORA_PLAN.md`, now closed: LiGER derives a
+meaning constructor's source index from its `SYN-ID` instead of recounting it
+positionally (so a sentence is parsed once and merged by offset, never
+re-parsed), a failed anaphora collapse degrades to translatable TPTP instead of
+returning an empty result, and degraded branches are reported in the chat.
+
+Remaining steps (full checklist in the owning doc): have chat write
+`ReasoningUpdate`s, backend regression-session v3, the v3 session shape
+embedding an `XlePlusGlueDocument`, and regression's NLI path onto the shared
+service.
 
 Two defects found during the design pass and scheduled alongside it:
 
@@ -167,8 +177,12 @@ Two defects found during the design pass and scheduled alongside it:
   syntax in it. A correctness defect, not a stylistic one.
 - `inference/run_vampire.py` reads `context_tptp` while both clients send
   `contextTptp`, so the `fof(context, axiom, ...)` line has never actually been
-  emitted — the backend half of the "reattach `Q` as a separate conjunct" gap
-  described below. The batch path doesn't pass it at all.
+  emitted, and the batch path doesn't pass it at all. **Not a blocker**: the
+  pipeline is built around `Q` not being conjoined at the top level, and
+  `copyPair(premise, hypothesis)` still places `Q` in the implication's
+  antecedent, so no check is missing `Q` outright. Prefixing the TPTP with the
+  prior context is an optional enrichment, worth fixing because the mechanism
+  exists and silently does nothing, not because reasoning is broken without it.
 
 ## Open TODOs at a glance
 

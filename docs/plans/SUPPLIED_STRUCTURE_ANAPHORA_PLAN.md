@@ -1,136 +1,139 @@
-# Supplied structures break anaphora binding — handoff
+# Supplied structures break anaphora binding — closed
 
 Blocking work discovered while implementing `REASONING_IN_DOCUMENT_PLAN.md`. That plan
-is still the owning doc for the reasoning/regression-v3 effort; this one covers the
-defects that must be cleared before its step 4 can land, because the reasoning layer
-points at discourse branches that are currently wrong.
+is still the owning doc for the reasoning/regression-v3 effort; this one covered the
+defects that had to be cleared before its step 4 could land.
 
-**Status: root cause found and proven. No fix written yet.**
+**Status: fixed and verified end to end (2026-08-11).** 3b, 3c, 3d and 3e are all closed.
+See "Residual findings" for two pre-existing issues this work uncovered but did not cause.
 
 ## The finding, in one paragraph
 
-LiGER's `/apply_rules_xle_sequence` accepts pre-parsed structures via
-`parsedSentences`, but only when `parsedSentences.size() == sentences.size()`. Every
-caller passed N-1 structures for N sentences, so the gate always failed and LiGER
-silently re-parsed everything. Nothing had ever taken the supplied-structures path.
-When chat finally did, anaphora binding broke: a supplied part's `SRC`/`SYN-ID`
-correspondence is built from a *different node ordering* than the f-structure the
-pronoun-binding rules walk, so pronouns link to the wrong f-structure node and get no
-antecedents.
+LiGER's `/apply_rules_xle_sequence` accepts pre-parsed structures via `parsedSentences`,
+but only when `parsedSentences.size() == sentences.size()`. Every caller passed N-1
+structures for N sentences, so the gate always failed and LiGER silently re-parsed
+everything. Nothing had ever taken the supplied-structures path. When chat finally did,
+anaphora binding broke: the third sentence's DRS referents carried `SRC` values permuted
+against the merged syntax's `SYN-ID`s, so the pronoun-binding rules' `SRC`/`SYN-ID` join
+landed on the wrong node and the pronoun got no antecedents.
 
-## Evidence
+## Mechanism — two numberings, only one of them authoritative
 
-Three ways of building turn 3 of `a man saw a man` / `he saw him` / `he smiled`,
-comparing every DRS referent's `SRC` against the merged syntax's `SYN-ID`s:
+`GlueSemantics` emitted the glue source index (`[k]` on a meaning constructor, which
+becomes the DRS referent's `SRC`) through two independent mechanisms:
 
-| variant | structures supplied | `d27` (the pronoun `x7`) | `POSSIBLE-ANT` |
-|---|---|---|---|
-| B `[s1,s2,s3]` | none | `SRC=i17` -> `SYNSEM f124` | **5** |
-| D `[s1,s2,s3]` | all three | `SRC=i21` -> `SYNSEM f123` | 2 |
-| C `[seq(s1,s2), s3]` | both | `SRC=i21` -> `SYNSEM f123` | 2 |
+| MC origin | Where | How `[k]` was chosen |
+|---|---|---|
+| LiGER rule annotations | `returnMeaningConstructors` | **looked up** from the node's `SYN-ID` (`syntheticIndexMap` + `numericSourceIndex`) |
+| Grammar meaning constructors | `translateMeaningConstructors` | a **positional counter** over `orderedMcNodes(fs, …)` |
 
-D and C are identical; both differ from B. For the third sentence's referents
-(`d26`-`d33`) the `SRC` values are permuted. `d27` lands on `f123`, already `d31`'s
-node, so `@ANT ... ^(SYNSEM)` finds no antecedent and `x7` never binds. The first two
-sentences agree exactly in all three variants.
-
-**D is the control**: three plain sentences, no sequence anywhere, differing from B only
-in that structures are supplied. So supplying structures is the trigger; merging a
-sequence with a sentence is *not*.
-
-## Mechanism (all in `../liger`)
-
-- `LinguisticStructure.parseFromJson` returns a plain `LinguisticStructure`, never an
-  `Fstructure`. Only `Fstructure` carries `cStructureFacts`.
-- `GlueSemantics.annotateSyntheticMcIndices` early-returns on
-  `!(fs instanceof Fstructure)`, so a supplied part is never renumbered in sequence
-  context — it keeps the `SYN-ID`s from its standalone parse.
-- `GlueSemantics.orderedMcNodes` falls through to `fallbackOrderedMcNodes`, which
-  orders MC nodes **by node name** instead of by c-structure traversal.
+The counter agreed with the `SYN-ID`s only while the two orderings agreed.
+`orderedMcNodes` walks the c-structure, but falls through to `fallbackOrderedMcNodes` —
+which orders **by node name** — for anything that is not an `Fstructure`, and
+`LinguisticStructure.parseFromJson` never returns one. So every structure supplied back
+to LiGER as JSON got its meaning constructors numbered by node name while its `SYN-ID`s
+kept the c-structure order they were assigned at parse time. The two drifted apart.
 
 The silent fallback is what hid this for so long.
 
-## Why "just pass the sentence texts" is not the fix
+**The offsetting machinery was never the problem.** `SequenceGraphAssembler.rebaseSequence`
+shifts each part's `SYN-ID` values by `synShift`, and `LigerController.shiftSourceIndexes`
+shifts that part's `[k]` prefixes by the accumulated `maxSyntheticMcIndex`; the two agree.
+Only the grammar-MC path invented its own numbering instead of reading the one that
+already existed.
 
-Variant B is verified-good, but only because it re-parses. Every sequence call would
-re-run XLE over the whole discourse — in chat once per pair, so turn 3 with 24 contexts
-is 72 parses, growing with turns and fan-out.
+## What was fixed
 
-The disqualifying problem is correctness, not cost: **re-parsing from text discards the
-reading each context represents.** Each surviving context carries its own merged
-syntax; that is what makes it a distinct branch. Re-parsing yields LiGER's default parse
-for all of them, and each context's premise semantics then join against a structure they
-were not derived from. Variant B is sound only when there is exactly one reading
-(pruning on, or the analysis view's single interactive sequence).
+**3b — one numbering per structure (`../liger`, `7ba446d`).**
+`translateMeaningConstructors` now looks the source index up from the node's `SYN-ID`
+instead of counting positions, so the numbering is assigned once when a sentence is first
+parsed and shifted by an offset when it becomes part of a sequence — no re-parse and no
+c-structure needed on the supplied path. `annotateSyntheticMcIndices` now distinguishes
+the three cases it used to conflate: a structure that already carries `SYN-ID`s keeps them
+(renumbering a supplied part would invalidate the source indices already baked into its
+meaning constructors), one that carries none is numbered if it has a c-structure to order
+by, and one with neither is reported at ERROR instead of returning silently. Both remaining
+fallbacks to positional or name order log loudly. Covered by `SyntheticMcIndexTest`.
 
-## Open steps
+Note this made the originally-planned fix unnecessary: no `Fstructure` reconstruction in
+`parseFromJson`, no `root`-flag serialization, no `parseFromJson`-consumer audit.
 
-**3b — make supplied structures first-class (`../liger`).** `parseFromJson` must
-reconstruct an `Fstructure` with `cStructureFacts` populated, so
-`annotateSyntheticMcIndices` renumbers the part in sequence context and `orderedMcNodes`
-uses c-structure traversal. Audit every `parseFromJson` consumer —
-`merge_uploaded_structures`, `apply_rules_uploaded_structure`,
-`query_uploaded_structure`, and the sequence path — since all currently receive the
-degraded object. Where an `Fstructure` genuinely cannot be rebuilt, **fail loudly**
-rather than falling back to name order.
-*Done when:* D's per-referent `SRC`/`SYNSEM` table equals B's, and `POSSIBLE-ANT` is 5
-in all three variants.
+**3c — context translation degrades instead of vanishing (`../LFGxDRT` `353bbfa`,
+`../GlueSemWorkbench_v2` `e40df5e`).** `DRS.toTPTPString` refuses any DRS still carrying an
+anaphora mapping, at every level of nesting. When `collapseAnaphoraUnchecked()` threw, the
+fallback DRS still embedded the inline `A:[...]` parsed out of the caller's `semantic`, so
+translation threw again, the batch item's catch swallowed it, and the item returned empty
+TPTP — indistinguishable from a translation that produced nothing. LFGxDRT gained a
+recursive `withoutMappings()` (following `resolveMerges`'s recursion through negation,
+implication, scoped conditions, merges and presuppositions); `collapseAndTptpBatch` now
+always translates a mapping-free DRS, which is a no-op on the happy path and is what makes
+the fallback usable on the other one. `/collapse_anaphora` got the same treatment.
 
-**3c — make context translation degrade instead of vanishing
-(`../GlueSemWorkbench_v2`).** In `GswbController.collapseAndTptpBatch`, when
-`collapseAnaphoraUnchecked` throws, the fallback keeps the DRS's inline `A:[...]` and
-`toTPTPString` then refuses ("TPTP translation currently does not support anaphora
-mappings"), returning an empty result. Strip the mapping before translating so the
-fallback is always translatable. This is why the TPTP pill is empty: 576/576 failures,
-all `item=context`. The four checks translate fine, which is why glyphs render and only
-TPTP is missing.
+**3d — degradations are surfaced, not logged (`../xleplusglue-client`, `6442f63`).** GSWB
+reports a dropped mapping as `GswbTptpBatchResult.degraded`; `ReasoningPipelineService`
+carries it as `degradations` per assignment and per pair alongside the existing `failures`;
+chat prints both, naming the mapping and the item. Previously `failures` were only
+`console.warn`ed and chat discarded them entirely.
 
-**3d — surface partial mappings in the client.** `ReasoningPipelineService` already
-collects `failures`; chat only `console.warn`s them. Warn explicitly, naming the
-unresolved referent, so a degraded result is never presented as a clean one. (User
-asked for this alongside 3c.)
+**3e — the two views agree.** Verified below.
 
-**3e — reconcile analysis with chat.** The same three sentences yield an *empty*
-mapping in the analysis view (`mapping=` in the GSWB log). Likely the same root cause;
-verify, and assert both views produce the same bindings for the same input.
+## Verification
 
-Then resume `REASONING_IN_DOCUMENT_PLAN.md` at step 4.
+Probes (repo root, liger on `:8080`, gswb on `:8081`):
+
+| Probe | Result |
+|---|---|
+| `probe_x7c.py` | `D == B` and `C == B`, per referent, no differences |
+| `probe_x7b.py` | identical `SRC`/`SYNSEM` for every referent; `POSSIBLE-ANT` 5 in both, `d27` -> `f124` |
+| `probe_seq_plus_sentence.py` | unchanged: 644 constraints / 21 `SYN-ID` / keys `[S0, S1, S2]` |
+| `probe_binding.py` (new) | both variants bind `x4`, `x5` **and** `x7`; 3 candidate mappings each; merged DRSs byte-identical |
+
+Acceptance test — `a man saw a man` / `he saw him` / `he smiled`, pruning on, in both views:
+
+- **Chat**: all three turns answer; turn 3 reports 12 rule branches / 36 mappings /
+  `anaphoraResolvedCount: 36`; zero `Collapse/TPTP batch item failed`; no degradations or
+  failures reported; the TPTP pill renders (302 chars, `?[X1..X8]: ((man(X1) & …`).
+- **Analysis view**: the same 36 PCDRS solutions, mapping
+  `A: [ s1: [x5 ↦ x3, x4 ↦ x1, x7 ↦ x4] ]` — previously empty. Sequence parts show
+  `sourceIndexOffset` 0 / 8 / 16 and meaning constructors numbered `[1]`-`[8]`,
+  `[9]`-`[16]`, `[17]`-`[21]`: the offset model, visible in the UI.
+
+## Residual findings (pre-existing, not caused by this work)
+
+Both affect the re-parsed and the supplied path equally, so neither is a supplied-structure
+defect. Neither has an owning plan doc yet.
+
+- **Antecedent selection is nondeterministic.** Three runs of `probe_binding.py` against
+  unchanged code and services produced three different antecedent assignments for the same
+  input (`x4->x2`, then `x4->x3`, then `x4->x2` with `x5` moving instead). The *set* of
+  bound pronouns and the candidate count (3) are stable; which antecedent each candidate
+  gets is not. Smells like `HashMap`/`HashSet` iteration order in the rule or PCDRS
+  enumeration path.
+- **An event referent is offered as an antecedent for a male pronoun.** `x3` is the `see`
+  event (`see(x3), arg1(x3,x2), arg2(x3,x1)`), yet mappings such as `x5 ↦ x3` are produced
+  in both views. The `ant`/`male` conditions do not appear to gate candidate antecedents by
+  sort.
+
+## Environment note
+
+The frontend requests rules at `../liger_resources/rules/basic_axiom_rules.txt`, which
+resolves against the LiGER server's working directory. That file exists in *this* repo but
+not in `../liger`, so a LiGER started from IntelliJ shows "Failed to load rules" in the UI
+while a containerised one does not. The probes paper over it with their own local-file
+fallback. Harmless for the flows above (the post-processing rules are a client-side
+constant), but it is why the rule banner is red in a local dev setup.
 
 ## Reproducing
 
-Probes live in `tests/probes/` and reuse `tests/test_full_analysis_workflow.py`'s
-helpers. Run from the repo root with liger on `:8080` and gswb on `:8081`:
-
 ```bash
-python3 tests/probes/probe_x7c.py          # B vs D vs C -- the control experiment
-python3 tests/probes/probe_x7b.py          # per-referent SRC/SYNSEM table
-python3 tests/probes/probe_seq_plus_sentence.py   # sequence+sentence == all-at-once
+python3 tests/probes/probe_x7c.py             # B vs D vs C -- the control experiment
+python3 tests/probes/probe_x7b.py             # per-referent SRC/SYNSEM table
+python3 tests/probes/probe_binding.py         # which pronouns the mapping binds
+python3 tests/probes/probe_seq_plus_sentence.py   # must stay 644 / 21 / [S0, S1, S2]
 ```
-
-`probe_x7c.py` is the regression oracle for 3b. `probe_seq_plus_sentence.py` must keep
-reporting 644 constraints / 21 `SYN-ID` / keys `[S0, S1, S2]` — 3b must not regress it.
-
-Acceptance test for the whole block: run `a man saw a man` / `he saw him` /
-`he smiled` in **both** chat and the analysis view. Passes when the mapping binds `x4`,
-`x5` *and* `x7`; GSWB logs zero `Collapse/TPTP batch item failed`; the TPTP pill
-renders; and both views agree. Keep pruning on for a first pass — unpruned this is 288
-bundles and ~1150 prover runs.
-
-## Environment notes
-
-- Stack: `cd Docker && docker compose up -d --build`. `liger` and `vampire` are pinned
-  to `linux/amd64`, so they run emulated on Apple Silicon and are slow.
-- LiGER can be run locally instead (IntelliJ, `-web`) for faster rule iteration; stop
-  the container first so `:8080` is free. Launching the jar by hand needs the XLE
-  environment the IntelliJ run config provides — a bare `java -jar` hangs in XLE.
-- The frontend is a built bundle: edit `../xleplusglue-client`, `npm run build`, then
-  `rsync -a --delete dist/xleplusglue-client/ frontend/xleplusglue-client/` and
-  `docker compose up -d --build frontend`.
-- Rebuilding liger: `mvn -q -DskipTests package` in `../liger`, then copy
-  `target/liger-*.jar` to `jars/liger.jar` and rebuild the liger container.
 
 ## Related
 
-- `REASONING_IN_DOCUMENT_PLAN.md` — the owning plan this blocks.
-- `../../../xleplusglue-client/docs/analysis-data-model.md` — the data model, including
-  the two structure tiers and the `SRC`/`SYN-ID` join these defects break.
+- `REASONING_IN_DOCUMENT_PLAN.md` — the owning plan this used to block; resume at step 4.
+- `../../../xleplusglue-client/docs/analysis-data-model.md` — the data model, including the
+  two structure tiers and the `SRC`/`SYN-ID` join.
