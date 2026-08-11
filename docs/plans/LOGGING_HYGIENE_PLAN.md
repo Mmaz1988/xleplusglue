@@ -1,5 +1,13 @@
 # Logging hygiene across vampire, liger and gswb — handoff
 
+> **Status: implemented 2026-08-11**, in three commits — `27f313a` here,
+> `f5185c2`+`f9c41db` in `../liger`, `a6db126` in `../GlueSemWorkbench_v2`. The
+> jars were deliberately **not** rebuilt, so `jars/liger.jar` and
+> `jars/gswb.jar` still contain the old logging until you rebuild them; the
+> Java changes are live in an IntelliJ-run service after a rebuild there.
+> What was found and what still needs a live run is recorded in
+> "What was actually done" at the end of this document.
+
 **Scope: logging only.** No behaviour, no request/response shapes, no algorithm changes.
 The one exception is mechanical: turning `System.out.println` into logger calls. If a change
 would alter what the services *do*, it is out of scope for this session — write it down
@@ -144,3 +152,112 @@ The cost of reverting is that a multi-sentence prior cannot be translated, so th
 on an empty `contextTptp` today. Both the fix and that missing warning belong to the
 reasoning work, not to this session. See `docs/plans/REGRESSION_V3_HANDOFF.md` for what the
 context axiom is supposed to be.
+
+*(That revert had already happened before this session started: `aea0c53` in
+`../GlueSemWorkbench_v2` reverts `6ac6e0d`, and `jars/gswb.jar` is the restored build.)*
+
+## What was actually done
+
+Implemented as written, except where the code disagreed with the plan's survey. All
+three services keep their default at INFO with a per-level env override, and no
+request/response shape or algorithm changed anywhere.
+
+### vampire
+
+`inference/logging_config.py` is the single configuration point: `configure_logging()`
+(called from `vampire_endpoints`, the uvicorn entrypoint) reads `LOG_LEVEL`, defaulting
+to INFO and falling back to INFO on an unparseable value; the `basicConfig` calls in
+`vampire_call` and `run_vampire` are gone. `session_log_file(session_key)` attaches a
+`FileHandler` at `LOG_DIR/<session key>.log` for the duration of a request and detaches
+it afterwards, so the file lines up with that run's `tmp/<session key>-<uuid>` proof
+directory; with `LOG_DIR` unset it is a no-op and the service stays console-only.
+Overlapping requests share one root logger, so concurrent runs will each capture the
+other's lines — documented in the module rather than solved.
+
+The per-check subprocess lines were *already* DEBUG; what made them visible was the
+root logger being pinned at DEBUG. The lines that actually needed demoting were the
+INFO payload dumps in `run_vampire` (premises, hypotheses, conversions, per-branch
+formulas, the whole response object). Each request now logs one INFO line on arrival
+(items, logic, mode, max duration) and one on completion (items, check bundles,
+runtime), plus one on cancellation. `print()` calls that bypassed logging entirely —
+Prolog errors, the TPTP formula dump, the missing-folder message — became logger calls
+at matching levels. `LOG_LEVEL`/`LOG_DIR` (and `LIGER_LOG_LEVEL`/`GSWB_LOG_LEVEL`) are
+now settable per service in `Docker/docker-compose.yaml`.
+
+### liger
+
+Root DEBUG → INFO and `de.ukon.liger` → `${LIGER_LOG_LEVEL:-INFO}`, as planned.
+
+The `System.out.println` counts in the plan came from a raw grep: **all 13 in
+`LigerController` and all 8 in `ChoiceSpace` are commented out**, as are 3 of FsPath's
+15. The 12 live ones in `FsPath` became `LOGGER.debug`, and so did the constraint dumps
+in `FsProlog2Java`/`ReadFsProlog`; the failure prints scattered through
+`LinguisticDictionary`, `RuleParser`, `XLEStarter`, `DBASettings`, `PathVariables`,
+`PredAVP` and `GlueSemanticsParser` became `error`/`warn` so they survive the quieter
+default. Two of FsPath's prints call `i.next()` *inside the argument* and the loop
+depends on that side effect: they are plain `LOGGER.debug(...)` calls, deliberately not
+guarded by `isDebugEnabled()`, with a comment saying why. What the plan missed in
+`LigerController` is the pair of per-rule-branch fact dumps at INFO (~72 per discourse);
+those are now FINE.
+
+### gswb
+
+New `src/main/resources/logback-spring.xml` modelled on liger's, including the
+`LevelChangePropagator`/`resetJUL` that makes the existing JUL call sites obey it; root
+INFO, application packages at `${GSWB_LOG_LEVEL:-INFO}`. **`.gitignore` had a blanket
+`*.xml` rule**, so the new config was silently untracked on first commit; an exception
+for `src/main/resources/*.xml` was added with it.
+
+`GswbController`'s DRS-bearing lines (`semantic=`, PCDRS branch mappings and combined
+DRSes, sequence expressions) moved to FINE, with an id/count-only INFO line kept per
+endpoint. `/collapse_and_tptp_batch`, the hottest endpoint, had *no* INFO line at all
+and now logs items, how many translated, and whether a mapping applied.
+
+The prover `System.out.println` sites the plan lists are all inside comment blocks;
+`GlueParser`'s live ones are its interactive `main()`, i.e. console I/O, not logging.
+The real prover noise was JUL INFO: the per-proof derivation dumps in `LLProver1/2/3`
+and `LLProver.searchProof`, plus `LLProver3`'s per-history chatter. Those are now FINE.
+`LLProver.searchProof` is reached only by the web path — the CLI in `WorkbenchMain`
+calls `deduce()` and prints its own output — so CLI output is unchanged.
+
+### The per-run log file
+
+The plan's assumption that `--logging.file.name` "composes with the `-web` argument the
+jars already take" was wrong in both services: `DbaMain` and `WorkbenchMain` start
+Spring with `new String[0]`, so every `--key=value` option was dropped on the floor.
+Both now forward double-dashed arguments, and both accept `-log <dir>` as an alias that
+fills in a timestamped file name.
+
+A second correction: Spring Boot's `base.xml` attaches its rolling `FILE` appender to
+root unconditionally, with `LOG_FILE` defaulting to `${java.io.tmpdir}/spring.log` — it
+does *not* attach only when `logging.file.name` is set. Both services have therefore
+been writing a DEBUG log there all along (6.5 MB plus daily `.gz` archives on this
+machine when checked). Making the default truly console-only needs a logback `<if>`,
+i.e. janino, which neither project has; at root INFO the untargeted file is small, so
+this was left as is and documented in both configs instead of adding a dependency.
+
+### What was verified, and what was not
+
+Verified: both logback configs load without Joran errors (the first draft failed — `--`
+is illegal inside an XML comment, which would have broken GSWB startup); root ends up
+with exactly one `CONSOLE` appender, so nothing is double-printed; JUL `INFO`/`WARNING`
+and SLF4J `INFO`/`ERROR` come through at the default level while `FINE`/`DEBUG` do not;
+`GSWB_LOG_LEVEL=DEBUG`/`LIGER_LOG_LEVEL=DEBUG` bring the detail back; a `LOG_FILE`
+target receives exactly the console's lines, once each; the `-log`/`--` argument
+translation returns what it should for both mains; `python3
+tests/test_regression_session_versions.py` passes; both Java projects compile.
+
+Not done, and still worth doing: the plan's verification 1 and 2 in their real form — a
+three-turn chat discourse with before/after console line counts — and 4, forcing an
+error against a running service. Those need the rebuilt jars (or an IntelliJ rebuild)
+and a browser run. The probes under `tests/probes/` also need liger+gswb up; they were
+not run.
+
+### Known limitation left in place
+
+`GlueParser`, `SemanticParser` and `PrintDRT` in GSWB install their own JUL
+`StreamHandler` with `setUseParentHandlers(false)` in a static block that runs on first
+use — after logback has initialised — so their output bypasses logback and ignores
+`GSWB_LOG_LEVEL`. They are low-volume (one line per parse, not per item), and removing
+the handlers would change what the CLI prints, so they were left alone. If a future
+pass wants those under the same control, that is the change to make.
