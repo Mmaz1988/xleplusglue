@@ -245,6 +245,7 @@ Both defects from the design pass are now fixed:
 | `SEMANTIC_WORKFLOW_TODO.md` | liger/GSWB/client graph-inspector issues; 4 high-priority items open incl. the `GraphConstraint.toJson()` bug, re-confirmed present 2026-08-11 (`projection` is still forced to `true` on serialize). `toJson()` also never serializes the `root` flag — see the hygiene note in `SUPPLIED_STRUCTURE_ANAPHORA_PLAN.md` |
 | `GSWB_SEMANTIC_POST_PROCESSING_PLAN.md` | Implementation done; only regression-test coverage remains (~60% → tests only) |
 | `DRS_TO_LIGER_PLAN.md` | Destination package now exists in LFGxDRT; doc's "Open Shape Decisions" were never reconciled against what was actually built |
+| `LOGGING_HYGIENE_PLAN.md` | Open. Logging-only pass over vampire/liger/gswb: quiet by default, level from env, optional per-run log file. A 72-branch discourse currently emits enough console output to crash terminals |
 | `neurosymbolic.md` | Aspirational neuro-symbolic coreference design; no code exists for any of it yet |
 
 ### Per-repo
