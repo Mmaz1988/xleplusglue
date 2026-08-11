@@ -23,6 +23,9 @@ services:
     platform: linux/amd64
     ports:
       - '8080:8080'
+    environment:
+      # Raise to DEBUG for the per-rule detail; logback reads this from the env.
+      LIGER_LOG_LEVEL: ${LIGER_LOG_LEVEL:-INFO}
   vampire:
     build:
       dockerfile: Docker/Dockerfile-vampire
@@ -35,6 +38,11 @@ services:
     privileged: true  # Add this to enable privileged mode
     environment:
       REDIS_API_URL: http://redis:8083
+      # Root log level for the FastAPI service; DEBUG restores the per-check
+      # subprocess lines. Set LOG_DIR to also write LOG_DIR/<session key>.log
+      # per run (mount it as a volume if you want the files on the host).
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_DIR: ${VAMPIRE_LOG_DIR:-}
     depends_on:
       - redis
   gswb:
@@ -45,6 +53,8 @@ services:
       - '8081:8081'
     environment:
       LIGER_API_URL: http://liger:8080
+      # Raise to DEBUG for per-item collapse/prover detail.
+      GSWB_LOG_LEVEL: ${GSWB_LOG_LEVEL:-INFO}
     depends_on:
       - liger
   frontend:

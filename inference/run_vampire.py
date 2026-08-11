@@ -14,8 +14,9 @@ import uuid
 from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
 from vampire_redis_calls import clear_vampire_progress, merge_and_save_last_session, load_vampire_progress, save_vampire_progress
+from logging_config import session_log_file
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+# Level and handlers are configured once in logging_config, from the entrypoint.
 logger = logging.getLogger(__name__)
 
 vampire_command = 'vampire'
@@ -169,19 +170,19 @@ def useProlog(knowledgeBase, inputString):
 
             # Handle output
             if stderr:
-                print("Prolog Errors:", stderr.strip())
+                logger.warning("Prolog errors: %s", stderr.strip())
             return stdout.strip() if stdout else None
 
     except subprocess.TimeoutExpired:
-        print("Error: Prolog execution timed out.")
+        logger.error("Prolog execution timed out.")
         return None
     except Exception as e:
-        print("Error:", str(e))
+        logger.error("Prolog execution failed: %s", e)
         return None
 
 #merge two DRSs
 def mergeDrs(firstOne, secondOne, tmp_root="tmp"):
-    logger.info("Merging DRSs: %s, %s", firstOne, secondOne)
+    logger.debug("Merging DRSs: %s, %s", firstOne, secondOne)
     os.makedirs(tmp_root, exist_ok=True)
     merged_file = os.path.join(tmp_root, "mergedRes.txt")
     callToMerge = "presupDRT:printMerged(" + firstOne + "," + secondOne + ",'" + merged_file + "')."
@@ -192,7 +193,7 @@ def mergeDrs(firstOne, secondOne, tmp_root="tmp"):
 
     pattern = r"\d+? ((?:drs|merge)\(.*?\))\n"
     matches = re.findall(pattern, mergedRes, re.DOTALL)  # Use DOTALL to match across multiple lines
-    logger.info("Extracted merged Drs: %s", matches)
+    logger.debug("Extracted merged Drs: %s", matches)
 
     if os.path.exists(merged_file):
         os.remove(merged_file)
@@ -223,9 +224,8 @@ def printDRS(Drs, tmp_root="tmp"):
 
 def extract_drs_blocks(text):
     pattern = r"((?:drs|merge|alfa)\(.*?\))\n"
-    logger.info("pattern=%r", pattern)
     matches = re.findall(pattern, text, re.DOTALL)  # Use DOTALL to match across multiple lines
-    logger.info("Extracted DRS blocks: %s", matches)
+    logger.debug("Extracted %d DRS blocks with %r: %s", len(matches), pattern, matches)
     return matches
 
 
@@ -237,7 +237,7 @@ def inputToFof(inputstring):
 
 #convert drs to fol to tptp and get the vampire output from that
 def conversion(formula, tptp_type="fof", tmp_root="tmp"):
-    logger.info("Converting formula to TPTP: %s", formula)
+    logger.debug("Converting formula to TPTP: %s", formula)
     os.makedirs(tmp_root, exist_ok=True)
     #if formula contains app or merge, resolve first.
 
@@ -245,14 +245,14 @@ def conversion(formula, tptp_type="fof", tmp_root="tmp"):
 
     resolve_file = os.path.join(tmp_root, "unpure.txt")
     if "app(" in formula or "merge(" in formula:
-        logger.info("Resolving application or merge in formula: %s", formula)
+        logger.debug("Resolving application or merge in formula: %s", formula)
         resolve_input = "presupDRT:resolve2file(" + formula + ",'" + resolve_file + "')."
         useProlog(f"[{os.path.join(BOXER,'presupDRT')}].",resolve_input)
         #stip digits and whitespaces in the beginning (.e.g 1 drs(...))
         formula = open(resolve_file, 'r').read()
         pattern = r"\d+? (.*?)\n"
         formulas = re.findall(pattern, formula, re.DOTALL)  # Use DOTALL to match across multiple lines
-        logger.info("Resolved formula: %s", formulas)
+        logger.debug("Resolved formula: %s", formulas)
     else:
         formulas = [formula]
 
@@ -264,12 +264,12 @@ def conversion(formula, tptp_type="fof", tmp_root="tmp"):
     for formula in formulas:
         drs2fol_file = os.path.join(tmp_root, "folly.txt")
         betterformula = "drs2fol:printfol(" + formula + ",'"+ drs2fol_file +"')."
-        logger.info("Calling Prolog to convert DRS to FOL: %s", betterformula)
+        logger.debug("Calling Prolog to convert DRS to FOL: %s", betterformula)
         useProlog(f"[{os.path.join(BOXER,'drs2fol')}].",betterformula)
-        logger.info(f"Loading knowledge base [{os.path.join(BOXER,'drs2fol')}].")
+        logger.debug("Loading knowledge base [%s].", os.path.join(BOXER, 'drs2fol'))
 
         newfol = open(drs2fol_file, 'r').read()
-        logger.info("Function conversion generated following formula: " + newfol)
+        logger.debug("Function conversion generated following formula: %s", newfol)
         #now get TPTP string from Prolog
         fof_file = os.path.join(tmp_root, "fof.txt")
 
@@ -284,7 +284,7 @@ def conversion(formula, tptp_type="fof", tmp_root="tmp"):
             tptp_prolog = "fol2tff"
         # betterfol = "fol2tptp(" + newfol + ",'" +fof_file+"')."
 
-        logger.info("Calling Prolog to convert FOL to TPTP: %s", betterfol)
+        logger.debug("Calling Prolog to convert FOL to TPTP: %s", betterfol)
         useProlog(f"[{os.path.join(BOXER,tptp_prolog)}].",betterfol)
 
         data = open(fof_file, 'r').read()
@@ -303,7 +303,7 @@ def conversion(formula, tptp_type="fof", tmp_root="tmp"):
 
     os.remove(resolve_file) if os.path.exists(resolve_file) else None
 
-    print(f'Generated TPTP formulas: %s', new_fols)
+    logger.debug("Generated TPTP formulas: %s", new_fols)
 
     return new_fols, prologs
 
@@ -329,12 +329,21 @@ def run_vampire_batch(ctx_tptp, hypothesis_tptp, axioms, logic_type, vampire_mod
 #   newformula: str
 
 def single_vampire_request(request):
-    tmp_root = _make_vampire_tmp_root(_vampire_session_key(request))
+    session_key = _vampire_session_key(request)
+    with session_log_file(session_key):
+        return _single_vampire_request(request, session_key)
+
+
+def _single_vampire_request(request, session_key):
+    started_at = time.monotonic()
+    tmp_root = _make_vampire_tmp_root(session_key)
     new_context = []
     new_active_indices = []
     current_checks = []
 
-    logger.info("Received Vampire Request: %s", request)
+    logger.info("Single Vampire request %s: contexts=%d, tptp_checks=%s",
+                session_key, len(request.context or []), bool(request.tptp_checks))
+    logger.debug("Received Vampire Request: %s", request)
 
     if request.tptp_checks:
         logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
@@ -343,6 +352,8 @@ def single_vampire_request(request):
         max_duration = int(request.vampire_preferences.get('max_duration', 45))
         result = _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration)
         _cleanup_tmp_root(tmp_root)
+        logger.info("Single Vampire request %s finished (tptp checks) in %.1fs",
+                    session_key, time.monotonic() - started_at)
         return result
 
     readings = extract_drs_blocks(request.hypothesis)
@@ -351,7 +362,7 @@ def single_vampire_request(request):
     # if logic_type is zero then use fof, otherwise use tff
     logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
     model_building = True if request.vampire_preferences['model_building'] == True  else False
-    logger.info("Logic type=%s", logic_type)
+    logger.debug("Logic type=%s", logic_type)
 
     # use proof search based on model building in fof and mixed search in tff
     vampire_mode = []
@@ -362,7 +373,7 @@ def single_vampire_request(request):
 
     # CHeck if vampire preferences have max_duration with default 45 seconds
     max_duration = int(request.vampire_preferences.get('max_duration', 45))
-    logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
+    logger.debug("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
 
     hypotheses = []
     for reading in readings:
@@ -376,10 +387,10 @@ def single_vampire_request(request):
     if not request.context:
         new_context = hypotheses
         new_active_indices = [i for i in range(len(hypotheses))]
-        logger.info("No context provided; returning hypotheses")
+        logger.debug("No context provided; returning hypotheses")
 
     else:
-        logger.info("Context provided. Processing hypotheses.")
+        logger.debug("Context provided. Processing hypotheses.")
         logger.debug("First context: %s", request.context[0].tptp)
 
         active_contexts = request.context
@@ -445,12 +456,16 @@ def single_vampire_request(request):
     for i, check in enumerate(current_checks):
         context_checks_mapping[i] = check
 
-    logger.info(f"Returning Vampire Response: {new_context}, {new_active_indices}, {context_checks_mapping}")
+    logger.debug("Returning Vampire Response: %s, %s, %s",
+                 new_context, new_active_indices, context_checks_mapping)
 
     result = VampireResponse(context=new_context,
                                  active_indices=new_active_indices,
                                  context_checks_mapping=context_checks_mapping)
     _cleanup_tmp_root(tmp_root)
+    logger.info("Single Vampire request %s finished: %d contexts, %d checks, %.1fs",
+                session_key, len(new_context), len(context_checks_mapping),
+                time.monotonic() - started_at)
     return result
 
 
@@ -482,12 +497,17 @@ def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
 # Define the Pydantic model for request validation
 def multiple_vampire_request(request):
     session_key = _vampire_session_key(request)
+    with session_log_file(session_key):
+        return _multiple_vampire_request(request, session_key)
+
+
+def _multiple_vampire_request(request, session_key):
+    started_at = time.monotonic()
     tmp_root = _make_vampire_tmp_root(session_key)
 
     # if logic_type is zero then use fof, otherwise use tff
     logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
     model_building = True if request.vampire_preferences['model_building'] == True  else False
-    logger.info("Logic type=%s", logic_type)
 
     # use proof search based on model building in fof and mixed search in tff
     vampire_mode = []
@@ -498,7 +518,10 @@ def multiple_vampire_request(request):
 
     # CHeck if vampire preferences have max_duration with default 45 seconds
     max_duration = int(request.vampire_preferences.get('max_duration', 45))
-    logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
+    # One line per request instead of one per branch: the per-check subprocess
+    # lines are at DEBUG, so this is what a default-level run reports.
+    logger.info("Vampire request %s: items=%d, logic=%s, mode=%s, max duration=%ds",
+                session_key, len(request.nli_items), logic_type, vampire_mode, max_duration)
 
     # Inference id to Check
     inference_results = {}
@@ -538,7 +561,7 @@ def multiple_vampire_request(request):
             if len(nli_item['premises']) > 1:
                 while len(nli_item['premises']) > 1:
                     _ensure_not_cancelled(session_key)
-                    logger.info("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
+                    logger.debug("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
                     first = extract_drs_blocks(nli_item['premises'][0]) if isinstance(nli_item['premises'][0], str) else nli_item['premises'][0]
                     second = extract_drs_blocks(nli_item['premises'][1]) if isinstance(nli_item['premises'][1], str) else nli_item['premises'][1]
 
@@ -552,7 +575,7 @@ def multiple_vampire_request(request):
                                 for drs in merged:
                                     if drs not in merged_list:
                                         merged_list.append(drs)
-                                        logger.info("Updated merged list: %s", merged_list)
+                                        logger.debug("Updated merged list: %s", merged_list)
                     else:
                         merged = mergeDrs(first[0], second[0], tmp_root=tmp_root)
                         if merged:
@@ -566,7 +589,7 @@ def multiple_vampire_request(request):
             premise_semantics = nli_item['premises'][0]
             if request.pruning:
                 premise_semantics = [premise_semantics[0]]
-            logger.info("Premise semantics: %s", premise_semantics)
+            logger.debug("Premise semantics: %s", premise_semantics)
 
             # This might require fixing if there are multiple hyptheses
             hypothesis_semantics = []
@@ -576,7 +599,7 @@ def multiple_vampire_request(request):
 
             if request.pruning:
                 hypothesis_semantics = [hypothesis_semantics[0]]
-            logger.info("Hypothesis semantics: %s", hypothesis_semantics)
+            logger.debug("Hypothesis semantics: %s", hypothesis_semantics)
 
             inference_checks = []
 
@@ -594,8 +617,8 @@ def multiple_vampire_request(request):
                 prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type, tmp_root=tmp_root)
                 h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
 
-            logger.info("Premise conversions: %s", p_conversions)
-            logger.info("Hypothesis conversions: %s", h_conversions)
+            logger.debug("Premise conversions: %s", p_conversions)
+            logger.debug("Hypothesis conversions: %s", h_conversions)
 
             for p_key in p_conversions.keys():
                 for h_key in h_conversions.keys():
@@ -607,7 +630,7 @@ def multiple_vampire_request(request):
                     for fof_premise in fof_premises:
                         for fof_hypothesis in fof_hypotheses:
                             _ensure_not_cancelled(session_key)
-                            logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
+                            logger.debug("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
                             proof_files, results = run_vampire_batch(
                                 fof_premise,
                                 fof_hypothesis,
@@ -642,9 +665,17 @@ def multiple_vampire_request(request):
 
         snapshot_progress("completed")
 
+        logger.info("Vampire request %s completed: %d items, %d check bundles, %.1fs",
+                    session_key, len(inference_results),
+                    sum(len(checks) for checks in inference_results.values()),
+                    time.monotonic() - started_at)
         return {"status": "ok"}
     except VampireCancelled:
         snapshot_progress("cancelled")
+        logger.info("Vampire request %s cancelled after %d items, %d check bundles, %.1fs",
+                    session_key, len(inference_results),
+                    sum(len(checks) for checks in inference_results.values()),
+                    time.monotonic() - started_at)
         cancelled_result = {"status": "cancelled", "results": {key: [item.dict() for item in checks] for key, checks in inference_results.items()}}
         try:
             clear_vampire_progress(session_key)

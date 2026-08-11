@@ -5,7 +5,7 @@ import re
 import logging
 import traceback
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+# Level and handlers are configured once in logging_config, from the entrypoint.
 logger = logging.getLogger(__name__)
 
 def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_folder = "tmp/current/"):
@@ -40,7 +40,7 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
         tptp_content += template.format(logic,q=q,p=p)
         filename = f"sem_{suffix}.p"
         file_path = os.path.join(output_folder, filename)
-        logging.debug(f"Writing TPTP file with content:\n{tptp_content}\n")
+        logger.debug("Writing TPTP file %s with content:\n%s\n", file_path, tptp_content)
 
         files.append(tptp_content)
 
@@ -126,7 +126,7 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
             timeout=timeout
         )
         #Logg exit code
-        logger.debug("Vampire exited with code: " + str(completed_process.returncode))
+        logger.debug("Vampire exited with code: %s", completed_process.returncode)
 
         # Extract information from the output
         output = completed_process.stdout
@@ -180,7 +180,7 @@ def massacer(folder_path, mode=["-sa", "fmb"], timeout=15,vampire_path ="bin"):
 
     # Ensure the folder exists
     if not os.path.isdir(folder_path):
-        print(f"Error: Folder '{folder_path}' does not exist.")
+        logger.error("Folder '%s' does not exist.", folder_path)
 
     file_list = sorted(os.listdir(folder_path))
     # Iterate over all .p files in the folder
@@ -365,7 +365,7 @@ def determine_informativity(data):
     # Placeholder: Implement specific informativity conditions
 
     if sum(data["neg"]) == 0 and sum(data["pos"]) == 0:
-        logger.info("Assuming maxime of relevance for informativity")
+        logger.debug("Assuming maxime of relevance for informativity")
         return True, True  # Maxime of relevance is assumed to be true
 
     successful_neg_check = sum(1 for value in data["neg"] if value == -1) > len(data["neg"]) / 2

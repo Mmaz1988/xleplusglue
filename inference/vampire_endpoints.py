@@ -9,6 +9,7 @@ import time
 import shutil
 import logging
 
+from logging_config import configure_logging
 from vampire_models import VampireRequest, VampireMultipleRequest
 from vampire_redis_calls import (
     RedisApiError,
@@ -32,7 +33,8 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+# The single logging configuration point for this process; see logging_config.
+configure_logging()
 logger = logging.getLogger(__name__)
 
 @app.get("/")
@@ -62,7 +64,8 @@ def process_vampire_request_multiple(request: VampireMultipleRequest):
     API endpoint to process vampireRequest.
     """
     try:
-        logger.info("Received multiple request: items=%d", len(request.nli_items))
+        # run_vampire logs the request summary; this is only the arrival marker.
+        logger.debug("Received multiple request: items=%d", len(request.nli_items))
 
         from run_vampire import multiple_vampire_request
 
