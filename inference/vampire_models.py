@@ -47,6 +47,10 @@ class Check(BaseModel):
     relevant: bool
     proof_files: List[str]
     semantic_svg: str = ""
+    # Echoed back from the submitted tptp_checks bundle so a client can pair a verdict with
+    # the assignment it belongs to by id. Verdicts used to be matched by array position,
+    # which silently mispairs as soon as a bundle is filtered or reordered anywhere.
+    assignment_id: str = ""
 
 
 class VampireResponse(BaseModel):

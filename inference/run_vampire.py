@@ -79,6 +79,21 @@ def _item_value(item, key, default=None):
     return getattr(item, key, default)
 
 
+def _bundle_value(bundle, *keys, default=""):
+    """First non-empty value among `keys`.
+
+    The clients are TypeScript and send camelCase; this module was written expecting
+    snake_case. `context_tptp` was read while both clients sent `contextTptp`, so the
+    fof(context, axiom, ...) line was never emitted by a mechanism that looked wired up.
+    Accept both spellings rather than pick a side and break the other caller.
+    """
+    for key in keys:
+        value = _item_value(bundle, key, None)
+        if value:
+            return value
+    return default
+
+
 def generate_translated_check_files(checks, axioms="", logic="fof", output_folder="tmp/current/", context_tptp=""):
     os.makedirs(output_folder, exist_ok=True)
     files = []
@@ -111,7 +126,7 @@ def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_dur
         proof_files, results = run_tptp_vampire_batch(
             checks, request.axioms, logic_type, vampire_mode,
             max_duration, output_folder,
-            _item_value(tptp_bundle, "context_tptp", ""))
+            _bundle_value(tptp_bundle, "context_tptp", "contextTptp"))
         consistent, informative, relevant = discourse_checks(data=results)
         svg_output = generate_svg_glyph(results)
         current_checks.append(Check(
@@ -119,7 +134,8 @@ def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_dur
             informative=informative,
             consistent=consistent,
             relevant=relevant,
-            proof_files=proof_files))
+            proof_files=proof_files,
+            assignment_id=_bundle_value(tptp_bundle, "assignment_id", "assignmentId")))
 
     return VampireResponse(
         context=[],
@@ -448,7 +464,8 @@ def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
         tptp_checks = _item_value(tptp_bundle, "checks", tptp_bundle)
         proof_files, results = run_tptp_vampire_batch(
             tptp_checks, axioms, logic_type, vampire_mode,
-            max_duration, branch_root)
+            max_duration, branch_root,
+            _bundle_value(tptp_bundle, "context_tptp", "contextTptp"))
         consistent, informative, relevance = discourse_checks(data=results)
         svg_output = generate_svg_glyph(results)
         checks.append(Check(
@@ -456,7 +473,8 @@ def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
             informative=informative,
             consistent=consistent,
             relevant=relevance,
-            proof_files=proof_files))
+            proof_files=proof_files,
+            assignment_id=_bundle_value(tptp_bundle, "assignment_id", "assignmentId")))
         branch_index += 1
     return checks
 
