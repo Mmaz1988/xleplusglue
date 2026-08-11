@@ -4,6 +4,10 @@ Docs here describe work spanning ≥2 of liger / GSWB / LFGxDRT / xleplusglue-cl
 vampire that is still open. Repo-local plans live in each repo's own `docs/plans/`
 instead (e.g. `../../../liger/docs/plans/`, `../../../GlueSemWorkbench_v2/docs/plans/`).
 
+- **SUPPLIED_STRUCTURE_ANAPHORA_PLAN.md** — **blocking.** Supplying pre-parsed structures
+  to `/apply_rules_xle_sequence` permutes the `SRC`/`SYN-ID` correspondence, so pronouns
+  link to the wrong f-structure node and never bind. Root cause proven (`parseFromJson`
+  never yields an `Fstructure`); fix not yet written. Blocks step 4 of the plan below.
 - **REASONING_IN_DOCUMENT_PLAN.md** — owning plan for giving reasoning-check results a
   home in `XlePlusGlueDocument` (`ReasoningUpdate`) and migrating the regression-testing
   interface off its idiosyncratic session JSON onto that model. Design questions are
