@@ -262,12 +262,19 @@ def _declared_schema_version(payload):
 
 
 def _empty_analysis_document():
-    """The v3 document skeleton. Mirrors createXlePlusGlueDocument() in the client's
-    models.ts -- an upgraded v2 session has no reasoning results, not absent ones."""
+    """The v3 document skeleton.
+
+    Field names mirror XlePlusGlueDocument in the client's models.ts, which is what
+    actually goes over the wire (`sentences`/`sequences`/`elements`), not the uppercase
+    registry names the data-model prose uses. An upgraded v2 session gets an empty
+    document rather than a missing one, so a reader never has to distinguish "no reasoning
+    results" from "this session predates reasoning results".
+    """
     return {
-        "SENTENCES": {},
-        "SEQUENCES": {},
-        "ELEMENTS": [],
+        "semanticType": "lfgxdrt",
+        "sentences": [],
+        "sequences": [],
+        "elements": [],
         "discourseUpdates": [],
         "reasoningUpdates": [],
     }

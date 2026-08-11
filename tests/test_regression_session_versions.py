@@ -85,7 +85,7 @@ def test_v3_round_trips_unchanged():
     payload = v2_session()
     payload["schemaVersion"] = 3
     payload["analysis"]["document"] = {
-        "SENTENCES": {}, "SEQUENCES": {}, "ELEMENTS": [], "discourseUpdates": [],
+        "sentences": [], "sequences": [], "elements": [], "discourseUpdates": [],
         "reasoningUpdates": [{"id": "ru-n1", "assignments": [{"id": "a1"}, {"id": "a2"}]}],
     }
 

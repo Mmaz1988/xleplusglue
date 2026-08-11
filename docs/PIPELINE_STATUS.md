@@ -91,9 +91,8 @@ This is genuinely working end to end, including anaphora/pronoun-resolution
 post-processing — not a gap. Chat's steps 1-3 now live in the shared
 `ReasoningPipelineService`, which records a failed branch as a `failure` and a
 branch that lost its anaphora binding as a `degradation` instead of dropping
-either silently; chat renders both. (The older
-`catchError(() => of(null))` that discarded them survives only in the
-regression component — see below.)
+either silently; chat renders both, and regression now runs the same service, so
+the older `catchError(() => of(null))` that discarded them is gone from both.
 
 **Design point in step 1, now half-addressed.** `DrsReasoningCheckBuilder` must
 not merge a second copy of the premise context (`Q`) into the check DRS itself
@@ -124,15 +123,26 @@ produced nothing. Guard: `tests/probes/probe_context_prior.py` (needs liger+gswb
 up), which checks that the prior translates, is not degraded, and is strictly
 narrower than the sequence, at both turn 2 and turn 3.
 
-**What's actually not built: the same integration in regression testing.**
-Chat's flow now lives in a shared `ReasoningPipelineService`, but
-`regression-testing-interface.component.ts` still runs its own older copy
-(`postProcessNliChecks`) — same GSWB endpoints, but it never unions the syntax
-in (so the `SRC`/`SYN-ID` rules have nothing to join to), splices the anaphora
-mapping in as a string, and aborts the *entire* batch inside a `forkJoin` when
-one item fails. Retiring that copy is step 7; see
-`docs/plans/REGRESSION_V3_HANDOFF.md`. This is the actual next construction
-site for LFGxDRT reasoning, not the Chat path.
+**Regression testing now runs the same flow** (2026-08-11).
+`postProcessNliChecks` is gone; `regression-testing-interface.component.ts`
+calls `ReasoningPipelineService` per pair, driven sequentially, so the syntax is
+unioned in before the rules run, the anaphora mapping is passed structured, the
+five round trips per mapping are one batched call, and a pair that cannot be
+prepared is a reported failure of that pair alone instead of an aborted run.
+
+Two further defects surfaced during that work and are fixed with it: regression
+fed each sentence's *own* semantics into the merge, whose per-sentence source
+indices meet the merged syntax's `SYN-ID`s only for the first sentence — so no
+pronoun in any later sentence bound (4 rule branches, one mapping, zero anaphora
+relations, against 12 branches and three mappings once every part is re-derived
+inside the sequence); and readings were selected twice by two filters that could
+disagree, so a reading with no graph shifted the text list against the graph
+list. `tests/probes/probe_regression_nli_pair.py` walks the whole shape and
+reproduces the old behaviour with `--own-semantics`.
+
+Still open: a live end-to-end run through the browser UI — everything above is
+covered by unit specs and HTTP-level probes only. See
+`docs/plans/REGRESSION_V3_HANDOFF.md`.
 
 Other loose ends, none of them blocking Chat: GSWB's reasoning endpoints
 don't carry provenance (sentence/solution/branch IDs) and aren't unified into
@@ -150,7 +160,7 @@ same pass as this section.
 
 ## In progress: reasoning checks in the data model, regression testing onto it
 
-**Design resolved; steps 1-4 landed, 5-7 open.** Owning doc:
+**Design resolved; steps 1-7 landed.** Owning doc:
 `docs/plans/REASONING_IN_DOCUMENT_PLAN.md`. Model spec: the "Reasoning Results"
 section of `../xleplusglue-client/docs/analysis-data-model.md`, which no longer
 declares NLI reasoning out of scope.
@@ -193,25 +203,33 @@ are paired to their assignment by an id Vampire echoes back rather than by array
 position, and the dormant `context_tptp` key mismatch is fixed so
 `fof(context, axiom, ...)` is actually emitted.
 
-Remaining steps (5-7): backend regression-session v3 with read-side version
-dispatch, the v3 session shape embedding an `XlePlusGlueDocument`, and
-regression's NLI path onto the shared `ReasoningPipelineService`. Working
-handoff with file-level detail: `docs/plans/REGRESSION_V3_HANDOFF.md`.
+Steps 5-7 landed 2026-08-11:
 
-Two defects were found during the design pass. One is fixed, one is still open:
+- **Step 5** — regression sessions dispatch on their `schemaVersion` in
+  `Redis/redis_store.py` (the only layer that sees the stored bytes; the vampire
+  proxy stays a pass-through). A v2 session is upgraded on read and says so
+  (`upgradedFrom`), so the dashboard can open everything it lists; the stored
+  payload stays v2 until saved back. A session newer than the server is refused
+  with a 409, forwarded rather than flattened to a 500.
+- **Step 6** — `RegressionSessionDocument.analysis.document` holds the
+  `XlePlusGlueDocument`. `inferenceResults` is a view over its
+  `reasoningUpdates` (same majority rule, same label mapping);
+  `regressionTestItems`/`regressionTestResults` deliberately are not, since they
+  describe the testsuite and the parse phase. Check graphs/SVGs are stripped on
+  persist; degradations live on `ReasoningAssignment`, failures on the update.
+- **Step 7** — see the Chat section above.
 
-- **Still open (this is step 7).** LiGER's `/merge_uploaded_structures` only
-  **unions** the merged syntax and merged semantics — `LinguisticStructureMerger
-  .merge` creates no edges between the two sides. The **post-processing rules**
-  do the syn↔sem linking. Regression skips that call entirely and feeds merged
-  semantics alone into the rules, so no link can be created and its anaphora
-  mappings derive from a graph with no syntax in it. A correctness defect, not a
-  stylistic one. Chat does not have it: `ReasoningPipelineService` performs the
-  union first.
-- **Fixed.** `inference/run_vampire.py` read `context_tptp` while both clients
-  send `contextTptp`, so `fof(context, axiom, ...)` was never emitted and the
-  batch path did not pass it at all. Both spellings are now accepted on both
-  paths. See the caveat above about *what* is currently conjoined.
+Both defects from the design pass are now fixed:
+
+- LiGER's `/merge_uploaded_structures` only **unions** the merged syntax and
+  merged semantics — `LinguisticStructureMerger.merge` creates no edges between
+  the two sides; the **post-processing rules** do the syn↔sem linking. Regression
+  skipped that call entirely, so no link could be created. It now goes through
+  `ReasoningPipelineService`, which performs the union first.
+- `inference/run_vampire.py` read `context_tptp` while both clients send
+  `contextTptp`, so `fof(context, axiom, ...)` was never emitted. Both spellings
+  are accepted on both paths, and what is conjoined is now the prior — see the
+  Chat section.
 
 ## Open TODOs at a glance
 
@@ -219,8 +237,8 @@ Two defects were found during the design pass. One is fixed, one is still open:
 
 | Doc | Status |
 |---|---|
-| `REASONING_IN_DOCUMENT_PLAN.md` | Reasoning results in `XlePlusGlueDocument` + regression v3; steps 1-4 landed, 5-7 open |
-| `REGRESSION_V3_HANDOFF.md` | Working handoff for steps 5-7: session versioning, v3 shape, regression onto the shared pipeline |
+| `REASONING_IN_DOCUMENT_PLAN.md` | Reasoning results in `XlePlusGlueDocument` + regression v3; all seven steps landed 2026-08-11, live browser run still outstanding |
+| `REGRESSION_V3_HANDOFF.md` | Steps 5-7 done: session versioning, v3 shape, regression on the shared pipeline. Keeps the context-axiom decision and what is still unverified |
 | `SUPPLIED_STRUCTURE_ANAPHORA_PLAN.md` | Closed 2026-08-11; keeps two residual findings worth their own doc |
 | `LFGXDRT_REASONING_PLAN.md` | Reasoning-v2 master checklist, verified against code 2026-08-09 — see "Chat" section above |
 | `LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md` | Reasoning-v2 implementation handoff, same verification pass |
