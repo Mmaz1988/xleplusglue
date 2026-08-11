@@ -103,16 +103,33 @@ Acceptance test — `a man saw a man` / `he saw him` / `he smiled`, pruning on, 
 Both affect the re-parsed and the supplied path equally, so neither is a supplied-structure
 defect. Neither has an owning plan doc yet.
 
-- **Antecedent selection is nondeterministic.** Three runs of `probe_binding.py` against
-  unchanged code and services produced three different antecedent assignments for the same
-  input (`x4->x2`, then `x4->x3`, then `x4->x2` with `x5` moving instead). The *set* of
-  bound pronouns and the candidate count (3) are stable; which antecedent each candidate
-  gets is not. Smells like `HashMap`/`HashSet` iteration order in the rule or PCDRS
-  enumeration path.
-- **An event referent is offered as an antecedent for a male pronoun.** `x3` is the `see`
-  event (`see(x3), arg1(x3,x2), arg2(x3,x1)`), yet mappings such as `x5 ↦ x3` are produced
-  in both views. The `ant`/`male` conditions do not appear to gate candidate antecedents by
-  sort.
+- **Nothing here is nondeterministic — a first draft of this section claimed otherwise and
+  was wrong.** `probe_binding_stability.py` separates the layers, and the candidate space is
+  stable at every one of them:
+
+  | Phase | Held fixed | Result |
+  |---|---|---|
+  | A | DRS + tier-B structure | mappings identical across runs |
+  | A2 | tier-A union, rules re-applied | `annotations[0]` differs, so mappings differ |
+  | A3 | semantic parts, GSWB merge repeated | merged semantic **and** graph byte-identical |
+  | A4 | tier-A union, **all 12 branches** enumerated | the full 18-mapping space is identical across runs |
+  | B | nothing (full pipeline) | merged DRS varies only in condition **order**; bindings stable |
+
+  The post-processing rules return 12 branches. Their *contents* as a set vary run to run,
+  but their union does not: the same 18 candidate mappings and the same ANT-edge union every
+  time. So the only thing that moves is which branch a given candidate lands in — and
+  therefore what anything taking `annotations[0]` (or "the first GSWB solution" for an
+  ambiguous sentence) happens to sample. Same trap, two layers. **When comparing runs,
+  compare the candidate space, not the first branch.**
+
+- **An event referent is an eligible antecedent for a personal pronoun.** `x3` is the `see`
+  event (`see(x3), arg1(x3,x1), arg2(x3,x2)`), yet the stable candidate space contains
+  `x4 ↦ x3` and `x5 ↦ x3`. This is deterministic, not flaky: the space is 18 mappings
+  (`x4` and `x5` ranging over `{x1, x2, x3}`, `x7` over `{x4, x5, x6}`) where the two men
+  alone would give 6. The `ant`/`male` conditions do not gate candidates by sort, so an
+  event competes with the men — and whichever branch surfaces first can present an event
+  binding as the answer. This is the real defect behind the odd bindings, and it is worth
+  its own plan doc.
 
 ## Environment note
 
@@ -129,6 +146,7 @@ constant), but it is why the rule banner is red in a local dev setup.
 python3 tests/probes/probe_x7c.py             # B vs D vs C -- the control experiment
 python3 tests/probes/probe_x7b.py             # per-referent SRC/SYNSEM table
 python3 tests/probes/probe_binding.py         # which pronouns the mapping binds
+python3 tests/probes/probe_binding_stability.py   # candidate space vs. first-branch sampling
 python3 tests/probes/probe_seq_plus_sentence.py   # must stay 644 / 21 / [S0, S1, S2]
 ```
 
