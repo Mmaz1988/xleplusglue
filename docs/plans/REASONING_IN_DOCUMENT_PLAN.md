@@ -65,11 +65,20 @@ per-check verdict does not exist.
   returning empty TPTP, and degraded branches are surfaced in chat. Chat and the
   analysis view verified to agree. That doc is closed; two pre-existing residual
   findings are recorded at its end.
-- [ ] **4. Chat writes `ReasoningUpdate`s**, id-based verdict pairing, and the
-  `context_tptp` fix (below).
+- [x] **4. Chat writes `ReasoningUpdate`s**, id-based verdict pairing, and the
+  `context_tptp` fix (below). `ChatComponent.upsertReasoningUpdates` writes one
+  update per premise/hypothesis element pair, validated against a candidate
+  document so a rejected update leaves the document untouched;
+  `ReasoningPipelineService` mints assignment ids from a `ReasoningScope`;
+  `Check.assignment_id` is echoed by the Vampire adapter and used for pairing;
+  `contextTptp`/`context_tptp` are both accepted on the single *and* batch paths,
+  so `fof(context, axiom, ...)` is finally emitted. Verified live in chat and
+  directly against `/vampire_request`.
 - [ ] **5. Backend regression-session v3** with real read-side version dispatch.
 - [ ] **6. Regression v3 session shape** embedding an `XlePlusGlueDocument`.
 - [ ] **7. Regression's NLI path onto the shared service.**
+
+Steps 5-7 have their own working handoff: `REGRESSION_V3_HANDOFF.md`.
 
 ## The three operations (prerequisite for step 2)
 

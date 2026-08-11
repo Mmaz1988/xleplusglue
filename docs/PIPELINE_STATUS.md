@@ -48,9 +48,10 @@ at a glance:
   not feed back into `SYNSEM_MAPPING`. This is GSWB's `/generate_pcdrs` +
   `/collapse_anaphora` plus LiGER rule application, driving LFGxDRT's own
   anaphora-mapping classes.
-- **Final pragmatic/NLI reasoning (consistency, informativity, Vampire-based
-  checks) is explicitly declared out of scope by this model.** That's the
-  immediate gap — see below.
+- Final pragmatic/NLI reasoning (consistency, informativity, Vampire-based
+  checks) **used to be** declared out of scope by this model. It no longer is:
+  `ReasoningUpdate` stacks on `Sentence`/`Sequence` the way `DiscourseUpdate`
+  does, and chat writes into it. See "In progress" below.
 
 ### 2. Chat — discourse reasoning via Vampire
 
@@ -101,11 +102,13 @@ reattachment step doesn't exist yet; see
 Correction" note for the full reasoning.
 
 **What's actually not built: the same integration in regression testing.**
-`regression-testing-interface.component.ts` has its own separate, less mature
-implementation of this flow (`postProcessNliChecks`, vs. chat's
-`postProcessReasoningCheckAsts`) — same GSWB endpoints, but a single
-missing/unresolved reading throws inside a `forkJoin` and aborts the *entire*
-batch instead of failing just that item. This is the actual next construction
+Chat's flow now lives in a shared `ReasoningPipelineService`, but
+`regression-testing-interface.component.ts` still runs its own older copy
+(`postProcessNliChecks`) — same GSWB endpoints, but it never unions the syntax
+in (so the `SRC`/`SYN-ID` rules have nothing to join to), splices the anaphora
+mapping in as a string, and aborts the *entire* batch inside a `forkJoin` when
+one item fails. Retiring that copy is step 7; see
+`docs/plans/REGRESSION_V3_HANDOFF.md`. This is the actual next construction
 site for LFGxDRT reasoning, not the Chat path.
 
 Other loose ends, none of them blocking Chat: GSWB's reasoning endpoints
@@ -162,10 +165,15 @@ positionally (so a sentence is parsed once and merged by offset, never
 re-parsed), a failed anaphora collapse degrades to translatable TPTP instead of
 returning an empty result, and degraded branches are reported in the chat.
 
-Remaining steps (full checklist in the owning doc): have chat write
-`ReasoningUpdate`s, backend regression-session v3, the v3 session shape
-embedding an `XlePlusGlueDocument`, and regression's NLI path onto the shared
-service.
+Step 4 has landed too: chat writes `ReasoningUpdate`s into the document, verdicts
+are paired to their assignment by an id Vampire echoes back rather than by array
+position, and the dormant `context_tptp` key mismatch is fixed so
+`fof(context, axiom, ...)` is actually emitted.
+
+Remaining steps (5-7): backend regression-session v3 with read-side version
+dispatch, the v3 session shape embedding an `XlePlusGlueDocument`, and
+regression's NLI path onto the shared `ReasoningPipelineService`. Working
+handoff with file-level detail: `docs/plans/REGRESSION_V3_HANDOFF.md`.
 
 Two defects found during the design pass and scheduled alongside it:
 
@@ -190,7 +198,9 @@ Two defects found during the design pass and scheduled alongside it:
 
 | Doc | Status |
 |---|---|
-| `REASONING_IN_DOCUMENT_PLAN.md` | Reasoning results in `XlePlusGlueDocument` + regression v3; design resolved, step 1 (model layer) landed |
+| `REASONING_IN_DOCUMENT_PLAN.md` | Reasoning results in `XlePlusGlueDocument` + regression v3; steps 1-4 landed, 5-7 open |
+| `REGRESSION_V3_HANDOFF.md` | Working handoff for steps 5-7: session versioning, v3 shape, regression onto the shared pipeline |
+| `SUPPLIED_STRUCTURE_ANAPHORA_PLAN.md` | Closed 2026-08-11; keeps two residual findings worth their own doc |
 | `LFGXDRT_REASONING_PLAN.md` | Reasoning-v2 master checklist, verified against code 2026-08-09 — see "Chat" section above |
 | `LFGXDRT_NLI_CHECK_COMPOSITION_PLAN.md` | Reasoning-v2 implementation handoff, same verification pass |
 | `SEMANTIC_WORKFLOW_TODO.md` | liger/GSWB/client graph-inspector issues; 4 high-priority items open incl. a confirmed-still-present `GraphConstraint.toJson()` bug |
