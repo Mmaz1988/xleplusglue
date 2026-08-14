@@ -1,0 +1,92 @@
+--replace(true);
+
+// LFGxDRT version of liger_resources/rules/degree_rules_ev.txt.
+// The rule structure is copied from the original; GLUE meanings use
+// LFGxDRT literal notation instead of Prolog-style DRT constructors.
+
+//Nounmodifiers
+#n MOD #m in_set #p PRED %p & #p TYPE %k & #n s:: #s ==>
+#p GLUE (\P.(\x.([],[strip(%k)('strip(%p)',x)]) + P@x)) : ((#s_e -o #s_t) -o (#s_e -o #s_t)) || noscope.
+
+
+//Degree (gradable) adjectives
+#x PREDLINK #a & #x s:: #y EV #z &
+#a ATYPE 'predicative' & #a SEMTYPE 'degree' &
+#a PRED %a &  #a s:: #s
+==> & #s DEGREE #d & #s DEGREE-HOLDER #z & #s DEGREE-PRED #p &
+#p GLUE (\P.(\d.(\x.([],[strip(%a)(x,d)])))) : ((#s_v -o #s_t) -o (#d_d -o (#s_v -o #s_t))).
+
+//This works
+#x ADJUNCT #n in_set #a & #x s:: #y &
+#a ATYPE 'attributive' & #a SEMTYPE 'degree' &
+#a PRED %a & #a s:: #s
+==> #s DEGREE #d & #s DEGREE-HOLDER #y & #s DEGREE-PRED #p &
+#p GLUE (\P.(\d.(\x.([],[strip(%a)(x,d)])))) : ((#s_e -o #s_t) -o (#d_d -o (#s_e -o #s_t))).
+
+
+// Rules for positive uses
+// attributive
+#x ADJUNCT #n in_set #a & #x PRED %x &
+#a ATYPE 'attributive' &
+#a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
+==> #d GLUE (\P.([d],[]) + ([],[greater(d,th_strip(%a)('strip(%x)'))]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
+
+// predicative
+#x PREDLINK #a & #x PRED %x &
+#a ATYPE 'predicative' &
+#a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
+==> #d GLUE (\P.([d],[]) + ([],[greater(d,th_strip(%a)('strip(%x)'))]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
+
+//Added noscope to arg1s. Needs evaluation
+//Comparative rule for attributive uses
+#a ATYPE 'attributive' & #a DEGREE 'comparative' & #a PRED %p &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
+==>
+#o DEGREE #x & #o DEGREE-HOLDER #y &
+#d GLUE (\P.(\Q.(\e.([d],[]) + P@d@e + ([],[~(([v],[]) + Q@d@v)])))) :
+		((#d_d -o (#b_e -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_e -o #b_t))) || noscope &
+#m GLUE (\d.(\e.([],[strip(%p)(e,d)]))) : (#x_d -o (#y_v -o #m_t)) &
+#n GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) :
+		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))) || noscope.
+
+//Comparative rule for predicative uses
+#a ATYPE 'predicative' & #a DEGREE 'comparative' & #a PRED %p &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
+==>
+#o DEGREE #x & #o DEGREE-HOLDER #y &
+#d GLUE (\P.(\Q.(\e.([d],[]) + P@d@e + ([],[~(([v],[]) + Q@d@v)])))) :
+		((#d_d -o (#b_v -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_v -o #b_t))) || noscope &
+#m GLUE (\d.(\e.([],[strip(%p)(e,d)]))) : (#x_d -o (#y_v -o #m_t)) &
+#n GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) :
+		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))) || noscope.
+
+//Rule for equitives
+#a SEMTYPE 'degree' & #a PRED %p &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a !(ADJUNCT>in_set) #c PRED %a  & strip(%a) == 'as' &
+#c OBL-COMP #m OBJ #n s:: #o
+==>
+#o DEGREE #x & #o DEGREE-HOLDER #y &
+#d GLUE (\P.(\Q.(\e.([],[(([d],[]) + ([v],[]) + Q@d@v) -> P@d@e])))) :
+		((#d_d -o (#b_v -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_v -o #b_t))) || noscope &
+#m GLUE (\d.(\e.([],[strip(%p)(e,d)]))) : (#x_d -o (#y_v -o #m_t)) &
+#n GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) :
+		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))).
+
+//Axioms
+
+//Be equality axiom
+#p PRED %p & strip(%p) == 'be' & #p PREDLINK #c s:: #s TYPE 'entity' ==>
+#p AXIOM all(X,all(Y,all(Z,imp(and(be(X),and(arg1(X,Y),arg2(X,Z))),eq(Y,Z))))).
+
+//Comparative axioms
+#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p ==>
+#a AXIOM all(X, all(Y, all(D:d, imp(and(arg1(X, Y), fast(X, D)), fast(Y, D))))).
+
+#a ATYPE %u & #a SEMTYPE 'degree' & #a PRED %p &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p  ==>
+#a MONO #q & #q AXIOM all(X, all(Delta1:d, iff(strip(%p)(X, Delta1), all(Delta2:d, imp(lessEq(Delta2, Delta1), strip(%p)(X, Delta2)))))) &
+#a CP #r & #r AXIOM all(X, all(Y, imp(some(D:d, and(strip(%p)(X, D), not(strip(%p)(Y, D)))), all(D2:d, imp(strip(%p)(Y, D2), strip(%p)(X, D2)))))) &
+#a MAX #s & #s AXIOM all(X, some(Delta1:d, and(strip(%p)(X, Delta1), not(some(Delta2:d, and(greater(Delta2, Delta1), strip(%p)(X, Delta2))))))).
