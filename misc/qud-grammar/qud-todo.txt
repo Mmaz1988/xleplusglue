@@ -1,0 +1,2 @@
+Distribute proof constraints (i.e. proof structure) across conjuncts.
+

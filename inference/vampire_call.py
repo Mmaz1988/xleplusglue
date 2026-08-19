@@ -8,6 +8,11 @@ import traceback
 # Level and handlers are configured once in logging_config, from the entrypoint.
 logger = logging.getLogger(__name__)
 
+# Same flag/env var as run_vampire.KEEP_TPTP_FILES -- read independently here rather than
+# imported, since this module has no other dependency on run_vampire. When set, massacer()
+# leaves each folder's .p files on disk instead of deleting them right after running Vampire.
+KEEP_TPTP_FILES = os.getenv("VAMPIRE_KEEP_TPTP", "false").strip().lower() in ("1", "true", "yes", "on")
+
 def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_folder = "tmp/current/"):
     """
     Generates TPTP files from a CSV file containing formulas p and q, including comments with the original formulas.
@@ -193,7 +198,8 @@ def massacer(folder_path, mode=["-sa", "fmb"], timeout=15,vampire_path ="bin"):
             results.append(result)
 
     # delete all files from the run-specific output folder
-    shutil.rmtree(folder_path, ignore_errors=True)
+    if not KEEP_TPTP_FILES:
+        shutil.rmtree(folder_path, ignore_errors=True)
 
     return results
 

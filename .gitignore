@@ -10,6 +10,7 @@ jars/old_versions/*
 inference/vampire_test/generated_testfiles*/*.p
 
 /tests/tmp/
+/inference/tmp/
 
 __pycache__/
 .DS_Store

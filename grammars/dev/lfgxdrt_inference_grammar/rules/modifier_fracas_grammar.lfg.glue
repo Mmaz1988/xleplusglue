@@ -1,0 +1,103 @@
+ MODIFIER ENGLISH RULES (1.0)
+
+   AP[_type $ {attributive predicative}] -->
+
+           e: {
+            _type = predicative
+            (^ATYPE) = predicative
+           |
+           _type = attributive
+           (^ATYPE) = attributive
+           };
+
+ 	  (ADVComp: _type = predicative
+		    ! $ (^ ADJUNCT))
+
+ 	  ADV*: ! $ (^ ADJUNCT);
+
+ 	  { A: ^=!
+ 	  | Num: ^=!
+ 	  }
+
+	  "than-comparatives as adjuncts on the AP"
+	  "type of comparative is handled in the lexicon"
+	  "EX1: The tree is greater than the plant."
+	  "EX2: The tree is (as) great (as the plant)."
+ 	  (CPComp: _type = predicative
+           (^ (ADJUNCT $) OBL-COMP)=!
+
+           """(^ ADJUNCT $) = %LOCAL
+           ! $ (%LOCAL ADJUNCT)
+           (%LOCAL PRED FN)=c more
+           (^ DEGREE)=c comparative""" "./index/english-rules-mod.lfg:52"
+		   """{ (^ OBL-COMP) = !
+		      | (^ ADJUNCT) = !})""")
+
+ 	  (COMMA).
+
+"TODO What is this for"
+
+   "rule for comparison constructions"
+   "EX: He is greater than the dog (is)."
+   CPComp --> CComp
+ 	  { NP: (^ OBJ) = !
+		(! CASE) = acc
+ 	   |
+	    "for elliptical constructions."
+	    "EX: He is greater than the dog is (great)."
+ 	    S: (^ OBJ) = !
+ 	  }.
+
+
+   PP --> { P: ^ = ! "head of PP"
+	       (! PTYPE) =c sem; "semantic type, Adjunct"
+ 	    NP: (^ OBJ) = !
+		(! CASE) = acc
+ 	  | P: ^ = ! "head of PP"
+	       (! PTYPE) =c nosem; "non-semantxic type, OBL"
+ 	    NP
+ 	  }.
+
+
+
+   ADVP -->
+   "  TODO: this rule does not work with passives --> runs out of memory
+ 	  { VP: (^ SUBJ PRED) = 'pro'
+		~[(^ TNS-ASP TENSE)]
+		
+ 	   |
+"
+ 	    (ADVComp: ! $ (^ ADJUNCT))
+
+ 	    ADV: ^=!;
+
+	    "than-comparatives as adjuncts on the AP"
+	    "type of comparative is handled in the lexicon"
+	    "EX1: The tree is greater than the plant."
+	    "EX2: The tree is (as) great (as the plant)."
+ 	    "(CPComp: (^ OBL-COMP) = !)"
+
+ 	    (COMMA).
+
+
+   CPrel --> PRON:  (! PRON-TYPE) =c rel
+                    (^ {SUBJ | OBJ | OBJ2}) = !
+                    (^ TOPIC) = !
+              	    ((ADJUNCT ^) PERS)  = (^TOPIC PERS)
+              	    ((ADJUNCT ^) NUM)  = (^TOPIC NUM);
+          (NP: (^ SUBJ) = !
+               (^ {OBJ | OBJ2}) = (^ TOPIC))
+		 "from Pargram: (^ TOPIC-REL {(OBJ)|(OBL-PART)} [SPEC (POSS)]*) = (^ PRON-REL)"
+ 	  VP[fin].
+
+"Every gift that was sent to Sue by John was red"
+
+   CPto --> PARTinf VP[base].
+
+   "following the cookbook"
+   CONJPsub --> CONJsub
+                S: (^ OBJ) =!.
+
+
+
+----

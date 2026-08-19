@@ -37,6 +37,26 @@ app.add_middleware(
 configure_logging()
 logger = logging.getLogger(__name__)
 
+
+@app.on_event("startup")
+def _reset_tptp_dir():
+    """When VAMPIRE_KEEP_TPTP is on, each request leaves its generated .p files under
+    run_vampire.TPTP_BASE_DIR instead of deleting them (see _cleanup_tmp_root/massacer) --
+    bind-mount that dir to inspect them from the host, grouped as
+    tmp/<chat session>/turn-<NNN>/ for the whole conversation. Only ensures the directory
+    exists; it must NOT wipe existing contents on startup -- a chat session's turns are meant
+    to persist for the life of the conversation, which can span a container restart (e.g. the
+    service restarting mid-conversation during development). An earlier version of this hook
+    unconditionally cleared TPTP_BASE_DIR here, which was harmless under the old per-call-UUID
+    layout but silently destroyed already-completed turns the next time the container
+    restarted -- see docs/PIPELINE_STATUS.md."""
+    from run_vampire import KEEP_TPTP_FILES, TPTP_BASE_DIR, ensure_tptp_base_dir
+
+    ensure_tptp_base_dir()
+    if KEEP_TPTP_FILES:
+        logger.info("VAMPIRE_KEEP_TPTP enabled: persisting proof files under %s", TPTP_BASE_DIR)
+
+
 @app.get("/")
 def root():
     return {"test": "Hello World"}
@@ -53,8 +73,6 @@ def process_vampire_request_single(request: VampireRequest):
 
     except Exception as e:
         logger.error("Unhandled exception in single request", exc_info=True)
-        if os.path.isdir("tmp") and not os.listdir("tmp"):
-            shutil.rmtree("tmp")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
@@ -73,8 +91,6 @@ def process_vampire_request_multiple(request: VampireMultipleRequest):
 
     except Exception as e:
         logger.error("Unhandled exception in multiple request", exc_info=True)
-        if os.path.isdir("tmp") and not os.listdir("tmp"):
-            shutil.rmtree("tmp")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 

@@ -43,6 +43,16 @@ services:
       # per run (mount it as a volume if you want the files on the host).
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       LOG_DIR: ${VAMPIRE_LOG_DIR:-}
+      # Set VAMPIRE_KEEP_TPTP=true (env or .env) to persist every request's generated .p
+      # (TPTP) proof files under the volume below instead of deleting them right after the
+      # request finishes -- useful for inspecting exactly what was sent to Vampire during a
+      # Chat or Regression Testing session. Off by default. A chat conversation's files are
+      # grouped under tmp/<session>/turn-<NNN>/ and persist across container restarts (the
+      # startup hook only ensures the mounted folder exists -- it no longer wipes it, since
+      # that used to destroy an in-progress conversation's earlier turns on restart).
+      VAMPIRE_KEEP_TPTP: ${VAMPIRE_KEEP_TPTP:-true}
+    volumes:
+      - ../inference/tmp:/vampire/tmp
     depends_on:
       - redis
   gswb:

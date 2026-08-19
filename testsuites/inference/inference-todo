@@ -1,0 +1,36 @@
+
+Implement comparison class for proper names, so that PC-6082 and ITEL-XZ are both treated as computers (i.e., when an adjective is applied to a proper name,
+search for an identifying property
+
+       The PC-6082 is faster than the ITEL-XZ.
+       The PC-6082 is not fast.
+       The ITEL-XZ is fast.
+
+
+{
+The PC-6082 is faster than the ITEL-XZ.
+The PC-6082 is not a fast computer.
+====
+The ITEL-XZ is a fast computer.
+>>> -1
+}
+
+[
+  {
+    "id": "item001",
+    "premises": [
+      "A Swede won a Nobel prize.",
+      "Every Swede is a Scandinavian."
+    ],
+    "conclusion": "A Scandinavian won a Nobel prize.",
+    "gold_label": 1
+  },
+  {
+    "id": "item002",
+    "premises": [
+      "A Nobel prize was won by a Swede.",
+      "Every Swede is a Scandinavian."
+    ],
+    "conclusion": "A Scandinavian won a Nobel prize.",
+    "gold_label": 1
+  }

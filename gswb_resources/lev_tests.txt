@@ -1,0 +1,40 @@
+{
+// A, A→A, A→B, B→B, B→C, C→C, C→B, B→D, D→E
+1 : a
+2 : (a -o a)
+3 : (a -o b)
+4 : (b -o b)
+5 : (b -o c)
+6 : (c -o c)
+7 : (c -o b)
+8 : (b -o d)
+9 : (d -o e)
+}
+{
+// A,B,B→B,A→B→C,C→D
+1 : a
+2 : b
+3 : (b -o b)
+4 : (a -o (b -o c))
+5 : (c -o d)
+}
+{
+//A,A→B,B→C D, D → B, B → E, C→E→F B→B
+1 : a
+2 : (a -o b)
+3 : (b -o c)
+4 : d
+5 : (d -o b)
+6 : (b -o e)
+7 : (c -o (e -o f))
+8 : (b -o b)
+}
+{
+//John tried to leave
+john : b_e
+try : (b_e -o ((b_e -o c_t) -o a_t))
+leave : (b_e -o c_t)
+}
+{
+2 : ((a -o a) -o b)
+}

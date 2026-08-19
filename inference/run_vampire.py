@@ -24,19 +24,56 @@ vampire_command = 'vampire'
 # Retrieve the helper file path from the environment variable
 BOXER = os.getenv("BOXER_PATH", "boxer")
 
+# Base directory every per-request scratch dir (_make_vampire_tmp_root) is created under.
+# Bind-mount this (see Docker/docker-compose.yaml's `vampire` service) to inspect generated
+# .p files from the host when KEEP_TPTP_FILES is on.
+TPTP_BASE_DIR = "tmp"
+
+# When set, _cleanup_tmp_root leaves each request's generated .p (TPTP) files on disk
+# instead of deleting them right after the request finishes -- for inspecting exactly what
+# was sent to Vampire. Off by default (matches the old always-delete behavior). Toggle via
+# the VAMPIRE_KEEP_TPTP env var (Docker/docker-compose.yaml wires this to a compose var).
+KEEP_TPTP_FILES = os.getenv("VAMPIRE_KEEP_TPTP", "false").strip().lower() in ("1", "true", "yes", "on")
+
 
 class VampireCancelled(Exception):
     pass
 
 
-def _make_vampire_tmp_root(session_key: str) -> str:
+def _make_vampire_tmp_root(session_key: str, turn_index: int = None) -> str:
+    """Builds this call's scratch/debug-output directory.
+
+    With a real chat turn_index (single chat proof calls, once a real session_key/turn_index
+    is supplied): tmp/<session_key>/turn-<NNN>/<call-uuid> -- so KEEP_TPTP_FILES output for
+    a whole conversation lands under one session directory, grouped by turn, instead of one
+    unrelated directory per proof call. Without turn_index (regression batch calls, or any
+    caller not yet sending it): unchanged flat tmp/<session_key>-<uuid> layout.
+    """
     safe_session_key = re.sub(r"[^A-Za-z0-9_.-]+", "_", session_key or "session")
-    return os.path.join("tmp", f"{safe_session_key}-{uuid.uuid4().hex}")
+    if turn_index is not None:
+        turn_dir = os.path.join(TPTP_BASE_DIR, safe_session_key, f"turn-{turn_index:03d}")
+        return os.path.join(turn_dir, uuid.uuid4().hex)
+    return os.path.join(TPTP_BASE_DIR, f"{safe_session_key}-{uuid.uuid4().hex}")
 
 
 def _cleanup_tmp_root(tmp_root=None):
-    if tmp_root:
+    if tmp_root and not KEEP_TPTP_FILES:
         shutil.rmtree(tmp_root, ignore_errors=True)
+
+
+def ensure_tptp_base_dir():
+    """Makes sure TPTP_BASE_DIR exists, without touching anything already in it.
+
+    A chat session's tmp/<session>/turn-<NNN>/ tree is now meant to persist for the whole
+    conversation, which can outlive a single container lifetime (e.g. the vampire service
+    restarting mid-conversation during development). This used to instead unconditionally
+    wipe every child of TPTP_BASE_DIR on every startup (clear_tptp_base_dir) -- harmless
+    under the old design, where each call got its own disposable UUID directory and nothing
+    meaningful ever spanned a restart, but under the session/turn-scoped layout it silently
+    destroyed already-completed turns the next time the container restarted. See
+    docs/PIPELINE_STATUS.md for the incident this came from.
+    """
+    os.makedirs(TPTP_BASE_DIR, exist_ok=True)
 
 
 def _vampire_session_key(request):
@@ -336,7 +373,7 @@ def single_vampire_request(request):
 
 def _single_vampire_request(request, session_key):
     started_at = time.monotonic()
-    tmp_root = _make_vampire_tmp_root(session_key)
+    tmp_root = _make_vampire_tmp_root(session_key, request.turn_index)
     new_context = []
     new_active_indices = []
     current_checks = []

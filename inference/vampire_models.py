@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -26,6 +26,12 @@ class VampireRequest(BaseModel):
     active_indices: List[int] = Field(default_factory=list)
     vampire_preferences: dict = Field(default_factory=dict)
     tptp_checks: List[dict] = Field(default_factory=list)
+    # Both optional and unset by default so existing callers (e.g. the local test harness)
+    # keep today's flat tmp/<session_key>-<uuid> behavior. When a real chat session sends
+    # both, _make_vampire_tmp_root groups this call's tmp files under that session/turn
+    # instead of a fresh unrelated directory per call.
+    session_key: Optional[str] = None
+    turn_index: Optional[int] = None
 
 
 class VampireMultipleRequest(BaseModel):

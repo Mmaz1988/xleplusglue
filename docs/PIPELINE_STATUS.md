@@ -144,6 +144,45 @@ Still open: a live end-to-end run through the browser UI — everything above is
 covered by unit specs and HTTP-level probes only. See
 `docs/plans/REGRESSION_V3_HANDOFF.md`.
 
+**Degree-sort typing on discourse referents, verified end-to-end (2026-08-17).**
+Question was whether `[d:d]`-style sort tags on discourse referents (from
+`liger_resources/rules/degree_rules_lfgxdrt.liger`'s comparative rules) are
+actually recognized by LFGxDRT and survive into the TPTP that Chat/Regression
+Testing send to Vampire. Confirmed live, against the app's own default
+sentence ("The PC-6082 is faster than the ITEL-XZ.", default grammar/rules):
+LFGxDRT's `DrsParser.parseReferent()` does parse `:d` into a first-class
+`DiscourseReferent.type`, and `TptpSupport.tptpType()` does apply it —
+`GET /deduce`'s DRS `([x1,x2,x3,x4:d],[...,fast(x3,x4),...])` translated via
+`/collapse_and_tptp_batch` (`typed: true`) to
+`?[X1:$i]:(?[X2:$i]:(?[X3:$i]:(?[X4:$int]:(...))))` — the degree referent x4
+got `$int`, the three entity/event referents got the generic `$i` default,
+matching the app's own `tff(fast_type, type, fast: ($i * $int) > $o)` axiom.
+Fed through the live `/vampire_request` endpoint with that axiom set, Vampire
+accepted the generated `.p` files with no TFF type mismatch. This is the
+*only* sort the pipeline ever tags (`v`/`e`/untagged referents all fall
+through to `$i` by design — nothing in the grammar currently emits a `:v` or
+`:e` tag, so there's nothing today for a second sort to distinguish). Chat and
+Regression Testing share this exact code path (`ReasoningPipelineService` →
+`collapse_and_tptp_batch`), so the result holds for both. No bug found; no fix
+needed. Verification script (not committed):
+`check_degree_typing.py`/`check_vampire_accepts.py`, same request shapes as
+`tests/test_full_analysis_workflow.py` but hitting `/collapse_and_tptp_batch`
+and `/vampire_request` directly.
+
+Two unrelated things noticed along the way, neither blocking the above:
+`APP_DEFAULTS.chat.axioms` in the client repo declares
+`tff(pn_type2, type, 'itel-zx': $i)` — a letter transposition; the grammar's
+own lexicon and the DRS actually produced both say `'itel-xz'`, so that axiom
+line currently types a constant nothing in the generated TPTP ever refers to.
+Separately, `gswb_resources/boxer/`'s `drs2fol.pl`/`fol2fof.pl`/`fol2tff.pl`
+(used by the `gswb`/`liger` images) are missing the `greater`/`greaterEq`/
+`less`/`lessEq` clauses that `BB-DRT/boxer/` (used by the `vampire` image) has
+— a real drift CLAUDE.md already flags as a hazard class, but *not* currently
+live: `degree_rules_lfgxdrt.liger`'s comparative rules express "faster than"
+via negated existentials (`~(...)`), not those predicates, so nothing in the
+verified path invokes the missing clauses. Worth fixing if a future grammar
+rule emits `greater`/`lessEq` directly, but out of scope of this check.
+
 Other loose ends, none of them blocking Chat: GSWB's reasoning endpoints
 don't carry provenance (sentence/solution/branch IDs) and aren't unified into
 one operation; batch deduction (`/gswb_batch_proof`) wasn't extended to
@@ -280,10 +319,30 @@ Worth knowing:
 - **Per-run log files**: `-log <dir>` (or `--logging.file.name=<path>`) after
   `-web` for either jar; `LOG_DIR` for vampire, which writes
   `LOG_DIR/<session key>.log` per request so a log lines up with that run's
-  `tmp/<session key>-<uuid>` proof directory. Note that Spring's `base.xml`
-  attaches its rolling `FILE` appender unconditionally, so without a path both
-  jars still write `${java.io.tmpdir}/spring.log` — see
+  proof directory (see below for the current chat-session tmp-dir layout). Note
+  that Spring's `base.xml` attaches its rolling `FILE` appender unconditionally,
+  so without a path both jars still write `${java.io.tmpdir}/spring.log` — see
   `docs/plans/LOGGING_HYGIENE_PLAN.md` for why that was left alone.
+- **Vampire tmp-dir layout is session/turn-scoped for chat, flat for regression
+  batches.** Chat's `/vampire_request` calls (`inference/vampire_models.py`'s
+  `VampireRequest.session_key`/`turn_index`, sent by the Angular chat component)
+  are grouped under `tmp/<session_key>/turn-<NNN>/<call-uuid>/...` — one
+  directory per chat conversation, one subfolder per turn — so `VAMPIRE_KEEP_TPTP`
+  output for a whole conversation can be correlated back to it just from the
+  directory name (the chat session id is timestamp-based and shown discreetly in
+  the Chat tab). Callers that don't send `session_key`/`turn_index` (the
+  regression/batch `/vampire_multiple_request` path, and the local test harness
+  in `inference/vampire_test/`) keep the old flat `tmp/<session_key>-<uuid>`
+  layout, unchanged. See `inference/run_vampire.py`'s `_make_vampire_tmp_root`.
+  **Fixed 2026-08-18**: `vampire_endpoints.py`'s startup hook used to
+  unconditionally wipe every child of `tmp/` on every container start
+  (`clear_tptp_base_dir`) — a leftover from the old per-call-UUID design, where
+  nothing meaningful ever spanned a restart. Under the session/turn layout this
+  silently destroyed a conversation's already-completed turns the next time the
+  vampire container restarted mid-conversation (e.g. rebuilding the service
+  while testing), so a 3-turn chat could end up with only its last turn's
+  directory on disk. The hook now only ensures `tmp/` exists
+  (`run_vampire.ensure_tptp_base_dir`) and never deletes existing content.
 - **The checked-in jars predate this**: `jars/liger.jar` and `jars/gswb.jar` still
   carry the old DEBUG-by-default config until rebuilt
   (`mvn -o package -DskipTests` in the sibling repo, then copy into `jars/`).
@@ -315,6 +374,7 @@ Worth knowing:
 | `GlueSemWorkbench_v2` | `docs/plans/todo.md` | `combinePremises` provenance bug half-fixed (still live via `History.calculateSolutions`); lexicon/Lev-prover backlog open |
 | `liger`/`GlueSemWorkbench_v2`/`LFGxDRT` | `docs/bug_reports/liger_rule_mc_indices_leak_into_meaning.md` | All four gaps now fixed (2026-08-13). Index-leak root cause: `GlueParser`/`DrsParser`'s `SOURCE_INDEX_PREFIX` was numeric-only, leaking alphanumeric LiGER-rule labels (`[a1]`, `[f4]`, ...) into the parsed meaning — both now strip any bracketed label, only populating a source index when numeric. Three more gaps found while testing, also fixed: `liger`'s `Rule.splitGoal()` was unconditionally dropping every `\` in a rule's GLUE value instead of only before `&` (user's own hypothesis, confirmed); `degree_rules_lfgxdrt.liger`'s two comparative-degree rules used the Prolog-notation `not` instead of LFGxDRT's `~` for negation (grammar-authoring mistake, not a parser gap); `DrsParser` had no support for quoted proper-name literals (`x='pc-6082'`), now handled via a new `LambdaConstant.quoted` flag. `GlueParserSourceIndexTest`/`testMcIndexLeakRoundTrip`/`testDrsParser`/`RuleParserTest` all green, pre-existing unrelated `testDrsGraph`/`testDrsExpressions` failures confirmed unchanged. `jars/gswb.jar` rebuilt+copied for the index-leak fix only (2026-08-13 first pass); **not yet rebuilt** for this second pass's three fixes (`liger`/`GlueParser`/`DrsParser` source changed since) — rebuild pending user confirmation |
 | `xleplusglue-client` | `docs/plans/regression-backend-detach-plan.md` | Explicitly "postponed" by its own header; confirm still wanted |
+| `liger` | `docs/bug_reports/liger_packed_mc_blank_line.md` | Fixed 2026-08-17: `GlueSemantics.parseMCfromPackedProlog()` left a stray `""` reading-placeholder unresolved for packed/ambiguous determiner MCs whose only non-ANT/CONS reading came from `NOSCOPE`/`INSITU`, printing as a blank line before the closing `}` in `returnMeaningConstructors()`'s output (seen on the FraCaS comparative-degree sentences). Latent since 2024, not caused by recent LFGxDRT work. Regression test added to `SyntheticMcIndexTest`; full `liger` suite green (123 run, 0 failures) |
 
 Archived (done or superseded, kept for rationale — not live work): see each
 `docs/archive/` folder's own `README.md` manifest.

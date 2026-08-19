@@ -29,13 +29,13 @@
 #x ADJUNCT #n in_set #a & #x PRED %x &
 #a ATYPE 'attributive' &
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
-==> #d GLUE (\P.([d],[]) + ([],[greater(d,th_strip(%a)('strip(%x)'))]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
+==> #d GLUE (\P.([d:d],[]) + ([],[greater(d,th_strip(%a)('strip(%x)'))]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
 // predicative
 #x PREDLINK #a & #x PRED %x &
 #a ATYPE 'predicative' &
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
-==> #d GLUE (\P.([d],[]) + ([],[greater(d,th_strip(%a)('strip(%x)'))]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
+==> #d GLUE (\P.([d:d],[]) + ([],[greater(d,th_strip(%a)('strip(%x)'))]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
 //Added noscope to arg1s. Needs evaluation
 //Comparative rule for attributive uses
@@ -44,7 +44,7 @@
 #a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
 ==>
 #o DEGREE #x & #o DEGREE-HOLDER #y &
-#d GLUE (\P.(\Q.(\e.([d],[]) + P@d@e + ([],[~(([v],[]) + Q@d@v)])))) :
+#d GLUE (\P.(\Q.(\e.([d:d],[]) + P@d@e + ([],[~(([v],[]) + Q@d@v)])))) :
 		((#d_d -o (#b_e -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_e -o #b_t))) || noscope &
 #m GLUE (\d.(\e.([],[strip(%p)(e,d)]))) : (#x_d -o (#y_v -o #m_t)) &
 #n GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) :
@@ -56,7 +56,7 @@
 #a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
 ==>
 #o DEGREE #x & #o DEGREE-HOLDER #y &
-#d GLUE (\P.(\Q.(\e.([d],[]) + P@d@e + ([],[~(([v],[]) + Q@d@v)])))) :
+#d GLUE (\P.(\Q.(\e.([d:d],[]) + P@d@e + ([],[~(([v],[]) + Q@d@v)])))) :
 		((#d_d -o (#b_v -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_v -o #b_t))) || noscope &
 #m GLUE (\d.(\e.([],[strip(%p)(e,d)]))) : (#x_d -o (#y_v -o #m_t)) &
 #n GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) :
@@ -69,7 +69,7 @@
 #c OBL-COMP #m OBJ #n s:: #o
 ==>
 #o DEGREE #x & #o DEGREE-HOLDER #y &
-#d GLUE (\P.(\Q.(\e.([],[(([d],[]) + ([v],[]) + Q@d@v) -> P@d@e])))) :
+#d GLUE (\P.(\Q.(\e.([],[(([d:d],[]) + ([v],[]) + Q@d@v) -> P@d@e])))) :
 		((#d_d -o (#b_v -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_v -o #b_t))) || noscope &
 #m GLUE (\d.(\e.([],[strip(%p)(e,d)]))) : (#x_d -o (#y_v -o #m_t)) &
 #n GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) :

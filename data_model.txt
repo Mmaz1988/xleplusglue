@@ -1,0 +1,54 @@
+xleplus glue is a platform for semantic parsing based on XLE parsers.
+
+A LigerDocument can consist of one or multiple sentences.
+
+A single sentence can have multiple syntactic parses and each syntactic parse can have multiple semantic solutions. Furthermore, for each semantic solution multiple pragmatic annotations (e.g., pronoun mappings) may exist.
+
+Syntax and semantics can merge across sequences, pragmatic annotations need to be recalculated after creating a sequence.
+
+This means we want to merge all Syntax/Semantics pairs of a sentence or sequence with the linguistic annotation of a new sentence.
+
+
+SyntacticAnalysis ::=
+                  SYN_ID: String 
+		  STRUCTURE: LinguisticStructure (JSON)
+		  GRAPH: LigerWebGraph (JSON)
+
+SemanticAnalysis ::=
+                 SYNTACTIC_ORIGIN: String (refers to SYN_ID)
+		 SEM_ID: String 
+		 SEM_STRING: string
+		 STRUCTURE: LinguisticStructure (JSON)
+		 GRAPH: LigerWebGraph (JSON; as build in LFGxDRT)
+		 SEM_TYPE: String (prolog or lfgxdrt or potentially other) 
+		 { SVG: String | 
+		 PROLOG_RENDER: String }
+		 
+Sentence ::=
+	 ID: String
+	 TEXT: String
+	 SYNTAX: List<SyntacticAnalysis>
+	 SEMANTICS: List<SemanticAnalysis>
+	 SYNSEM_MAPPING: Map<String,String> (A Map from SYN_IDs to SEM_IDs)
+
+Sequence ::=
+	 ID: String
+	 TEXT: String
+	 SENTENCES: List<Sentence>
+	 SYNTAX: List<SyntacticAnalysis> (merged syntax)
+	 SEMANTICS: List<SemanticAnalysis> (merged semantics)
+	 SYNSEM_MAPPING: Map<String,String>
+
+
+When merging two elements ( sentence + sentence, sequence + sentence, sequence + sequence) then for element S1 and element S2. Combine all syntactic elements of S1 with all syntactic elements of S2 via the sequencing workflow .For each pair S3 retrieve the semantics of the individual elements from the SYNSEM_MAP and merge them, to create a new SYNSEM_MAP for the sequence.
+
+DiscourseUpdate ::=
+        CONTEXT: {Sentence | Sequence}
+	UPDATE: {Sentence}
+	ANAPHORA_MAPPING: String (mapping encoded as parseable by LFGxDRT)
+	NLI_CHECKS: String (TPTP string generated from CONTEXT and UPDATE after applicaton of ANAPHORA_MA
+
+
+
+
+	 

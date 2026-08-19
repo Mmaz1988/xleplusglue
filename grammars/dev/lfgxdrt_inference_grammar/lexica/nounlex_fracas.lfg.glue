@@ -1,0 +1,193 @@
+NOUN ENGLISH LEXICON (1.0)
+
+
+"nouns"
+"most names and nouns because they are now handled via the morphology"
+
+
+
+"multiword nouns"
+
+New` York N *   (^ PRED)='New` York'
+                (^NUM)=sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM New` York).
+
+
+
+Nobel     NMod *  (^ PRED) = 'Nobel'
+             	  (^ TYPE) = kind.
+
+Eiffel     NMod *  (^ PRED) = 'Eiffel'
+             	  (^ TYPE) = kind.
+
+"nouns that can take an XCOMP" "eg. the right to appear"
+
+right	  N * (^PRED) = 'right<(^XCOMP)>'
+              "(^NUM) = pl  (^NTYPE)=count"; ETC.
+
+
+
+
+"countries"
+
+
+Swede      N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count
+                 @(COUNT-NOUN-SEM %stem).
+
+Scandinavian      N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count
+                 @(COUNT-NOUN-SEM %stem);
+                 A * @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = intersective.
+                    "Using ETC. with nouns leads to spurious ambiguity with UNKNOWN entry."
+
+Scandinavia     N *   @(PRED %stem)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem)
+                @DEF-NAME.
+
+Sweden     N *   @(PRED %stem)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem)
+                @DEF-NAME.
+ 
+Portugal   N *   @(PRED %stem)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem)
+                @DEF-NAME.
+
+
+European    N * {@(PRED %stem) | (^ PRED) = 'P<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count
+                @(COUNT-NOUN-SEM %stem)
+                ; ETC.
+
+Europeans    N * @(PRED %stem)
+                (^NUM) = pl
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count
+                @(COUNT-NOUN-SEM %stem).
+
+Europe     N *   @(PRED %stem)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = location
+                @(PROPER-NOUN-SEM %stem)
+                @DEF-NAME.
+
+
+
+"hardcoded words"
+
+people   N *    {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = pl
+                (^NTYPE NSYN) = common
+                (^NTYPE NSEM COMMON) = count
+                @(COUNT-NOUN-SEM %stem).
+
+Dumbo 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                          (^NUM) = sg
+                          (^NTYPE NSYN) = proper
+                          (^NTYPE NSEM PROPER) = name
+                          @(PROPER-NOUN-SEM %stem).
+
+Bill 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+              (^NUM) = sg
+              (^GENDER) = masc
+              (^NTYPE NSYN) = proper
+              (^NTYPE NSEM PROPER) = name
+               @(PROPER-NOUN-SEM %stem).
+
+Kim 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                          (^NUM) = sg
+                          (^NTYPE NSYN) = proper
+                          (^NTYPE NSEM PROPER) = name
+                          @(PROPER-NOUN-SEM %stem).
+
+Fido 	  N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                          (^NUM) = sg
+                          (^NTYPE NSYN) = proper
+                          (^NTYPE NSEM PROPER) = name
+                          @(PROPER-NOUN-SEM %stem).
+
+PC-6082   N *   {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM COMMON) = count
+                @(PROPER-NOUN-SEM %stem).
+
+ITEL-XZ   N *   {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM COMMON) = count
+                @(PROPER-NOUN-SEM %stem).
+
+ITEL-ZY   N *   {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM COMMON) = count
+                @(PROPER-NOUN-SEM %stem).
+
+ITEL-ZX   N *   {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM COMMON) = count
+                @(PROPER-NOUN-SEM %stem).
+
+MIPS 	  N *   {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = pl
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM COMMON) = count
+                @(PROPER-NOUN-SEM %stem).
+
+ITEL 	N *    {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM COMMON) = count
+                @(PROPER-NOUN-SEM %stem)
+                ;
+	    NMod *  (^ PRED) = 'ITEL'
+	            (^ TYPE) = kind.
+
+APCOM   N *     {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM COMMON) = count
+                @(PROPER-NOUN-SEM %stem)
+                ;
+        NMod *  (^ PRED) = 'APCOM'
+        	            (^ TYPE) = kind.
+
+Pavarotti   N * {@(PRED %stem) | (^ PRED) = '%stem<>(^SUBJ)'}
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = name
+                @(PROPER-NOUN-SEM %stem).
+
+Karma  N * @(PRED %stem)
+                (^NUM) = sg
+                (^NTYPE NSYN) = proper
+                (^NTYPE NSEM PROPER) = name
+                @(PROPER-NOUN-SEM %stem)
+                @DEF-NAME.
+
+
+
+
+
+----

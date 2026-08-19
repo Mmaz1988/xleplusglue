@@ -1,0 +1,13 @@
+// Parser-readable version of the constructor block
+{
+//Grammar
+lam(P,lam(Q,([], [(([X],[]) + P@X) -> Q@X]))) : ((10_e -o 10_t) -o ((10_e -o 12_t) -o 12_t))
+lam(X,([], [man(X)])) : (10_e -o 10_t)
+lam(P,P) : (12_t -o 14_t)
+lam(V,([], [hug(V)])) : (13_v -o 13_t)
+lam(V,([E],[]) + V@E) : ((13_v -o 13_t) -o 12_t)
+lam(V,lam(X,lam(E,V@E + ([], [arg1(E,X)])))) : ((13_v -o 13_t) -o (10_e -o (13_v -o 13_t))) || noscope
+lam(V,lam(X,lam(E,V@E + ([], [arg2(E,X)])))) : ((13_v -o 13_t) -o (5_e -o (13_v -o 13_t))) || noscope
+lam(P,lam(Q,([X],[]) + P@X + Q@X)) : ((5_e -o 5_t) -o ((5_e -o 12_t) -o 12_t))
+lam(X,([], [woman(X)])) : (5_e -o 5_t)
+}

@@ -1,0 +1,62 @@
+"
+  LFGxDRT inference grammar.
+
+  Development copy of grammars/demo/fracas_inference_grammar for use with
+  the LFGxDRT pipeline. The canonical editable source is this .lfg.glue
+  grammar; use it with semParser 2, processDRT 1, and mcEncoding 1.
+"
+
+DEMO   ENGLISH   CONFIG (1.0)
+  ROOTCAT   ROOT.  "changed to ROOT from S"
+  FILES morph_fracas.lfg
+
+        "templates"
+        templates/glue_fracas_grammar.lfg
+        templates/common.templates.lfg
+        templates/templates_fracas.lfg
+
+        "rules"
+        rules/coord_fracas_grammar.lfg
+        rules/modifier_fracas_grammar.lfg
+        rules/verb_fracas_grammar.lfg
+        rules/sentence_fracas_grammar.lfg
+        rules/noun_fracas_grammar.lfg
+
+        "lexica"
+        lexica/adj_adv_lex_fracas.lfg
+        lexica/verblex_fracas.lfg
+        lexica/functionlex_fracas.lfg
+        lexica/detpronlex_fracas.lfg
+        lexica/nounlex_fracas.lfg.
+  LEXENTRIES   (DEMO ENGLISH)
+               (MORPH ENGLISH)
+               (VERB ENGLISH)
+               (FUNCTION ENGLISH)
+               (DETPRON ENGLISH)
+               (NOUN ENGLISH)
+               (ADJADV ENGLISH).
+  TEMPLATES (DEMO ENGLISH) (GLUE BASIC) (STANDARD COMMON).  "added common ParGram templates"
+  RULES   (DEMO ENGLISH)
+          (MORPH ENGLISH)
+          (MODIFIER ENGLISH)
+          (VERB ENGLISH)
+          (SENTENCE ENGLISH)
+          (NOUN ENGLISH)
+          (COORD ENGLISH).
+  MORPHOLOGY (DEMO ENGLISH).
+  GOVERNABLERELATIONS    SUBJ OBJ OBJ2 COMP XCOMP OBL OBL-?+ PREDLINK.
+  SEMANTICFUNCTIONS    ADJUNCT  TOPIC FOCUS POSS STANDARD.
+  NONDISTRIBUTIVES   NUM PERS COORD-FORM.
+  EPSILON   e.
+  OPTIMALITYORDER NOGOOD   PPadj +PPpassiv +PPattach +Be-3pl +pass +adj +nmod +sg-imp.
+  GENOPTIMALITYORDER GenBadPunct NOGOOD +Punct.
+
+----
+
+DEMO   ENGLISH   RULES (1.0)
+
+----
+
+DEMO ENGLISH LEXICON (1.0)
+
+----
