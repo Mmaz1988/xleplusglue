@@ -507,7 +507,7 @@ def _single_vampire_request(request, session_key):
 
 
 def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
-                   max_duration, tmp_root, session_key):
+                   max_duration, tmp_root, session_key, on_branch=None):
     checks = []
     branch_index = 0
     for tptp_bundle in _item_value(nli_item, "tptp_checks", []):
@@ -528,6 +528,8 @@ def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
             proof_files=proof_files,
             assignment_id=_bundle_value(tptp_bundle, "assignment_id", "assignmentId")))
         branch_index += 1
+        if on_branch:
+            on_branch(checks)
     return checks
 
 
@@ -582,6 +584,17 @@ def _multiple_vampire_request(request, session_key):
         for id, nli_item in request.nli_items.items():
             _ensure_not_cancelled(session_key)
             if _item_value(nli_item, "tptp_checks"):
+                def _on_branch(checks_so_far, item_id=id):
+                    inference_results[item_id] = checks_so_far
+                    snapshot_progress("running", item_id)
+                    try:
+                        merge_and_save_last_session(
+                            session_key,
+                            {"results": {item_id: [item.dict() for item in checks_so_far]}},
+                        )
+                    except Exception:
+                        logger.warning("Unable to persist last_session to Redis CRUD service", exc_info=True)
+
                 inference_results[id] = _run_tptp_item(
                     nli_item,
                     _item_value(nli_item, "axioms", ""),
@@ -589,7 +602,8 @@ def _multiple_vampire_request(request, session_key):
                     vampire_mode,
                     max_duration,
                     tmp_root,
-                    session_key)
+                    session_key,
+                    on_branch=_on_branch)
                 snapshot_progress("running", id)
                 continue
             output_folder = os.path.join(tmp_root, "current")

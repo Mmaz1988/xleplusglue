@@ -8,6 +8,7 @@ import traceback
 import time
 import shutil
 import logging
+from urllib import error as urllib_error
 
 from logging_config import configure_logging
 from vampire_models import VampireRequest, VampireMultipleRequest
@@ -18,6 +19,7 @@ from vampire_redis_calls import (
     list_recent_sessions,
     load_last_session,
     load_regression_session,
+    load_vampire_progress,
     request_vampire_cancel,
     save_regression_session,
     summarize_last_session,
@@ -81,6 +83,9 @@ def process_vampire_request_multiple(request: VampireMultipleRequest):
     """
     API endpoint to process vampireRequest.
     """
+    if not request.nli_items:
+        raise HTTPException(status_code=400, detail="nli_items must not be empty")
+
     try:
         # run_vampire logs the request summary; this is only the arrival marker.
         logger.debug("Received multiple request: items=%d", len(request.nli_items))
@@ -89,6 +94,8 @@ def process_vampire_request_multiple(request: VampireMultipleRequest):
 
         return multiple_vampire_request(request)
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("Unhandled exception in multiple request", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
@@ -98,6 +105,9 @@ def process_vampire_request_multiple(request: VampireMultipleRequest):
 def get_last_session_summary():
     try:
         return summarize_last_session()
+    except urllib_error.URLError as e:
+        logger.error("Redis CRUD service unreachable", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
     except Exception as e:
         logger.error("Unable to load last session summary", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
@@ -107,8 +117,23 @@ def get_last_session_summary():
 def get_named_session_summary(session_key: str):
     try:
         return summarize_last_session(session_key)
+    except urllib_error.URLError as e:
+        logger.error("Redis CRUD service unreachable", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
     except Exception as e:
         logger.error("Unable to load named session summary", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.get("/vampire_progress/{session_key}")
+def get_vampire_progress(session_key: str):
+    try:
+        return load_vampire_progress(session_key)
+    except urllib_error.URLError as e:
+        logger.error("Redis CRUD service unreachable", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
+    except Exception as e:
+        logger.error("Unable to load Vampire progress", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
@@ -125,6 +150,9 @@ def cancel_vampire_progress(session_key: str):
 def get_named_session(session_key: str):
     try:
         return load_last_session(session_key)
+    except urllib_error.URLError as e:
+        logger.error("Redis CRUD service unreachable", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
     except Exception as e:
         logger.error("Unable to load named session", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

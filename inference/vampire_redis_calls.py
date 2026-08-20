@@ -45,10 +45,10 @@ def _call(path, method="GET", payload=None):
 
 
 def load_last_session(session_key="last_session"):
-    try:
-        return _call(f"/last_session/{session_key}")
-    except error.URLError:
-        return {"results": {}}
+    """Raises `urllib.error.URLError` (or a subclass, e.g. `HTTPError`) if the Redis CRUD
+    service is unreachable, rather than returning an empty session -- callers must be able
+    to tell "Redis is down" apart from "this session legitimately has no results"."""
+    return _call(f"/last_session/{session_key}")
 
 
 def save_last_session(payload, session_key="last_session"):
@@ -104,10 +104,9 @@ def delete_regression_session(session_key):
 
 
 def summarize_last_session(session_key="last_session"):
-    try:
-        return _call(f"/last_session/{session_key}/summary")
-    except error.URLError:
-        return {"item_count": 0, "proof_count": 0}
+    """Raises `urllib.error.URLError` if the Redis CRUD service is unreachable -- see
+    `load_last_session`'s docstring for why this must not degrade to a zero-item summary."""
+    return _call(f"/last_session/{session_key}/summary")
 
 
 def merge_and_save_last_session(session_key, payload):

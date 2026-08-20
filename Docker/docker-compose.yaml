@@ -54,7 +54,8 @@ services:
     volumes:
       - ../inference/tmp:/vampire/tmp
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
   gswb:
     build:
       dockerfile: Docker/Dockerfile-gswb
