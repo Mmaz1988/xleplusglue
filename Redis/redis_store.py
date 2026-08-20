@@ -319,6 +319,7 @@ def _prepare_regression_session_payload(session_key, payload):
     metadata.setdefault("testsuiteUpdateMode", "write")
     metadata["hasRunVampire"] = bool(metadata.get("hasRunVampire"))
     metadata["disambiguationMode"] = bool(metadata.get("disambiguationMode"))
+    metadata["enableDisambiguation"] = bool(metadata.get("enableDisambiguation"))
     prepared["metadata"] = metadata
 
     inputs = dict(_section(prepared, "inputs"))
