@@ -150,6 +150,62 @@ def test_tptp_branch_persists_last_session_and_snapshots_progress():
     check(final_snapshot["proofCount"] == 2, "both branches' checks are counted")
 
 
+def test_item_with_empty_tptp_checks_does_not_crash_the_batch():
+    """A regression client sends every prepared item, including ones whose reading-pair
+    preparation produced zero checks (`nliPreparationFailures` on the client) -- it does
+    `tptp_checks: item.tptp_checks ?? []`, never omitting the key. Before this fix,
+    `_item_value(nli_item, "tptp_checks")` treated that `[]` as falsy and routed the item
+    into the legacy Prolog/DRS branch, which assumes at least one premise and crashed on
+    `nli_item['premises'][0]` of an empty list -- an unhandled 500 that lost every other
+    item's progress in the same batch, not just this one's."""
+    saved_sessions = []
+
+    def fake_merge_and_save_last_session(session_key, payload):
+        saved_sessions.append((session_key, payload))
+        return {"status": "ok"}
+
+    def fake_load_vampire_progress(session_key):
+        return {"sessionKey": session_key, "cancelRequested": False, "state": "running"}
+
+    def fake_save_vampire_progress(session_key, payload):
+        return payload
+
+    request = VampireMultipleRequest(
+        nli_items={
+            "item-ok": {
+                "tptp_checks": [
+                    {"checks": {
+                        "info_pos_check": {"tptp": "$true"},
+                        "info_neg_check": {"tptp": "$true"},
+                        "cons_pos_check": {"tptp": "$true"},
+                        "cons_neg_check": {"tptp": "$true"},
+                    }, "assignment_id": "a1"},
+                ],
+            },
+            "item-empty": {
+                "tptp_checks": [],
+            },
+        },
+        pruning=False,
+        vampire_preferences={"logic_type": 0, "model_building": False, "max_duration": 5},
+        session_key="test-empty-tptp-session",
+    )
+
+    with _Patches(
+        run_tptp_vampire_batch=_fake_run_tptp_vampire_batch,
+        discourse_checks=_fake_discourse_checks,
+        generate_svg_glyph=_fake_generate_svg_glyph,
+        merge_and_save_last_session=fake_merge_and_save_last_session,
+        load_vampire_progress=fake_load_vampire_progress,
+        save_vampire_progress=fake_save_vampire_progress,
+    ):
+        result = run_vampire._multiple_vampire_request(request, "test-empty-tptp-session")
+
+    check(result == {"status": "ok"}, "the batch completes instead of raising an IndexError")
+    saved_item_ids = {key for _, payload in saved_sessions for key in payload["results"]}
+    check("item-ok" in saved_item_ids, "the normal item still persists its result")
+
+
 def test_empty_batch_is_rejected_by_the_endpoint():
     from fastapi.testclient import TestClient
     import vampire_endpoints

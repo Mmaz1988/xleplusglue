@@ -591,7 +591,14 @@ def _multiple_vampire_request(request, session_key):
     try:
         for id, nli_item in request.nli_items.items():
             _ensure_not_cancelled(session_key)
-            if _item_value(nli_item, "tptp_checks"):
+            # Presence of the key, not truthiness of its value: an lfgxdrt item whose
+            # reading-pair preparation failed on the client (see nliPreparationFailures in
+            # the regression component) is sent with tptp_checks=[] rather than omitted, so
+            # this item still has zero checks to contribute, not "not a TPTP item". Treating
+            # `[]` as falsy used to route it into the legacy Prolog/DRS branch below instead,
+            # which assumes at least one premise and crashed the whole batch (including
+            # every already-completed item's progress) on `premises[0]` of an empty list.
+            if _item_value(nli_item, "tptp_checks", None) is not None:
                 def _on_branch(checks_so_far, item_id=id):
                     inference_results[item_id] = checks_so_far
                     snapshot_progress("running", item_id)
@@ -617,6 +624,16 @@ def _multiple_vampire_request(request, session_key):
                 continue
             output_folder = os.path.join(tmp_root, "current")
             # merge premises into one drs
+
+            if not nli_item.get('premises') or not nli_item.get('hypothesis'):
+                # A malformed/empty item must not take the rest of the batch down with it --
+                # everything already merged into last_session for prior items in this
+                # request is otherwise lost to the resulting 500.
+                logger.warning("Skipping NLI item %s: empty premises or hypothesis", id)
+                inference_results[id] = []
+                completed_item_ids.append(id)
+                snapshot_progress("running", id)
+                continue
 
             if len(nli_item['premises']) > 1:
                 while len(nli_item['premises']) > 1:
