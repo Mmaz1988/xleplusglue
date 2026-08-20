@@ -131,6 +131,19 @@ def test_tptp_branch_persists_last_session_and_snapshots_progress():
     check(running_snapshots[0]["proofCount"] == 1, "the first branch's proofCount is visible immediately")
     check(running_snapshots[1]["proofCount"] == 2, "the second branch's proofCount accumulates")
 
+    # itemCount must count items whose FULL branch set has finished, not items that have
+    # merely started -- a single item with several branches used to make itemCount jump to
+    # len(inference_results) (1) the instant its *first* branch completed, showing the
+    # progress bar at 100% (itemCount == totalItemCount == 1) long before the item was
+    # actually done. Only the post-item snapshot (after all of this item's branches ran)
+    # may report itemCount == 1.
+    check(running_snapshots[0]["itemCount"] == 0,
+          "itemCount does not count a partially-finished item as done")
+    check(running_snapshots[1]["itemCount"] == 0,
+          "itemCount stays 0 even after the item's last branch, until the item-level snapshot fires")
+    check(running_snapshots[-1]["itemCount"] == 1,
+          "itemCount becomes 1 only once the whole item's branch set has finished")
+
     final_snapshot = progress_snapshots[-1]
     check(final_snapshot["state"] == "completed", "the run ends in a completed snapshot")
     check(final_snapshot["itemCount"] == 1, "one item was processed")

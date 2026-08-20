@@ -564,6 +564,14 @@ def _multiple_vampire_request(request, session_key):
 
     # Inference id to Check
     inference_results = {}
+    # Items whose FULL check set (every TPTP branch, or every premise/hypothesis pair) has
+    # finished -- distinct from inference_results, which gets an entry as soon as an item's
+    # *first* branch/pair completes. itemCount used to be len(inference_results), so a
+    # single multi-branch item (e.g. the 8-branch modus ponens case) reached "itemCount ==
+    # totalItemCount" the instant its first branch finished, showing 100% long before the
+    # run was actually done. proofCount (a Check per branch/pair, counted as they land) does
+    # not have this problem and is left as-is.
+    completed_item_ids = []
 
     def snapshot_progress(state: str, active_item_id=None):
         _update_vampire_progress(
@@ -571,9 +579,9 @@ def _multiple_vampire_request(request, session_key):
             state=state,
             cancelRequested=(state == "cancelled"),
             activeItemId=active_item_id,
-            itemCount=len(inference_results),
+            itemCount=len(completed_item_ids),
             proofCount=sum(len(check_list) for check_list in inference_results.values()),
-            completedItemIds=list(inference_results.keys()),
+            completedItemIds=list(completed_item_ids),
             itemResults={key: [item.dict() for item in checks] for key, checks in inference_results.items()},
             totalItemCount=len(request.nli_items),
         )
@@ -604,6 +612,7 @@ def _multiple_vampire_request(request, session_key):
                     tmp_root,
                     session_key,
                     on_branch=_on_branch)
+                completed_item_ids.append(id)
                 snapshot_progress("running", id)
                 continue
             output_folder = os.path.join(tmp_root, "current")
@@ -712,6 +721,7 @@ def _multiple_vampire_request(request, session_key):
                             snapshot_progress("running", id)
 
             inference_results[id] = inference_checks
+            completed_item_ids.append(id)
             snapshot_progress("running", id)
 
         snapshot_progress("completed")
