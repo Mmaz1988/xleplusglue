@@ -44,6 +44,43 @@ def _call(path, method="GET", payload=None):
         raise RedisApiError(exc.code, detail) from exc
 
 
+def _call_raw(path, method="GET", timeout=120):
+    """Fetch a response body WITHOUT parsing it.
+
+    A pass-through proxy has no business deserializing a large session just to
+    re-serialize it. Measured 2026-08-21 on an 11 MB regression session: 1.65s straight
+    from the store versus **23.8s** through this hop, because `json.loads` plus FastAPI's
+    `jsonable_encoder`/`json.dumps` walk every node of the document twice for no reason.
+    That 24s was long enough to blow the client's request timeout, so loading the session
+    failed outright.
+
+    Errors are surfaced exactly as `_call` does, so the store's own status (notably a 409
+    schema refusal) still reaches the caller.
+    """
+    url = f"{_crud_base_url()}{path}"
+    req = request.Request(url, method=method)
+    try:
+        with request.urlopen(req, timeout=timeout) as resp:
+            return resp.read()
+    except error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        try:
+            detail = json.loads(body).get("detail", body)
+        except (json.JSONDecodeError, AttributeError):
+            detail = body
+        raise RedisApiError(exc.code, detail) from exc
+
+
+def load_regression_session_raw(session_key):
+    """The stored session as raw JSON bytes, for pass-through to the client."""
+    return _call_raw(f"/regression_session/{session_key}")
+
+
+def load_last_session_raw(session_key="last_session"):
+    """The stored Vampire results as raw JSON bytes, for pass-through to the client."""
+    return _call_raw(f"/last_session/{session_key}")
+
+
 def load_last_session(session_key="last_session"):
     """Raises `urllib.error.URLError` (or a subclass, e.g. `HTTPError`) if the Redis CRUD
     service is unreachable, rather than returning an empty session -- callers must be able

@@ -1,6 +1,6 @@
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import re
@@ -19,7 +19,9 @@ from vampire_redis_calls import (
     delete_regression_session,
     list_recent_sessions,
     load_last_session,
+    load_last_session_raw,
     load_regression_session,
+    load_regression_session_raw,
     load_vampire_progress,
     request_vampire_cancel,
     save_regression_session,
@@ -172,7 +174,10 @@ def cancel_vampire_progress(session_key: str):
 @app.get("/last_session/{session_key}")
 def get_named_session(session_key: str):
     try:
-        return load_last_session(session_key)
+        # Raw pass-through, same reason as the regression session: a completed run's
+        # results are large and this hop only relays them.
+        return Response(content=load_last_session_raw(session_key),
+                        media_type="application/json")
     except urllib_error.URLError as e:
         logger.error("Redis CRUD service unreachable", exc_info=True)
         raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
@@ -203,7 +208,10 @@ def get_regression_sessions():
 @app.get("/regression_session/{session_key}")
 def get_regression_session(session_key: str):
     try:
-        return load_regression_session(session_key)
+        # Raw pass-through: parsing and re-encoding a large session here cost 22 of the
+        # 24 seconds this endpoint used to take. See load_regression_session_raw.
+        return Response(content=load_regression_session_raw(session_key),
+                        media_type="application/json")
     except RedisApiError as e:
         # Forward the store's own status. A schema refusal (409) turned into a 500 here
         # would tell the client "the server is broken" instead of "this session is newer
