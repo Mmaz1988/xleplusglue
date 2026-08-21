@@ -15,6 +15,7 @@ from vampire_models import VampireRequest, VampireMultipleRequest
 from vampire_redis_calls import (
     RedisApiError,
     clear_last_session,
+    clear_vampire_progress,
     delete_regression_session,
     list_recent_sessions,
     load_last_session,
@@ -134,6 +135,28 @@ def get_vampire_progress(session_key: str):
         raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
     except Exception as e:
         logger.error("Unable to load Vampire progress", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.delete("/vampire_progress/{session_key}")
+def delete_vampire_progress(session_key: str):
+    """Drop a finished run's progress record.
+
+    The record is only cleared automatically on cancel, so after a normal run it stays
+    in Redis describing a COMPLETED run (itemCount == totalItemCount). The client polls
+    progress immediately when it starts a new run -- before this service has written its
+    own first "running" snapshot -- and read that stale record as if it were the new
+    run's, showing a full progress bar for the first couple of seconds until the real
+    snapshot landed. Clearing before submitting makes that first read return nothing,
+    which the client renders as 0%.
+    """
+    try:
+        return clear_vampire_progress(session_key)
+    except urllib_error.URLError as e:
+        logger.error("Redis CRUD service unreachable", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
+    except Exception as e:
+        logger.error("Unable to clear Vampire progress", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
