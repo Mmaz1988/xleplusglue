@@ -283,14 +283,14 @@ No D * @(SPEC-QUANT-PRED no)
        @(SPEC-QUANT-TYPE negative)
        (^ DEF) = -
        @(QUANT-SCOPE ^ %q)
-       :$ (\P.(\Q.([],[not(([x],[]) + P@x + Q@x)]))) :
+       :$ (\P.(\Q.([],[~(([x],[]) + P@x + Q@x)]))) :
               	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 no D * @(SPEC-QUANT-PRED no)
        @(SPEC-QUANT-TYPE negative)
        (^ DEF) = -
        @(QUANT-SCOPE ^ %q)
-       :$ (\P.(\Q.([],[not(([x],[]) + P@x + Q@x)]))) :
+       :$ (\P.(\Q.([],[~(([x],[]) + P@x + Q@x)]))) :
        	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Nobody N * (^ PRED) = 'nobody'

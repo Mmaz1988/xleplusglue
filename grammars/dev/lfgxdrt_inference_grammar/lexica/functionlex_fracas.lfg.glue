@@ -99,12 +99,12 @@ or 	  CONJ * @(COORD-FORM %stem);
 
 not   NEG * @(PRED not)
             @(QUANT-SCOPE ^ %q)
-            :$ (\P.([],[not(P)])) :
+            :$ (\P.([],[~(P)])) :
             (%q_t -o %q_t).
 
 Not   NEG * @(PRED not)
             @(QUANT-SCOPE ^ %q)
-            :$ (\P.([],[not(P)])) :
+            :$ (\P.([],[~(P)])) :
             (%q_t -o %q_t).
 
 "nominal modifiers"

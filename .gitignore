@@ -60,3 +60,7 @@ __pycache__/
 /testsuites/*.errors~
 /testsuites/parsing/*.errors~
 /testsuites/inference/*.errors~
+
+# Agents and plans
+*.md
+docs/*
