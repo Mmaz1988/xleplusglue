@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 from datetime import datetime, timezone
@@ -242,11 +243,14 @@ class UnsupportedSchemaVersion(Exception):
         )
 
 
-# v3 embeds an XlePlusGlueDocument under analysis.document and derives the parse/
-# inference result views from it; v2 keeps them as three parallel arrays. Both are
-# readable. See docs/plans/REGRESSION_V3_HANDOFF.md.
-REGRESSION_SCHEMA_VERSION = 3
-SUPPORTED_REGRESSION_SCHEMA_VERSIONS = (2, 3)
+# v4 holds one XlePlusGlueDocument PER NLI ITEM under analysis.documents (keyed by item
+# id, or by sentence id for a parse-only run); v3 held a single session-wide document
+# under analysis.document; v2 kept the result views as three parallel arrays. All three
+# are readable. See docs/plans/SHARED_PIPELINE_PLAN.md Stage 3 for why per-item: one
+# document is one discourse, and two items quoting the same sentence must each hold their
+# own SentenceAnalysis because the same sentence may be disambiguated differently per item.
+REGRESSION_SCHEMA_VERSION = 4
+SUPPORTED_REGRESSION_SCHEMA_VERSIONS = (2, 3, 4)
 
 
 def _declared_schema_version(payload):
@@ -262,7 +266,7 @@ def _declared_schema_version(payload):
 
 
 def _empty_analysis_document():
-    """The v3 document skeleton.
+    """One document skeleton.
 
     Field names mirror XlePlusGlueDocument in the client's models.ts, which is what
     actually goes over the wire (`sentences`/`sequences`/`elements`), not the uppercase
@@ -280,24 +284,115 @@ def _empty_analysis_document():
     }
 
 
-def _upgrade_regression_session_to_v3(payload):
-    """v2 -> v3, on read, without touching what is stored.
+def _item_ids_for_session(payload):
+    """The NLI item ids a session's testsuite declares, with the sentence ids each covers.
 
-    v2 sessions stay readable rather than becoming read-only: the dashboard lists every
+    Used to partition a v3 session's single document. Returns a list of
+    (document_id, {sentence ids}) pairs.
+    """
+    system = _section(_section(payload, "analysis"), "system")
+    items = system.get("regressionTestItems")
+    if not isinstance(items, list):
+        return []
+    partitions = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        item_id = item.get("id")
+        if item_id in (None, ""):
+            continue
+        premises = item.get("premises") if isinstance(item.get("premises"), list) else []
+        conclusion = item.get("conclusion") if isinstance(item.get("conclusion"), list) else []
+        partitions.append((str(item_id), {str(sid) for sid in [*premises, *conclusion]}))
+    return partitions
+
+
+def _partition_document_by_item(document, partitions):
+    """v3's single document -> one document per NLI item.
+
+    Recoverable without extra bookkeeping: a ReasoningUpdate names its own `itemId`, a
+    Sequence's `sentenceIds` say which item it belongs to, and a Sentence belongs to every
+    item whose premises/conclusion mention it. A sentence used by two items is COPIED into
+    both, which is the v4 model rather than a workaround -- the same sentence may be
+    disambiguated differently per item, so the two copies are genuinely different objects.
+    """
+    document = document if isinstance(document, dict) else {}
+    sentences = document.get("sentences") if isinstance(document.get("sentences"), list) else []
+    sequences = document.get("sequences") if isinstance(document.get("sequences"), list) else []
+    updates = document.get("reasoningUpdates") if isinstance(document.get("reasoningUpdates"), list) else []
+    discourse = document.get("discourseUpdates") if isinstance(document.get("discourseUpdates"), list) else []
+
+    sentences_by_id = {
+        str(sentence.get("id")): sentence
+        for sentence in sentences
+        if isinstance(sentence, dict) and sentence.get("id") not in (None, "")
+    }
+
+    documents = {}
+    for document_id, sentence_ids in partitions:
+        own_sentences = [
+            copy.deepcopy(sentences_by_id[sid])
+            for sid in sentence_ids
+            if sid in sentences_by_id
+        ]
+        own_sequences = [
+            sequence for sequence in sequences
+            if isinstance(sequence, dict)
+            and sentence_ids.issuperset({str(sid) for sid in (sequence.get("sentenceIds") or [])})
+            and (sequence.get("sentenceIds") or [])
+        ]
+        own_sequence_ids = {str(sequence.get("id")) for sequence in own_sequences}
+        own_updates = [
+            update for update in updates
+            if isinstance(update, dict) and str(update.get("itemId") or "") == document_id
+        ]
+        own_discourse = [
+            entry for entry in discourse
+            if isinstance(entry, dict) and str(entry.get("sourceElementId") or "") in own_sequence_ids
+        ]
+        item_document = _empty_analysis_document()
+        item_document["id"] = f"{document.get('id') or 'analysis'}-{document_id}"
+        item_document["sentences"] = own_sentences
+        item_document["sequences"] = own_sequences
+        item_document["elements"] = (
+            [{"kind": "sentence", "id": str(sentence.get("id"))} for sentence in own_sentences]
+            + [{"kind": "sequence", "id": str(sequence.get("id"))} for sequence in own_sequences]
+        )
+        item_document["reasoningUpdates"] = own_updates
+        item_document["discourseUpdates"] = own_discourse
+        documents[document_id] = item_document
+    return documents
+
+
+def _upgrade_regression_session(payload, from_version):
+    """v2 or v3 -> v4, on read, without touching what is stored.
+
+    Older sessions stay readable rather than becoming read-only: the dashboard lists every
     stored session and a session it can list but not open is worse than one it silently
-    mis-parses. The upgrade is in-memory only -- the stored payload stays v2 until the
-    client saves it back, at which point it is written as v3.
+    mis-parses. The upgrade is in-memory only -- the stored payload keeps its own version
+    until the client saves it back, at which point it is written as v4.
     """
     upgraded = dict(payload or {})
     analysis = dict(_section(upgraded, "analysis"))
-    analysis.setdefault("document", _empty_analysis_document())
+
     # v2 wrote either spelling depending on which client version saved it. Settle it here
     # so the reader does not have to sniff keys.
     if "saveState" in analysis and "save_state" not in analysis:
         analysis["save_state"] = analysis.pop("saveState")
+
+    if from_version == 2:
+        analysis["documents"] = {}
+    else:
+        partitions = _item_ids_for_session(upgraded)
+        legacy = analysis.pop("document", None)
+        analysis["documents"] = (
+            _partition_document_by_item(legacy, partitions) if partitions else {}
+        )
+    analysis.pop("document", None)
+
     upgraded["analysis"] = analysis
     upgraded["schemaVersion"] = REGRESSION_SCHEMA_VERSION
-    upgraded["upgradedFrom"] = 2
+    upgraded["upgradedFrom"] = from_version
     return upgraded
 
 
@@ -353,17 +448,27 @@ def _prepare_regression_session_payload(session_key, payload):
     analysis["system"] = system
     analysis["human"] = human
     analysis["save_state"] = save_state
-    if version >= 3:
-        # The document is v3's own carrier for reasoning results. It is defaulted, never
-        # synthesized from the arrays above: only the client can build a real one.
+    if version >= 4:
+        # v4's carrier for reasoning results: one document per NLI item. Defaulted to an
+        # empty map, never synthesized from the arrays above -- only the client can build
+        # real documents, and inventing a partition here would guess at item membership.
+        analysis.setdefault("documents", {})
+    elif version == 3:
         analysis.setdefault("document", _empty_analysis_document())
     prepared["analysis"] = analysis
 
     return prepared
 
 
-def _reasoning_assignment_count(document):
-    updates = document.get("reasoningUpdates") if isinstance(document, dict) else None
+def _reasoning_assignment_count(documents):
+    """Total assignments across every per-item document (v4), or across the single
+    document a v3 session carries. Accepts either shape so the listing keeps working
+    while both exist."""
+    if isinstance(documents, dict) and not any(
+            key in documents for key in ("reasoningUpdates", "sentences", "sequences")):
+        return sum(_reasoning_assignment_count(document)
+                   for document in documents.values() if isinstance(document, dict))
+    updates = documents.get("reasoningUpdates") if isinstance(documents, dict) else None
     if not isinstance(updates, list):
         return 0
     return sum(_safe_len(update.get("assignments")) for update in updates
@@ -373,13 +478,19 @@ def _reasoning_assignment_count(document):
 def _build_session_summary(session_key, payload):
     metadata = _section(payload, "metadata")
     system = _section(payload, "analysis", "system")
-    document = _section(payload, "analysis", "document")
-    # v3 derives the inference view from the document's reasoning updates, so the listing
-    # counts whichever of the two a session actually carries. The dashboard must keep
-    # listing v2 and v3 sessions side by side; a v3 session showing "0 inferences"
-    # because it stopped writing the old array would read as a broken run.
-    inference_count = _safe_len(system.get("inferenceResults")) \
-        or _safe_len(document.get("reasoningUpdates"))
+    analysis = _section(payload, "analysis")
+    # v3/v4 derive the inference view from reasoning updates, so the listing counts
+    # whichever of the two a session actually carries. The dashboard must keep listing v2,
+    # v3 and v4 sessions side by side; a session showing "0 inferences" because it stopped
+    # writing the old array would read as a broken run.
+    documents = analysis.get("documents")
+    if isinstance(documents, dict):
+        update_count = sum(
+            _safe_len(document.get("reasoningUpdates"))
+            for document in documents.values() if isinstance(document, dict))
+    else:
+        update_count = _safe_len(_section(payload, "analysis", "document").get("reasoningUpdates"))
+    inference_count = _safe_len(system.get("inferenceResults")) or update_count
     return {
         "sessionKey": session_key,
         "schemaVersion": _declared_schema_version(payload),
@@ -392,7 +503,9 @@ def _build_session_summary(session_key, payload):
         "inferenceCount": inference_count,
         "hasParseResults": _safe_len(system.get("regressionTestResults")) > 0,
         "hasInferenceResults": inference_count > 0,
-        "assignmentCount": _reasoning_assignment_count(document),
+        "assignmentCount": _reasoning_assignment_count(
+            documents if isinstance(documents, dict)
+            else _section(payload, "analysis", "document")),
     }
 
 
@@ -455,8 +568,8 @@ def load_regression_session(session_key, client=None):
     version = _declared_schema_version(payload)
     if version == REGRESSION_SCHEMA_VERSION:
         return payload
-    if version == 2:
-        return _upgrade_regression_session_to_v3(payload)
+    if version in (2, 3):
+        return _upgrade_regression_session(payload, version)
     raise UnsupportedSchemaVersion(version)
 
 
