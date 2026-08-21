@@ -65,79 +65,37 @@ def check(condition, message):
     print(f"  ok: {message}")
 
 
-def test_v2_is_upgraded_on_read_without_rewriting_the_store():
+def test_v2_is_refused_rather_than_upgraded():
+    """v2/v3 support was deleted together with the store's contents (2026-08-21).
+
+    The only stored sessions were testing artifacts, and carrying migration code for data
+    that no longer exists means maintaining a path nothing exercises until it silently
+    rots. Refused loudly, never read with the wrong field expectations.
+    """
     client = FakeRedis()
     client.set("regression_session:s1", json.dumps(v2_session()))
 
-    loaded = load_regression_session("s1", client=client)
-    check(loaded["schemaVersion"] == REGRESSION_SCHEMA_VERSION, "v2 reads back as the current version")
-    check(loaded["upgradedFrom"] == 2, "the upgrade is declared, not silent")
-    check(loaded["analysis"]["documents"] == {},
-          "an upgraded v2 session gets an empty documents map, not a missing one")
-    check("document" not in loaded["analysis"],
-          "the v3 single-document key does not survive the upgrade")
-    check(loaded["analysis"]["save_state"]["lastLogicType"] == "tff",
-          "the saveState/save_state spelling is settled on read")
-    check(json.loads(client.get("regression_session:s1"))["schemaVersion"] == 2,
-          "the stored payload is untouched until the client saves it back")
+    try:
+        load_regression_session("s1", client=client)
+    except UnsupportedSchemaVersion as error:
+        check(error.version == 2, "the refusal names the version it found")
+    else:
+        raise AssertionError("a v2 session was read instead of being refused")
 
 
-def test_v3_is_partitioned_into_one_document_per_item_on_read():
-    """v3 held ONE session-wide document; v4 holds one per NLI item.
-
-    The partition is recoverable without extra bookkeeping: a ReasoningUpdate names its
-    own itemId, a Sequence's sentenceIds say which item it belongs to, and a Sentence
-    belongs to every item quoting it. A sentence used by two items is COPIED into both --
-    that duplication is the v4 model, since the same sentence may be disambiguated
-    differently per item.
-    """
+def test_v3_is_refused_rather_than_upgraded():
     client = FakeRedis()
-    payload = v2_session()
-    payload["schemaVersion"] = 3
-    payload["analysis"]["system"]["regressionTestItems"] = [
-        {"id": "n0", "premises": ["S1", "S2"], "conclusion": ["S3"]},
-        {"id": "n1", "premises": ["S1"], "conclusion": ["S4"]},
-    ]
-    payload["analysis"]["document"] = {
-        "id": "analysis-s2",
-        "sentences": [{"id": sid, "text": sid} for sid in ("S1", "S2", "S3", "S4")],
-        "sequences": [
-            {"id": "S1+S2+S3", "sentenceIds": ["S1", "S2", "S3"]},
-            {"id": "S1+S4", "sentenceIds": ["S1", "S4"]},
-        ],
-        "elements": [],
-        "discourseUpdates": [{"id": "du-S1+S4", "sourceElementId": "S1+S4"}],
-        "reasoningUpdates": [
-            {"id": "ru-n0", "itemId": "n0", "assignments": [{"id": "a1"}, {"id": "a2"}]},
-            {"id": "ru-n1", "itemId": "n1", "assignments": [{"id": "a3"}]},
-        ],
-    }
+    stored = v2_session()
+    stored["schemaVersion"] = 3
+    stored["analysis"]["document"] = {"sentences": [], "reasoningUpdates": []}
+    client.set("regression_session:s2", json.dumps(stored))
 
-    save_regression_session("s2", payload, client=client)
-    loaded = load_regression_session("s2", client=client)
-
-    check(loaded["schemaVersion"] == REGRESSION_SCHEMA_VERSION, "a v3 session upgrades to the current version")
-    check(loaded["upgradedFrom"] == 3, "the v3 upgrade is declared, not silent")
-    check("document" not in loaded["analysis"], "the single-document key is gone")
-
-    documents = loaded["analysis"]["documents"]
-    check(set(documents) == {"n0", "n1"}, "one document per NLI item")
-    check([u["id"] for u in documents["n0"]["reasoningUpdates"]] == ["ru-n0"],
-          "each item's reasoning update lands in its own document")
-    check([u["id"] for u in documents["n1"]["reasoningUpdates"]] == ["ru-n1"],
-          "and not in any other item's")
-    check({s["id"] for s in documents["n0"]["sentences"]} == {"S1", "S2", "S3"},
-          "an item's document holds exactly the sentences it quotes")
-    check({s["id"] for s in documents["n1"]["sentences"]} == {"S1", "S4"},
-          "including a sentence shared with another item")
-    check(documents["n0"]["sentences"][0] is not documents["n1"]["sentences"][0],
-          "a shared sentence is COPIED, never the same object in two documents")
-    check([q["id"] for q in documents["n0"]["sequences"]] == ["S1+S2+S3"],
-          "a sequence belongs to the item whose sentences it spans")
-    check([q["id"] for q in documents["n1"]["sequences"]] == ["S1+S4"],
-          "and only to that one")
-    check([d["id"] for d in documents["n1"]["discourseUpdates"]] == ["du-S1+S4"],
-          "a discourse update follows the sequence it annotates")
+    try:
+        load_regression_session("s2", client=client)
+    except UnsupportedSchemaVersion as error:
+        check(error.version == 3, "a v3 session is refused the same way")
+    else:
+        raise AssertionError("a v3 session was read instead of being refused")
 
 
 def test_v4_round_trips_unchanged():
@@ -145,6 +103,9 @@ def test_v4_round_trips_unchanged():
     payload = v2_session()
     payload["schemaVersion"] = REGRESSION_SCHEMA_VERSION
     payload["analysis"].pop("document", None)
+    # A v4 client writes `save_state`; the `saveState` spelling was a v2 artifact and its
+    # normalization died with the upgrade path.
+    payload["analysis"]["save_state"] = payload["analysis"].pop("saveState")
     payload["analysis"]["documents"] = {
         "n1": {
             "sentences": [], "sequences": [], "elements": [], "discourseUpdates": [],
@@ -158,7 +119,22 @@ def test_v4_round_trips_unchanged():
     check(loaded["schemaVersion"] == REGRESSION_SCHEMA_VERSION, "a v4 save is not stamped back")
     check(len(loaded["analysis"]["documents"]["n1"]["reasoningUpdates"]) == 1,
           "the per-item documents survive the round trip")
-    check("upgradedFrom" not in loaded, "a current-version session is not reported as upgraded")
+    check(loaded["analysis"]["save_state"]["lastLogicType"] == "tff",
+          "save_state survives the round trip")
+    check("upgradedFrom" not in loaded, "nothing is reported as upgraded any more")
+
+
+def test_documents_default_to_an_empty_map_rather_than_being_synthesized():
+    """Only the client can build real documents; inventing a partition server-side would
+    guess at item membership."""
+    client = FakeRedis()
+    payload = v2_session()
+    payload["schemaVersion"] = REGRESSION_SCHEMA_VERSION
+    payload["analysis"].pop("document", None)
+
+    save_regression_session("s6", payload, client=client)
+    loaded = load_regression_session("s6", client=client)
+    check(loaded["analysis"]["documents"] == {}, "documents defaults to an empty map")
 
 
 def test_unsupported_version_is_refused_rather_than_read():
@@ -182,23 +158,31 @@ def test_unsupported_version_is_refused_rather_than_read():
         raise AssertionError("an unsupported version must not be stored")
 
 
-def test_the_listing_counts_both_shapes():
-    v2 = v2_session()
-    check(_build_session_summary("s1", v2)["inferenceCount"] == 1,
-          "a v2 session still counts its inferenceResults array")
+def test_the_listing_counts_across_every_per_item_document():
+    """The dashboard reads `inferenceResults` when a session carries it, and otherwise
+    counts reasoning updates -- now summed across every item's document, not one."""
+    with_array = v2_session()
+    with_array["schemaVersion"] = REGRESSION_SCHEMA_VERSION
+    check(_build_session_summary("s1", with_array)["inferenceCount"] == 1,
+          "a session with an inferenceResults array still counts it")
 
-    v3 = v2_session()
-    v3["schemaVersion"] = 3
-    v3["analysis"]["system"]["inferenceResults"] = []
-    v3["analysis"]["document"] = {"reasoningUpdates": [
-        {"id": "ru-n1", "assignments": [{"id": "a1"}, {"id": "a2"}]},
-        {"id": "ru-n2", "assignments": [{"id": "a3"}]},
-    ]}
-    summary = _build_session_summary("s2", v3)
-    check(summary["inferenceCount"] == 2, "a v3 session counts its reasoning updates")
-    check(summary["hasInferenceResults"] is True, "the dashboard flag follows the document")
-    check(summary["assignmentCount"] == 3, "assignments are counted across updates")
-    check(summary["schemaVersion"] == 3, "the listing says which schema each session is")
+    v4 = v2_session()
+    v4["schemaVersion"] = REGRESSION_SCHEMA_VERSION
+    v4["analysis"]["system"]["inferenceResults"] = []
+    v4["analysis"]["documents"] = {
+        "n1": {"reasoningUpdates": [
+            {"id": "ru-n1", "itemId": "n1", "assignments": [{"id": "a1"}, {"id": "a2"}]}]},
+        "n2": {"reasoningUpdates": [
+            {"id": "ru-n2", "itemId": "n2", "assignments": [{"id": "a3"}]}]},
+    }
+    summary = _build_session_summary("s2", v4)
+    check(summary["inferenceCount"] == 2,
+          "one update per item document, counted across all of them")
+    check(summary["hasInferenceResults"] is True, "the dashboard flag follows the documents")
+    check(summary["assignmentCount"] == 3,
+          "assignments are counted across every document, not just the first")
+    check(summary["schemaVersion"] == REGRESSION_SCHEMA_VERSION,
+          "the listing says which schema each session is")
 
 
 def main():
