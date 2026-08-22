@@ -243,19 +243,26 @@ class UnsupportedSchemaVersion(Exception):
         )
 
 
+# v5 is v4 with the derived joins gone from the pragmatic layer: a DiscourseUpdate no
+# longer carries `structures`/`mergedGraphs`, and each DiscourseAnalysis carries a
+# `ruleBranch` number instead of a `structureId` pointing into them. Both joins are
+# recomputable from the element's own syntax and semantics, and storing them made a
+# session scale with the reading x rule-branch cross product (one measured item: 60 MB,
+# of which 0.04 MB was the discourse analyses).
+#
 # v4 holds one XlePlusGlueDocument PER NLI ITEM under analysis.documents (keyed by item
 # id, or by sentence id for a parse-only run). See docs/plans/SHARED_PIPELINE_PLAN.md
 # Stage 3 for why per-item: one document is one discourse, and two items quoting the same
 # sentence must each hold their own SentenceAnalysis because the same sentence may be
-# disambiguated differently per item.
+# disambiguated differently per item. v5 keeps that shape unchanged.
 #
-# v2 (three parallel result arrays) and v3 (one session-wide document) are NOT readable.
-# The upgrade paths were deleted with the store's contents on 2026-08-21: the only stored
-# sessions were testing artifacts, and carrying migration code for data that no longer
-# exists means maintaining a path nothing exercises until it silently rots. A v2/v3
-# session is refused loudly by UnsupportedSchemaVersion, the same as a future version.
-REGRESSION_SCHEMA_VERSION = 4
-SUPPORTED_REGRESSION_SCHEMA_VERSIONS = (4,)
+# v2 (three parallel result arrays), v3 (one session-wide document) and now v4 are NOT
+# readable. The upgrade paths were deleted with the store's contents on 2026-08-21: the
+# only stored sessions were testing artifacts, and carrying migration code for data that
+# no longer exists means maintaining a path nothing exercises until it silently rots. An
+# older session is refused loudly by UnsupportedSchemaVersion, the same as a future one.
+REGRESSION_SCHEMA_VERSION = 5
+SUPPORTED_REGRESSION_SCHEMA_VERSIONS = (5,)
 
 
 def _declared_schema_version(payload):
@@ -488,8 +495,8 @@ def load_regression_session(session_key, client=None):
     version = _declared_schema_version(payload)
     if version == REGRESSION_SCHEMA_VERSION:
         return payload
-    # No in-place upgrade: v2/v3 sessions were dropped with the store's contents. Refused
-    # rather than read with the wrong field expectations, same as a future version.
+    # No in-place upgrade: v2/v3/v4 sessions were dropped with the store's contents.
+    # Refused rather than read with the wrong field expectations, same as a future version.
     raise UnsupportedSchemaVersion(version)
 
 

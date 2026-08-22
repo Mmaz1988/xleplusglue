@@ -1,4 +1,4 @@
-"""Regression-session schema dispatch: v2 stays readable, v3 round-trips, newer refuses.
+"""Regression-session schema dispatch: the current version round-trips, every other refuses.
 
 The store used to stamp `schemaVersion = 2` onto every payload it saved, so a v2 session
 and a v3 one were indistinguishable on read and v3 client code would have read a v2
@@ -99,12 +99,34 @@ def test_v3_is_refused_rather_than_upgraded():
         raise AssertionError("a v3 session was read instead of being refused")
 
 
-def test_v4_round_trips_unchanged():
+def test_v4_is_refused_rather_than_upgraded():
+    """v4 stored the derived joins (`structures`/`mergedGraphs`) on every DiscourseUpdate
+    and addressed them from `DiscourseAnalysis.structureId`. v5 removed both, so a v4
+    document's discourse entries point at fields a v5 reader does not have. Refused for
+    the same reason as v2/v3 -- the stored sessions are testing artifacts, and a silent
+    read with the wrong field expectations is exactly what the versioning prevents."""
+    client = FakeRedis()
+    stored = v2_session()
+    stored["schemaVersion"] = 4
+    stored["analysis"]["documents"] = {
+        "n1": {"discourseUpdates": [{"id": "du-1", "structures": {"k": {}}, "discourse": []}]},
+    }
+    client.set("regression_session:s7", json.dumps(stored))
+
+    try:
+        load_regression_session("s7", client=client)
+    except UnsupportedSchemaVersion as error:
+        check(error.version == 4, "a v4 session is refused the same way")
+    else:
+        raise AssertionError("a v4 session was read instead of being refused")
+
+
+def test_current_version_round_trips_unchanged():
     client = FakeRedis()
     payload = v2_session()
     payload["schemaVersion"] = REGRESSION_SCHEMA_VERSION
     payload["analysis"].pop("document", None)
-    # A v4 client writes `save_state`; the `saveState` spelling was a v2 artifact and its
+    # A current client writes `save_state`; the `saveState` spelling was a v2 artifact and its
     # normalization died with the upgrade path.
     payload["analysis"]["save_state"] = payload["analysis"].pop("saveState")
     payload["analysis"]["documents"] = {
@@ -117,7 +139,8 @@ def test_v4_round_trips_unchanged():
 
     save_regression_session("s5", payload, client=client)
     loaded = load_regression_session("s5", client=client)
-    check(loaded["schemaVersion"] == REGRESSION_SCHEMA_VERSION, "a v4 save is not stamped back")
+    check(loaded["schemaVersion"] == REGRESSION_SCHEMA_VERSION,
+          "a current-version save is not stamped back")
     check(len(loaded["analysis"]["documents"]["n1"]["reasoningUpdates"]) == 1,
           "the per-item documents survive the round trip")
     check(loaded["analysis"]["save_state"]["lastLogicType"] == "tff",
@@ -167,16 +190,16 @@ def test_the_listing_counts_across_every_per_item_document():
     check(_build_session_summary("s1", with_array)["inferenceCount"] == 1,
           "a session with an inferenceResults array still counts it")
 
-    v4 = v2_session()
-    v4["schemaVersion"] = REGRESSION_SCHEMA_VERSION
-    v4["analysis"]["system"]["inferenceResults"] = []
-    v4["analysis"]["documents"] = {
+    per_item = v2_session()
+    per_item["schemaVersion"] = REGRESSION_SCHEMA_VERSION
+    per_item["analysis"]["system"]["inferenceResults"] = []
+    per_item["analysis"]["documents"] = {
         "n1": {"reasoningUpdates": [
             {"id": "ru-n1", "itemId": "n1", "assignments": [{"id": "a1"}, {"id": "a2"}]}]},
         "n2": {"reasoningUpdates": [
             {"id": "ru-n2", "itemId": "n2", "assignments": [{"id": "a3"}]}]},
     }
-    summary = _build_session_summary("s2", v4)
+    summary = _build_session_summary("s2", per_item)
     check(summary["inferenceCount"] == 2,
           "one update per item document, counted across all of them")
     check(summary["hasInferenceResults"] is True, "the dashboard flag follows the documents")

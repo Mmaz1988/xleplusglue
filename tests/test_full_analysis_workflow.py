@@ -765,21 +765,25 @@ def test_full_analysis_workflow():
     )
 
     print("\n=== Step 10: assemble a DiscourseUpdate and round-trip it through Redis ===")
-    structure_id = f"{semantic_solution_id}-rule-0"
+    # The update carries pragmatic content only. `annotation` -- the rule-applied join of
+    # merged syntax and merged semantics these mappings were read off -- is deliberately
+    # NOT part of it: it is recomputable from the sequence's own syntax and semantics plus
+    # `ruleString` (steps 6-8 above are exactly that recomputation), and storing it made
+    # the update scale with the reading x rule-branch cross product. Each analysis records
+    # which rule branch it came from instead; this trace applies one branch, so it is 1.
+    rule_branch = 1
     discourse_update = {
         "id": f"du-{seq_solution.get('solutionKey') or 'sequence-test'}",
         "sourceElementId": seq_solution.get("solutionKey") or "sequence-test",
         "sourceElementKind": "sequence",
         "ruleString": NLI_RULES,
-        "structures": {structure_id: annotation["structureJson"]},
-        "mergedGraphs": {structure_id: annotation.get("graph")},
         "discourse": [
             {
                 "id": candidate_with_mapping["id"],
                 "semanticOrigin": semantic_solution_id,
                 "drsString": candidate_with_mapping.get("semantic") or candidate_with_mapping.get("solution"),
                 "drsGraph": candidate_with_mapping.get("graph"),
-                "structureId": structure_id,
+                "ruleBranch": rule_branch,
                 "svg": candidate_with_mapping.get("solution"),
                 "anaphoraMapping": {"relations": candidate_with_mapping.get("anaphoraRelations") or []},
                 "collapsed": False,
@@ -789,7 +793,7 @@ def test_full_analysis_workflow():
                 "semanticOrigin": semantic_solution_id,
                 "drsString": collapsed.get("semantic"),
                 "drsGraph": collapsed.get("graph"),
-                "structureId": structure_id,
+                "ruleBranch": rule_branch,
                 "svg": collapsed.get("solution"),
                 "anaphoraMapping": {"relations": collapsed.get("anaphoraRelations") or []},
                 "collapsed": True,
