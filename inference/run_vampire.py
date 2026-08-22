@@ -103,7 +103,14 @@ def _update_vampire_progress(session_key, **updates):
     progress.setdefault("proofCount", 0)
     progress.setdefault("totalItemCount", 0)
     progress["sessionKey"] = session_key
-    save_vampire_progress(session_key, progress)
+    try:
+        save_vampire_progress(session_key, progress)
+    except Exception:
+        # Progress is telemetry. It must never take the run down with it -- a transient
+        # Redis timeout (the store is single-worker and also serves multi-megabyte session
+        # writes) used to propagate out of the batch loop and 500 the whole request,
+        # leaving the record stuck on "running" forever. 2026-08-22.
+        logger.warning("Unable to persist Vampire progress; continuing", exc_info=True)
 
 
 def _ensure_not_cancelled(session_key):
@@ -582,7 +589,10 @@ def _multiple_vampire_request(request, session_key):
             itemCount=len(completed_item_ids),
             proofCount=sum(len(check_list) for check_list in inference_results.values()),
             completedItemIds=list(completed_item_ids),
-            itemResults={key: [item.dict() for item in checks] for key, checks in inference_results.items()},
+            # Deliberately NOT the results themselves: they are already persisted to
+            # last_session, nothing reads them back off the progress record, and copying
+            # them here made every per-branch snapshot rewrite the whole run's output.
+            itemResults={key: len(checks) for key, checks in inference_results.items()},
             totalItemCount=len(request.nli_items),
         )
 
@@ -760,6 +770,25 @@ def _multiple_vampire_request(request, session_key):
         except Exception:
             logger.warning("Unable to clear Vampire progress after cancel", exc_info=True)
         return cancelled_result
+    except Exception as failure:
+        # A run that dies must SAY it died. Without this the progress record kept its last
+        # "running" snapshot forever and the client polled it indefinitely -- the failure
+        # presented as a run that had simply stopped making progress, with the real cause
+        # (a Redis timeout under concurrent load) visible only in this service's log.
+        logger.error("Vampire request %s failed after %d items", session_key,
+                     len(completed_item_ids), exc_info=True)
+        try:
+            _update_vampire_progress(
+                session_key,
+                state="failed",
+                activeItemId=None,
+                failure=f"{type(failure).__name__}: {failure}",
+                itemCount=len(completed_item_ids),
+                totalItemCount=len(request.nli_items),
+            )
+        except Exception:
+            logger.warning("Unable to record the failure in Vampire progress", exc_info=True)
+        raise
     finally:
         _cleanup_tmp_root(tmp_root)
 

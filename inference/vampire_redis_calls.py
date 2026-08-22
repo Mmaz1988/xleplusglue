@@ -22,6 +22,12 @@ class RedisApiError(Exception):
         super().__init__(f"redis api returned {status}: {detail}")
 
 
+# The Redis API runs a single worker and also serves multi-megabyte session writes,
+# so a small call can legitimately wait behind one. 10s was tight enough that a
+# concurrent autosave timed out the running batch's progress writes and killed the run.
+_CALL_TIMEOUT_SECONDS = 60
+
+
 def _call(path, method="GET", payload=None):
     url = f"{_crud_base_url()}{path}"
     data = None
@@ -32,7 +38,7 @@ def _call(path, method="GET", payload=None):
 
     req = request.Request(url, data=data, headers=headers, method=method)
     try:
-        with request.urlopen(req, timeout=10) as resp:
+        with request.urlopen(req, timeout=_CALL_TIMEOUT_SECONDS) as resp:
             body = resp.read().decode("utf-8")
             return json.loads(body) if body else None
     except error.HTTPError as exc:
@@ -68,6 +74,29 @@ def _call_raw(path, method="GET", timeout=120):
             detail = json.loads(body).get("detail", body)
         except (json.JSONDecodeError, AttributeError):
             detail = body
+        raise RedisApiError(exc.code, detail) from exc
+
+
+def save_regression_session_raw(session_key, body):
+    """PUT a session's raw JSON bytes through, without parsing them.
+
+    The mirror of load_regression_session_raw, and the more important direction: a
+    multi-megabyte autosave that this hop parses and re-encodes occupies the single-worker
+    Redis API long enough that every other caller's 10s timeout expires -- including the
+    running batch's own progress writes, which killed the run outright (2026-08-22).
+    """
+    url = f"{_crud_base_url()}/regression_session/{session_key}"
+    req = request.Request(url, data=body, headers={"Content-Type": "application/json"},
+                          method="PUT")
+    try:
+        with request.urlopen(req, timeout=120) as resp:
+            return resp.read()
+    except error.HTTPError as exc:
+        raw = exc.read().decode("utf-8", errors="replace")
+        try:
+            detail = json.loads(raw).get("detail", raw)
+        except (json.JSONDecodeError, AttributeError):
+            detail = raw
         raise RedisApiError(exc.code, detail) from exc
 
 

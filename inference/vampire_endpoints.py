@@ -1,6 +1,6 @@
 import os
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import re
@@ -25,6 +25,7 @@ from vampire_redis_calls import (
     load_vampire_progress,
     request_vampire_cancel,
     save_regression_session,
+    save_regression_session_raw,
     summarize_last_session,
 )
 
@@ -224,9 +225,15 @@ def get_regression_session(session_key: str):
 
 
 @app.put("/regression_session/{session_key}")
-def put_regression_session(session_key: str, payload: dict):
+async def put_regression_session(session_key: str, request: Request):
     try:
-        return save_regression_session(session_key, payload)
+        # Raw pass-through. Parsing a multi-megabyte session here and re-encoding it for
+        # the store occupied this worker long enough that concurrent callers -- including
+        # the running batch's own progress writes -- hit their timeouts. See
+        # save_regression_session_raw.
+        body = await request.body()
+        return Response(content=save_regression_session_raw(session_key, body),
+                        media_type="application/json")
     except RedisApiError as e:
         logger.warning("Regression session rejected by the store: %s", e.detail)
         raise HTTPException(status_code=e.status, detail=e.detail)
