@@ -23,6 +23,7 @@ from Redis.redis_store import (
     save_analysis_document,
     save_last_session,
     save_vampire_progress,
+    patch_regression_session,
     save_regression_session,
     summarize_gswb_batch_session,
     summarize_last_session,
@@ -184,6 +185,25 @@ def get_regression_session(session_key: str):
 def put_regression_session(session_key: str, payload: dict):
     try:
         return save_regression_session(session_key, payload)
+    except UnsupportedSchemaVersion as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.patch("/regression_session/{session_key}/patch")
+def patch_regression_session_endpoint(session_key: str, payload: dict):
+    """Replace named paths of a stored session, leaving the rest untouched.
+
+    A session's parts change at very different rates -- the parse phase is written once
+    and immutable thereafter, reasoning results change every few seconds -- so rewriting
+    the whole 8-12 MB document on every autosave was most of the write volume during a
+    run. See patch_regression_session.
+    """
+    try:
+        return patch_regression_session(session_key, payload.get("paths") or {})
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except UnsupportedSchemaVersion as exc:
         raise HTTPException(status_code=422, detail=str(exc))
     except Exception as exc:

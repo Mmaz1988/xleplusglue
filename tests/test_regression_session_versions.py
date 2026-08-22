@@ -26,6 +26,7 @@ from Redis.redis_store import (  # noqa: E402
     UnsupportedSchemaVersion,
     _build_session_summary,
     load_regression_session,
+    patch_regression_session,
     save_regression_session,
 )
 
@@ -183,6 +184,62 @@ def test_the_listing_counts_across_every_per_item_document():
           "assignments are counted across every document, not just the first")
     check(summary["schemaVersion"] == REGRESSION_SCHEMA_VERSION,
           "the listing says which schema each session is")
+
+
+def test_patch_replaces_only_the_named_paths():
+    """Autosave rewrote the whole 8-12 MB session every few seconds during a run, which
+    produced ~25 MB of Redis AOF per minute. With `--appendonly yes --save 60 1` and no
+    maxmemory, that churn forces repeated AOF rewrites and RDB saves -- each a fork that
+    transiently doubles Redis's footprint. Measured: RSS spiking 170 MB -> 1140 MB from a
+    12 MB dataset. Almost none of the session changes during a run.
+    """
+    client = FakeRedis()
+    payload = v2_session()
+    payload["schemaVersion"] = REGRESSION_SCHEMA_VERSION
+    payload["analysis"].pop("document", None)
+    payload["analysis"]["save_state"] = payload["analysis"].pop("saveState")
+    payload["analysis"]["save_state"]["lastAnnotations"] = {"S0": "the big immutable parse phase"}
+    payload["analysis"]["documents"] = {"n0": {"reasoningUpdates": []}}
+    save_regression_session("s7", payload, client=client)
+
+    patch_regression_session("s7", {
+        "analysis.documents": {"n0": {"reasoningUpdates": [{"id": "ru-n0"}]}},
+    }, client=client)
+
+    loaded = load_regression_session("s7", client=client)
+    check(loaded["analysis"]["documents"]["n0"]["reasoningUpdates"] == [{"id": "ru-n0"}],
+          "the named path is replaced")
+    check(loaded["analysis"]["save_state"]["lastAnnotations"] == {"S0": "the big immutable parse phase"},
+          "everything else survives untouched -- the point of patching")
+    check(loaded["analysis"]["save_state"]["lastLogicType"] == "tff",
+          "siblings inside a patched path's parent survive too")
+    check(loaded["schemaVersion"] == REGRESSION_SCHEMA_VERSION, "the version is preserved")
+
+
+def test_patch_creates_missing_intermediate_nodes():
+    client = FakeRedis()
+    payload = v2_session()
+    payload["schemaVersion"] = REGRESSION_SCHEMA_VERSION
+    payload["analysis"].pop("document", None)
+    payload["analysis"]["save_state"] = payload["analysis"].pop("saveState")
+    save_regression_session("s8", payload, client=client)
+
+    patch_regression_session("s8", {"analysis.system.inferenceResults": [{"id": "n0"}]}, client=client)
+
+    loaded = load_regression_session("s8", client=client)
+    check(loaded["analysis"]["system"]["inferenceResults"] == [{"id": "n0"}],
+          "a path through a missing node is created rather than dropped")
+
+
+def test_patch_refuses_a_session_that_does_not_exist():
+    """Patching a key with nothing stored would otherwise invent a session from fragments."""
+    client = FakeRedis()
+    try:
+        patch_regression_session("nope", {"analysis.documents": {}}, client=client)
+    except KeyError:
+        pass
+    else:
+        raise AssertionError("patching a missing session should be refused")
 
 
 def main():

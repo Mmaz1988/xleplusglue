@@ -429,6 +429,43 @@ def save_regression_session(session_key, payload, client=None):
     return {"status": "ok", "recent_sessions": sessions, "session": payload}
 
 
+def patch_regression_session(session_key, paths, client=None):
+    """Update named paths of a stored session, leaving everything else byte-identical.
+
+    A regression session is 8-12 MB, and its parts change at wildly different rates: the
+    parse phase (`lastAnnotations` alone is ~5 MB) is written once and then immutable for
+    the rest of the run, while reasoning results change every few seconds. Rewriting the
+    whole document each time produced ~25 MB of Redis AOF per minute during a run, which
+    is what forced the AOF rewrites -- and an AOF rewrite forks Redis, transiently
+    doubling its memory.
+
+    `paths` maps a dotted path to its new value, e.g.
+    `{"analysis.documents": {...}, "analysis.system.inferenceResults": [...]}`. Each path
+    is replaced wholesale; there is no deep merge below the named node, because a
+    predictable replace is easier to reason about than a merge whose result depends on
+    what was already there.
+    """
+    client = client or redis_client()
+    stored = load_regression_session(session_key, client=client)
+    if not stored:
+        raise KeyError(f"no stored session under {session_key!r}")
+
+    for path, value in (paths or {}).items():
+        parts = [part for part in str(path).split(".") if part]
+        if not parts:
+            continue
+        target = stored
+        for part in parts[:-1]:
+            existing = target.get(part)
+            if not isinstance(existing, dict):
+                existing = {}
+                target[part] = existing
+            target = existing
+        target[parts[-1]] = value
+
+    return save_regression_session(session_key, stored, client=client)
+
+
 def load_regression_session(session_key, client=None):
     """Read a stored session, dispatching on its declared schemaVersion.
 

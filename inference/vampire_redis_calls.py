@@ -77,6 +77,23 @@ def _call_raw(path, method="GET", timeout=120):
         raise RedisApiError(exc.code, detail) from exc
 
 
+def patch_regression_session_raw(session_key, body):
+    """PATCH named paths of a stored session, passing the raw body through."""
+    url = f"{_crud_base_url()}/regression_session/{session_key}/patch"
+    req = request.Request(url, data=body, headers={"Content-Type": "application/json"},
+                          method="PATCH")
+    try:
+        with request.urlopen(req, timeout=120) as resp:
+            return resp.read()
+    except error.HTTPError as exc:
+        raw = exc.read().decode("utf-8", errors="replace")
+        try:
+            detail = json.loads(raw).get("detail", raw)
+        except (json.JSONDecodeError, AttributeError):
+            detail = raw
+        raise RedisApiError(exc.code, detail) from exc
+
+
 def save_regression_session_raw(session_key, body):
     """PUT a session's raw JSON bytes through, without parsing them.
 

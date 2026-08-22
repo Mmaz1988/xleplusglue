@@ -13,6 +13,13 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    # A container with no limit can take the whole Docker VM down with it, and that is
+    # what a wedged daemon looks like: no OOM record, no container exit, just an API that
+    # stops answering. With a limit the kernel kills the container instead and SAYS so
+    # (`docker inspect` reports OOMKilled), which is the difference between evidence and a
+    # guess. Sized well above observed steady state (~490 MB) -- this is a backstop, not a
+    # budget. Redis forks on AOF rewrite, transiently doubling its footprint, so leave room.
+    mem_limit: 2g
 
   liger:
     build:
@@ -53,6 +60,10 @@ services:
       VAMPIRE_KEEP_TPTP: ${VAMPIRE_KEEP_TPTP:-true}
     volumes:
       - ../inference/tmp:/vampire/tmp
+    # Same backstop as redis: a run that grows without bound should kill its own container
+    # and be visible in `docker inspect`, not take the daemon with it. Observed steady
+    # state ~1 GB.
+    mem_limit: 3g
     depends_on:
       redis:
         condition: service_healthy

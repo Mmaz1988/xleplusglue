@@ -25,6 +25,7 @@ from vampire_redis_calls import (
     load_vampire_progress,
     request_vampire_cancel,
     save_regression_session,
+    patch_regression_session_raw,
     save_regression_session_raw,
     summarize_last_session,
 )
@@ -239,6 +240,29 @@ async def put_regression_session(session_key: str, request: Request):
         raise HTTPException(status_code=e.status, detail=e.detail)
     except Exception as e:
         logger.error("Unable to save regression session", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.patch("/regression_session/{session_key}/patch")
+async def patch_regression_session(session_key: str, request: Request):
+    """Partial session write: only the paths that actually changed.
+
+    Autosave during a run rewrote the whole session, which is what produced ~25 MB of
+    Redis AOF per minute and forced the AOF rewrites. See
+    Redis/redis_store.patch_regression_session.
+    """
+    try:
+        body = await request.body()
+        return Response(content=patch_regression_session_raw(session_key, body),
+                        media_type="application/json")
+    except RedisApiError as e:
+        logger.warning("Regression session patch refused by the store: %s", e.detail)
+        raise HTTPException(status_code=e.status, detail=e.detail)
+    except urllib_error.URLError as e:
+        logger.error("Redis CRUD service unreachable", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
+    except Exception as e:
+        logger.error("Unable to patch regression session", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
