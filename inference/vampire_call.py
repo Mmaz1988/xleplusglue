@@ -3,6 +3,7 @@ import os
 import subprocess
 import re
 import logging
+import time
 import traceback
 
 # Level and handlers are configured once in logging_config, from the entrypoint.
@@ -12,6 +13,55 @@ logger = logging.getLogger(__name__)
 # imported, since this module has no other dependency on run_vampire. When set, massacer()
 # leaves each folder's .p files on disk instead of deleting them right after running Vampire.
 KEEP_TPTP_FILES = os.getenv("VAMPIRE_KEEP_TPTP", "false").strip().lower() in ("1", "true", "yes", "on")
+
+# Marker for the block append_result_summary() writes at the end of each .p file. Also used
+# to strip a previous run's block, so re-running Vampire over the same file (the fmb -> casc
+# retry in run_vampire.run_vampire_batch) replaces the summary instead of stacking them.
+SUMMARY_MARKER = "% ---- Vampire run ----"
+
+
+def comment_line(value):
+    """Flattens a value so it is safe on a single TPTP `%` comment line."""
+    return " ".join(str(value).split())
+
+
+def build_vampire_command(file_path, mode, timeout, vampire_path="bin"):
+    """The exact argv Vampire is invoked with -- one definition, so the command recorded in
+    the .p file summary cannot drift from the command that was actually run."""
+    return [str(os.path.join(vampire_path, "vampire")), str(file_path), "-t", str(timeout)] + list(mode)
+
+
+def append_result_summary(file_path, result, timeout, elapsed=None):
+    """Appends how Vampire was called and what it answered to the .p file, as TPTP comments.
+
+    The .p files under tmp/ are kept for debugging (VAMPIRE_KEEP_TPTP); on their own they say
+    nothing about the run they came from, so the verdict and the invocation are recorded next
+    to the formulas that produced them.
+    """
+    if not os.path.isfile(file_path):
+        return
+    lines = [
+        SUMMARY_MARKER,
+        f"% command: {comment_line(' '.join(result.get('Command') or []) or 'Unknown')}",
+        f"% time limit: {comment_line(timeout)}s"
+        + (f" (returned after {elapsed:.2f}s)" if elapsed is not None else ""),
+        f"% SZS status: {comment_line(result.get('SZS Status'))}",
+        f"% termination reason: {comment_line(result.get('Termination Reason'))}",
+        f"% termination phase: {comment_line(result.get('Termination Phase'))}",
+        f"% finite model found: {comment_line(result.get('Finite Model Found'))}",
+    ]
+    try:
+        with open(file_path) as file:
+            content = file.read()
+        marker_at = content.find(SUMMARY_MARKER)
+        if marker_at != -1:
+            content = content[:marker_at]
+        with open(file_path, mode="w") as file:
+            file.write(content.rstrip("\n") + "\n\n" + "\n".join(lines) + "\n")
+    except OSError as error:
+        # A summary is debugging sugar -- never let it take down a Vampire run.
+        logger.warning("Could not write the run summary into %s: %s", file_path, error)
+
 
 def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_folder = "tmp/current/"):
     """
@@ -41,7 +91,11 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
         # read in axioms_file
         tptp_content += f"{axioms}\n\n"
 
-        tptp_content += f"% p = {q}\n% q = {p}\n"  # Add comments with p and q
+        # The templates below bind q to the context and p to the hypothesis, so label
+        # them that way round -- these comments used to print the context under "p =".
+        tptp_content += f"% check = {suffix}\n"
+        tptp_content += f"% q (context) = {comment_line(q)}\n"
+        tptp_content += f"% p (hypothesis) = {comment_line(p)}\n"
         tptp_content += template.format(logic,q=q,p=p)
         filename = f"sem_{suffix}.p"
         file_path = os.path.join(output_folder, filename)
@@ -106,21 +160,22 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
     - result (dict): A dictionary containing the extracted information.
     """
     filename = os.path.basename(file_path)
+    command = build_vampire_command(file_path, mode, timeout, vampire_path)
     result = {
         "Filename": filename,
+        # The invocation itself, so the summary written into the .p file (and any caller
+        # reporting a verdict) can say which Vampire mode produced it.
+        "Command": command,
         "Termination Reason": "Unknown",
         "Termination Phase": "Unknown",
         "Finite Model Found": "Unknown",
         "SZS Status": "Unknown"
     }
 
-    # Construct the Vampire command
-    vampire_path = os.path.join(vampire_path, "vampire")
-    command = [str(vampire_path), file_path, "-t", str(timeout)] + mode
-
     logger.debug("Executing: %s", " ".join(command))
     # print("Executing: ", " ".join(command), "\r", flush=True)
 
+    started_at = time.monotonic()
     try:
         # Run Vampire with timeout
         completed_process = subprocess.run(
@@ -166,6 +221,8 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
         logger.error("Stacktrace: %s", traceback.format_exc())
 
         result["Termination Reason"] = f"Error: {e}"
+
+    append_result_summary(file_path, result, timeout, elapsed=time.monotonic() - started_at)
 
     return result
 

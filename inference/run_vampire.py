@@ -11,7 +11,8 @@ import logging
 import uuid
 
 
-from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
+from vampire_call import (generate_tptp_files, massacer, generate_svg_glyph, discourse_checks,
+                          comment_line)
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
 from vampire_redis_calls import clear_vampire_progress, merge_and_save_last_session, load_vampire_progress, save_vampire_progress
 from logging_config import session_log_file
@@ -145,7 +146,13 @@ def generate_translated_check_files(checks, axioms="", logic="fof", output_folde
     for name in ("info_pos_check", "info_neg_check", "cons_pos_check", "cons_neg_check"):
         formula = checks[name]["tptp"]
         context_axiom = f"{logic}(context, axiom, ({context_tptp})).\n" if context_tptp else ""
-        content = f"{axioms}\n\n{context_axiom}{logic}({name}, axiom, ({formula})).\n"
+        # Same header the legacy Prolog path writes, so a kept .p file says what it is
+        # without cross-referencing the request. Only q is available here: GSWB composes
+        # p into each check formula itself and returns no standalone hypothesis TPTP.
+        header = (f"% check = {name}\n"
+                  f"% q (context) = {comment_line(context_tptp) if context_tptp else '(none sent)'}\n"
+                  f"% p (hypothesis) = (not sent separately; folded into the check formula)\n")
+        content = f"{header}\n{axioms}\n\n{context_axiom}{logic}({name}, axiom, ({formula})).\n"
         path = os.path.join(output_folder, f"sem_{name}.p")
         with open(path, "w") as file:
             file.write(content)
