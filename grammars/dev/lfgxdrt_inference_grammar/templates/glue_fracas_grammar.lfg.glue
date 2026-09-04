@@ -20,6 +20,7 @@ GLUE   BASIC   TEMPLATES (1.0)
 	  (R MEANING) = M.
 
   NOSCOPE(G) = (G NOSCOPE) = +.
+  INSITU(G) = (G INSITU) = +.
 
    NAME-SCOPE(UP NAME) =
    %name = ({SUBJ | OBJ | OBJ2 | XCOMP | COMP | OBL-TO | OBL-AG | OBL | OBL-COMP | ADJUNCT | PREDLINK | OBL-PART | $}+ ^)
@@ -108,7 +109,7 @@ PROPER-NOUN-SEM(P) = (s::^ TYPE) = entity
 
 DEF-NAME = @(NAME-SCOPE ^ %n)
               :$ (\Q.(\R.([x],[]) + Q@x + R@x)) :
-              ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)).
+              ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)) || insitu.
 
 
 DEFAULT-ADJ-SEM(P)  = @(PRED P)
