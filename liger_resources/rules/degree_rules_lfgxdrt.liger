@@ -29,13 +29,13 @@
 #x ADJUNCT #n in_set #a & #x PRED %x &
 #a ATYPE 'attributive' &
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
-==> #d GLUE (\P.([d:d],[]) + ([],[greater(d,th_strip(%a)('strip(%x)'))]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
+==> #d GLUE (\P.([d:d],[]) + ([],[ d > th_strip(%a)('strip(%x)')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
 // predicative
 #x PREDLINK #a & #x PRED %x &
 #a ATYPE 'predicative' &
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
-==> #d GLUE (\P.([d:d],[]) + ([],[greater(d,th_strip(%a)('strip(%x)'))]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
+==> #d GLUE (\P.([d:d],[]) + ([],[d > th_strip(%a)('strip(%x)')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
 //Added noscope to arg1s. Needs evaluation
 //Comparative rule for attributive uses
