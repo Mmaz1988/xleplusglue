@@ -13,11 +13,9 @@ inference/**/__pycache__/
 **/*.pyc
 
 jars/old_versions/
-vampire_build/vampire/**
-!vampire_build/
-!vampire_build/vampire/
-!vampire_build/vampire/bin/
-!vampire_build/vampire/bin/vampire
+# Vampire is downloaded from an upstream GitHub release at build time, so neither the
+# vendored Linux build nor the local macOS one is needed in any build context.
+vampire_build/
 vampire_build_mac/
 
 tmp/

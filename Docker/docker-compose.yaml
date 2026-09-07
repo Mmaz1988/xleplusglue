@@ -37,9 +37,10 @@ services:
     build:
       dockerfile: Docker/Dockerfile-vampire
       context: ..
-      args:
-       - platform=linux/amd64
-    platform: linux/amd64
+    # Deliberately unpinned, so this builds and runs natively for the host: on Apple
+    # Silicon the amd64 binary ran under QEMU and needed ~12s for proofs that take ~1.7s
+    # native, which pushed checks past the 10s prover budget. Pinning it back to
+    # linux/amd64 means also switching VAMPIRE_ARCH to Linux-X64 in Dockerfile-vampire.
     ports:
       - '8082:8082'
     privileged: true  # Add this to enable privileged mode
