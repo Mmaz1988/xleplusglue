@@ -561,7 +561,13 @@ def save_vampire_progress(session_key, payload, client=None):
     prepared = dict(_default_vampire_progress(session_key))
     prepared.update(dict(payload or {}))
     prepared["sessionKey"] = session_key
-    prepared["updatedAt"] = prepared.get("updatedAt") or _now_iso()
+    # Stamped unconditionally, NOT `prepared.get("updatedAt") or _now_iso()`. Every writer
+    # (`run_vampire.py`'s `_update_vampire_progress`) loads the record, mutates it and saves
+    # it back, so `updatedAt` is always already set by the time it gets here and the `or`
+    # never fired again -- the whole run kept the timestamp of its first snapshot. A record
+    # that cannot say when it last moved cannot distinguish a live run from a dead one,
+    # which is exactly how a completed run read as one still in progress. 2026-09-08.
+    prepared["updatedAt"] = _now_iso()
     client.set(_vampire_progress_key(session_key), json.dumps(prepared))
     return prepared
 
