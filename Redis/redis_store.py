@@ -313,8 +313,10 @@ def _prepare_regression_session_payload(session_key, payload):
     metadata["createdAt"] = metadata.get("createdAt") or now
     metadata.setdefault("testsuiteUpdateMode", "write")
     metadata["hasRunVampire"] = bool(metadata.get("hasRunVampire"))
-    metadata["disambiguationMode"] = bool(metadata.get("disambiguationMode"))
-    metadata["enableDisambiguation"] = bool(metadata.get("enableDisambiguation"))
+    # Defaults to TRUE when absent, unlike every other flag here: a session written before
+    # the field existed ran inference, and coercing a missing key to False would silently
+    # turn it off for all of them.
+    metadata["enableInference"] = bool(metadata.get("enableInference", True))
     prepared["metadata"] = metadata
 
     inputs = dict(_section(prepared, "inputs"))
