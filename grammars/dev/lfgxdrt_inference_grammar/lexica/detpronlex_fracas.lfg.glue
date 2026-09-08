@@ -58,6 +58,17 @@ Him 	  PRON * @(PRON-GEND he male 3 sg pers)
 him 	  PRON * @(PRON-GEND he male 3 sg pers)
 		 @(CASE acc).
 
+"Reflexives. PRON-TYPE refl records what they are, but nothing in this grammar
+ enforces Principle A, so semantically they behave like the other 3rd person
+ pronouns: ant(x) plus a gender condition, bound by the anaphora mapping rather
+ than by a local binding domain."
+
+himself   PRON * @(PRON-GEND himself male 3 sg refl)
+		 @(CASE acc).
+
+herself   PRON * @(PRON-GEND herself female 3 sg refl)
+		 @(CASE acc).
+
 Their   PRON * @(POSS-PRON they 3 pl).
 
 their   PRON * @(POSS-PRON they 3 pl).
