@@ -139,10 +139,24 @@ UNIVERSAL-QUANT = @(QUANT-SCOPE ^ %q)
 	      :$ (\P.(\Q.([],[([x],[]) + P@x -> Q@x]))) :
 	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
-DEFAULT-PRON-NOSCOPE(G) = @(QUANT-SCOPE ^ %q)
+"A pronoun is an indefinite whose restriction says only that it needs an antecedent.
+ ant(x) is what LFGxDRT's collapseAnaphora looks for: given an anaphora mapping it
+ rewrites ant(x) to x = <antecedent>, so the pronoun's referent is identified with a
+ discourse referent already on the stack. Ported from grammars/dev/glue-basic-drt.lfg.glue
+ (PRON-SEM / PRON-SEM-GEND), with that grammar's %n index replaced by s::^ -- this
+ grammar has no NP-INDEX, and its nouns and names are indexed on s::^ directly."
+
+PRON-SEM = @(QUANT-SCOPE ^ %q)
             (s::^ TYPE) = entity
-            :$ (\P.alfa(pro,([x],[G(x)]),P@x)) :
-	        ((s::^_e -o %q_t) -o %q_t) || noscope.
+            :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+	        ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || insitu,
+            :$ (\x.([],[ant(x)])) : (s::^_e -o s::^_t).
+
+PRON-SEM-GEND(G) = @(QUANT-SCOPE ^ %q)
+            (s::^ TYPE) = entity
+            :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+	        ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || insitu,
+            :$ (\x.([],[ant(x),G(x)])) : (s::^_e -o s::^_t).
 
 
 ----

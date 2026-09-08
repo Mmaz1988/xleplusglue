@@ -12,21 +12,17 @@ You	PRON * {@(PRON you 2 sg pers)
 you	PRON * {@(PRON you 2 sg pers)
 	       |@(PRON you 2 pl pers)}.
 
-He 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE nom)
-		 @(DEFAULT-PRON-NOSCOPE male).
+He 	  PRON * @(PRON-GEND he male 3 sg pers)
+		 @(CASE nom).
 
-he 	  PRON * @(PRON he 3 sg pers)
-		 @(CASE nom)
-		 @(DEFAULT-PRON-NOSCOPE male).
+he 	  PRON * @(PRON-GEND he male 3 sg pers)
+		 @(CASE nom).
 
-She 	  PRON * @(PRON she 3 sg pers)
-		 @(CASE nom)
-		 @(DEFAULT-PRON-NOSCOPE female).
+She 	  PRON * @(PRON-GEND she female 3 sg pers)
+		 @(CASE nom).
 
-she 	  PRON * @(PRON she 3 sg pers)
-		 @(CASE nom)
-		 @(DEFAULT-PRON-NOSCOPE female).
+she 	  PRON * @(PRON-GEND she female 3 sg pers)
+		 @(CASE nom).
 
 It	  PRON * @PERS-OR-EXPL.
 
@@ -38,10 +34,10 @@ We 	  PRON * @(PRON we 1 pl pers)
 we 	  PRON * @(PRON we 1 pl pers)
 		 @(CASE nom).
 
-They 	  PRON * @(PRON they 3 pl pers)
+They 	  PRON * @(PRON-ANA they 3 pl pers)
 		 @(CASE nom).
 
-they 	  PRON * @(PRON they 3 pl pers)
+they 	  PRON * @(PRON-ANA they 3 pl pers)
 		 @(CASE nom).
 
 My 	  PRON * @(POSS-PRON I sg 1).   "'I' or 'my' ??"
@@ -50,15 +46,16 @@ my 	  PRON * @(POSS-PRON I sg 1).
 
 his 	  PRON * @(POSS-PRON he sg 3).
 
-Her 	  PRON * {@(PRON she sg 3 pers)
+Her 	  PRON * {@(PRON-GEND she female 3 sg pers)
 		    |@(POSS-PRON she sg 3)}.
 
-her 	  PRON * @(PRON her 3 sg pers).
-
-Him 	  PRON * @(PRON he 3 sg pers)
+her 	  PRON * @(PRON-GEND her female 3 sg pers)
 		 @(CASE acc).
 
-him 	  PRON * @(PRON he 3 sg pers)
+Him 	  PRON * @(PRON-GEND he male 3 sg pers)
+		 @(CASE acc).
+
+him 	  PRON * @(PRON-GEND he male 3 sg pers)
 		 @(CASE acc).
 
 Their   PRON * @(POSS-PRON they 3 pl).

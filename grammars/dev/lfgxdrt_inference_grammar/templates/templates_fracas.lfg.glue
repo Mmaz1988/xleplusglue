@@ -232,9 +232,20 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 	  (^ NUM) = N
 	  (^ PERS) = Z
 	  (^ PRON-TYPE) = T
-	  (^ NTYPE) = pron. 
+	  (^ NTYPE) = pron.
 
-   PERS-OR-EXPL = { @(PRON it 3 sg pers) |
+"Anaphoric pronouns: the features above plus the ant()-based semantics in
+ glue_fracas_grammar. Deictic pronouns (I, you, we) and expletive 'it' keep the bare
+ PRON template on purpose -- ant(x) with no antecedent makes collapseAnaphora throw,
+ so giving them a meaning constructor would turn parses into hard failures."
+
+   PRON-GEND(P G Z N T) = @(PRON P Z N T)
+	  @(PRON-SEM-GEND G).
+
+   PRON-ANA(P Z N T) = @(PRON P Z N T)
+	  @PRON-SEM.
+
+   PERS-OR-EXPL = { @(PRON-ANA it 3 sg pers) |
                     @(PRON it 3 sg expl) }.
 
 "template for possessive pronouns, as these have conflicting heads in regular template"
