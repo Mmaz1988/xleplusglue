@@ -1,0 +1,121 @@
+FUNCTION ENGLISH LEXICON (1.0)
+
+"comparison constructions"
+
+than      CComp * (^PRED) = 'than<(^OBJ)>'.
+                  ((OBL-COMP ^) DEGREE) =c comparative.
+
+as        CComp * (^PRED) = 'as<(^OBJ)>'
+                  (^DEGREE) ~=c comparative
+                  (^DEGREE) ~=c superlative;
+          ADVComp * (^PRED) = 'as<(^OBL-COMP)>'
+                  (^DEGREE) ~=c comparative
+                  (^DEGREE) ~=c superlative.
+
+
+"conditionals"
+
+if CONJsub * (^ PRED) = 'if<(^OBJ)>'
+             (^COMP-FORM) = if
+             %ant = (s::(^OBJ) SIT)
+             %cons = (s::(ADJUNCT ^) SIT)
+             :$ (\P.(\Q.([],[P -> Q]))) :
+                (%ant_t -o (%cons_t -o %cons_t)).
+
+If CONJsub * (^ PRED) = 'if<(^OBJ)>'
+             (^COMP-FORM) = if
+             %ant = (s::(^OBJ) SIT)
+             %cons = (s::(ADJUNCT ^) SIT)
+             :$ (\P.(\Q.([],[P -> Q]))) :
+                (%ant_t -o (%cons_t -o %cons_t)).
+
+"prepositions"
+by 	  P * @(PREP by)
+        {
+        (^PTYPE) = sem
+        @(PREP-SEM by) |
+        (^PTYPE) = nosem }.
+
+to 	  P * @(PREP to)
+        {
+        (^PTYPE) =c sem
+        @(PREP-SEM to)};
+	  PARTinf * (^ VFORM) =c inf.
+
+on 	  P * @(PREP on)
+          @(PREP-SEM on).
+
+in 	  P * @(PREP in)
+          @(PREP-SEM in).
+
+for 	  P * @(PREP for)
+             @(PREP-SEM for).
+
+with 	  P * @(PREP with)
+	  @(PREP-SEM with).
+
+within     P * @(PREP within)
+                @(PREP-SEM within).
+
+of      P * @(PREP of)
+            {@(PREP-SEM of) |
+             (OBL-PART ^)}.
+
+from     P * @(PREP from)
+            @(PREP-SEM from).
+
+at	  P * @(PREP at)
+        @(PREP-SEM at).
+
+outside	  P * @(PREP outside)
+              @(PREP-SEM outside).
+
+
+"complementizers"
+
+that  C * (^COMP-FORM) = that.
+
+
+
+"conjunctions"
+
+and 	  CONJ * @(COORD-FORM %stem);
+	  CONJnp * @(COORD-FORM %stem) @(NUM pl).
+
+or 	  CONJ * @(COORD-FORM %stem);
+	  CONJnp * @(COORD-FORM %stem) @(NUM pl).
+
+
+"punctuation, now with some functional information"
+
+. 	  PERIOD * (^ STMT-TYPE) = declarative.
+
+, 	  COMMA * .
+
+! 	  EXCL * (^ STMT-TYPE) = exclamation.
+
+
+"negation"
+
+not   NEG * @(PRED not)
+            @(QUANT-SCOPE ^ %q)
+            :$ (\P.([],[~(P)])) :
+            (%q_t -o %q_t).
+
+Not   NEG * @(PRED not)
+            @(QUANT-SCOPE ^ %q)
+            :$ (\P.([],[~(P)])) :
+            (%q_t -o %q_t).
+
+"nominal modifiers"
+
+university NMod * .
+
+law 	  NMod * .
+
+member	  NMod * ; ETC.
+
+committee	  NMod * .
+
+
+----

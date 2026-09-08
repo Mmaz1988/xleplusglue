@@ -6,13 +6,13 @@ lam(M,lam(P,lam(S,merge(drs([Z],[]),merge(app(app(M,S),Z),app(P,Z)))))) : ((137_
 lam(T,lam(T2,drs([],[rel(before,T,T2)]))) : (13_s -o (14_s -o 13_t))
 lam(T,lam(P,lam(S,merge(drs([R],[]),merge(app(app(T,R),S),app(P,R)))))) : ((13_s -o (14_s -o 13_t)) -o ((13_s -o 13_t) -o (14_s -o 14_t)))
 //Grammar
-lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) : ((12_v -o 12_t) -o (9_e -o (12_v -o 12_t))) || noscope
-lam(X,drs([],[pred(man,X)])) : (9_e -o 9_t)
-lam(V,drs([],[pred(hug,V)])) : (12_v -o 12_t)
-lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg2,E,X)]))))) : ((12_v -o 12_t) -o (4_e -o (12_v -o 12_t))) || noscope
+lam(V,lam(X,lam(E,merge(app(V,E),drs([],[arg1(E,X)]))))) : ((12_v -o 12_t) -o (9_e -o (12_v -o 12_t))) || noscope
+lam(X,drs([],[man(X)])) : (9_e -o 9_t)
+lam(V,drs([],[hug(V)])) : (12_v -o 12_t)
+lam(V,lam(X,lam(E,merge(app(V,E),drs([],[arg2(E,X)]))))) : ((12_v -o 12_t) -o (4_e -o (12_v -o 12_t))) || noscope
 lam(P,lam(Q,drs([],[imp(merge(drs([X],[]),app(P,X)),app(Q,X))]))) : ((9_e -o 9_t) -o ((9_e -o 5_t) -o 5_t))
 lam(P,lam(Q,merge(drs([X],[]),merge(app(P,X),app(Q,X))))) : ((4_e -o 4_t) -o ((4_e -o 5_t) -o 5_t))
-lam(X,drs([],[pred(woman,X)])) : (4_e -o 4_t)
+lam(X,drs([],[woman(X)])) : (4_e -o 4_t)
 //tense closure should also be added by Liger
 lam(P,merge(drs([T],[eq(T,now)]),app(P,T))) : ((14_s -o 14_t) -o 11_t)
 //situation as modifier (should be added by Liger

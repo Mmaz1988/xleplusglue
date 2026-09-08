@@ -111,6 +111,8 @@ get V-S XLE {@(DITRANS-EV %stem) |
 
 appear 	  V-S XLE @(INTRANS-EV %stem).
 
+bark 	  V-S XLE @(INTRANS-EV %stem).
+
 disappear V-S XLE @(INTRANS-EV %stem).
 
 laugh 	  V-S XLE @(INTRANS-EV %stem).
@@ -121,12 +123,17 @@ sleep 	  V-S XLE @(INTRANS-EV %stem).
 
 live       V-S XLE @(INTRANS-EV %stem).
 
+rain    V-S XLE @(EXPLETIVE-EV %stem).
+
+shine   V-S XLE @(INTRANS-EV %stem).
+
 wait 	  V-S XLE { @(INTRANS-EV wait) |
 		@(INTRANS-OBL wait)
 		"this is the non-semantic OBL wait on a customer use"
 		(^ OBL PFORM) =c on
 		(^ PSEM) =c nosem }.
 
+yawn       V-S XLE @(INTRANS-EV %stem).
 
 "Optional transitives"
 
@@ -192,6 +199,8 @@ obtain    V-S XLE @(TRANS-EV %stem).
 
 finish   V-S XLE @(TRANS-EV %stem).
 
+pass  V-S XLE @(TRANS-EV %stem).
+
 photograph  V-S XLE @(TRANS-EV %stem).
 
 praise V-S XLE @(TRANS-EV %stem).
@@ -238,6 +247,8 @@ visit V-S XLE @(TRANS-EV %stem).
 give 	  V-S XLE @(DITRANS-EV give).
 
 contribute V-S XLE @(DITRANS-EV contribute).
+
+send V-S XLE @(DITRANS-EV send).
 
 
 "comes: eg. 'comes cheap'"
@@ -293,14 +304,14 @@ was   AUX[fin] *  @BE-TRANS-EV
            @VPAST
 		   @(PROG -_)
 		   @(PERF -_)
-		   {@S-AGR @(OT-MARK Be-3pl)
+		   {@S-AGR
 		   |
 		   (^ SUBJ PERS) = 2
 	       (^ SUBJ NUM) = sg};
        AUX[pass,fin] * @VPAST
        		           @S-AGR
        		           (^VFORM) = fin
-       		           (^PASSIVE) = +;
+       		           (^PASSIVE) =c +;
        AUX[prog,fin] * @VPAST
                       @S-AGR
                       @(PERF -_)
@@ -354,19 +365,20 @@ be   AUX[base] *  (^VFORM) = inf
               @(EVENT be)
               { @(ARG1 (^ PREDLINK)) | @(ARG1 (^ SUB J))}" "EX. There was an Italian vs. the dog was fast"
               ;
-     AUX[prog,base] *  (^VFORM) = inf
-                       "@(PERF -_)".
+     AUX[prog,base] *  (^VFORM) = inf.
 
 
 
 been     AUX[prog,base] *  (^VFORM) = inf.
+
+
                             "@(PERF +_)"
 
 
 "modals"
 
 
-can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
+can    AUX[modal,fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
                 @(EVENT %stem)
                  %s = s::(^ XCOMP)
                  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
@@ -378,7 +390,7 @@ can    AUX[fin] *  (^PRED) = 'can<(^SUBJ)(^XCOMP)>'
               @(PERF -_)
               @VPRESMODAL.
 
-could    AUX[fin] *  (^PRED) = 'could<(^SUBJ)(^XCOMP)>'
+could    AUX[modal,fin] *  (^PRED) = 'could<(^SUBJ)(^XCOMP)>'
                 @(EVENT %stem)
                  %s = s::(^ XCOMP)
                  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
@@ -390,7 +402,7 @@ could    AUX[fin] *  (^PRED) = 'could<(^SUBJ)(^XCOMP)>'
               @(PERF -_)
               @VPRESMODAL.
 
-would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
+would    AUX[modal,fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
                 @(EVENT %stem)
                  %s = s::(^ XCOMP)
                  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
@@ -402,7 +414,7 @@ would    AUX[fin] *  (^PRED) = 'would<(^SUBJ)(^XCOMP)>'
               @(PERF -_)
               @VPRESMODAL.
 
-should    AUX[fin] *  (^PRED) = 'should<(^SUBJ)(^XCOMP)>'
+should    AUX[modal,fin] *  (^PRED) = 'should<(^SUBJ)(^XCOMP)>'
                 @(EVENT %stem)
                  %s = s::(^ XCOMP)
                  :$ lam(P,lam(S,lam(V,merge(app(P,V),drs([],[cont(V,S)]))))) :
@@ -416,10 +428,11 @@ should    AUX[fin] *  (^PRED) = 'should<(^SUBJ)(^XCOMP)>'
 
 
 did AUX[fin] * @VPAST;
-    AUXdo[fin] * @VPAST.
+  "Not sure if do support can appear in a nonfinite clause"
+    AUXdo * @VPAST.
 
-does AUXdo[fin] * @(TENSE pres)
-	                @(MOOD indicative).
+does AUXdo * @(TENSE pres)
+	         @(MOOD indicative).
 
 "For perfect forms"
 
@@ -430,7 +443,7 @@ has AUX[perf,fin] * @(TENSE pres)
                     @(MOOD indicative).
 
 have AUX[perf,base] * (^VFORM) = inf;
-      V-S XLE @(TRANS-EV %stem).
+     V-S XLE @(TRANS-EV %stem).
 
 
 "did       V-S XLE @(INTRANS-EV %stem)."

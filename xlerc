@@ -4,7 +4,7 @@ set-character-encoding stdio utf-8
 # performance vars
 set max_xle_scratch_storage 1000
 set start_skimming_when_scratch_storage_exceeds 1000
-#set print_subtrees 1
+set print_subtrees 1
 
 # set timeout lower; amounts are in seconds
 set timeout 10
@@ -14,6 +14,7 @@ set semwindowtop 0
 
 #provide window for output
 #stdout not tested
+set semDisplay window
 set semDisplay window
 #set semDisplay stdout
 
@@ -29,7 +30,9 @@ proc relpath {path} {
 set defaultGlueTCL [relpath src/glue.tcl]
 
 #Here the grammar is loaded
-set defaultGlueParser [relpath grammars/demo/fracas_inference_grammar/main_fracas_grammar.lfg.glue]
+# set defaultGlueParser [relpath grammars/dev/glue-basic-drt.lfg.glue]
+set defaultGlueParser [relpath grammars/dev/lfgxdrt_inference_grammar/main_lfgxdrt_inference_grammar.lfg.glue]
+# set defaultGlueParser [relpath grammars/demo/fracas_inference_grammar/main_fracas_grammar.lfg.glue]
 
 #Set LiGER rule file
 set transferRuleFile [relpath liger_resources/rules/tam_rules.txt]
@@ -45,6 +48,8 @@ proc tr {} {parse-testfile [relpath testsuites/parsing/fracas_relative_testsuite
 proc tm {} {parse-testfile [relpath testsuites/parsing/marks-testsuite.lfg] }
 
 proc tn {} {parse-testfile [relpath testsuites/negation_testsuite.lfg] }
+
+proc ts {} {parse-testfile [relpath testsuites/parsing/syntactic_equivalences.lfg] }
 
 # Specify the tmp directory for intermediate files
 set defaultTmpDir /tmp
@@ -94,3 +99,94 @@ init-glue
 #    puts "Cleaned up the grammars directory."
 # }
 
+
+
+# Procedures used to save chart data to a specified file
+# The main procedures are:
+# export-chart-to-file filename chart
+#   this requires that you have created a parser and parsed a sentence beforehand
+# export-charts-for-testsuite testsuite grammar
+#   this creates a parser for the provided grammar and parses the sentences from the testsuite, for every sentence a {index}.txt file containing the chart data will be created
+
+proc export-chart-to-file {filename {chartData ""}} {
+    global chart depth stateChart
+    if {[string index $chartData 0] == "."} {
+	    set chartData [get-window-prop $chartData chart]
+    }
+    if {$chartData == ""} {
+	    set chartData [default-chart]
+    }
+    if {[info exists chart]} {unset chart}
+    if {[info exists depth]} {unset depth}
+    if {[info exists stateChart]} {unset stateChart}
+    if {$filename == ""} {
+        set filename chart-data.txt
+    }
+    set outfile [open $filename a]
+    set top 0
+    foreach edge [get_edges $chartData] {
+	    set edgedepth [add-to-chart $edge]
+	    if {$edgedepth > $top} {
+	        set top $edgedepth
+	    }
+    }
+    while {$top > 0} {
+        puts $outfile $top
+	    write-chart-row-to-file $top [lsort -command edge-order $chart($top)] $outfile
+        incr top -1
+    }
+    close $outfile
+}
+
+proc write-chart-row-to-file {row edges filehandle} {
+    global edges-must-have-graphs
+    foreach edge $edges {
+	    set hasgraph 0
+	    foreach subtree [get_field $edge subtrees] {
+	        set graph [get_field $subtree graph]
+	        if {$graph != "" && $graph != "(Graph)1"} {
+		        set hasgraph 1
+	        }
+	    }
+	    if {$hasgraph == 0 && ${edges-must-have-graphs}} {continue}
+	    set label [get-label $edge]
+        puts $filehandle $label
+    }
+}
+
+proc export-charts-for-testsuite {{testsuite ""} {grammar ""}} {
+    if {$grammar == ""} {
+        puts "Cannot parse without a grammar."
+        return
+    }
+    if {$testsuite == ""} {
+        puts "Please provide a testsuite for parsing."
+        return
+    }
+    # read testsuite
+    set testsuiteFilehandle [open $testsuite r]
+    set testsuiteData [read $testsuiteFilehandle]
+    close $testsuiteFilehandle
+    # separate testsuite sentences
+    set lines [split $testsuiteData "\n"]
+    # remove comments and empty lines
+    foreach line $lines {
+        if {[string index $line 0] != "\#"} {
+            if {[string trim $line] != ""} {
+                # remove statistics
+                set info [strip-performance-data $line]
+	            lappend sentences [lindex $info 0]
+            }
+        }
+    }
+    # create parser
+    set chart [create-parser $grammar]
+    # parse-sentence for each sentence
+    set index -1
+    foreach sentence $sentences {
+        incr index
+        parse-sentence $sentence $chart
+        # write output in each iteration
+        export-chart-to-file $index.txt $chart
+    }
+}

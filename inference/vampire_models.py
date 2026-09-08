@@ -1,13 +1,12 @@
-import json
-from typing import List
-from pydantic import BaseModel
+from typing import List, Optional, Union
 
-from typing import List
+from pydantic import BaseModel, Field
 
-#what the input item should look like
+
 class Item(BaseModel):
     discourseSoFar: str
     axioms: str
+
 
 class Context(BaseModel):
     original: str
@@ -15,51 +14,56 @@ class Context(BaseModel):
     prolog_fol: str
     tptp: str
     box: str
+    semantic: str = ""
+
 
 class VampireRequest(BaseModel):
     text: str
-    context: List[Context]  # A list of Context objects
-    axioms: str
-    hypothesis: str
-    pruning: bool
-    active_indices: List[int]
-    vampire_preferences: dict  # A dictionary for vampire preferences
+    context: List[Context] = Field(default_factory=list)
+    axioms: str = ""
+    hypothesis: str = ""
+    pruning: bool = False
+    active_indices: List[int] = Field(default_factory=list)
+    vampire_preferences: dict = Field(default_factory=dict)
+    tptp_checks: List[dict] = Field(default_factory=list)
+    # Both optional and unset by default so existing callers (e.g. the local test harness)
+    # keep today's flat tmp/<session_key>-<uuid> behavior. When a real chat session sends
+    # both, _make_vampire_tmp_root groups this call's tmp files under that session/turn
+    # instead of a fresh unrelated directory per call.
+    session_key: Optional[str] = None
+    turn_index: Optional[int] = None
+
 
 class VampireMultipleRequest(BaseModel):
-    nli_items: dict  # A dictionary mapping ids to VampireNLI objects
+    nli_items: dict
     pruning: bool
     vampire_preferences: dict
+    session_key: str = "last_session"
+
 
 class VampireNLI(BaseModel):
     premises: List[str]
-    hypothesis: str
+    hypothesis: Union[str, List[str]]
 
 
-
-
-# export interface check {
-#   glyph: string;
-#   informative: boolean;
-#   consistent: boolean;
-# }
 class Check(BaseModel):
     glyph: str
     informative: bool
     consistent: bool
     relevant: bool
     proof_files: List[str]
+    semantic_svg: str = ""
+    # Echoed back from the submitted tptp_checks bundle so a client can pair a verdict with
+    # the assignment it belongs to by id. Verdicts used to be matched by array position,
+    # which silently mispairs as soon as a bundle is filtered or reordered anywhere.
+    assignment_id: str = ""
 
 
-
-# export interface vampireResponse {
-#   context: context[];
-#   active_indices: number[];
-#   context_checks_mapping: {[key: number]: check };
-# }
 class VampireResponse(BaseModel):
-    context: List[Context]  # A list of Context objects
-    active_indices: List[int]  # A list of integers
-    context_checks_mapping: dict  # A dictionary mapping integers to Check objects
+    context: List[Context]
+    active_indices: List[int]
+    context_checks_mapping: dict
+
 
 class VampireMultipleResponse(BaseModel):
-    results: dict  # A dictionary mapping ids to Lists of Check objects
+    results: dict

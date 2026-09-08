@@ -1,5 +1,5 @@
-# Use the official Python base image
-FROM python:3.9
+# Use a slimmer Python base image
+FROM python:3.9-slim
 
 EXPOSE 8082
 
@@ -9,32 +9,56 @@ ENV BOXER_PATH="boxer"
 # Install only required system dependencies (minimal setup)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    ca-certificates && \
-    apt-get clean
+    ca-certificates \
+    curl \
+    unzip \
+    swi-prolog && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /vampire
 
-# Copy the pre-built Vampire binary and make it executable
-COPY vampire_build/vampire /vampire/
-RUN chmod +x /vampire/bin/vampire
+# Vampire comes from an upstream GitHub release rather than a binary vendored in this
+# repo, so the version in use is visible here and an upgrade is a one-line change.
+#
+# VAMPIRE_ARCH must match the architecture this image is actually built for. The vampire
+# service in docker-compose.yaml is left unpinned so it builds natively -- arm64 on Apple
+# Silicon, where the old amd64 binary ran under QEMU at roughly 1/7th speed. To go back to
+# x86-64, set `platform: linux/amd64` on that service AND swap the two ARG lines below.
+# A mismatch between the two fails at runtime with "exec format error".
+ARG VAMPIRE_VERSION=v5.1.0
+ARG VAMPIRE_ARCH=Linux-ARM64
+# ARG VAMPIRE_ARCH=Linux-X64
+
+# The release zip holds a single file named `vampire`; it lands in bin/, which is where
+# vampire_call.build_vampire_command() looks for it. The --version call doubles as a
+# build-time smoke test, so a wrong arch or a dead URL fails `docker build` rather than
+# the first inference request.
+RUN mkdir -p /vampire/bin && \
+    curl -fsSL -o /tmp/vampire.zip \
+      "https://github.com/vprover/vampire/releases/download/${VAMPIRE_VERSION}/vampire-${VAMPIRE_ARCH}.zip" && \
+    unzip -j /tmp/vampire.zip vampire -d /vampire/bin && \
+    chmod +x /vampire/bin/vampire && \
+    rm /tmp/vampire.zip && \
+    /vampire/bin/vampire --version
 
 # Optionally install Python libraries (if needed)
-RUN pip install --upgrade pip
-# install prolog
-RUN apt-get install --yes swi-prolog
-RUN pip install -U pyswip
+# Install the Python bridge without retaining pip's download cache.
+RUN pip install --no-cache-dir -U pyswip
 
 # Copy the inference Python script and related files
 COPY inference/run_vampire.py /vampire/
 COPY inference/vampire_call.py /vampire/
 COPY inference/vampire_models.py /vampire/
 COPY inference/vampire_endpoints.py /vampire/
+COPY inference/vampire_redis_calls.py /vampire/
+COPY inference/logging_config.py /vampire/
 
 COPY inference/requirements.txt /vampire/
 
 # Install the required Python libraries
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # copy boxer files to vampire
 COPY BB-DRT/boxer /vampire/boxer
@@ -46,6 +70,6 @@ COPY BB-DRT/boxer /vampire/boxer
 
 # Set the command to run the Python script
 #CMD ["python", "run_vampire.py"]
-CMD ["uvicorn", "vampire_endpoints:app", "--host", "0.0.0.0", "--port", "8082", "--reload"]
+CMD ["uvicorn", "vampire_endpoints:app", "--host", "0.0.0.0", "--port", "8082"]
 #CMD ["fastapi", "run", "run_vampire.py", "--port", "8082"]
 #uvicorn main:app --host 0.0.0.0 --port 80

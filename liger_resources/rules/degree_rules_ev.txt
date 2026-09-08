@@ -33,8 +33,22 @@
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE lam(P,merge(drs([D:d],[]),merge(drs([],[greater(D,th_strip(%a)('strip(%x)'))]),app(P,D)))) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
-//Rules for comparative uses
-#a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p &
+//Added noscope to arg1s. Needs evaluation
+//Comparative rule for attributive uses
+#a ATYPE 'attributive' & #a DEGREE 'comparative' & #a PRED %p &
+#a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
+#a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
+==>
+#o DEGREE #x & #o DEGREE-HOLDER #y &
+#d GLUE lam(P,lam(Q,lam(E,
+		merge(drs([D:d],[]),merge(app(app(P,D),E),drs([],[not(merge(drs([V],[]),app(app(Q,D),V)))])))))) :
+		((#d_d -o (#b_e -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_e -o #b_t))) || noscope &
+#m GLUE lam(D,lam(E,drs([],[rel(strip(%p),E,D)]))) : (#x_d -o (#y_v -o #m_t)) &
+#n GLUE lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) :
+		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))) || noscope.
+
+//Comparative rule for predicative uses
+#a ATYPE 'predicative' & #a DEGREE 'comparative' & #a PRED %p &
 #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p &
 #a ADJUNCT #f in_set #c OBL-COMP #m OBJ #n s:: #o
 ==>
@@ -44,7 +58,7 @@
 		((#d_d -o (#b_v -o #b_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#b_v -o #b_t))) || noscope &
 #m GLUE lam(D,lam(E,drs([],[rel(strip(%p),E,D)]))) : (#x_d -o (#y_v -o #m_t)) &
 #n GLUE lam(V,lam(X,lam(E,merge(app(V,E),drs([],[rel(arg1,E,X)]))))) :
-		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))).
+		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))) || noscope.
 
 //Rule for equitives
 #a SEMTYPE 'degree' & #a PRED %p &
@@ -74,4 +88,3 @@
 #a MONO #q & #q AXIOM all(X, all(Delta1:d, iff(strip(%p)(X, Delta1), all(Delta2:d, imp(lessEq(Delta2, Delta1), strip(%p)(X, Delta2)))))) &
 #a CP #r & #r AXIOM all(X, all(Y, imp(some(D:d, and(strip(%p)(X, D), not(strip(%p)(Y, D)))), all(D2:d, imp(strip(%p)(Y, D2), strip(%p)(X, D2)))))) &
 #a MAX #s & #s AXIOM all(X, some(Delta1:d, and(strip(%p)(X, Delta1), not(some(Delta2:d, and(greater(Delta2, Delta1), strip(%p)(X, Delta2))))))).
-

@@ -59,8 +59,7 @@ within     P * @(PREP within)
 
 of      P * @(PREP of)
             {@(PREP-SEM of) |
-             (OBL-PART ^)}
-             .
+             (OBL-PART ^)}.
 
 from     P * @(PREP from)
             @(PREP-SEM from).

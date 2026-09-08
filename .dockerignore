@@ -1,0 +1,26 @@
+# Keep Docker build contexts small and avoid shipping generated artifacts.
+
+.git
+.idea
+.DS_Store
+**/.DS_Store
+
+frontend/last_running/
+inference/vampire_test/
+inference/vampire_test/venv/
+inference/__pycache__/
+inference/**/__pycache__/
+**/*.pyc
+
+jars/old_versions/
+# Vampire is downloaded from an upstream GitHub release at build time, so neither the
+# vendored Linux build nor the local macOS one is needed in any build context.
+vampire_build/
+vampire_build_mac/
+
+tmp/
+redis-data/
+
+# Local model/toolkit downloads -- ~1.1 GB combined, needed by nothing in any image.
+Stanza/
+models/

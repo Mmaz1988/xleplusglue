@@ -1,0 +1,78 @@
+
+# syntactic equivalences
+
+
+# passive -active
+{
+Mary ate the cake.
+====
+The cake was eaten.
+>>> 1
+}
+
+{
+Mary ate the cake.
+====
+The cake was not eaten by Mary.
+>>> -1
+}
+
+
+
+# dative shift
+{
+Mary got the dog a book.
+====
+Mary got a dog to the book.
+>>> 0
+}
+
+
+{
+John gave the monkey a banana.
+====
+John gave a banana to the monkey.
+>>> 1
+}
+
+{
+Abby gave an apple to James.
+====
+Abby did not give James an apple.
+>>> -1
+}
+
+
+# this syntax times out with the negation
+{
+Abby gave James an apple.
+====
+Abby did not give an apple to James.
+>>> -1
+}
+
+
+
+# relative clauses
+
+{
+Abby finds a dog who ate a banana
+====
+A dog ate a banana.
+>>> 1
+}
+
+
+{
+Every red dog likes sausages.
+====
+Every dog who is red likes sausages.
+>>> 1
+}
+
+
+
+
+
+
+# topicalization: not in syntax yet

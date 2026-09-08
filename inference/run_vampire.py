@@ -8,18 +8,191 @@ import traceback
 import time
 import shutil
 import logging
+import uuid
 
 
-from vampire_call import generate_tptp_files, massacer, generate_svg_glyph, discourse_checks
-from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest, VampireMultipleResponse
+from vampire_call import (generate_tptp_files, massacer, generate_svg_glyph, discourse_checks,
+                          comment_line)
+from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
+from vampire_redis_calls import clear_vampire_progress, merge_and_save_last_session, load_vampire_progress, save_vampire_progress
+from logging_config import session_log_file
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+# Level and handlers are configured once in logging_config, from the entrypoint.
 logger = logging.getLogger(__name__)
 
 vampire_command = 'vampire'
 
 # Retrieve the helper file path from the environment variable
 BOXER = os.getenv("BOXER_PATH", "boxer")
+
+# Base directory every per-request scratch dir (_make_vampire_tmp_root) is created under.
+# Bind-mount this (see Docker/docker-compose.yaml's `vampire` service) to inspect generated
+# .p files from the host when KEEP_TPTP_FILES is on.
+TPTP_BASE_DIR = "tmp"
+
+# When set, _cleanup_tmp_root leaves each request's generated .p (TPTP) files on disk
+# instead of deleting them right after the request finishes -- for inspecting exactly what
+# was sent to Vampire. Off by default (matches the old always-delete behavior). Toggle via
+# the VAMPIRE_KEEP_TPTP env var (Docker/docker-compose.yaml wires this to a compose var).
+KEEP_TPTP_FILES = os.getenv("VAMPIRE_KEEP_TPTP", "false").strip().lower() in ("1", "true", "yes", "on")
+
+
+class VampireCancelled(Exception):
+    pass
+
+
+def _make_vampire_tmp_root(session_key: str, turn_index: int = None) -> str:
+    """Builds this call's scratch/debug-output directory.
+
+    With a real chat turn_index (single chat proof calls, once a real session_key/turn_index
+    is supplied): tmp/<session_key>/turn-<NNN>/<call-uuid> -- so KEEP_TPTP_FILES output for
+    a whole conversation lands under one session directory, grouped by turn, instead of one
+    unrelated directory per proof call. Without turn_index (regression batch calls, or any
+    caller not yet sending it): unchanged flat tmp/<session_key>-<uuid> layout.
+    """
+    safe_session_key = re.sub(r"[^A-Za-z0-9_.-]+", "_", session_key or "session")
+    if turn_index is not None:
+        turn_dir = os.path.join(TPTP_BASE_DIR, safe_session_key, f"turn-{turn_index:03d}")
+        return os.path.join(turn_dir, uuid.uuid4().hex)
+    return os.path.join(TPTP_BASE_DIR, f"{safe_session_key}-{uuid.uuid4().hex}")
+
+
+def _cleanup_tmp_root(tmp_root=None):
+    if tmp_root and not KEEP_TPTP_FILES:
+        shutil.rmtree(tmp_root, ignore_errors=True)
+
+
+def ensure_tptp_base_dir():
+    """Makes sure TPTP_BASE_DIR exists, without touching anything already in it.
+
+    A chat session's tmp/<session>/turn-<NNN>/ tree is now meant to persist for the whole
+    conversation, which can outlive a single container lifetime (e.g. the vampire service
+    restarting mid-conversation during development). This used to instead unconditionally
+    wipe every child of TPTP_BASE_DIR on every startup (clear_tptp_base_dir) -- harmless
+    under the old design, where each call got its own disposable UUID directory and nothing
+    meaningful ever spanned a restart, but under the session/turn-scoped layout it silently
+    destroyed already-completed turns the next time the container restarted. See
+    docs/PIPELINE_STATUS.md for the incident this came from.
+    """
+    os.makedirs(TPTP_BASE_DIR, exist_ok=True)
+
+
+def _vampire_session_key(request):
+    return getattr(request, "session_key", "last_session")
+
+
+def _is_vampire_cancel_requested(session_key):
+    try:
+        progress = load_vampire_progress(session_key)
+    except Exception:
+        return False
+
+    return bool(progress.get("cancelRequested")) or progress.get("state") == "cancel_requested"
+
+
+def _update_vampire_progress(session_key, **updates):
+    try:
+        progress = load_vampire_progress(session_key)
+    except Exception:
+        progress = {"sessionKey": session_key}
+
+    progress.update(updates)
+    progress.setdefault("completedItemIds", [])
+    progress.setdefault("changedItemIds", [])
+    progress.setdefault("itemResults", {})
+    progress.setdefault("itemCount", 0)
+    progress.setdefault("proofCount", 0)
+    progress.setdefault("totalItemCount", 0)
+    progress["sessionKey"] = session_key
+    try:
+        save_vampire_progress(session_key, progress)
+    except Exception:
+        # Progress is telemetry. It must never take the run down with it -- a transient
+        # Redis timeout (the store is single-worker and also serves multi-megabyte session
+        # writes) used to propagate out of the batch loop and 500 the whole request,
+        # leaving the record stuck on "running" forever. 2026-08-22.
+        logger.warning("Unable to persist Vampire progress; continuing", exc_info=True)
+
+
+def _ensure_not_cancelled(session_key):
+    if _is_vampire_cancel_requested(session_key):
+        raise VampireCancelled()
+
+
+def _item_value(item, key, default=None):
+    if isinstance(item, dict):
+        return item.get(key, default)
+    return getattr(item, key, default)
+
+
+def _bundle_value(bundle, *keys, default=""):
+    """First non-empty value among `keys`.
+
+    The clients are TypeScript and send camelCase; this module was written expecting
+    snake_case. `context_tptp` was read while both clients sent `contextTptp`, so the
+    fof(context, axiom, ...) line was never emitted by a mechanism that looked wired up.
+    Accept both spellings rather than pick a side and break the other caller.
+    """
+    for key in keys:
+        value = _item_value(bundle, key, None)
+        if value:
+            return value
+    return default
+
+
+def generate_translated_check_files(checks, axioms="", logic="fof", output_folder="tmp/current/", context_tptp=""):
+    os.makedirs(output_folder, exist_ok=True)
+    files = []
+    for name in ("info_pos_check", "info_neg_check", "cons_pos_check", "cons_neg_check"):
+        formula = checks[name]["tptp"]
+        context_axiom = f"{logic}(context, axiom, ({context_tptp})).\n" if context_tptp else ""
+        # Same header the legacy Prolog path writes, so a kept .p file says what it is
+        # without cross-referencing the request. Only q is available here: GSWB composes
+        # p into each check formula itself and returns no standalone hypothesis TPTP.
+        header = (f"% check = {name}\n"
+                  f"% q (context) = {comment_line(context_tptp) if context_tptp else '(none sent)'}\n"
+                  f"% p (hypothesis) = (not sent separately; folded into the check formula)\n")
+        content = f"{header}\n{axioms}\n\n{context_axiom}{logic}({name}, axiom, ({formula})).\n"
+        path = os.path.join(output_folder, f"sem_{name}.p")
+        with open(path, "w") as file:
+            file.write(content)
+        files.append(content)
+    return files
+
+
+def run_tptp_vampire_batch(checks, axioms, logic_type, vampire_mode,
+                           max_duration, output_folder, context_tptp=""):
+    proof_files = generate_translated_check_files(
+        checks, axioms=axioms, logic=logic_type, output_folder=output_folder,
+        context_tptp=context_tptp)
+    results = massacer(output_folder, mode=vampire_mode,
+                       timeout=max_duration, vampire_path="bin")
+    return proof_files, results
+
+
+def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration):
+    current_checks = []
+    for index, tptp_bundle in enumerate(request.tptp_checks):
+        checks = _item_value(tptp_bundle, "checks", tptp_bundle)
+        output_folder = os.path.join(tmp_root, "tptp", str(index))
+        proof_files, results = run_tptp_vampire_batch(
+            checks, request.axioms, logic_type, vampire_mode,
+            max_duration, output_folder,
+            _bundle_value(tptp_bundle, "context_tptp", "contextTptp"))
+        consistent, informative, relevant = discourse_checks(data=results)
+        svg_output = generate_svg_glyph(results)
+        current_checks.append(Check(
+            glyph=svg_output,
+            informative=informative,
+            consistent=consistent,
+            relevant=relevant,
+            proof_files=proof_files,
+            assignment_id=_bundle_value(tptp_bundle, "assignment_id", "assignmentId")))
+
+    return VampireResponse(
+        context=[],
+        active_indices=list(range(len(current_checks))),
+        context_checks_mapping={i: check for i, check in enumerate(current_checks)})
 
 # function for calling predicate with a specific knowledgebase and input
 def useProlog(knowledgeBase, inputString):
@@ -48,60 +221,62 @@ def useProlog(knowledgeBase, inputString):
 
             # Handle output
             if stderr:
-                print("Prolog Errors:", stderr.strip())
+                logger.warning("Prolog errors: %s", stderr.strip())
             return stdout.strip() if stdout else None
 
     except subprocess.TimeoutExpired:
-        print("Error: Prolog execution timed out.")
+        logger.error("Prolog execution timed out.")
         return None
     except Exception as e:
-        print("Error:", str(e))
+        logger.error("Prolog execution failed: %s", e)
         return None
 
 #merge two DRSs
-def mergeDrs(firstOne,secondOne):
-    logger.info("Merging DRSs: %s, %s", firstOne, secondOne)
-    callToMerge = "presupDRT:printMerged(" + firstOne + "," + secondOne + ",'mergedRes.txt')."
+def mergeDrs(firstOne, secondOne, tmp_root="tmp"):
+    logger.debug("Merging DRSs: %s, %s", firstOne, secondOne)
+    os.makedirs(tmp_root, exist_ok=True)
+    merged_file = os.path.join(tmp_root, "mergedRes.txt")
+    callToMerge = "presupDRT:printMerged(" + firstOne + "," + secondOne + ",'" + merged_file + "')."
     useProlog(f"[{os.path.join(BOXER,'presupDRT')}].",callToMerge)
 
-    filepath = 'mergedRes.txt'
+    filepath = merged_file
     mergedRes = open(filepath, 'r').read()
 
     pattern = r"\d+? ((?:drs|merge)\(.*?\))\n"
     matches = re.findall(pattern, mergedRes, re.DOTALL)  # Use DOTALL to match across multiple lines
-    logger.info("Extracted merged Drs: %s", matches)
+    logger.debug("Extracted merged Drs: %s", matches)
 
-    if os.path.exists('mergedRes.txt'):
-        os.remove('mergedRes.txt')
+    if os.path.exists(merged_file):
+        os.remove(merged_file)
     return matches
 
 #print boxer output
-def printDRS(Drs):
-    if not os.path.exists("tmp"):
-        os.makedirs("tmp", exist_ok=True)
+def printDRS(Drs, tmp_root="tmp"):
+    if not os.path.exists(tmp_root):
+        os.makedirs(tmp_root, exist_ok=True)
 
     # logger.info("Trying to print DRS: %s", Drs)
 
     Drs = wrap_hyphenated_words(Drs)
 
-    inputDrs = "printDrs:saveToFile(" + Drs + ",'tmp/boxing.txt')."
+    boxing_file = os.path.join(tmp_root, "boxing.txt")
+    inputDrs = "printDrs:saveToFile(" + Drs + ",'" + boxing_file + "')."
     useProlog(f"[{os.path.join(BOXER,'printDrs')}].",inputDrs)
 
-    filepath = "tmp/boxing.txt"
+    filepath = boxing_file
     boxed = open(filepath, 'r').read()
 
     # logger.info("Generated following DRS: %s", boxed)
 
-    if os.path.exists("tmp/boxing.txt"):
-        os.remove("tmp/boxing.txt")
+    if os.path.exists(boxing_file):
+        os.remove(boxing_file)
     return boxed
 
 
 def extract_drs_blocks(text):
     pattern = r"((?:drs|merge|alfa)\(.*?\))\n"
-    logger.info("pattern=%r", pattern)
     matches = re.findall(pattern, text, re.DOTALL)  # Use DOTALL to match across multiple lines
-    logger.info("Extracted DRS blocks: %s", matches)
+    logger.debug("Extracted %d DRS blocks with %r: %s", len(matches), pattern, matches)
     return matches
 
 
@@ -112,28 +287,23 @@ def inputToFof(inputstring):
 
 
 #convert drs to fol to tptp and get the vampire output from that
-def conversion(formula,tptp_type="fof"):
-    logger.info("Converting formula to TPTP: %s", formula)
-    if os.path.exists("tmp"):
-        #delete contents if not empty
-        for file in os.listdir("tmp"):
-            os.remove(os.path.join("tmp", file))
-        os.rmdir("tmp")
-    os.makedirs("tmp", exist_ok=True)
+def conversion(formula, tptp_type="fof", tmp_root="tmp"):
+    logger.debug("Converting formula to TPTP: %s", formula)
+    os.makedirs(tmp_root, exist_ok=True)
     #if formula contains app or merge, resolve first.
 
     formulas = []
 
-    resolve_file = "tmp/unpure.txt"
+    resolve_file = os.path.join(tmp_root, "unpure.txt")
     if "app(" in formula or "merge(" in formula:
-        logger.info("Resolving application or merge in formula: %s", formula)
+        logger.debug("Resolving application or merge in formula: %s", formula)
         resolve_input = "presupDRT:resolve2file(" + formula + ",'" + resolve_file + "')."
         useProlog(f"[{os.path.join(BOXER,'presupDRT')}].",resolve_input)
         #stip digits and whitespaces in the beginning (.e.g 1 drs(...))
         formula = open(resolve_file, 'r').read()
         pattern = r"\d+? (.*?)\n"
         formulas = re.findall(pattern, formula, re.DOTALL)  # Use DOTALL to match across multiple lines
-        logger.info("Resolved formula: %s", formulas)
+        logger.debug("Resolved formula: %s", formulas)
     else:
         formulas = [formula]
 
@@ -143,16 +313,16 @@ def conversion(formula,tptp_type="fof"):
     prologs = []
     #get prolog output of drs to fol
     for formula in formulas:
-        drs2fol_file = "tmp/folly.txt"
+        drs2fol_file = os.path.join(tmp_root, "folly.txt")
         betterformula = "drs2fol:printfol(" + formula + ",'"+ drs2fol_file +"')."
-        logger.info("Calling Prolog to convert DRS to FOL: %s", betterformula)
+        logger.debug("Calling Prolog to convert DRS to FOL: %s", betterformula)
         useProlog(f"[{os.path.join(BOXER,'drs2fol')}].",betterformula)
-        logger.info(f"Loading knowledge base [{os.path.join(BOXER,'drs2fol')}].")
+        logger.debug("Loading knowledge base [%s].", os.path.join(BOXER, 'drs2fol'))
 
         newfol = open(drs2fol_file, 'r').read()
-        logger.info("Function conversion generated following formula: " + newfol)
+        logger.debug("Function conversion generated following formula: %s", newfol)
         #now get TPTP string from Prolog
-        fof_file = "tmp/fof.txt"
+        fof_file = os.path.join(tmp_root, "fof.txt")
 
         # tptp conversion file
         tptp_prolog = ""
@@ -165,7 +335,7 @@ def conversion(formula,tptp_type="fof"):
             tptp_prolog = "fol2tff"
         # betterfol = "fol2tptp(" + newfol + ",'" +fof_file+"')."
 
-        logger.info("Calling Prolog to convert FOL to TPTP: %s", betterfol)
+        logger.debug("Calling Prolog to convert FOL to TPTP: %s", betterfol)
         useProlog(f"[{os.path.join(BOXER,tptp_prolog)}].",betterfol)
 
         data = open(fof_file, 'r').read()
@@ -184,10 +354,24 @@ def conversion(formula,tptp_type="fof"):
 
     os.remove(resolve_file) if os.path.exists(resolve_file) else None
 
-    os.rmdir("tmp")
-    print(f'Generated TPTP formulas: %s', new_fols)
+    logger.debug("Generated TPTP formulas: %s", new_fols)
 
     return new_fols, prologs
+
+
+def run_vampire_batch(ctx_tptp, hypothesis_tptp, axioms, logic_type, vampire_mode, max_duration, output_folder):
+    proof_files = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
+                                      output_folder=output_folder)
+    results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+
+    timeout_count = sum(1 for result in results if result.get("Termination Reason") == "Timeout")
+    if vampire_mode == ["-sa", "fmb"] and results and timeout_count > len(results) / 2:
+        logger.info("Timeout majority (%d/%d); retrying with casc", timeout_count, len(results))
+        proof_files = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
+                                          output_folder=output_folder)
+        results = massacer(output_folder, mode=["--mode", "casc"], timeout=max_duration, vampire_path="bin")
+
+    return proof_files, results
 
 
 #what a DRT input should look like
@@ -196,49 +380,68 @@ def conversion(formula,tptp_type="fof"):
 #   newformula: str
 
 def single_vampire_request(request):
+    session_key = _vampire_session_key(request)
+    with session_log_file(session_key):
+        return _single_vampire_request(request, session_key)
+
+
+def _single_vampire_request(request, session_key):
+    started_at = time.monotonic()
+    tmp_root = _make_vampire_tmp_root(session_key, request.turn_index)
     new_context = []
     new_active_indices = []
     current_checks = []
 
-    # Delete tmp folder and all contents with shutil
-    if os.path.exists("tmp"):
-        shutil.rmtree("tmp")
+    logger.info("Single Vampire request %s: contexts=%d, tptp_checks=%s",
+                session_key, len(request.context or []), bool(request.tptp_checks))
+    logger.debug("Received Vampire Request: %s", request)
 
-    logger.info("Received Vampire Request: %s", request)
+    if request.tptp_checks:
+        logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
+        model_building = request.vampire_preferences['model_building'] is True
+        vampire_mode = ["-sa", "fmb"] if logic_type == "fof" and model_building else ["--mode", "casc"]
+        max_duration = int(request.vampire_preferences.get('max_duration', 45))
+        result = _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration)
+        _cleanup_tmp_root(tmp_root)
+        logger.info("Single Vampire request %s finished (tptp checks) in %.1fs",
+                    session_key, time.monotonic() - started_at)
+        return result
+
     readings = extract_drs_blocks(request.hypothesis)
     logger.debug("Readings extracted: %s", readings)
 
     # if logic_type is zero then use fof, otherwise use tff
     logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
-    logger.info("Using logic type: %s", logic_type)
+    model_building = True if request.vampire_preferences['model_building'] == True  else False
+    logger.debug("Logic type=%s", logic_type)
 
     # use proof search based on model building in fof and mixed search in tff
     vampire_mode = []
-    if logic_type == "fof":
+    if logic_type == "fof" and model_building:
         vampire_mode = ["-sa", "fmb"]
-    elif logic_type == "tff":
+    else:
         vampire_mode = ["--mode", "casc"]
 
     # CHeck if vampire preferences have max_duration with default 45 seconds
     max_duration = int(request.vampire_preferences.get('max_duration', 45))
-    logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
+    logger.debug("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
 
     hypotheses = []
     for reading in readings:
-        prolog_hypotheses, fof_hypotheses = conversion(reading, tptp_type=logic_type)
+        prolog_hypotheses, fof_hypotheses = conversion(reading, tptp_type=logic_type, tmp_root=tmp_root)
         for prolog_hypothesis, fof_hypothesis in zip(prolog_hypotheses, fof_hypotheses):
             # fof_hypothesis = extract_fof(fof_hypothesis)
             context = Context(original=request.text, prolog_drs=reading, prolog_fol=prolog_hypothesis,
-                              tptp=fof_hypothesis, box=printDRS(reading))
+                              tptp=fof_hypothesis, box=printDRS(reading, tmp_root=tmp_root))
             hypotheses.append(context)
 
     if not request.context:
         new_context = hypotheses
         new_active_indices = [i for i in range(len(hypotheses))]
-        logger.info("No context provided. Returning hypotheses.")
+        logger.debug("No context provided; returning hypotheses")
 
     else:
-        logger.info("Context provided. Processing hypotheses.")
+        logger.debug("Context provided. Processing hypotheses.")
         logger.debug("First context: %s", request.context[0].tptp)
 
         active_contexts = request.context
@@ -248,10 +451,16 @@ def single_vampire_request(request):
 
         for ctx in active_contexts:
             for hypothesis in hypotheses:
-                output_folder = "tmp/current/"
-                proof_files = generate_tptp_files(ctx.tptp, hypothesis.tptp, axioms=request.axioms, logic=logic_type,
-                                        output_folder=output_folder)
-                results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+                output_folder = os.path.join(tmp_root, "current")
+                proof_files, results = run_vampire_batch(
+                    ctx.tptp,
+                    hypothesis.tptp,
+                    request.axioms,
+                    logic_type,
+                    vampire_mode,
+                    max_duration,
+                    output_folder,
+                )
                 logger.debug("Vampire Results: %s", results)
 
                 consistent, informative, maxim_of_relevance = discourse_checks(data=results)
@@ -260,16 +469,16 @@ def single_vampire_request(request):
                 #Placeholder code
                 if consistent and informative:
                     # Create new context
-                    new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs)
+                    new_prolog = mergeDrs(ctx.prolog_drs,hypothesis.prolog_drs, tmp_root=tmp_root)
                     for prolog in new_prolog:
                         # Should be singleton lists because mergeDrs above already resolves ambiguities
-                        prolog_hypotheses, fof_hypotheses = conversion(prolog,tptp_type=logic_type)
+                        prolog_hypotheses, fof_hypotheses = conversion(prolog,tptp_type=logic_type, tmp_root=tmp_root)
                         prolog_hypothesis = prolog_hypotheses[0]
                         fof_hypothesis = fof_hypotheses[0]
                         # fof_hypothesis = extract_fof(fof_hypothesis)
                         context = Context(original=ctx.original + " " + hypothesis.original,
                                           prolog_drs=prolog, prolog_fol=prolog_hypothesis,
-                                          tptp=fof_hypothesis, box=printDRS(prolog))
+                                          tptp=fof_hypothesis, box=printDRS(prolog, tmp_root=tmp_root))
                         if context not in new_context:
                             new_context.append(context)
                             svg_output = generate_svg_glyph(results)
@@ -298,130 +507,297 @@ def single_vampire_request(request):
     for i, check in enumerate(current_checks):
         context_checks_mapping[i] = check
 
-    logger.info(f"Returning Vampire Response: {new_context}, {new_active_indices}, {context_checks_mapping}")
+    logger.debug("Returning Vampire Response: %s, %s, %s",
+                 new_context, new_active_indices, context_checks_mapping)
 
     result = VampireResponse(context=new_context,
                                  active_indices=new_active_indices,
                                  context_checks_mapping=context_checks_mapping)
-    if os.path.exists("tmp"):
-        shutil.rmtree("tmp")
+    _cleanup_tmp_root(tmp_root)
+    logger.info("Single Vampire request %s finished: %d contexts, %d checks, %.1fs",
+                session_key, len(new_context), len(context_checks_mapping),
+                time.monotonic() - started_at)
     return result
+
+
+def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
+                   max_duration, tmp_root, session_key, on_branch=None):
+    checks = []
+    branch_index = 0
+    for tptp_bundle in _item_value(nli_item, "tptp_checks", []):
+        _ensure_not_cancelled(session_key)
+        branch_root = os.path.join(tmp_root, "tptp", str(branch_index))
+        tptp_checks = _item_value(tptp_bundle, "checks", tptp_bundle)
+        proof_files, results = run_tptp_vampire_batch(
+            tptp_checks, axioms, logic_type, vampire_mode,
+            max_duration, branch_root,
+            _bundle_value(tptp_bundle, "context_tptp", "contextTptp"))
+        consistent, informative, relevance = discourse_checks(data=results)
+        svg_output = generate_svg_glyph(results)
+        checks.append(Check(
+            glyph=svg_output,
+            informative=informative,
+            consistent=consistent,
+            relevant=relevance,
+            proof_files=proof_files,
+            assignment_id=_bundle_value(tptp_bundle, "assignment_id", "assignmentId")))
+        branch_index += 1
+        if on_branch:
+            on_branch(checks)
+    return checks
 
 
 # Define the Pydantic model for request validation
 def multiple_vampire_request(request):
+    session_key = _vampire_session_key(request)
+    with session_log_file(session_key):
+        return _multiple_vampire_request(request, session_key)
+
+
+def _multiple_vampire_request(request, session_key):
+    started_at = time.monotonic()
+    tmp_root = _make_vampire_tmp_root(session_key)
 
     # if logic_type is zero then use fof, otherwise use tff
     logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
-    logger.info("Using logic type: %s", logic_type)
+    model_building = True if request.vampire_preferences['model_building'] == True  else False
 
     # use proof search based on model building in fof and mixed search in tff
     vampire_mode = []
-    if logic_type == "fof":
+    if logic_type == "fof" and model_building:
         vampire_mode = ["-sa", "fmb"]
-    elif logic_type == "tff":
+    else:
         vampire_mode = ["--mode", "casc"]
 
     # CHeck if vampire preferences have max_duration with default 45 seconds
     max_duration = int(request.vampire_preferences.get('max_duration', 45))
-    logger.info("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
+    # One line per request instead of one per branch: the per-check subprocess
+    # lines are at DEBUG, so this is what a default-level run reports.
+    logger.info("Vampire request %s: items=%d, logic=%s, mode=%s, max duration=%ds",
+                session_key, len(request.nli_items), logic_type, vampire_mode, max_duration)
 
     # Inference id to Check
-    results = {}
     inference_results = {}
+    # Items whose FULL check set (every TPTP branch, or every premise/hypothesis pair) has
+    # finished -- distinct from inference_results, which gets an entry as soon as an item's
+    # *first* branch/pair completes. itemCount used to be len(inference_results), so a
+    # single multi-branch item (e.g. the 8-branch modus ponens case) reached "itemCount ==
+    # totalItemCount" the instant its first branch finished, showing 100% long before the
+    # run was actually done. proofCount (a Check per branch/pair, counted as they land) does
+    # not have this problem and is left as-is.
+    completed_item_ids = []
 
-    for id, nli_item in request.nli_items.items():
-        output_folder = "tmp/current/"
-        # merge premises into one drs
+    def snapshot_progress(state: str, active_item_id=None):
+        _update_vampire_progress(
+            session_key,
+            state=state,
+            cancelRequested=(state == "cancelled"),
+            activeItemId=active_item_id,
+            itemCount=len(completed_item_ids),
+            proofCount=sum(len(check_list) for check_list in inference_results.values()),
+            completedItemIds=list(completed_item_ids),
+            # Deliberately NOT the results themselves: they are already persisted to
+            # last_session, nothing reads them back off the progress record, and copying
+            # them here made every per-branch snapshot rewrite the whole run's output.
+            itemResults={key: len(checks) for key, checks in inference_results.items()},
+            totalItemCount=len(request.nli_items),
+        )
 
-        if len(nli_item['premises']) > 1:
-            while len(nli_item['premises']) > 1:
-                #premise semantics
+    snapshot_progress("running")
 
-                #if first is a string extract drs, if first is a list do nothing
-                logger.info("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
-                first = extract_drs_blocks(nli_item['premises'][0]) if isinstance(nli_item['premises'][0], str) else nli_item['premises'][0]
-                second = extract_drs_blocks(nli_item['premises'][1]) if isinstance(nli_item['premises'][1], str) else nli_item['premises'][1]
+    try:
+        for id, nli_item in request.nli_items.items():
+            _ensure_not_cancelled(session_key)
+            # Presence of the key, not truthiness of its value: an lfgxdrt item whose
+            # reading-pair preparation failed on the client (see nliPreparationFailures in
+            # the regression component) is sent with tptp_checks=[] rather than omitted, so
+            # this item still has zero checks to contribute, not "not a TPTP item". Treating
+            # `[]` as falsy used to route it into the legacy Prolog/DRS branch below instead,
+            # which assumes at least one premise and crashed the whole batch (including
+            # every already-completed item's progress) on `premises[0]` of an empty list.
+            if _item_value(nli_item, "tptp_checks", None) is not None:
+                def _on_branch(checks_so_far, item_id=id):
+                    inference_results[item_id] = checks_so_far
+                    snapshot_progress("running", item_id)
+                    try:
+                        merge_and_save_last_session(
+                            session_key,
+                            {"results": {item_id: [item.dict() for item in checks_so_far]}},
+                        )
+                    except Exception:
+                        logger.warning("Unable to persist last_session to Redis CRUD service", exc_info=True)
 
-                merged_list = []
+                inference_results[id] = _run_tptp_item(
+                    nli_item,
+                    _item_value(nli_item, "axioms", ""),
+                    logic_type,
+                    vampire_mode,
+                    max_duration,
+                    tmp_root,
+                    session_key,
+                    on_branch=_on_branch)
+                completed_item_ids.append(id)
+                snapshot_progress("running", id)
+                continue
+            output_folder = os.path.join(tmp_root, "current")
+            # merge premises into one drs
 
-                if not request.pruning:
-                    for reading1 in first:
-                        for reading2 in second:
-                            merged = mergeDrs(reading1, reading2)
-                            for drs in merged:
-                                logger.info("Proccesing drs: %s", drs)
-                                if drs not in merged_list:
-                                    merged_list.append(drs)
-                                    logger.info("Updated merged list: %s", merged_list)
-                else:
-                    merged = mergeDrs(first[0], second[0])
-                    for drs in merged:
-                        merged_list.append(drs)
+            if not nli_item.get('premises') or not nli_item.get('hypothesis'):
+                # A malformed/empty item must not take the rest of the batch down with it --
+                # everything already merged into last_session for prior items in this
+                # request is otherwise lost to the resulting 500.
+                logger.warning("Skipping NLI item %s: empty premises or hypothesis", id)
+                inference_results[id] = []
+                completed_item_ids.append(id)
+                snapshot_progress("running", id)
+                continue
 
-                #make merged_list first item of nli_items and ignore second item
-                nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
+            if len(nli_item['premises']) > 1:
+                while len(nli_item['premises']) > 1:
+                    _ensure_not_cancelled(session_key)
+                    logger.debug("Current premises to merge: %s and %s1 ", nli_item['premises'][0], nli_item['premises'][1])
+                    first = extract_drs_blocks(nli_item['premises'][0]) if isinstance(nli_item['premises'][0], str) else nli_item['premises'][0]
+                    second = extract_drs_blocks(nli_item['premises'][1]) if isinstance(nli_item['premises'][1], str) else nli_item['premises'][1]
 
-        else:
-            nli_item['premises'] = [extract_drs_blocks(nli_item['premises'][0])]
+                    merged_list = []
 
-        premise_semantics = nli_item['premises'][0]
-        logger.info("Premise semantics: %s", premise_semantics)
+                    if not request.pruning:
+                        for reading1 in first:
+                            for reading2 in second:
+                                _ensure_not_cancelled(session_key)
+                                merged = mergeDrs(reading1, reading2, tmp_root=tmp_root)
+                                for drs in merged:
+                                    if drs not in merged_list:
+                                        merged_list.append(drs)
+                                        logger.debug("Updated merged list: %s", merged_list)
+                    else:
+                        merged = mergeDrs(first[0], second[0], tmp_root=tmp_root)
+                        if merged:
+                            merged_list.append(merged[0])
 
-        # This might require fixing if there are multiple hyptheses
-        hypothesis_semantics = []
-        for item in nli_item['hypothesis']:
-            hypothesis_semantics += extract_drs_blocks(item)
+                    nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
 
-        logger.info("Hypothesis semantics: %s", hypothesis_semantics)
+            else:
+                nli_item['premises'] = [extract_drs_blocks(nli_item['premises'][0])]
 
-        inference_checks = []
+            premise_semantics = nli_item['premises'][0]
+            if request.pruning:
+                premise_semantics = [premise_semantics[0]]
+            logger.debug("Premise semantics: %s", premise_semantics)
 
-        #Efficiency addition so that each formula only has to be converted once
-        p_conversions = {}
-        h_conversions = {}
+            # This might require fixing if there are multiple hyptheses
+            hypothesis_semantics = []
+            for item in nli_item['hypothesis']:
+                _ensure_not_cancelled(session_key)
+                hypothesis_semantics += extract_drs_blocks(item)
 
-        for i,sem in enumerate(premise_semantics):
-            prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type)
-            p_conversions[f'p_{i}'] = (prolog_premises, fof_premises)
+            if request.pruning:
+                hypothesis_semantics = [hypothesis_semantics[0]]
+            logger.debug("Hypothesis semantics: %s", hypothesis_semantics)
 
-        for j,sem in enumerate(hypothesis_semantics):
-            prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type)
-            h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
+            inference_checks = []
 
-        logger.info("Premise conversions: %s", p_conversions)
-        logger.info("Hypothesis conversions: %s", h_conversions)
+            #Efficiency addition so that each formula only has to be converted once
+            p_conversions = {}
+            h_conversions = {}
 
-        for p_key in p_conversions.keys():
-            for h_key in h_conversions.keys():
+            for i,sem in enumerate(premise_semantics):
+                _ensure_not_cancelled(session_key)
+                prolog_premises, fof_premises = conversion(sem, tptp_type=logic_type, tmp_root=tmp_root)
+                p_conversions[f'p_{i}'] = (prolog_premises, fof_premises)
 
-                prolog_premises, fof_premises = p_conversions[p_key]
-                prolog_hypotheses, fof_hypotheses = h_conversions[h_key]
+            for j,sem in enumerate(hypothesis_semantics):
+                _ensure_not_cancelled(session_key)
+                prolog_hypotheses, fof_hypotheses = conversion(sem, tptp_type=logic_type, tmp_root=tmp_root)
+                h_conversions[f'h_{j}'] = (prolog_hypotheses, fof_hypotheses)
 
-                for fof_premise in fof_premises:
-                    for fof_hypothesis in fof_hypotheses:
-                        logger.info("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
-                        proof_files = generate_tptp_files(fof_premise, fof_hypothesis, axioms=nli_item['axioms'], logic=logic_type,
-                                    output_folder=output_folder)
-                        results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
-                        logger.debug("Vampire Results: %s", results)
+            logger.debug("Premise conversions: %s", p_conversions)
+            logger.debug("Hypothesis conversions: %s", h_conversions)
 
-                        consistent, informative, maxim_of_relevance = discourse_checks(data=results)
-                        logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
+            for p_key in p_conversions.keys():
+                for h_key in h_conversions.keys():
+                    _ensure_not_cancelled(session_key)
 
-                        svg_output = generate_svg_glyph(results)
-                        check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant= maxim_of_relevance, proof_files=proof_files)
+                    prolog_premises, fof_premises = p_conversions[p_key]
+                    prolog_hypotheses, fof_hypotheses = h_conversions[h_key]
 
-                        inference_checks.append(check)
+                    for fof_premise in fof_premises:
+                        for fof_hypothesis in fof_hypotheses:
+                            _ensure_not_cancelled(session_key)
+                            logger.debug("Processing premise: %s and hypothesis: %s", fof_premise, fof_hypothesis)
+                            proof_files, results = run_vampire_batch(
+                                fof_premise,
+                                fof_hypothesis,
+                                nli_item['axioms'],
+                                logic_type,
+                                vampire_mode,
+                                max_duration,
+                                output_folder,
+                            )
+                            logger.debug("Vampire Results: %s", results)
 
-        inference_results[id] = inference_checks
+                            consistent, informative, maxim_of_relevance = discourse_checks(data=results)
+                            logger.debug("Consistent: %s, Informative: %s, Relevant: %s",  consistent, informative, maxim_of_relevance)
 
-    result = VampireMultipleResponse(results=inference_results)
+                            svg_output = generate_svg_glyph(results)
+                            check = Check(glyph=svg_output, informative=informative, consistent=consistent, relevant=maxim_of_relevance, proof_files=proof_files)
 
-    if os.path.exists("tmp"):
-        shutil.rmtree("tmp")
+                            inference_checks.append(check)
+                            inference_results[id] = inference_checks
+                            try:
+                                merge_and_save_last_session(
+                                    session_key,
+                                    {"results": {id: [item.dict() for item in inference_checks]}},
+                                )
+                            except Exception:
+                                logger.warning("Unable to persist last_session to Redis CRUD service", exc_info=True)
 
-    return result
+                            snapshot_progress("running", id)
+
+            inference_results[id] = inference_checks
+            completed_item_ids.append(id)
+            snapshot_progress("running", id)
+
+        snapshot_progress("completed")
+
+        logger.info("Vampire request %s completed: %d items, %d check bundles, %.1fs",
+                    session_key, len(inference_results),
+                    sum(len(checks) for checks in inference_results.values()),
+                    time.monotonic() - started_at)
+        return {"status": "ok"}
+    except VampireCancelled:
+        snapshot_progress("cancelled")
+        logger.info("Vampire request %s cancelled after %d items, %d check bundles, %.1fs",
+                    session_key, len(inference_results),
+                    sum(len(checks) for checks in inference_results.values()),
+                    time.monotonic() - started_at)
+        cancelled_result = {"status": "cancelled", "results": {key: [item.dict() for item in checks] for key, checks in inference_results.items()}}
+        try:
+            clear_vampire_progress(session_key)
+        except Exception:
+            logger.warning("Unable to clear Vampire progress after cancel", exc_info=True)
+        return cancelled_result
+    except Exception as failure:
+        # A run that dies must SAY it died. Without this the progress record kept its last
+        # "running" snapshot forever and the client polled it indefinitely -- the failure
+        # presented as a run that had simply stopped making progress, with the real cause
+        # (a Redis timeout under concurrent load) visible only in this service's log.
+        logger.error("Vampire request %s failed after %d items", session_key,
+                     len(completed_item_ids), exc_info=True)
+        try:
+            _update_vampire_progress(
+                session_key,
+                state="failed",
+                activeItemId=None,
+                failure=f"{type(failure).__name__}: {failure}",
+                itemCount=len(completed_item_ids),
+                totalItemCount=len(request.nli_items),
+            )
+        except Exception:
+            logger.warning("Unable to record the failure in Vampire progress", exc_info=True)
+        raise
+    finally:
+        _cleanup_tmp_root(tmp_root)
 
 
 """
@@ -443,6 +819,3 @@ def wrap_hyphenated_words(text):
 #     pattern = r"fof\(\w+,\w+,(.*?)\)\s*"
 #     match = re.search(pattern, text)
 #     return match.group(1)
-
-
-

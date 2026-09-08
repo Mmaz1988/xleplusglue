@@ -7,7 +7,13 @@ grammars/**/*.fileindexdir
 grammars/.#*
 jars/old_versions/*
 
-inference/vampire_test/generated_testfiles/*.p
+inference/vampire_test/generated_testfiles*/*.p
+
+/tests/tmp/
+/inference/tmp/
+
+__pycache__/
+.DS_Store
 
 *.lfg
 /grammars/*/*.fileindexdir/
@@ -28,5 +34,33 @@ inference/vampire_test/generated_testfiles/*.p
 /testsuites/testsuite_pron.lfg.errors
 /testsuites/testsuite_pron.lfg.new
 /testsuites/testsuite_pron.lfg.stats
+/testsuites/*.errors
+/testsuites/*.new
+/testsuites/*.new~
+/testsuites/*.stats
+/testsuites/*.stats~
+/testsuites/parsing/*.errors
+/testsuites/parsing/*.new
+/testsuites/parsing/*.new~
+/testsuites/parsing/*.stats
+/testsuites/parsing/*.stats~
 /.idea/vcs.xml
 /.idea/xleplusglue.iml
+
+# Local runtime, build and model artifacts -- large, machine-specific, never in git.
+# See CLAUDE.md "Working rules": these are generated/runtime artifacts, not sources.
+/.idea/
+/Stanza/
+/models/
+/vampire_build_mac/
+/redis-data/
+/tmp/
+
+# XLE testsuite backup files (the non-~ variants are already ignored above)
+/testsuites/*.errors~
+/testsuites/parsing/*.errors~
+/testsuites/inference/*.errors~
+
+# Agents and plans
+*.md
+docs/*

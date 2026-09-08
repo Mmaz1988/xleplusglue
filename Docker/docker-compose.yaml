@@ -1,4 +1,26 @@
 services:
+  redis:
+    build:
+      dockerfile: Docker/Dockerfile-redis
+      context: ..
+    ports:
+      - '6379:6379'
+      - '8083:8083'
+    volumes:
+      - ../redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # A container with no limit can take the whole Docker VM down with it, and that is
+    # what a wedged daemon looks like: no OOM record, no container exit, just an API that
+    # stops answering. With a limit the kernel kills the container instead and SAYS so
+    # (`docker inspect` reports OOMKilled), which is the difference between evidence and a
+    # guess. Sized well above observed steady state (~490 MB) -- this is a backstop, not a
+    # budget. Redis forks on AOF rewrite, transiently doubling its footprint, so leave room.
+    mem_limit: 2g
+
   liger:
     build:
       dockerfile: Docker/Dockerfile-liger
@@ -8,22 +30,56 @@ services:
     platform: linux/amd64
     ports:
       - '8080:8080'
+    environment:
+      # Raise to DEBUG for the per-rule detail; logback reads this from the env.
+      LIGER_LOG_LEVEL: ${LIGER_LOG_LEVEL:-INFO}
   vampire:
     build:
       dockerfile: Docker/Dockerfile-vampire
       context: ..
-      args:
-       - platform=linux/amd64
-    platform: linux/amd64
+    # Deliberately unpinned, so this builds and runs natively for the host: on Apple
+    # Silicon the amd64 binary ran under QEMU and needed ~12s for proofs that take ~1.7s
+    # native, which pushed checks past the 10s prover budget. Pinning it back to
+    # linux/amd64 means also switching VAMPIRE_ARCH to Linux-X64 in Dockerfile-vampire.
     ports:
       - '8082:8082'
     privileged: true  # Add this to enable privileged mode
+    environment:
+      REDIS_API_URL: http://redis:8083
+      # Root log level for the FastAPI service; DEBUG restores the per-check
+      # subprocess lines. Set LOG_DIR to also write LOG_DIR/<session key>.log
+      # per run (mount it as a volume if you want the files on the host).
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_DIR: ${VAMPIRE_LOG_DIR:-}
+      # Set VAMPIRE_KEEP_TPTP=true (env or .env) to persist every request's generated .p
+      # (TPTP) proof files under the volume below instead of deleting them right after the
+      # request finishes -- useful for inspecting exactly what was sent to Vampire during a
+      # Chat or Regression Testing session. Off by default. A chat conversation's files are
+      # grouped under tmp/<session>/turn-<NNN>/ and persist across container restarts (the
+      # startup hook only ensures the mounted folder exists -- it no longer wipes it, since
+      # that used to destroy an in-progress conversation's earlier turns on restart).
+      VAMPIRE_KEEP_TPTP: ${VAMPIRE_KEEP_TPTP:-true}
+    volumes:
+      - ../inference/tmp:/vampire/tmp
+    # Same backstop as redis: a run that grows without bound should kill its own container
+    # and be visible in `docker inspect`, not take the daemon with it. Observed steady
+    # state ~1 GB.
+    mem_limit: 3g
+    depends_on:
+      redis:
+        condition: service_healthy
   gswb:
     build:
       dockerfile: Docker/Dockerfile-gswb
       context: ..
     ports:
       - '8081:8081'
+    environment:
+      LIGER_API_URL: http://liger:8080
+      # Raise to DEBUG for per-item collapse/prover detail.
+      GSWB_LOG_LEVEL: ${GSWB_LOG_LEVEL:-INFO}
+    depends_on:
+      - liger
   frontend:
     build:
       dockerfile: Docker/Dockerfile-frontend
@@ -34,5 +90,3 @@ services:
         - gswb
         - liger
     restart: always
-
-
