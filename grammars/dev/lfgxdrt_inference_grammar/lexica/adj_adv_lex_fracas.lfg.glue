@@ -1,5 +1,23 @@
 ADJADV ENGLISH LEXICON (1.0)
 
+British   A * @(DEFAULT-ADJ-SEM british); ETC.
+
+Canadian     A * @(PRED canadian); ETC.
+
+four`-legged    A * @(DEFAULT-ADJ-SEM %stem)
+		    (^SEMTYPE) = intersective.
+
+genuine   A * @(DEFAULT-ADJ-SEM %stem)
+             (^SEMTYPE) = intersective.
+
+German      A * @(PRED german); ETC.
+
+interesting    A * @(DEFAULT-ADJ-SEM %stem)
+                   (^SEMTYPE) = intersective.
+
+Irish       A * @(PRED irish); ETC.
+
+Italian     A * @(PRED italian); ETC.
 "degree"
 
 Leading A * @(DEFAULT-ADJ-SEM %stem).
@@ -7,8 +25,40 @@ Leading A * @(DEFAULT-ADJ-SEM %stem).
 
 leading A *  @(DEFAULT-ADJ-SEM %stem).
 
-successful ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
-                      (^SEMTYPE) = degree.
+more` important  A * { @(PRED %stem)
+                       {
+                         %LOCAL $ (^ ADJUNCT)
+                         (%LOCAL PRED)= 'more'
+                         (%LOCAL DEGREE) = comparative
+                       |
+                         "Attributive adjectives can also take COMPs (Ex. He is a faster dog than him)"
+                         %LOCAL $ (^ ADJUNCT)
+                         (%LOCAL PRED)='more<(%LOCAL OBL-COMP)>'
+                         (%LOCAL DEGREE)= comparative
+                         (%LOCAL OBL-COMP PRED FN)=c than
+                       }
+                     |
+                       (^PRED) = '%stem<(^SUBJ)>'
+                       (^ ATYPE) =c predicative
+                     }
+                     (^SEMTYPE) = degree.
+
+"countries"
+
+North` American     A * @(DEFAULT-ADJ-SEM north` american); ETC.
+
+Portuguese      A * @(PRED portuguese); ETC.
+
+big 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = degree.
+
+"intersectives"
+
+black 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = intersective.
+
+clever 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = degree.
                 "{ @(PRED %stem)
 		       (^ ATYPE) =c attributive
 		      |
@@ -20,98 +70,44 @@ successful ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 fast 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 		             (^SEMTYPE) = degree.
 
-warm    ADJ-S XLE   @(DEFAULT-ADJ-SEM %stem)
-                    (^SEMTYPE) = degree.
-
-clever 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
-                    (^SEMTYPE) = degree.
-
-big 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
-		            (^SEMTYPE) = degree.
-
-small 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
-		            (^SEMTYPE) = degree.
-
-large 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
-		             (^SEMTYPE) = degree.
-
 fat 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 		            (^SEMTYPE) = degree.
 
 important 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 		                (^SEMTYPE) = degree.
 
-more` important  A *        { @(PRED %stem)
-                            {
-                            	    %LOCAL $ (^ ADJUNCT)
-                            	    (%LOCAL PRED)= 'more'
-                            	    (%LOCAL DEGREE) = comparative
-                            	   |
-                            	   "Attributive adjectives can also take COMPs (Ex. He is a faster dog than him)"
-                                   	%LOCAL $ (^ ADJUNCT)
-                            	    (%LOCAL PRED)='more<(%LOCAL OBL-COMP)>'
-                            	    (%LOCAL DEGREE)= comparative
-                            	    (%LOCAL OBL-COMP PRED FN)=c than
-                            	  }
-		                    |
-		                    (^PRED) = '%stem<(^SUBJ)>'
-		                    (^ ATYPE) =c predicative
-		                    }
-		                    (^SEMTYPE) = degree.
+large 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		             (^SEMTYPE) = degree.
 
-"intersectives"
+small 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
 
-black 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
-		    (^SEMTYPE) = intersective.
+successful ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+                      (^SEMTYPE) = degree.
 
-interesting    A * @(DEFAULT-ADJ-SEM %stem)
-		    (^SEMTYPE) = intersective.
+warm    ADJ-S XLE   @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = degree.
+ "sollten wir das hier einschränken irgendwie?"
 
-four`-legged    A * @(DEFAULT-ADJ-SEM %stem)
-		    (^SEMTYPE) = intersective.
+freely 	  ADV * @(PRED free).
 
-genuine   A * @(DEFAULT-ADJ-SEM %stem)
-             (^SEMTYPE) = intersective.
-
-
-"countries"
-
-North` American     A * @(DEFAULT-ADJ-SEM north` american); ETC.
-
-"British   A * @(DEFAULT-ADJ-SEM british); ETC.
-
-German      A * @(PRED german); ETC.
-
-Italian     A * @(PRED italian); ETC.
-
-Irish       A * @(PRED irish); ETC.
-
-Canadian     A * @(PRED canadian); ETC.
-
-Portuguese      A * @(PRED portuguese); ETC."
-
-
-
+quicker   ADV * (^ DEGREE) = comparative
+                (^ PRED)='quick<>(^OBL-COMP)'.
 
 "adverbs "
 
 quickly   ADV * (^ PRED) = 'quick<>(^OBL-COMP)'.
 
-quicker   ADV * (^ DEGREE) = comparative
-                (^ PRED)='quick<>(^OBL-COMP)'.
-
-very 	  ADV * @(PRED very). "sollten wir das hier einschränken irgendwie?"
-
-freely 	  ADV * @(PRED free).
+Sometimes ADV * @(PRED sometimes).
 
 then 	  ADV * @(PRED then)
                 (^ADV-TYPE) = cond.
 
-Yesterday ADV * @(PRED yesterday).
-
 Today ADV * @(PRED today).
 
-Sometimes ADV * @(PRED sometimes).
+very 	  ADV * @(PRED very).
+
+Yesterday ADV * @(PRED yesterday).
 
 "outside	  ADV * (^ PRED) = 'outside<(^OBJ)>'; ETC."
 

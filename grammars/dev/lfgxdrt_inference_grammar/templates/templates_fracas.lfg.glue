@@ -1,5 +1,9 @@
 DEMO   ENGLISH   TEMPLATES (1.0)
 
+"""
+Coordination
+"""
+
    NP-CONJUNCT = "provides person resolution features for nominal
 	  coordination" 
 	  
@@ -21,6 +25,11 @@ DEMO   ENGLISH   TEMPLATES (1.0)
    OT-MARK(_mark) = "assigns an OT mark, from common templates"
 	  _mark $ o::*.
 
+
+"""
+Lexical rules
+"""
+
    PASS(FRAME) = { FRAME "no passive, just give back subcat frame"
 	    (^ PASSIVE) = - "no passive"
 	  | FRAME "passive"
@@ -39,36 +48,12 @@ DEMO   ENGLISH   TEMPLATES (1.0)
 	    (^ OBJ)-->(^ OBJ2)
 	    (^ OBL-TO)-->(^ OBJ)}.
 
-   """Subcategorization templates"""
 
-   "lambda DRT"
-   DITRANS-EV(P) = @(PASS @(DAT-SHIFT (^ PRED)='P<(^ SUBJ) (^ OBJ) (^ OBL-TO)>'))
-	  @(DITRANS-PASSIVE-ARGS %arg1 %arg2 %arg3)
-	  @(EVENT P)
-	  @(ARG1 %arg1)
-	  @(ARG2 %arg2)
-	  @(ARG3 %arg3).
+"""
+Subcategorization templates
+"""
 
-	  	       
-   "lambda DRT"
-   TRANS-EV(P) = @(PASS (^ PRED)='P<(^SUBJ) (^OBJ)>')
-	  @(TRANS-PASSIVE-ARGS %arg1 %arg2)
-	  @(EVENT P)
-	  @(ARG1 %arg1)
-	  @(ARG2 %arg2).
-
-
-  INTRANS-OBL-EV(P) = (^ PRED) = 'P<(^SUBJ) (^OBL)>'
-                    @(EVENT P)
-                    @(ARG1 (^ SUBJ))
-                    @(ARG2 (^ OBL))
-                    (^OBL PFORM) =c in.
-
-
-   EXPLETIVE-EV(P) = (^ PRED) = 'P<> (^SUBJ)'
-	  @(EVENT P).
-
-   "lambda DRT"
+"Intransitives"
    INTRANS-EV(P) = (^ PRED) = 'P<(^SUBJ)>'
 	  @(EVENT P)
 	  @(ARG1 (^ SUBJ)).
@@ -79,8 +64,56 @@ DEMO   ENGLISH   TEMPLATES (1.0)
    OPT-TRANS-EV(P) = { @(TRANS-EV P)
 	   |
 	    @(INTRANS-EV P)
-	  }. 
+	  }.
 
+   "transitives"
+   TRANS-EV(P) = @(PASS (^ PRED)='P<(^SUBJ) (^OBJ)>')
+	  @(TRANS-PASSIVE-ARGS %arg1 %arg2)
+	  @(EVENT P)
+	  @(ARG1 %arg1)
+	  @(ARG2 %arg2).
+
+   "Di-transitives"
+   DITRANS-EV(P) = @(PASS @(DAT-SHIFT (^ PRED)='P<(^ SUBJ) (^ OBJ) (^ OBL-TO)>'))
+	  @(DITRANS-PASSIVE-ARGS %arg1 %arg2 %arg3)
+	  @(EVENT P)
+	  @(ARG1 %arg1)
+	  @(ARG2 %arg2)
+	  @(ARG3 %arg3).
+
+"Verbs taking obliques"
+SUBJ-OBL-EV(P) = (^ PRED) = 'P<(^SUBJ) (^OBL)>'
+                 @(EVENT P)
+                 @(ARG1 (^ SUBJ))
+                 @(ARG2 (^ OBL))
+                 (^OBL PFORM) =c in.
+
+VERB-SUBJ-OBL-EV(P) =
+           (^ PRED) = 'P<(^ SUBJ)(^ OBL)>'
+           @(EVENT P)
+           @(ARG1 (^SUBJ))
+           @(ARG2 (^OBL)).
+
+VERB-SUBJ-OB-OBL-EV(P) =
+             (^ PRED) = 'P<(^ SUBJ)(^ OBJ)(^ OBL)>'
+             @(EVENT P)
+             @(ARG1 (^SUBJ))
+             @(ARG2 (^OBJ))
+             @(ARG3 (^OBL)).
+
+"""
+       VERB-SUBJ-OBJ-OBL(P) =
+           (^ PRED) = 'P<(^ SUBJ)(^ OBJ)(^ OBL)>'
+            @(EVENT P)
+           @(ARG1 (^SUBJ))
+           @(ARG2 (^OBJ))
+           @(ARG3 (^OBL)).
+"""            
+
+EXPLETIVE-EV(P) = (^ PRED) = 'P<> (^SUBJ)'
+                  @(EVENT P).
+
+"Copulas/auxiliaries"
 BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
                      @(EVENT be)
                      {
@@ -107,7 +140,9 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
                      "{ @(ARG1 (^ PREDLINK)) | @(ARG1 (^ SUBJ))}" "EX. There was an Italian vs. the dog was fast"
 
 
-""" Argument structure templates """
+"""
+Argument alternation templates
+"""
    
    TRANS-PASSIVE-ARGS(ARG1 ARG2) = { 
 	    (^ PASSIVE) =c - 
@@ -156,7 +191,6 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 	    }
 	  }.
 
-
    XCOMP-OBJ-PASSIVE-ARGS(ARG1 ARG2 ARG3) = { 
 	    (^ PASSIVE) =c -
 	    ARG1 = (^ SUBJ)
@@ -174,7 +208,9 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 	    ARG3 = (^ XCOMP)
 	  }.
 
-   """Functional feature templates"""
+   """
+   Functional feature templates
+   """
 
    CASE(C) = (^ CASE) = C.   
 
@@ -217,7 +253,6 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 	       (^ SUBJ NUM) = sg.
 
 "template for ntypes, called NPOS here because of clash with common templates"
-
    NPOS(N) = (^ NTYPE NSYN) = N.
 
    PREP(P) = "template for most prepositions"
@@ -226,18 +261,12 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 	  | (^ PTYPE) = nosem
 	    (^ PFORM) = P}.
 
-"template for pronouns of all types" 
-
+"template for pronouns of all types"
    PRON(P Z N T) = (^ PRED) = 'P'
 	  (^ NUM) = N
 	  (^ PERS) = Z
 	  (^ PRON-TYPE) = T
 	  (^ NTYPE) = pron.
-
-"Anaphoric pronouns: the features above plus the ant()-based semantics in
- glue_fracas_grammar. Deictic pronouns (I, you, we) and expletive 'it' keep the bare
- PRON template on purpose -- ant(x) with no antecedent makes collapseAnaphora throw,
- so giving them a meaning constructor would turn parses into hard failures."
 
    PRON-GEND(P G Z N T) = @(PRON P Z N T)
 	  @(PRON-SEM-GEND G).
@@ -249,7 +278,6 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
                     @(PRON it 3 sg expl) }.
 
 "template for possessive pronouns, as these have conflicting heads in regular template"
-
    POSS-PRON(P N Z) = (^ POSS PRED) = 'P'
 	  (^ POSS NUM) = N
 	  (^ POSS PERS) = Z
@@ -272,8 +300,9 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
 
 
 
-
-"template for adjectives"
+"""
+adjectives
+"""
 
    ADJ-INT = (^ SEMTYPE) = intersective.
 
@@ -296,10 +325,6 @@ BE-TRANS-EV = (^PRED) = 'be<(^SUBJ)(^PREDLINK)>'
           im Moment ist es so, dass der ATYPE constraint, ob eine than-clasue kommen kann
           Problem ist aber, dass As ohne than-clause als attributive analysiert werden"""
 
-
    ADJ-SUP = (^DEGREE) = superlative.
-
-
-
 
    ----

@@ -128,7 +128,7 @@ rain    V-S XLE @(EXPLETIVE-EV %stem).
 shine   V-S XLE @(INTRANS-EV %stem).
 
 wait 	  V-S XLE { @(INTRANS-EV wait) |
-		@(INTRANS-OBL wait)
+		@(SUBJ-OBL-EV wait)
 		"this is the non-semantic OBL wait on a customer use"
 		(^ OBL PFORM) =c on
 		(^ PSEM) =c nosem }.
@@ -213,18 +213,18 @@ spend    V-S XLE @(TRANS-EV %stem).
 
 "take` part V-S XLE @(INTRANS-EV %stem)."
 
-takes` part V[fin] * {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
+takes` part V[fin] * {@(INTRANS-EV %stem) | @(VERB-SUBJ-OBL-EV %stem) }
                 @(PROG -_)
                 @(PERF -_)
                 @S-AGR
                 @(VPRES)
                 (^VFORM) = fin.
 
-take` part V[base] * {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
+take` part V[base] * {@(INTRANS-EV %stem) | @(VERB-SUBJ-OBL-EV %stem) }
                       @(PROG -_)
                       @(PERF -_)
                       (^VFORM) = inf;
-           V[fin] * {@(INTRANS-EV %stem) | @(INTRANS-OBL-EV %stem) }
+           V[fin] * {@(INTRANS-EV %stem) | @(VERB-SUBJ-OBL-EV %stem) }
                         @(PROG -_)
                         @(PERF -_)
                         (^TNS-ASP TENSE) = pres

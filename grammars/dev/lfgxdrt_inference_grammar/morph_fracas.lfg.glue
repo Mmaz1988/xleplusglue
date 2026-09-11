@@ -29,52 +29,54 @@ MORPH   ENGLISH   RULES (1.0)
 "this deals with verbs.  
 The sublexcial items are the POS assigned to the various tags in morph-lex.lfg" 
 
-   V[_form] -->
+V[_form] -->
      V-S_BASE "verb stem, e.g. run"
- 	 V-POS_BASE "suffix saying that this is a verb: +Verb"
- 	 {TNS_BASE "tense suffix, e.g. +Pres"
- 	   PERS_BASE "person suffix, e.g. +3sg"
- 	 | ASP_BASE}.   "aspectual information"
+     V-POS_BASE "suffix saying that this is a verb: +Verb"
+     {TNS_BASE "tense suffix, e.g. +Pres"
+       PERS_BASE "person suffix, e.g. +3sg"
+     | ASP_BASE}.   "aspectual information"
 
   
-   N --> N-S_BASE "noun stem"
- 	 N-POS_BASE
- 	 (N-NAME_BASE) "allow for +Giv or +Place in names"
- 	 (N-GEND_BASE) "allow for gender information"
- 	 {N-LOC_BASE "allow for locative information"
- 	  {N-LOC-TYPE_BASE "allow for locative type information"
- 	  |
- 	  COUNTRY_BASE
- 	  }
- 	  |
- 	 N-MOD_BASE "allow for modifiers of nouns"
- 	  |
- 	 N-NUM_BASE}.
+N --> N-S_BASE "noun stem"
+      N-POS_BASE
+      (N-NAME_BASE) "allow for +Giv or +Place in names"
+      (N-GEND_BASE) "allow for gender information"
+      {N-LOC_BASE "allow for locative information"
+        {N-LOC-TYPE_BASE "allow for locative type information"
+        |
+          COUNTRY_BASE
+        }
+      |
+        N-MOD_BASE "allow for modifiers of nouns"
+      |
+        N-NUM_BASE}.
 
-   A --> ADJ-S_BASE
- 	 ADJ-POS_BASE
- 	 (COUNTRY_BASE)
- 	 (GRAD_BASE).
+A --> ADJ-S_BASE
+      ADJ-POS_BASE
+      (COUNTRY_BASE)
+      (GRAD_BASE).
 	 
-   ADV --> ADV-S_BASE
- 	  ADV-POS_BASE.
+ADV --> ADV-S_BASE
+        ADV-POS_BASE.
 
-    NUMBER -->  NUMBER-S_BASE
-                NUMBER-POS_BASE
-                NUMBER-SPELL_BASE
-                NUMBER-TYPE_BASE
-                NUMBER-SIGN_BASE.
+NUMBER -->  NUMBER-S_BASE
+            NUMBER-POS_BASE
+            NUMBER-SPELL_BASE
+            NUMBER-TYPE_BASE
+            NUMBER-SIGN_BASE.
+
 ----
+
 MORPH   ENGLISH   LEXICON (1.0)
 
 "this guesses words that are unknown to your lexicon
  to be either adjectives or nouns"
 -unknown  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem);
-          NUMBER-S XLE { @(NUMBER-PL %stem pl)
-                         @DEFAULT-EX-QUANT
-                       | @(NUMBER-PART %stem)};
-	  ADV-S XLE @(PRED %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+                    NUMBER-S XLE { @(NUMBER-PL %stem pl)
+                      @DEFAULT-EX-QUANT
+                    | @(NUMBER-PART %stem)};
+                    ADV-S XLE @(PRED %stem);
+                    N-S XLE @(DEFAULT-NOUN-SEM %stem).
 
 
             "(\y.(\P.(\x.([],[%stem(x,y)]) + P@x)))"
@@ -90,29 +92,29 @@ MORPH   ENGLISH   LEXICON (1.0)
 		   @(PERF -_).
 
 +PastBoth TNS XLE "past tense or past particle"
-		  {
-		    @VPAST
-		   (^ VFORM) = fin
-		    @(PROG -_)
-            @(PERF -_)
-		   | @PASTP
-		   {
-		   (^ PASSIVE) =c + "should be optional "
-		  @(PROG -_)
-		  @(PERF -_)
-		  |
-		  (^ PASSIVE) =c -
-		   @(PROG -_)
-           @(PERF +_)
-		  }
-		  }.
+                  {
+                    @VPAST
+                    (^ VFORM) = fin
+                    @(PROG -_)
+                    @(PERF -_)
+                  | @PASTP
+                    {
+                      (^ PASSIVE) =c + "should be optional "
+                      @(PROG -_)
+                      @(PERF -_)
+                    |
+                      (^ PASSIVE) =c -
+                      @(PROG -_)
+                      @(PERF +_)
+                    }
+                  }.
 
 
 +PastTense TNS XLE "past tense"
-		   @VPAST
-		   (^ VFORM) = fin
-		   @(PROG -_)
-		   @(PERF -_).
+                   @VPAST
+                   (^ VFORM) = fin
+                   @(PROG -_)
+                   @(PERF -_).
 
 +PastPerf TNS XLE @PASTP. "PASSIVE should be optional"
 
@@ -131,13 +133,13 @@ MORPH   ENGLISH   LEXICON (1.0)
 
 +Pl 	  N-NUM XLE (^ NUM) = pl
                     {(^ DEF) |
-                    (^ NTYPE NSYN) =c proper |
-                    ~[(^ DEF)]
-                    (^ NTYPE NSYN) ~= proper
-                    @(QUANT-SCOPE ^ %q)
-                    :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
-                            ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
-                    	      }.
+                      (^ NTYPE NSYN) =c proper |
+                      ~[(^ DEF)]
+                      (^ NTYPE NSYN) ~= proper
+                      @(QUANT-SCOPE ^ %q)
+                      :$ (\P.(\Q.([x],[]) + P@x + Q@x)) :
+                      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)) || noscope,
+                    }.
 
 +Sg 	  N-NUM XLE (^ NUM) = sg
                     @(PERS 3)
