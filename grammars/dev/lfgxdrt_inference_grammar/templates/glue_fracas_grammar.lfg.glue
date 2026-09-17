@@ -53,12 +53,12 @@ Scope templates
 Events (verb semantics)
 """
 
-   EVENT(REL) =
-	  (s::^ EV TYPE) = eventuality
-	  (s::^ SIT) = %sit
-	  :$ (\P.P) : (s::^_t -o %sit_t),
-	  :$ (\v.([],[REL(v)])) : ((s::^ EV)_v -o (s::^ EV)_t),
-	  :$ (\V.([e],[]) + V@e) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
+EVENT(REL) =
+          (s::^ EV TYPE) = eventuality
+          (s::^ SIT) = %sit
+          :$ (\P.P) : (s::^_t -o %sit_t),
+          :$ (\v.([],[REL(v)])) : ((s::^ EV)_v -o (s::^ EV)_t),
+          :$ (\V.([e],[]) + V@e) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
 
 
 "
@@ -75,7 +75,7 @@ Events (verb semantics)
        :$ (\V.(\x.(\e.(V@e + ([],[arg2(e,x)]))))) :
        (((s::^ EV)_v -o (s::^ EV)_t) -o (s::ARG_e -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
 
-   ARG3(ARG) =
+ARG3(ARG) =
        :$ (\V.(\x.(\e.(V@e + ([],[arg3(e,x)]))))) :
        (((s::^ EV)_v -o (s::^ EV)_t) -o (s::ARG_e -o ((s::^ EV)_v -o (s::^ EV)_t))) || noscope.
 
