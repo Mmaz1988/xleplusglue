@@ -4,8 +4,9 @@
 /embed_drs    asks LiGER's /drs_provenance where each condition and referent of a DRS sits
               in the input, then embeds all of them in one encoder pass: the backend maps
               discourse referent -> surface representation and condition -> embedding.
-/rank_anaphora orders the PCDRS branches of one discourse update by the mean cosine between
-              each bound pronoun's and antecedent's descriptions (see anaphora_ranker).
+/rank_anaphora orders the PCDRS branches of one discourse update by the mean score of their
+              bindings: Winograd-style substitution with a masked LM (default, see
+              substitution_scorer) or the cosine of the two referents' embeddings.
 
 Run from this directory:  venv/bin/uvicorn lm_endpoints:app --port 8084
 Model: LM_MODEL (default FacebookAI/xlm-roberta-base); LiGER: LIGER_URL (default :8080).
@@ -21,6 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import anaphora_ranker
 import liger_client
 import span_embedder
+import substitution_scorer
 from lm_models import (
     AnaphoraRanking,
     ConditionOut,
@@ -167,8 +169,20 @@ def embed_drs(request: EmbedDrsRequest):
     )
 
 
+RANK_METHODS = ("mlm-substitution", "cosine")
+DEFAULT_RANK_METHOD = os.environ.get("LM_RANK_METHOD", "mlm-substitution")
+DESCRIPTIONS = {"lexical": "lexicalSpans", "description": "spans"}
+
+
 @app.post("/rank_anaphora", response_model=AnaphoraRanking)
 def rank_anaphora(request: RankAnaphoraRequest):
+    method = request.method or DEFAULT_RANK_METHOD
+    if method not in RANK_METHODS:
+        raise HTTPException(status_code=422, detail=f"Unknown method '{method}', expected one of {RANK_METHODS}")
+    if method == "cosine" and request.description not in DESCRIPTIONS:
+        raise HTTPException(status_code=422, detail=f"Unknown description '{request.description}', "
+                                                    f"expected one of {tuple(DESCRIPTIONS)}")
+    model_name = request.model or span_embedder.DEFAULT_MODEL
     warnings = []
     semantics = {entry.semanticOrigin: entry for entry in request.semantics}
     used_origins = []
@@ -194,8 +208,35 @@ def rank_anaphora(request: RankAnaphoraRequest):
         provenance_by_origin[origin] = provenance
         warnings.extend(f"{origin}: {w}" for w in provenance.get("warnings") or [])
 
-    # Readings of one element share its text, so all their spans go through one encoder pass
-    # per distinct text.
+    if method == "cosine":
+        score_relation, model_name = _cosine_scorer(request, provenance_by_origin, warnings)
+        method_name = f"cosine-{request.description}"
+    else:
+        score_relation = _substitution_scorer(model_name, provenance_by_origin)
+        method_name = method
+
+    relations, scores, ranking_warnings = anaphora_ranker.rank_branches(
+        [branch.model_dump() for branch in request.branches], provenance_by_origin, score_relation)
+    warnings.extend(ranking_warnings)
+    ranks = anaphora_ranker.competition_ranks(scores)
+
+    return AnaphoraRanking(
+        method=method_name,
+        model=model_name,
+        layers=request.layers,
+        pooling=request.pooling,
+        createdAt=datetime.now(timezone.utc).isoformat(),
+        relations=[RankedRelation(**relation) for relation in relations],
+        branches=[RankedBranch(discourseId=branch.discourseId, score=score, rank=rank)
+                  for branch, score, rank in zip(request.branches, scores, ranks)],
+        warnings=warnings,
+    )
+
+
+def _cosine_scorer(request, provenance_by_origin, warnings):
+    """Embeds every bound referent's surface once per distinct text (readings of one element share
+    it) and scores a relation by the cosine of the two vectors."""
+    spans_key = DESCRIPTIONS[request.description]
     labels_needed = {}
     for branch in request.branches:
         for relation in branch.relations:
@@ -208,37 +249,51 @@ def rank_anaphora(request: RankAnaphoraRequest):
             referent = referents.get(label)
             if referent is None:
                 continue
-            if referent.get("spans"):
-                spans[f"{origin}|{label}"] = referent["spans"]
+            if referent.get(spans_key):
+                spans[f"{origin}|{label}"] = referent[spans_key]
             else:
-                warnings.append(f"{origin}: referent '{label}' has no description span.")
+                warnings.append(f"{origin}: referent '{label}' has no {request.description} span.")
 
-    embedder = None
+    model_name = request.model or span_embedder.DEFAULT_MODEL
     vectors = {}
     for text, spans in spans_by_text.items():
         if not spans:
             continue
         embedder, embeddings = _embed(request.model, text, spans, request.layers, request.pooling)
+        model_name = embedder.model_name
         warnings.extend(_unaligned_warnings(embeddings))
         vectors.update({span_id: e.vector for span_id, e in embeddings.items()})
 
-    relations, scores, ranking_warnings = anaphora_ranker.rank_branches(
-        [branch.model_dump() for branch in request.branches],
-        provenance_by_origin,
-        lambda origin, label: vectors.get(f"{origin}|{label}"),
-        span_embedder.cosine,
-    )
-    warnings.extend(ranking_warnings)
-    ranks = anaphora_ranker.competition_ranks(scores)
+    def score(origin, pronoun, antecedent):
+        a = vectors.get(f"{origin}|{pronoun.get('label')}")
+        b = vectors.get(f"{origin}|{antecedent.get('label')}")
+        if a is None or b is None:
+            return None, {"reason": "missing embedding"}
+        value = span_embedder.cosine(a, b)
+        return value, {"cosine": value}
 
-    return AnaphoraRanking(
-        method="cosine-description",
-        model=embedder.model_name if embedder else (request.model or span_embedder.DEFAULT_MODEL),
-        layers=request.layers,
-        pooling=request.pooling,
-        createdAt=datetime.now(timezone.utc).isoformat(),
-        relations=[RankedRelation(**relation) for relation in relations],
-        branches=[RankedBranch(discourseId=branch.discourseId, score=score, rank=rank)
-                  for branch, score, rank in zip(request.branches, scores, ranks)],
-        warnings=warnings,
-    )
+    return score, model_name
+
+
+def _substitution_scorer(model_name, provenance_by_origin):
+    """Scores a relation by substituting the antecedent for the pronoun and asking the masked LM how
+    plausible the pronoun's sentence then is (see substitution_scorer)."""
+    conditions = {origin: {c["nodeId"]: c for c in p.get("conditions", [])}
+                  for origin, p in provenance_by_origin.items()}
+
+    def score(origin, pronoun, antecedent):
+        spans = pronoun.get("lexicalSpans") or []
+        text = provenance_by_origin[origin].get("text") or ""
+        if len(spans) != 1:
+            return None, {"reason": f"pronoun '{pronoun.get('label')}' has {len(spans)} lexical spans, expected 1"}
+        start, end = spans[0]
+        sentence_start, _ = substitution_scorer.sentence_bounds(text, start)
+        antecedent = dict(antecedent, kind=anaphora_ranker.referent_kind(antecedent, conditions[origin]))
+        words = substitution_scorer.substitution_text(antecedent, text[start:end], start == sentence_start)
+        try:
+            value = substitution_scorer.get_scorer(model_name).score(text, (start, end), words)
+        except substitution_scorer.SubstitutionError as e:
+            raise HTTPException(status_code=422, detail=str(e))
+        return value, {"substitution": words, **({} if value is not None else {"reason": "nothing left to score"})}
+
+    return score

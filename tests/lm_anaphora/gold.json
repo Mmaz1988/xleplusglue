@@ -1,0 +1,14 @@
+[
+  {"id": "man-appeared", "sentences": ["a man appeared", "he smiled"], "gold": [{"pronoun": "he", "antecedent": "man"}], "note": "user test 2026-09-17"},
+  {"id": "woman-appeared", "sentences": ["a woman appeared", "she smiled"], "gold": [{"pronoun": "she", "antecedent": "woman"}]},
+  {"id": "peter-sue-she", "sentences": ["Peter is faster than Sue.", "She is fast."], "gold": [{"pronoun": "she", "antecedent": "sue"}], "note": "user test 2026-09-17"},
+  {"id": "peter-sue-he", "sentences": ["Peter is faster than Sue.", "He is fast."], "gold": [{"pronoun": "he", "antecedent": "peter"}]},
+  {"id": "cat-ate-dog-barked", "sentences": ["the big cat ate the black dog", "it barked"], "gold": [{"pronoun": "it", "antecedent": "dog"}]},
+  {"id": "dog-ate-cat-barked", "sentences": ["the black dog ate the big cat", "it barked"], "gold": [{"pronoun": "it", "antecedent": "dog"}]},
+  {"id": "man-saw-woman-she", "sentences": ["a man saw a woman", "she smiled"], "gold": [{"pronoun": "she", "antecedent": "woman"}]},
+  {"id": "man-saw-woman-he", "sentences": ["a man saw a woman", "he smiled"], "gold": [{"pronoun": "he", "antecedent": "man"}]},
+  {"id": "reflexive-bill", "sentences": ["Bill saw himself"], "gold": [{"pronoun": "himself", "antecedent": "bill"}]},
+  {"id": "reflexive-man-local", "sentences": ["a woman thought that a man saw himself"], "gold": [{"pronoun": "himself", "antecedent": "man"}]},
+  {"id": "reflexive-woman-local", "sentences": ["a man thought that a woman saw herself"], "gold": [{"pronoun": "herself", "antecedent": "woman"}]},
+  {"id": "bill-thought-he", "sentences": ["Bill thought that he barked"], "gold": [{"pronoun": "he", "antecedent": "bill"}]}
+]

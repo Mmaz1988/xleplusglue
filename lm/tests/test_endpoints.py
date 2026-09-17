@@ -127,6 +127,7 @@ def test_rank_anaphora_embeds_once_per_text_and_ranks_branches(client, monkeypat
 
     monkeypatch.setattr(lm_endpoints, "_embed", counting_embed)
     response = client.post("/rank_anaphora", json={
+        "method": "cosine", "description": "description",
         "syntax": {"syn-1": {"s": 1}},
         "semantics": [{"semanticOrigin": "sem-1", "syntacticOrigin": "syn-1", "drs": {"d": 1}},
                       {"semanticOrigin": "sem-2", "syntacticOrigin": "syn-1", "drs": {"d": 2}}],
@@ -146,6 +147,7 @@ def test_rank_anaphora_embeds_once_per_text_and_ranks_branches(client, monkeypat
     assert encoder_passes[0] == ["sem-1|x1", "sem-1|x3", "sem-1|x9", "sem-2|x1", "sem-2|x9"]
 
     assert body["method"] == "cosine-description"
+    assert all(r["score"] == r["cosine"] for r in body["relations"])
     assert body["createdAt"]
     branches = {b["discourseId"]: b for b in body["branches"]}
     assert branches["sem-2-pcdrs-2"]["score"] is None and branches["sem-2-pcdrs-2"]["rank"] == 4
@@ -182,3 +184,60 @@ def test_rank_anaphora_reports_unreachable_liger(monkeypatch):
                       "relations": [{"pronoun": "x1", "antecedent": "x2"}]}],
     })
     assert response.status_code == 502
+
+
+class FakeMaskedLm:
+    """Prefers substitutions naming the man; records what it was asked."""
+
+    def __init__(self):
+        self.calls = []
+
+    def score(self, text, span, words):
+        self.calls.append((text[span[0]:span[1]], words))
+        return -1.0 if "man" in words.lower() else -5.0
+
+
+def test_rank_anaphora_by_substitution(monkeypatch):
+    text = "a man appeared\nhe smiled"
+    provenance = {
+        "text": text, "tokens": [], "warnings": [],
+        "conditions": [
+            {"nodeId": "c-man", "symbol": "man", "args": ["r-man"]},
+            {"nodeId": "c-appear", "symbol": "appear", "args": ["r-e"]},
+            {"nodeId": "c-arg1", "symbol": "arg1", "args": ["r-e", "r-man"]},
+            {"nodeId": "c-ant", "symbol": "ant", "args": ["r-he"]},
+        ],
+        "referents": [
+            {"nodeId": "r-man", "label": "x1", "lexicalConditionIds": ["c-man"], "directConditionIds": ["c-man", "c-arg1"],
+             "lexicalText": "man", "lexicalSpans": [[2, 5]]},
+            {"nodeId": "r-e", "label": "x2", "lexicalConditionIds": ["c-appear"], "directConditionIds": ["c-appear", "c-arg1"],
+             "lexicalText": "appeared", "lexicalSpans": [[6, 14]]},
+            {"nodeId": "r-he", "label": "x3", "lexicalConditionIds": ["c-ant"], "directConditionIds": ["c-ant"],
+             "lexicalText": "he", "lexicalSpans": [[15, 17]]},
+        ],
+    }
+    monkeypatch.setattr(liger_client, "drs_provenance", lambda syntax, drs, timeout=60: provenance)
+    fake = FakeMaskedLm()
+    monkeypatch.setattr(lm_endpoints.substitution_scorer, "get_scorer", lambda model: fake)
+
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={
+        "method": "mlm-substitution",
+        "syntax": {"syn": {}}, "semantics": [{"semanticOrigin": "sem", "syntacticOrigin": "syn", "drs": {}}],
+        "branches": [
+            {"discourseId": "to-event", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x2"}]},
+            {"discourseId": "to-man", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x1"}]},
+        ],
+    }).json()
+
+    assert body["method"] == "mlm-substitution"
+    assert sorted(fake.calls) == [("he", "That"), ("he", "The man")]
+    by_antecedent = {r["antecedent"]: r for r in body["relations"]}
+    assert by_antecedent["x1"]["substitution"] == "The man"
+    assert by_antecedent["x1"]["antecedentText"] == "man"
+    assert by_antecedent["x1"]["cosine"] is None and by_antecedent["x1"]["score"] == -1.0
+    assert {b["discourseId"]: b["rank"] for b in body["branches"]} == {"to-man": 1, "to-event": 2}
+
+
+def test_rank_anaphora_rejects_an_unknown_method(client):
+    response = client.post("/rank_anaphora", json={"method": "vibes", "syntax": {}, "semantics": [], "branches": []})
+    assert response.status_code == 422

@@ -3,25 +3,50 @@
 The formal system decides which pronoun -> antecedent mappings exist; this only orders them.
 Every branch is kept, whatever its score.
 
-A relation's score is the cosine between the description embeddings of the pronoun and the
-antecedent referent. A branch's score is the mean over its relations, so a branch binding
-several pronouns is ranked on all of its bindings together. The recency rank per relation is
+A relation's score comes from the ranking method -- the cosine between the pronoun's and the
+antecedent's embeddings, or the plausibility of the pronoun's sentence with the antecedent
+substituted for it; higher is better either way. A branch's score is the mean over its
+relations, so a branch binding several pronouns is ranked on all of its bindings together. The recency rank per relation is
 the symbolic baseline to compare against: among the antecedents the branches offer for one
 pronoun, the nearest one preceding the pronoun is 1.
 
-Pure functions over /drs_provenance output and precomputed vectors: no model, no HTTP.
+Pure functions over /drs_provenance output and a relation scorer: no model, no HTTP.
 """
 
 import math
+import re
+
+ROLE_CONDITION = re.compile(r"^(arg\d+|cont)$")
 
 
 def referents_by_label(provenance):
     return {r.get("label"): r for r in provenance.get("referents", []) if r.get("label")}
 
 
+def referent_kind(referent, conditions_by_id):
+    """"pronoun", "event", "name" or "noun", from the referent's conditions (see /drs_provenance)."""
+    lexical = [conditions_by_id.get(c, {}) for c in referent.get("lexicalConditionIds") or []]
+    if any(c.get("symbol") == "ant" for c in lexical):
+        return "pronoun"
+    # An event is the first argument of a thematic-role condition (arg1(e,x), cont(e,s)). Other
+    # two-place conditions are not evidence: a name's EQ condition also has the referent first.
+    for condition_id in referent.get("directConditionIds") or []:
+        condition = conditions_by_id.get(condition_id, {})
+        args = condition.get("args") or []
+        if args and args[0] == referent.get("nodeId") and ROLE_CONDITION.match(condition.get("symbol") or ""):
+            return "event"
+    if referent.get("lexicalFromReferentSource"):
+        return "name"
+    return "noun"
+
+
+def lexical_text(referent):
+    return referent.get("lexicalText") or referent.get("text") or ""
+
+
 def span_start(referent):
-    """Start offset of a referent's description, falling back to its phrase; None if neither exists."""
-    for key in ("spans", "phraseSpans"):
+    """Start offset of a referent's lexical description, else its description or phrase."""
+    for key in ("lexicalSpans", "spans", "phraseSpans"):
         starts = [interval[0] for interval in referent.get(key) or []]
         if starts:
             return min(starts)
@@ -67,12 +92,13 @@ def mean(values):
     return sum(values) / len(values) if values else None
 
 
-def rank_branches(branches, provenance_by_origin, vector_for, cosine):
+def rank_branches(branches, provenance_by_origin, score_relation):
     """Score relations and branches.
 
     ``branches``: ``[{discourseId, semanticOrigin, relations: [{pronoun, antecedent}]}]``.
     ``provenance_by_origin``: semanticOrigin -> /drs_provenance response.
-    ``vector_for(semanticOrigin, label)``: description vector of that referent, or None.
+    ``score_relation(semanticOrigin, pronoun_referent, antecedent_referent)``: ``(score, details)``
+    where score is a float (higher is better) or None, and details a dict merged into the relation.
     Returns ``(relations, branch_scores, warnings)``.
     """
     warnings = []
@@ -109,26 +135,30 @@ def rank_branches(branches, provenance_by_origin, vector_for, cosine):
             pronoun, antecedent = relation.get("pronoun"), relation.get("antecedent")
             key = (origin, pronoun, antecedent)
             if key not in relations:
-                texts = {}
+                found = {}
                 for label in (pronoun, antecedent):
                     referent = (referents or {}).get(label)
                     if referents is not None and referent is None and (origin, label) not in reported:
                         reported.add((origin, label))
                         warnings.append(f"Referent '{label}' is not in the DRS of '{origin}'.")
-                    texts[label] = (referent or {}).get("text") or ""
-                a, b = vector_for(origin, pronoun), vector_for(origin, antecedent)
-                if referents is not None and (a is None or b is None):
-                    warnings.append(f"No cosine for {pronoun} -> {antecedent} in '{origin}': missing embedding.")
+                    found[label] = referent
+                score, details = (None, {})
+                if found[pronoun] is not None and found[antecedent] is not None:
+                    score, details = score_relation(origin, found[pronoun], found[antecedent])
+                    if score is None:
+                        warnings.append(f"No score for {pronoun} -> {antecedent} in '{origin}'"
+                                        + (f": {details.get('reason')}" if details.get("reason") else "."))
                 relations[key] = {
                     "semanticOrigin": origin,
                     "pronoun": pronoun,
                     "antecedent": antecedent,
-                    "pronounText": texts[pronoun],
-                    "antecedentText": texts[antecedent],
-                    "cosine": cosine(a, b) if a is not None and b is not None else None,
+                    "pronounText": lexical_text(found[pronoun] or {}),
+                    "antecedentText": lexical_text(found[antecedent] or {}),
+                    "score": score,
                     "recencyRank": recency.get((origin, pronoun), {}).get(antecedent),
+                    **{k: v for k, v in details.items() if k != "reason"},
                 }
-            cosines.append(relations[key]["cosine"])
+            cosines.append(relations[key]["score"])
         branch_scores.append(mean(cosines))
 
     return list(relations.values()), branch_scores, warnings

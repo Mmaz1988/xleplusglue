@@ -16,7 +16,8 @@ RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu 
     pip install --no-cache-dir -r /tmp/requirements-runtime.txt && \
     python -c "import torch, transformers; print('torch', torch.__version__, 'transformers', transformers.__version__)"
 
-COPY lm/anaphora_ranker.py lm/liger_client.py lm/lm_endpoints.py lm/lm_models.py lm/span_embedder.py /lm/
+# Every service module (lm/tests and lm/venv are not copied).
+COPY lm/*.py /lm/
 
 # Models are downloaded on first use into HF_HOME, which docker-compose mounts as a named
 # volume so a download survives rebuilds and container restarts.

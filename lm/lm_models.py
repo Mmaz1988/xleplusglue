@@ -106,7 +106,12 @@ class RankAnaphoraRequest(BaseModel):
     syntax: Dict[str, Dict[str, Any]]
     semantics: List[RankSemantics]
     branches: List[RankBranchIn]
+    # "mlm-substitution" (Winograd-style substitution scoring) or "cosine"; default LM_RANK_METHOD
+    method: Optional[str] = None
     model: Optional[str] = None
+    # cosine only: which referent surface is embedded -- "lexical" (one-place conditions) or
+    # "description" (the referent's phrase bounded by its f-structure)
+    description: str = "lexical"
     layers: List[int] = Field(default_factory=lambda: [-1])
     pooling: str = "mean"
 
@@ -117,7 +122,12 @@ class RankedRelation(BaseModel):
     antecedent: str
     pronounText: str = ""
     antecedentText: str = ""
+    # method-specific, higher is better: a cosine, or a mean log-probability for mlm-substitution
+    score: Optional[float] = None
+    # set for cosine rankings (equal to score), kept for clients reading the first contract
     cosine: Optional[float] = None
+    # mlm-substitution: the words that replaced the pronoun
+    substitution: Optional[str] = None
     recencyRank: Optional[int] = None
 
 

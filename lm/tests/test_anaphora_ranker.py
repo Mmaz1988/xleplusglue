@@ -1,4 +1,4 @@
-from anaphora_ranker import competition_ranks, rank_branches, recency_ranks
+from anaphora_ranker import competition_ranks, rank_branches, recency_ranks, referent_kind
 
 # "a man saw a dog . he barked": x1 man [0,5), x2 dog [10,15), x4 he [18,20)
 PROVENANCE = {
@@ -18,9 +18,15 @@ def _cosine(a, b):
     return dot / ((sum(x * x for x in a) ** 0.5) * (sum(y * y for y in b) ** 0.5))
 
 
+def _score(origin, pronoun, antecedent):
+    a, b = VECTORS.get(pronoun["label"]), VECTORS.get(antecedent["label"])
+    if origin != "s0" or a is None or b is None:
+        return None, {"reason": "missing embedding"}
+    return _cosine(a, b), {"cosine": _cosine(a, b)}
+
+
 def _rank(branches, provenance=None):
-    return rank_branches(branches, {"s0": provenance or PROVENANCE},
-                         lambda origin, label: VECTORS.get(label) if origin == "s0" else None, _cosine)
+    return rank_branches(branches, {"s0": provenance or PROVENANCE}, _score)
 
 
 def test_recency_prefers_nearest_preceding_then_cataphora_then_unknown():
@@ -63,4 +69,19 @@ def test_missing_referents_and_embeddings_warn_without_dropping_branches():
     assert len(relations) == 3
     assert any("'x9' is not in the DRS" in w for w in warnings)
     assert any("x4 -> x5" in w and "missing embedding" in w for w in warnings)
+    assert all(r["score"] is None for r in relations)
     assert any("'other'" in w for w in warnings)
+
+
+def test_referent_kinds_come_from_conditions():
+    conditions = {
+        "c-ant": {"symbol": "ant", "args": ["r-he"]},
+        "c-man": {"symbol": "man", "args": ["r-man"]},
+        "c-smile": {"symbol": "smile", "args": ["r-e"]},
+        "c-arg1": {"symbol": "arg1", "args": ["r-e", "r-he"]},
+        "c-eq": {"symbol": "EQ", "args": ["r-bill", "v-bill"]},
+    }
+    assert referent_kind({"nodeId": "r-he", "lexicalConditionIds": ["c-ant"], "directConditionIds": ["c-ant", "c-arg1"]}, conditions) == "pronoun"
+    assert referent_kind({"nodeId": "r-e", "lexicalConditionIds": ["c-smile"], "directConditionIds": ["c-smile", "c-arg1"]}, conditions) == "event"
+    assert referent_kind({"nodeId": "r-man", "lexicalConditionIds": ["c-man"], "directConditionIds": ["c-man"]}, conditions) == "noun"
+    assert referent_kind({"nodeId": "r-bill", "lexicalConditionIds": [], "directConditionIds": ["c-eq"], "lexicalFromReferentSource": True}, conditions) == "name"
