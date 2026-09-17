@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Integration check for the LM backend: parse -> compose -> /embed_drs.
+"""Integration check for the LM backend: parse -> compose -> /embed_drs, and a two-sentence
+sequence -> PCDRS -> /rank_anaphora.
 
 Parses each sentence with LiGER and composes its DRS with GSWB (the same calls as
 test_full_analysis_workflow.parse_and_deduce), then sends the syntax structure and DRS
@@ -77,11 +78,66 @@ def run_example(sentence, expected):
     assert all(c["embedding"] for c in body["conditions"].values() if c["spans"])
 
 
+def post_lm(path, payload):
+    req = urllib_request.Request(f"{LM_URL}{path}", data=json.dumps(payload).encode(),
+                                 headers={"Content-Type": "application/json"}, method="POST")
+    with urllib_request.urlopen(req, timeout=300) as response:
+        return json.loads(response.read().decode())
+
+
+# Two formally admissible antecedents for "it" (plus whatever else the rules admit).
+RANKING_SEQUENCE = ("the big cat ate the black dog", "it barked")
+
+
+def run_ranking_example(sentence_1, sentence_2):
+    rules = workflow.load_rules()
+    seq_solution, _, _, merged = workflow.run_sequence_semantics(sentence_1, sentence_2, rules)
+    _, candidates, _, _ = workflow.run_discourse_postprocessing(
+        seq_solution["structureJson"], merged["graph"], merged["semantic"], merged["id"],
+        content_id="lm-ranking-merged-graph-test.json", require_real_antecedent=True)
+
+    # The request the client's ranking service builds from a DiscourseUpdate.
+    branches = [{"discourseId": c["id"], "semanticOrigin": merged["id"],
+                 "relations": [{"pronoun": r["pronounDisplay"], "antecedent": r["antecedent"]}
+                               for r in c.get("anaphoraRelations") or []]}
+                for c in candidates]
+    body = post_lm("/rank_anaphora", {
+        "syntax": {"syn": seq_solution["structureJson"]},
+        "semantics": [{"semanticOrigin": merged["id"], "syntacticOrigin": "syn", "drs": merged["graph"]}],
+        "branches": branches,
+    })
+
+    print(f"\n[lm] /rank_anaphora {body['model']}: {len(body['branches'])} branch(es)")
+    for r in body["relations"]:
+        cosine = f"{r['cosine']:.3f}" if r["cosine"] is not None else "n/a"
+        print(f"  {r['pronoun']} {r['pronounText']!r} -> {r['antecedent']} {r['antecedentText']!r}: "
+              f"cos={cosine} recency={r['recencyRank']}")
+    for b in sorted(body["branches"], key=lambda b: b["rank"]):
+        print(f"  rank {b['rank']} score={b['score']} {b['discourseId']}")
+    for warning in body["warnings"]:
+        print(f"  warning: {warning}")
+
+    assert [b["discourseId"] for b in body["branches"]] == [c["id"] for c in candidates]
+    ranks = sorted(b["rank"] for b in body["branches"])
+    assert ranks[0] == 1 and ranks[-1] <= len(ranks)
+    bound = [r for r in body["relations"]]
+    assert bound, "the rules bound no pronoun"
+    for r in bound:
+        assert r["pronounText"] == "it", r
+        assert r["cosine"] is not None and r["recencyRank"] >= 1, r
+    assert any(b["score"] is not None for b in body["branches"])
+
+
 def test_lm_backend():
     for sentence, expected in EXAMPLES.items():
         run_example(sentence, expected)
 
 
+def test_rank_anaphora():
+    run_ranking_example(*RANKING_SEQUENCE)
+
+
 if __name__ == "__main__":
     test_lm_backend()
+    test_rank_anaphora()
     print("\nOK")

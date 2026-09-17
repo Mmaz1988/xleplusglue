@@ -81,3 +81,58 @@ class EmbedDrsResponse(BaseModel):
     conditions: Dict[str, ConditionOut]
     similarities: List[Similarity] = Field(default_factory=list)
     warnings: List[str] = Field(default_factory=list)
+
+
+class RankSemantics(BaseModel):
+    semanticOrigin: str
+    syntacticOrigin: str
+    # GSWB semantic graph of that semantic analysis; relation labels refer to its referents
+    drs: Dict[str, Any]
+
+
+class RankRelationIn(BaseModel):
+    pronoun: str       # referent label, e.g. "x5" (AnaphoraRelation.pronounDisplay)
+    antecedent: str    # referent label (AnaphoraRelation.antecedent)
+
+
+class RankBranchIn(BaseModel):
+    discourseId: str
+    semanticOrigin: str
+    relations: List[RankRelationIn] = Field(default_factory=list)
+
+
+class RankAnaphoraRequest(BaseModel):
+    # synId -> LiGER structureJson of the source element's syntactic analysis
+    syntax: Dict[str, Dict[str, Any]]
+    semantics: List[RankSemantics]
+    branches: List[RankBranchIn]
+    model: Optional[str] = None
+    layers: List[int] = Field(default_factory=lambda: [-1])
+    pooling: str = "mean"
+
+
+class RankedRelation(BaseModel):
+    semanticOrigin: str
+    pronoun: str
+    antecedent: str
+    pronounText: str = ""
+    antecedentText: str = ""
+    cosine: Optional[float] = None
+    recencyRank: Optional[int] = None
+
+
+class RankedBranch(BaseModel):
+    discourseId: str
+    score: Optional[float] = None
+    rank: int
+
+
+class AnaphoraRanking(BaseModel):
+    method: str
+    model: str
+    layers: List[int]
+    pooling: str
+    createdAt: str
+    relations: List[RankedRelation]
+    branches: List[RankedBranch]
+    warnings: List[str] = Field(default_factory=list)

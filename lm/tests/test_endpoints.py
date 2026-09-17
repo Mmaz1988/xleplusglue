@@ -111,3 +111,74 @@ def test_embed_drs_reports_unreachable_liger(monkeypatch):
     monkeypatch.setattr(liger_client, "drs_provenance", unreachable)
     response = TestClient(lm_endpoints.app).post("/embed_drs", json={"syntax": {}, "drs": {}})
     assert response.status_code == 502
+
+
+def test_rank_anaphora_embeds_once_per_text_and_ranks_branches(client, monkeypatch):
+    # Same shape as PROVENANCE's r1/r3: "Der Mann" (x1) and "der Bank" (x3), plus a pronoun.
+    provenance = dict(PROVENANCE, referents=PROVENANCE["referents"] + [
+        {"nodeId": "r9", "label": "x9", "spans": [_span("saß")], "text": "saß"}])
+    monkeypatch.setattr(liger_client, "drs_provenance", lambda syntax, drs, timeout=60: provenance)
+    encoder_passes = []
+    real_embed = lm_endpoints._embed
+
+    def counting_embed(model, text, spans, layers, pooling):
+        encoder_passes.append(sorted(spans))
+        return real_embed(model, text, spans, layers, pooling)
+
+    monkeypatch.setattr(lm_endpoints, "_embed", counting_embed)
+    response = client.post("/rank_anaphora", json={
+        "syntax": {"syn-1": {"s": 1}},
+        "semantics": [{"semanticOrigin": "sem-1", "syntacticOrigin": "syn-1", "drs": {"d": 1}},
+                      {"semanticOrigin": "sem-2", "syntacticOrigin": "syn-1", "drs": {"d": 2}}],
+        "branches": [
+            {"discourseId": "sem-1-pcdrs-1", "semanticOrigin": "sem-1",
+             "relations": [{"pronoun": "x9", "antecedent": "x1"}]},
+            {"discourseId": "sem-1-pcdrs-2", "semanticOrigin": "sem-1",
+             "relations": [{"pronoun": "x9", "antecedent": "x3"}]},
+            {"discourseId": "sem-2-pcdrs-1", "semanticOrigin": "sem-2",
+             "relations": [{"pronoun": "x9", "antecedent": "x1"}]},
+            {"discourseId": "sem-2-pcdrs-2", "semanticOrigin": "sem-2", "relations": []},
+        ],
+    })
+    assert response.status_code == 200
+    body = response.json()
+    assert len(encoder_passes) == 1, "both readings share the element's text"
+    assert encoder_passes[0] == ["sem-1|x1", "sem-1|x3", "sem-1|x9", "sem-2|x1", "sem-2|x9"]
+
+    assert body["method"] == "cosine-description"
+    assert body["createdAt"]
+    branches = {b["discourseId"]: b for b in body["branches"]}
+    assert branches["sem-2-pcdrs-2"]["score"] is None and branches["sem-2-pcdrs-2"]["rank"] == 4
+    assert branches["sem-1-pcdrs-1"]["score"] == branches["sem-2-pcdrs-1"]["score"]
+    assert branches["sem-1-pcdrs-1"]["rank"] == branches["sem-2-pcdrs-1"]["rank"]
+    assert {b["rank"] for b in body["branches"]} <= {1, 2, 3, 4}
+    assert len(body["relations"]) == 3
+    assert all(r["cosine"] is not None for r in body["relations"])
+    assert "sem-1: condition c4 (EQ) has no SRC." in body["warnings"]
+
+
+def test_rank_anaphora_without_relations_needs_no_liger_or_model(monkeypatch):
+    def unreachable(syntax, drs, timeout=60):
+        raise AssertionError("no relation, no provenance")
+
+    monkeypatch.setattr(liger_client, "drs_provenance", unreachable)
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={
+        "syntax": {}, "semantics": [],
+        "branches": [{"discourseId": "b1", "semanticOrigin": "sem-1", "relations": []}],
+    }).json()
+    assert body["branches"] == [{"discourseId": "b1", "score": None, "rank": 1}]
+    assert body["relations"] == [] and body["warnings"] == []
+
+
+def test_rank_anaphora_reports_unreachable_liger(monkeypatch):
+    def unreachable(syntax, drs, timeout=60):
+        raise liger_client.LigerError("unreachable")
+
+    monkeypatch.setattr(liger_client, "drs_provenance", unreachable)
+    response = TestClient(lm_endpoints.app).post("/rank_anaphora", json={
+        "syntax": {"syn-1": {}},
+        "semantics": [{"semanticOrigin": "sem-1", "syntacticOrigin": "syn-1", "drs": {}}],
+        "branches": [{"discourseId": "b1", "semanticOrigin": "sem-1",
+                      "relations": [{"pronoun": "x1", "antecedent": "x2"}]}],
+    })
+    assert response.status_code == 502

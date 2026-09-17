@@ -4,6 +4,8 @@
 /embed_drs    asks LiGER's /drs_provenance where each condition and referent of a DRS sits
               in the input, then embeds all of them in one encoder pass: the backend maps
               discourse referent -> surface representation and condition -> embedding.
+/rank_anaphora orders the PCDRS branches of one discourse update by the mean cosine between
+              each bound pronoun's and antecedent's descriptions (see anaphora_ranker).
 
 Run from this directory:  venv/bin/uvicorn lm_endpoints:app --port 8084
 Model: LM_MODEL (default FacebookAI/xlm-roberta-base); LiGER: LIGER_URL (default :8080).
@@ -11,18 +13,24 @@ Model: LM_MODEL (default FacebookAI/xlm-roberta-base); LiGER: LIGER_URL (default
 
 import logging
 import os
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+import anaphora_ranker
 import liger_client
 import span_embedder
 from lm_models import (
+    AnaphoraRanking,
     ConditionOut,
     EmbedDrsRequest,
     EmbedDrsResponse,
     EmbedSpansRequest,
     EmbedSpansResponse,
+    RankAnaphoraRequest,
+    RankedBranch,
+    RankedRelation,
     ReferentOut,
     Similarity,
     SpanEmbeddingOut,
@@ -155,5 +163,82 @@ def embed_drs(request: EmbedDrsRequest):
         referents=referents,
         conditions=conditions,
         similarities=similarities,
+        warnings=warnings,
+    )
+
+
+@app.post("/rank_anaphora", response_model=AnaphoraRanking)
+def rank_anaphora(request: RankAnaphoraRequest):
+    warnings = []
+    semantics = {entry.semanticOrigin: entry for entry in request.semantics}
+    used_origins = []
+    for branch in request.branches:
+        if branch.relations and branch.semanticOrigin not in used_origins:
+            used_origins.append(branch.semanticOrigin)
+
+    # Referent descriptions are computed once per semantic origin, not per branch: every
+    # branch of an origin labels its referents from the same DRS.
+    provenance_by_origin = {}
+    for origin in used_origins:
+        entry = semantics.get(origin)
+        if entry is None:
+            continue
+        syntax = request.syntax.get(entry.syntacticOrigin)
+        if syntax is None:
+            warnings.append(f"No syntax '{entry.syntacticOrigin}' for semantic origin '{origin}'.")
+            continue
+        try:
+            provenance = liger_client.drs_provenance(syntax, entry.drs)
+        except liger_client.LigerError as e:
+            raise HTTPException(status_code=502, detail=str(e))
+        provenance_by_origin[origin] = provenance
+        warnings.extend(f"{origin}: {w}" for w in provenance.get("warnings") or [])
+
+    # Readings of one element share its text, so all their spans go through one encoder pass
+    # per distinct text.
+    labels_needed = {}
+    for branch in request.branches:
+        for relation in branch.relations:
+            labels_needed.setdefault(branch.semanticOrigin, set()).update((relation.pronoun, relation.antecedent))
+    spans_by_text = {}
+    for origin, provenance in provenance_by_origin.items():
+        referents = anaphora_ranker.referents_by_label(provenance)
+        spans = spans_by_text.setdefault(provenance.get("text") or "", {})
+        for label in sorted(labels_needed.get(origin, ())):
+            referent = referents.get(label)
+            if referent is None:
+                continue
+            if referent.get("spans"):
+                spans[f"{origin}|{label}"] = referent["spans"]
+            else:
+                warnings.append(f"{origin}: referent '{label}' has no description span.")
+
+    embedder = None
+    vectors = {}
+    for text, spans in spans_by_text.items():
+        if not spans:
+            continue
+        embedder, embeddings = _embed(request.model, text, spans, request.layers, request.pooling)
+        warnings.extend(_unaligned_warnings(embeddings))
+        vectors.update({span_id: e.vector for span_id, e in embeddings.items()})
+
+    relations, scores, ranking_warnings = anaphora_ranker.rank_branches(
+        [branch.model_dump() for branch in request.branches],
+        provenance_by_origin,
+        lambda origin, label: vectors.get(f"{origin}|{label}"),
+        span_embedder.cosine,
+    )
+    warnings.extend(ranking_warnings)
+    ranks = anaphora_ranker.competition_ranks(scores)
+
+    return AnaphoraRanking(
+        method="cosine-description",
+        model=embedder.model_name if embedder else (request.model or span_embedder.DEFAULT_MODEL),
+        layers=request.layers,
+        pooling=request.pooling,
+        createdAt=datetime.now(timezone.utc).isoformat(),
+        relations=[RankedRelation(**relation) for relation in relations],
+        branches=[RankedBranch(discourseId=branch.discourseId, score=score, rank=rank)
+                  for branch, score, rank in zip(request.branches, scores, ranks)],
         warnings=warnings,
     )
