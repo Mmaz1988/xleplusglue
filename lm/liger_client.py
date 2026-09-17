@@ -23,6 +23,10 @@ def drs_provenance(syntax, drs, timeout=60):
         with urllib_request.urlopen(req, timeout=timeout) as response:
             return json.loads(response.read().decode("utf-8"))
     except urllib_error.HTTPError as e:
+        if e.code == 404:
+            raise LigerError(
+                f"LiGER at {LIGER_URL} has no /drs_provenance: it predates the feature/lm-embedding-backend "
+                "branch -- restart it from that branch") from e
         raise LigerError(f"LiGER /drs_provenance returned {e.code}: {e.read().decode('utf-8', 'replace')}") from e
     except urllib_error.URLError as e:
         raise LigerError(f"LiGER /drs_provenance at {LIGER_URL} is unreachable: {e.reason}") from e
