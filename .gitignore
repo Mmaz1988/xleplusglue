@@ -64,3 +64,6 @@ __pycache__/
 # Agents and plans
 *.md
 docs/*
+
+# lm service local venv
+/lm/venv/
