@@ -1,0 +1,25 @@
+# Contextual embeddings and PCDRS anaphora ranking (lm/lm_endpoints.py). A service of its own
+# rather than part of the vampire image: it needs a newer Python and torch, and the client
+# treats it as optional -- every flow works while it is down.
+FROM python:3.11-slim
+
+EXPOSE 8084
+
+WORKDIR /lm
+
+# CPU-only torch. On linux/amd64 the default PyPI wheel pulls the CUDA stack (several GB);
+# the CPU index serves the same version without it (`==` matches its `+cpu` local version).
+COPY lm/requirements.txt /lm/requirements.txt
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+      "torch==$(sed -n 's/^torch==//p' requirements.txt)" && \
+    grep -v -E '^(torch|pytest)==' requirements.txt > /tmp/requirements-runtime.txt && \
+    pip install --no-cache-dir -r /tmp/requirements-runtime.txt && \
+    python -c "import torch, transformers; print('torch', torch.__version__, 'transformers', transformers.__version__)"
+
+COPY lm/anaphora_ranker.py lm/liger_client.py lm/lm_endpoints.py lm/lm_models.py lm/span_embedder.py /lm/
+
+# Models are downloaded on first use into HF_HOME, which docker-compose mounts as a named
+# volume so a download survives rebuilds and container restarts.
+ENV HF_HOME=/models
+
+CMD ["uvicorn", "lm_endpoints:app", "--host", "0.0.0.0", "--port", "8084"]

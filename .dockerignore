@@ -24,3 +24,9 @@ redis-data/
 # Local model/toolkit downloads -- ~1.1 GB combined, needed by nothing in any image.
 Stanza/
 models/
+
+# The lm service's local virtualenv (~800 MB) and test scratch output; the lm image installs
+# its own dependencies and copies only the service modules.
+lm/venv/
+lm/**/__pycache__/
+tests/tmp/
