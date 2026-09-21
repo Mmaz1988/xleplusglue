@@ -38,12 +38,12 @@ CHECK_NAMES = ("info_pos_check", "info_neg_check", "cons_pos_check", "cons_neg_c
 
 
 def parsed_structure(sentence):
-    return w.pick_selected_solution(w.liger_annotate(sentence, w.NLI_RULES))["structureJson"]
+    return w.pick_selected_solution(w.liger_annotate(sentence, w.pragmatics_rules()))["structureJson"]
 
 
 def sentence_semantics(sentence, sentence_id):
     """One sentence's own semantic reading, as the regression parse phase produces it."""
-    annotation = w.liger_annotate(sentence, w.NLI_RULES)
+    annotation = w.liger_annotate(sentence, w.pragmatics_rules())
     structure = w.pick_selected_solution(annotation)["structureJson"]
     mcs = w.build_proof_inputs(annotation, sentence_id=sentence_id)[0]["meaningConstructors"]
     return w.first_semantic_solution(deduce_for(structure, mcs, sentence_id, "S0"))
@@ -69,7 +69,7 @@ def main():
     structures = [parsed_structure(sentence) for sentence in sentences]
 
     # 1. one sequence call, every structure supplied -> no re-parsing, readings preserved
-    sequence = w.liger_sequence(sentences, w.NLI_RULES,
+    sequence = w.liger_sequence(sentences, w.pragmatics_rules(),
                                 [[structure] for structure in structures])["solutions"][0]
 
     # 1b. each part re-derived inside that sequence
@@ -104,7 +104,7 @@ def main():
     # 5. the syn/sem union, then the post-processing rules over it
     tier_a = w.liger_merge_structure(sequence["structureJson"], merged.get("graph"))
     annotations = w.liger_apply_rules_to_structure(
-        tier_a["structureJson"], w.NLI_RULES, "probe-regression-nli.json")["annotations"]
+        tier_a["structureJson"], w.pragmatics_rules(), "probe-regression-nli.json")["annotations"]
     synsem = [c for c in (annotations[0].get("structureJson") or {}).get("annotations", [])
               if c.get("relationLabel") == "SYNSEM"]
     print(f"rule branches: {len(annotations)}, SYNSEM edges in branch 1: {len(synsem)}")

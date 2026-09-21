@@ -26,10 +26,14 @@ NN, NNS, NNP, NNPS, PRP
 #verb
 VB, VBD, VBG, VBN, VBP, VBZ, JJR, JJS
 
+***
+#adjective
+JJR, JJS, JJ
+
 >visargue-modals
 ***
 #certain
-certainly,
+certainly
 
 ***
 #probable
@@ -51,6 +55,22 @@ want, intend, intention, shall
 ***
 #obligation
 should, ought, must, oblige, coerce, constrain, force 
+
+>pronoun
+***
+#inclusive
+i, we, us, our, my, mine, myself, ourselves
+
+***
+#exclusive
+you, he, she ,it, they, them, their, his, her, himself, herself, themselves
+
+>verb-class
+***
+#perception
+see,hear,
+
+#
 
 
 >xcomp-veridicality

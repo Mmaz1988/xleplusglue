@@ -91,10 +91,10 @@ RANKING_SEQUENCE = ("the big cat ate the black dog", "it barked")
 
 def run_ranking_example(sentence_1, sentence_2):
     rules = workflow.load_rules()
-    seq_solution, _, _, merged = workflow.run_sequence_semantics(sentence_1, sentence_2, rules)
+    seq_solution, _, _, merged = workflow.run_sequence_semantics(sentence_1, sentence_2, rules["semantics"])
     _, candidates, _, _ = workflow.run_discourse_postprocessing(
         seq_solution["structureJson"], merged["graph"], merged["semantic"], merged["id"],
-        content_id="lm-ranking-merged-graph-test.json", require_real_antecedent=True)
+        rules["pragmatics"], content_id="lm-ranking-merged-graph-test.json", require_real_antecedent=True)
 
     # The request the client's ranking service builds from a DiscourseUpdate.
     branches = [{"discourseId": c["id"], "semanticOrigin": merged["id"],

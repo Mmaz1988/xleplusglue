@@ -33,14 +33,14 @@ def stats(structure, label):
 
 
 def parse(sentence, label):
-    response = w.liger_annotate(sentence, w.NLI_RULES)
+    response = w.liger_annotate(sentence, w.pragmatics_rules())
     structure = w.pick_selected_solution(response)["structureJson"]
     stats(structure, label)
     return structure
 
 
 def sequence(sentences, parsed, label):
-    response = w.liger_sequence(sentences, w.NLI_RULES, parsed)
+    response = w.liger_sequence(sentences, w.pragmatics_rules(), parsed)
     solutions = response.get("solutions") or []
     if not solutions:
         print(f"  {label}: NO SOLUTIONS -> {response.get('error') or response}")

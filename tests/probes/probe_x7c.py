@@ -25,12 +25,12 @@ def main():
     w.TIMEOUT_SECONDS = 900
     w.load_rules(); w.select_grammar()
 
-    st1 = w.pick_selected_solution(w.liger_annotate(S1, w.NLI_RULES))["structureJson"]
-    st2 = w.pick_selected_solution(w.liger_annotate(S2, w.NLI_RULES))["structureJson"]
-    st3 = w.pick_selected_solution(w.liger_annotate(S3, w.NLI_RULES))["structureJson"]
+    st1 = w.pick_selected_solution(w.liger_annotate(S1, w.pragmatics_rules()))["structureJson"]
+    st2 = w.pick_selected_solution(w.liger_annotate(S2, w.pragmatics_rules()))["structureJson"]
+    st3 = w.pick_selected_solution(w.liger_annotate(S3, w.pragmatics_rules()))["structureJson"]
 
-    seq2 = w.liger_sequence([S1, S2], w.NLI_RULES, [[st1], [st2]])["solutions"][0]
-    mcs1 = w.build_proof_inputs(w.liger_annotate(S1, w.NLI_RULES), sentence_id="sentence-1")[0]["meaningConstructors"]
+    seq2 = w.liger_sequence([S1, S2], w.pragmatics_rules(), [[st1], [st2]])["solutions"][0]
+    mcs1 = w.build_proof_inputs(w.liger_annotate(S1, w.pragmatics_rules()), sentence_id="sentence-1")[0]["meaningConstructors"]
     sol1 = w.first_semantic_solution(deduce_for(st1, mcs1, "sentence-1", "S0"))
     cur2, _ = part_semantics(seq2, "sentence-2")
     merged2 = w.gswb_merge_sequence_semantics([w.semantic_part(sol1), w.semantic_part(cur2)],
@@ -42,7 +42,7 @@ def main():
         ("D (all supplied)",   [S1, S2, S3], [[st1], [st2], [st3]]),
         ("C (seq + sentence)", [f"{S1} {S2}", S3], [[seq2["structureJson"]], [st3]]),
     ):
-        seq = w.liger_sequence(sentences, w.NLI_RULES, parsed)["solutions"][0]
+        seq = w.liger_sequence(sentences, w.pragmatics_rules(), parsed)["solutions"][0]
         cur, part = part_semantics(seq, "sentence-3")
         merged = w.gswb_merge_sequence_semantics(
             [w.semantic_part(merged2), w.semantic_part(cur)],

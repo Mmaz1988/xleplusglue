@@ -1,0 +1,29 @@
+// Pragmatics core: shared hierarchies and templates, and the rules every later
+// pragmatics file builds on (syntax-semantics linking, coarguments). List it first.
+
+// HIERARCHIES
+
+//Functional hierarchy
+GF ::= SUBJ > OBJ > OBJ2 > OBL .
+
+//Templates
+GF := SUBJ | OBJ | OBL .
+
+//Link DRs to their originating GFs
+DR-GF-LINK(#a, #d) := #a NODE_TYPE 'referent' & #a SRC %a & #b SYN-ID %b & %a == %b & #b ^(in_set>GLUE>g::>cproj) #c phi #d .
+
+//Coargument path
+COARG-PATH(#a,#b,#c) := #a ^(@GF*:~(->PRED)) #b ^(@GF) #c.
+
+COARG(#a,#b) := @COARG-PATH(#a,#r,#s) & #s !(@GF) #b & id(#a) != id(#b).
+
+DR-PRECEDENCE(#a,#b) := #a NAME %a & #a NODE_TYPE referent &
+                        #b NAME %b & #b NODE_TYPE referent &
+			            id(%a) < id(%b).  
+
+// RULES
+
+//Connects referents via SRC with syntactic indices via SYN-ID
+@DR-GF-LINK(#a,#d) ==> #a SYNSEM #d.
+
+@COARG(#a,#b) ==> #a COARG #b.

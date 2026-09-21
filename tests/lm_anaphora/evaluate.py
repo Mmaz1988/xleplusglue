@@ -59,7 +59,7 @@ def pcdrs_branches(sentences):
         raise ValueError("gold items have one or two sentences")
 
     union = workflow.liger_merge_structure(syntax, graph)["structureJson"]
-    annotations = workflow.liger_apply_rules_to_structure(union, workflow.NLI_RULES, "lm-eval.json")["annotations"]
+    annotations = workflow.liger_apply_rules_to_structure(union, workflow.pragmatics_rules(), "lm-eval.json")["annotations"]
     solutions = []
     for index, annotation in enumerate(annotations):
         solutions += workflow.gswb_generate_pcdrs(semantic, f"{sem_id}-rule-{index + 1}", annotation["structureJson"])["solutions"]

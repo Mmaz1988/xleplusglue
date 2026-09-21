@@ -118,14 +118,19 @@ def _dump_request(url, method, payload, response):
     with open(path, "w") as f:
         json.dump({"url": url, "method": method, "request": payload, "response": response}, f, indent=2)
 
-# Same defaults the browser client loads on startup; see
-# ../xleplusglue-client/src/app/app-defaults.ts. These are resolved by the
-# LiGER *server* process, relative to its own working directory -- in the
-# Docker image that is `/`, where Dockerfile-liger places `grammars/` and
-# `liger_resources/`, so the relative paths below are correct as-is there.
-# Point LIGER_GRAMMAR_PATH/LIGER_RULES_PATH at absolute paths instead when
-# running against a LiGER process started with a different working directory
-# (e.g. a local dev run from an IDE).
+# Grammar and rules for this trace. The browser client starts with a different
+# grammar and ./liger_resources/rules/default.liger.yaml; see
+# ../xleplusglue-client/src/app/app-defaults.ts. LIGER_RULES_PATH may name a
+# single rule file or a LiGER config (*.liger.yaml). /load_rules answers with
+# both rule stages either way: a single rule file is the semantics stage, and
+# its post-processing (pragmatics) rules come from rules/default.liger.yaml.
+#
+# These paths are resolved by the LiGER *server* process, relative to its own
+# working directory -- in the Docker image that is `/`, where Dockerfile-liger
+# places `grammars/` and `liger_resources/`, so the relative paths below are
+# correct as-is there. Point LIGER_GRAMMAR_PATH/LIGER_RULES_PATH at absolute
+# paths instead when running against a LiGER process started with a different
+# working directory (e.g. a local dev run from an IDE).
 GRAMMAR_PATH = os.environ.get("LIGER_GRAMMAR_PATH", "./grammars/dev/glue-basic-drt.lfg.glue")
 RULES_PATH = os.environ.get("LIGER_RULES_PATH", "./liger_resources/rules/basic_axiom_rules.txt")
 LOGIC_TYPE = "tff"
@@ -160,7 +165,7 @@ SENTENCE_2 = "she smiled"
 # Additional sequence examples (beyond SENTENCE_1/SENTENCE_2, which already
 # has its own dedicated full test below), chosen to exercise the SYN-ID/SRC
 # offsetting fix in addSentence() (liger-vis.component.ts) and the
-# NLI_RULES pronoun-binding rules below with real (non-proper-name)
+# pronoun-binding post-processing rules with real (non-proper-name)
 # antecedents and ambiguity between two indefinites. Each tuple is
 # (label, sentence_1, sentence_2, require_real_antecedent).
 #
@@ -193,119 +198,6 @@ SINGLE_SENTENCE_DISCOURSE_EXAMPLES = [
 ]
 
 TIMEOUT_SECONDS = 120
-
-# Pronoun-binding post-processing rules -- verbatim copy of
-# APP_DEFAULTS.graphInspector.rulesText in
-# ../xleplusglue-client/src/app/app-defaults.ts, the same rule text
-# glue-interface.component.ts's onRulesApplied() sends to
-# /apply_rules_uploaded_structure by default. Kept as a literal constant here
-# rather than read cross-repo at test time, since this is a separate repo's
-# source file, not a resource shipped in this one.
-NLI_RULES = """// HIERARCHIES
-
-//Functional hierarchy
-GF ::= SUBJ > OBJ > OBJ2 > OBL .
-
-//Templates
-GF := SUBJ | OBJ | OBL .
-
-DRS := IMP | NOT | IN | MERGE | SUB . 
-
-BIND-PATH(#a,#b) := #a ^(PRSP>@DRS*) #b & #a NAME %a & #b NAME %b & id(%b) < id(%a).
-
-//Link DRs to their originating GFs
-DR-GF-LINK(#a, #d) := #a NODE_TYPE 'referent' & #a SRC %a & #b SYN-ID %b & %a == %b & #b ^(in_set>GLUE>g::>cproj) #c phi #d .
-
-// ***** PRONOUNS *****
-
-//Minimal complete nucleus path
-MCN-PATH(#a,#b,#c) := #a ^(@GF*:~(->SUBJ)) #b & #b ^(@GF) #c.
-
-//Reflexive binding constraints (positive constraint)
-REFL-BIND(#f,#h) := #f PRON-TYPE 'refl' & @MCN-PATH(#f,#i,#j) & #j !(@GF) #h & superior(GF,#h,#i) .
-
-//Coargument path
-COARG-PATH(#a,#b,#c) := #a ^(@GF*:~(->PRED)) #b ^(@GF) #c.
-
-COARG(#a,#b) := @COARG-PATH(#a,#r,#s) & #s !(@GF) #b & id(#a) != id(#b).
-
-DR-PRECEDENCE(#a,#b) := #a NAME %a & #a NODE_TYPE referent &
-                        #b NAME %b & #b NODE_TYPE referent &
-			            id(%a) < id(%b).  
-//Checks if two antecedent paths remain disjoint
-DISJOINT(#a,#b) := -(#a !(POSSIBLE-ANT+) #g & #b !(POSSIBLE-ANT+) #h & id(#g) == id(#h)) .
-
-CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c .
-
-ANT(#a) := #a ^(TERM1) #b & #b NAME 'ant' .
-
-BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
-
-// & -(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) .
-
-//Personal pronoun binding constraint (negative constraint)
-// For preventing:
-//EX.: He_i thinks that John_i likes Sue.
-//EX.: He_i likes John_i
-//EX.: John_i likes him_i
-//Ex.: John thinks that he likes him. 
-//PERS-BIND-FILTER(#a,#b) := 
-
-// ***** PRESUPPOSITIONS *****
-
-// RULES
-
-//Connects referents via SRC with syntactic indices via SYN-ID
-@DR-GF-LINK(#a,#d) ==> #a SYNSEM #d.
-
-@COARG(#a,#b) ==> #a COARG #b.
-
-//Presupposition rules
-
-//search for potential binders
-@BIND-PATH(#a,#b) ==> #a POTENTIAL-BINDER #b .
-
-//Check if DRs in PRSP have binders
-#a ^(POTENTIAL-BINDER) #b & #b IN #c & @BIND(#c) & #a IN #d &
-@DR-PRECEDENCE(#d,#c) ==> #c PRSP-ANT #d.
-
-//search for bound referents 
-#a POTENTIAL-BINDER #b IN #c & #a IN #d & @BIND(#d) ==> #d POSSIBLE-BINDER #c .
-
-#a POTENTIAL-BINDER #b IN #c & #a IN #d & -(#d POSSIBLE-BINDER #c) ?=> #d acc #d.
-
-@BIND(#d) & #d acc #d =-> #d acc #d.
-
-//Pronoun rules
-
-//Reflexives
-@ANT(#a) & #a SYNSEM #b & @REFL-BIND(#b,#c) & #c ^(SYNSEM) #d ==> #a POSSIBLE-ANT #d.
-
-//Personal pronouns
-@ANT(#a) & #a SYNSEM #b PRON-TYPE 'pers' & #c SYNSEM #d & 
-@DR-PRECEDENCE(#c,#a) & -(@COARG(#b,#d)) ==> #a POTENTIAL-ANT #c.
-
-//For cases like EX.: Kim thought he saw him"
-//More precise -(#a !(POTENTIAL-ANT+) #e & #c !(POTENTIAL-ANT+) #f & id(#f) == id(#e))
-//There is no antecedent path such that two coargs refer to the same DR 
-@ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
-@DR-PRECEDENCE(#c,#a) & @COARG(#b,#d) & 
-@CLOSEST-POTENTIAL-ANT(#a,#e) & 
-@CLOSEST-POTENTIAL-ANT(#c,#f) & 
-id(#f) != id(#e) ?=> #a POSSIBLE-ANT #e & #c POSSIBLE-ANT #f.
-
-//Preparing for elimination of redundant edges (reflexive closure)
-#a POTENTIAL-ANT #c & 
--(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) &
--(#a POSSIBLE-ANT) ==> #a POSSIBLE-ANT #c.
-
-@ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
-@COARG(#b,#d) & @DISJOINT(#a,#c) ?=> #z KEEP +.
-
-//Clean up
-edge=POTENTIAL-ANT =-> 0.
-"""
-
 
 def _request_json(method, url, payload=None):
     data = json.dumps(payload).encode("utf-8") if payload is not None else None
@@ -365,15 +257,35 @@ def _with_local_fallback(request_fn, configured_path, fallback_path, env_var_nam
 
 
 def load_rules():
-    """POST /load_rules -- mirrors RuleLoaderComponent.ngOnInit()."""
+    """POST /load_rules -- mirrors RuleLoaderComponent.ngOnInit().
+
+    Returns LiGER's rule set: `semantics` (applied before GSWB) and
+    `pragmatics` (the pronoun/presupposition post-processing rules).
+    """
     def do_load(path):
-        response = _post_json(f"{LIGER_URL}/load_rules", {"grammar": path})
-        rule_string = response["grammar"]
-        print(f"[liger] /load_rules -> {len(rule_string)} chars from {path}")
-        return rule_string
+        rule_set = _post_json(f"{LIGER_URL}/load_rules", {"grammar": path})
+        assert rule_set.get("pragmatics"), (
+            f"/load_rules({path!r}) returned no pragmatics rules; is rules/default.liger.yaml "
+            f"present in LiGER's resources folder? {rule_set}"
+        )
+        print(f"[liger] /load_rules -> {rule_set['kind']} {path}: {len(rule_set['semantics'])} chars "
+              f"semantics, {len(rule_set['pragmatics'])} chars pragmatics, lexica={rule_set['lexica']}")
+        return rule_set
 
     fallback = os.path.join(REPO_ROOT, "liger_resources", "rules", "basic_axiom_rules.txt")
     return _with_local_fallback(do_load, RULES_PATH, fallback, "LIGER_RULES_PATH", "/load_rules")
+
+
+_pragmatics_rules = None
+
+
+def pragmatics_rules():
+    """The post-processing rules of LIGER_RULES_PATH's rule set, loaded once.
+    For callers that need the rule text without a load_rules() of their own."""
+    global _pragmatics_rules
+    if _pragmatics_rules is None:
+        _pragmatics_rules = load_rules()["pragmatics"]
+    return _pragmatics_rules
 
 
 def select_grammar():
@@ -691,7 +603,7 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
 
 
 def run_discourse_postprocessing(structure_json, drs_graph, merged_semantic, semantic_solution_id,
-                                  rule_string=NLI_RULES, content_id="merged-graph-test.json",
+                                  rule_string, content_id="merged-graph-test.json",
                                   require_real_antecedent=False):
     """Steps 6-9: merge a syntax structure with its DRS graph, apply
     pronoun-binding rules, generate PCDRS anaphora-mapping candidates, and
@@ -753,7 +665,8 @@ def run_discourse_postprocessing(structure_json, drs_graph, merged_semantic, sem
 def test_full_analysis_workflow():
     set_dump_run("full_analysis_workflow")
     print(f"\n=== Step 0: initialization (rules + grammar) ===")
-    rule_string = load_rules()
+    rules = load_rules()
+    rule_string = rules["semantics"]
     select_grammar()
 
     seq_solution, sol1, current_solution, merged = run_sequence_semantics(SENTENCE_1, SENTENCE_2, rule_string)
@@ -761,7 +674,8 @@ def test_full_analysis_workflow():
     semantic_solution_id = merged["id"]
 
     annotation, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
-        seq_solution["structureJson"], merged["graph"], merged_semantic, semantic_solution_id
+        seq_solution["structureJson"], merged["graph"], merged_semantic, semantic_solution_id,
+        rules["pragmatics"],
     )
 
     print("\n=== Step 10: assemble a DiscourseUpdate and round-trip it through Redis ===")
@@ -776,7 +690,7 @@ def test_full_analysis_workflow():
         "id": f"du-{seq_solution.get('solutionKey') or 'sequence-test'}",
         "sourceElementId": seq_solution.get("solutionKey") or "sequence-test",
         "sourceElementKind": "sequence",
-        "ruleString": NLI_RULES,
+        "ruleString": rules["pragmatics"],
         "discourse": [
             {
                 "id": candidate_with_mapping["id"],
@@ -834,12 +748,13 @@ def test_sequence_examples():
     1-9, without the Redis round-trip already covered by
     test_full_analysis_workflow) over SEQUENCE_EXAMPLES. Each example's
     require_real_antecedent flag (see SEQUENCE_EXAMPLES above) records
-    whether the current NLI_RULES rule set is actually expected to resolve
+    whether the current post-processing rule set is actually expected to resolve
     that pair's pronoun, rather than silently falling back to a manually
     spliced mapping.
     """
     set_dump_run("sequence_examples_init")
-    rule_string = load_rules()
+    rules = load_rules()
+    rule_string = rules["semantics"]
     select_grammar()
 
     for label, sentence_1, sentence_2, require_real_antecedent in SEQUENCE_EXAMPLES:
@@ -851,7 +766,7 @@ def test_sequence_examples():
 
         _, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
             seq_solution["structureJson"], merged["graph"], merged_semantic, semantic_solution_id,
-            content_id=f"{label}-merged-graph-test.json", require_real_antecedent=require_real_antecedent,
+            rules["pragmatics"], content_id=f"{label}-merged-graph-test.json", require_real_antecedent=require_real_antecedent,
         )
         print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "
               f"resolved antecedent(s)={[relation.get('antecedent') for relation in collapsed.get('anaphoraRelations') or []]}")
@@ -865,7 +780,8 @@ def test_single_sentence_discourse_examples():
     structure and DRS graph.
     """
     set_dump_run("single_sentence_discourse_examples_init")
-    rule_string = load_rules()
+    rules = load_rules()
+    rule_string = rules["semantics"]
     select_grammar()
 
     for label, sentence in SINGLE_SENTENCE_DISCOURSE_EXAMPLES:
@@ -874,7 +790,7 @@ def test_single_sentence_discourse_examples():
         _, _, sol, syntax, semantic = parse_and_deduce(sentence, rule_string, label=label)
 
         _, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
-            syntax, sol["graph"], semantic, sol["id"],
+            syntax, sol["graph"], semantic, sol["id"], rules["pragmatics"],
             content_id=f"{label}-merged-graph-test.json", require_real_antecedent=True,
         )
         print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "

@@ -11,7 +11,7 @@ from probe_x7 import S1, S2, S3, edges, deduce_for, part_semantics  # noqa: E402
 def collect(seq_solution, merged):
     syntax = seq_solution["structureJson"]
     tier_a = w.liger_merge_structure(syntax, merged.get("graph"))["structureJson"]
-    ann = w.liger_apply_rules_to_structure(tier_a, w.NLI_RULES, "probe-x7b.json")["annotations"][0]
+    ann = w.liger_apply_rules_to_structure(tier_a, w.pragmatics_rules(), "probe-x7b.json")["annotations"][0]
     tier_b = ann.get("structureJson")
     src = dict(edges(tier_a, "SRC"))
     synid = {t: s for s, t in edges(syntax, "SYN-ID")}   # i-node -> syntax node
@@ -26,24 +26,24 @@ def main():
     w.TIMEOUT_SECONDS = 900
     w.load_rules(); w.select_grammar()
 
-    st1 = w.pick_selected_solution(w.liger_annotate(S1, w.NLI_RULES))["structureJson"]
-    st2 = w.pick_selected_solution(w.liger_annotate(S2, w.NLI_RULES))["structureJson"]
-    st3 = w.pick_selected_solution(w.liger_annotate(S3, w.NLI_RULES))["structureJson"]
+    st1 = w.pick_selected_solution(w.liger_annotate(S1, w.pragmatics_rules()))["structureJson"]
+    st2 = w.pick_selected_solution(w.liger_annotate(S2, w.pragmatics_rules()))["structureJson"]
+    st3 = w.pick_selected_solution(w.liger_annotate(S3, w.pragmatics_rules()))["structureJson"]
 
-    seq2 = w.liger_sequence([S1, S2], w.NLI_RULES, [[st1], [st2]])["solutions"][0]
-    mcs1 = w.build_proof_inputs(w.liger_annotate(S1, w.NLI_RULES), sentence_id="sentence-1")[0]["meaningConstructors"]
+    seq2 = w.liger_sequence([S1, S2], w.pragmatics_rules(), [[st1], [st2]])["solutions"][0]
+    mcs1 = w.build_proof_inputs(w.liger_annotate(S1, w.pragmatics_rules()), sentence_id="sentence-1")[0]["meaningConstructors"]
     sol1 = w.first_semantic_solution(deduce_for(st1, mcs1, "sentence-1", "S0"))
     cur2, _ = part_semantics(seq2, "sentence-2")
     merged2 = w.gswb_merge_sequence_semantics([w.semantic_part(sol1), w.semantic_part(cur2)],
                                               parent_solution_id="t2", solution_key="0", mc_set_id="0")
 
-    seq3c = w.liger_sequence([f"{S1} {S2}", S3], w.NLI_RULES,
+    seq3c = w.liger_sequence([f"{S1} {S2}", S3], w.pragmatics_rules(),
                              [[seq2["structureJson"]], [st3]])["solutions"][0]
     cur3c, part_c = part_semantics(seq3c, "sentence-3")
     merged3c = w.gswb_merge_sequence_semantics([w.semantic_part(merged2), w.semantic_part(cur3c)],
                                                parent_solution_id="t3c", solution_key="0", mc_set_id="0")
 
-    seq3b = w.liger_sequence([S1, S2, S3], w.NLI_RULES, None)["solutions"][0]
+    seq3b = w.liger_sequence([S1, S2, S3], w.pragmatics_rules(), None)["solutions"][0]
     cur3b, part_b = part_semantics(seq3b, "sentence-3")
     merged3b = w.gswb_merge_sequence_semantics([w.semantic_part(merged2), w.semantic_part(cur3b)],
                                                parent_solution_id="t3b", solution_key="0", mc_set_id="0")

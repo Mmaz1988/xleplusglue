@@ -71,18 +71,18 @@ def ordered_fingerprint(structure):
 
 def build_once(label):
     """One full pipeline run. Returns (merged semantic, tier-B structure)."""
-    st1 = w.pick_selected_solution(w.liger_annotate(S1, w.NLI_RULES))["structureJson"]
-    st2 = w.pick_selected_solution(w.liger_annotate(S2, w.NLI_RULES))["structureJson"]
+    st1 = w.pick_selected_solution(w.liger_annotate(S1, w.pragmatics_rules()))["structureJson"]
+    st2 = w.pick_selected_solution(w.liger_annotate(S2, w.pragmatics_rules()))["structureJson"]
 
-    seq2 = w.liger_sequence([S1, S2], w.NLI_RULES, [[st1], [st2]])["solutions"][0]
-    mcs1 = w.build_proof_inputs(w.liger_annotate(S1, w.NLI_RULES), sentence_id="sentence-1")[0]["meaningConstructors"]
+    seq2 = w.liger_sequence([S1, S2], w.pragmatics_rules(), [[st1], [st2]])["solutions"][0]
+    mcs1 = w.build_proof_inputs(w.liger_annotate(S1, w.pragmatics_rules()), sentence_id="sentence-1")[0]["meaningConstructors"]
     sol1 = w.first_semantic_solution(deduce_for(st1, mcs1, "sentence-1", "S0"))
     current2, _ = part_semantics(seq2, "sentence-2")
     merged2 = w.gswb_merge_sequence_semantics([w.semantic_part(sol1), w.semantic_part(current2)],
                                               parent_solution_id=f"{label}-t2",
                                               solution_key="0", mc_set_id="0")
 
-    seq3 = w.liger_sequence([S1, S2, S3], w.NLI_RULES, None)["solutions"][0]
+    seq3 = w.liger_sequence([S1, S2, S3], w.pragmatics_rules(), None)["solutions"][0]
     current3, _ = part_semantics(seq3, "sentence-3")
     merged = w.gswb_merge_sequence_semantics(
         [w.semantic_part(merged2), w.semantic_part(current3)],
@@ -90,7 +90,7 @@ def build_once(label):
 
     tier_a = w.liger_merge_structure(seq3["structureJson"], merged.get("graph"))
     tier_b = w.liger_apply_rules_to_structure(
-        tier_a["structureJson"], w.NLI_RULES, "probe-stability.json")["annotations"][0]["structureJson"]
+        tier_a["structureJson"], w.pragmatics_rules(), "probe-stability.json")["annotations"][0]["structureJson"]
     parts = [w.semantic_part(merged2), w.semantic_part(current3)]
     return merged, tier_b, tier_a, parts
 
@@ -121,7 +121,7 @@ def main():
     phase_a2 = []
     for run in range(RUNS):
         rebuilt = w.liger_apply_rules_to_structure(
-            tier_a["structureJson"], w.NLI_RULES, "probe-stability.json")["annotations"][0]["structureJson"]
+            tier_a["structureJson"], w.pragmatics_rules(), "probe-stability.json")["annotations"][0]["structureJson"]
         pcdrs = w.gswb_generate_pcdrs(merged["semantic"], f"phaseA2-{run}-rule-1", rebuilt)
         phase_a2.append((fingerprint(rebuilt), ordered_fingerprint(rebuilt), mapping_set(pcdrs)))
         print(f"  run {run + 1}: {len(phase_a2[-1][2])} candidate mapping(s)")
@@ -154,7 +154,7 @@ def main():
     spaces = []
     for run in range(RUNS):
         branches = w.liger_apply_rules_to_structure(
-            tier_a["structureJson"], w.NLI_RULES, "probe-stability.json")["annotations"]
+            tier_a["structureJson"], w.pragmatics_rules(), "probe-stability.json")["annotations"]
         space = set()
         for index, branch in enumerate(branches):
             space |= set(mapping_set(w.gswb_generate_pcdrs(

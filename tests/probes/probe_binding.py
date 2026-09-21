@@ -42,7 +42,7 @@ def relations(mapping):
 def bindings_for(label, seq_solution, merged):
     tier_a = w.liger_merge_structure(seq_solution["structureJson"], merged.get("graph"))
     annotation = w.liger_apply_rules_to_structure(
-        tier_a["structureJson"], w.NLI_RULES, "probe-binding.json")["annotations"][0]
+        tier_a["structureJson"], w.pragmatics_rules(), "probe-binding.json")["annotations"][0]
     pcdrs = w.gswb_generate_pcdrs(merged["semantic"], f"{label}-rule-1", annotation["structureJson"])
 
     mappings = pcdrs.get("solutions") or []
@@ -60,12 +60,12 @@ def main():
     w.load_rules()
     w.select_grammar()
 
-    st1 = w.pick_selected_solution(w.liger_annotate(S1, w.NLI_RULES))["structureJson"]
-    st2 = w.pick_selected_solution(w.liger_annotate(S2, w.NLI_RULES))["structureJson"]
-    st3 = w.pick_selected_solution(w.liger_annotate(S3, w.NLI_RULES))["structureJson"]
+    st1 = w.pick_selected_solution(w.liger_annotate(S1, w.pragmatics_rules()))["structureJson"]
+    st2 = w.pick_selected_solution(w.liger_annotate(S2, w.pragmatics_rules()))["structureJson"]
+    st3 = w.pick_selected_solution(w.liger_annotate(S3, w.pragmatics_rules()))["structureJson"]
 
-    seq2 = w.liger_sequence([S1, S2], w.NLI_RULES, [[st1], [st2]])["solutions"][0]
-    mcs1 = w.build_proof_inputs(w.liger_annotate(S1, w.NLI_RULES), sentence_id="sentence-1")[0]["meaningConstructors"]
+    seq2 = w.liger_sequence([S1, S2], w.pragmatics_rules(), [[st1], [st2]])["solutions"][0]
+    mcs1 = w.build_proof_inputs(w.liger_annotate(S1, w.pragmatics_rules()), sentence_id="sentence-1")[0]["meaningConstructors"]
     sol1 = w.first_semantic_solution(deduce_for(st1, mcs1, "sentence-1", "S0"))
     cur2, _ = part_semantics(seq2, "sentence-2")
     merged2 = w.gswb_merge_sequence_semantics([w.semantic_part(sol1), w.semantic_part(cur2)],
@@ -76,7 +76,7 @@ def main():
         ("B", [S1, S2, S3], None),
         ("C", [f"{S1} {S2}", S3], [[seq2["structureJson"]], [st3]]),
     ):
-        seq = w.liger_sequence(sentences, w.NLI_RULES, parsed)["solutions"][0]
+        seq = w.liger_sequence(sentences, w.pragmatics_rules(), parsed)["solutions"][0]
         current, _ = part_semantics(seq, "sentence-3")
         merged = w.gswb_merge_sequence_semantics(
             [w.semantic_part(merged2), w.semantic_part(current)],
