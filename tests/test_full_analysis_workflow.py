@@ -119,11 +119,11 @@ def _dump_request(url, method, payload, response):
         json.dump({"url": url, "method": method, "request": payload, "response": response}, f, indent=2)
 
 # Grammar and rules for this trace. The browser client starts with a different
-# grammar and ./liger_resources/rules/default.liger.yaml; see
-# ../xleplusglue-client/src/app/app-defaults.ts. LIGER_RULES_PATH may name a
-# single rule file or a LiGER config (*.liger.yaml). /load_rules answers with
-# both rule stages either way: a single rule file is the semantics stage, and
-# its post-processing (pragmatics) rules come from rules/default.liger.yaml.
+# grammar and its config (grammars/dev/lfgxdrt_inference_grammar/liger/
+# lfgxdrt.liger.yaml); see ../xleplusglue-client/src/app/app-defaults.ts.
+# LIGER_RULES_PATH names the grammar's LiGER config (*.liger.yaml), which lists
+# both rule stages. It must list pragmatics rules: a config gets exactly what it
+# lists, and a single rule file has none, so it cannot be post-processed.
 #
 # These paths are resolved by the LiGER *server* process, relative to its own
 # working directory -- in the Docker image that is `/`, where Dockerfile-liger
@@ -132,7 +132,7 @@ def _dump_request(url, method, payload, response):
 # paths instead when running against a LiGER process started with a different
 # working directory (e.g. a local dev run from an IDE).
 GRAMMAR_PATH = os.environ.get("LIGER_GRAMMAR_PATH", "./grammars/dev/glue-basic-drt.lfg.glue")
-RULES_PATH = os.environ.get("LIGER_RULES_PATH", "./liger_resources/rules/basic_axiom_rules.txt")
+RULES_PATH = os.environ.get("LIGER_RULES_PATH", "./grammars/dev/liger/glue-basic-drt.liger.yaml")
 LOGIC_TYPE = "tff"
 GSWB_PREFERENCES = {
     "prover": 1,
@@ -265,14 +265,14 @@ def load_rules():
     def do_load(path):
         rule_set = _post_json(f"{LIGER_URL}/load_rules", {"grammar": path})
         assert rule_set.get("pragmatics"), (
-            f"/load_rules({path!r}) returned no pragmatics rules; is rules/default.liger.yaml "
-            f"present in LiGER's resources folder? {rule_set}"
+            f"/load_rules({path!r}) returned no pragmatics rules; the config must list them "
+            f"(nothing is inherited): {rule_set}"
         )
         print(f"[liger] /load_rules -> {rule_set['kind']} {path}: {len(rule_set['semantics'])} chars "
               f"semantics, {len(rule_set['pragmatics'])} chars pragmatics, lexica={rule_set['lexica']}")
         return rule_set
 
-    fallback = os.path.join(REPO_ROOT, "liger_resources", "rules", "basic_axiom_rules.txt")
+    fallback = os.path.join(REPO_ROOT, "grammars", "dev", "liger", "glue-basic-drt.liger.yaml")
     return _with_local_fallback(do_load, RULES_PATH, fallback, "LIGER_RULES_PATH", "/load_rules")
 
 

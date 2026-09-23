@@ -1,0 +1,24 @@
+// Presuppositions: binding of presupposed discourse referents (PRSP).
+// Needs pragmatics/core.liger before it.
+
+DRS := IMP | NOT | IN | MERGE | SUB . 
+
+BIND-PATH(#a,#b) := #a ^(PRSP>@DRS*) #b & #a NAME %a & #b NAME %b & id(%b) < id(%a).
+
+BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
+
+//Presupposition rules
+
+//search for potential binders
+@BIND-PATH(#a,#b) ==> #a POTENTIAL-BINDER #b .
+
+//Check if DRs in PRSP have binders
+#a ^(POTENTIAL-BINDER) #b & #b IN #c & @BIND(#c) & #a IN #d &
+@DR-PRECEDENCE(#d,#c) ==> #c PRSP-ANT #d.
+
+//search for bound referents 
+#a POTENTIAL-BINDER #b IN #c & #a IN #d & @BIND(#d) ==> #d POSSIBLE-BINDER #c .
+
+#a POTENTIAL-BINDER #b IN #c & #a IN #d & -(#d POSSIBLE-BINDER #c) ?=> #d acc #d.
+
+@BIND(#d) & #d acc #d =-> #d acc #d.

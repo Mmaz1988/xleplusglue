@@ -1,0 +1,54 @@
+// Pronouns: reflexive and personal pronoun antecedents.
+// Needs pragmatics/core.liger before it.
+
+//Minimal complete nucleus path
+MCN-PATH(#a,#b,#c) := #a ^(@GF*:~(->SUBJ)) #b & #b ^(@GF) #c.
+
+//Reflexive binding constraints (positive constraint)
+REFL-BIND(#f,#h) := #f PRON-TYPE 'refl' & @MCN-PATH(#f,#i,#j) & #j !(@GF) #h & superior(GF,#h,#i) .
+
+//Checks if two antecedent paths remain disjoint
+DISJOINT(#a,#b) := -(#a !(POSSIBLE-ANT+) #g & #b !(POSSIBLE-ANT+) #h & id(#g) == id(#h)) .
+
+CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c .
+
+ANT(#a) := #a ^(TERM1) #b & #b NAME 'ant' .
+
+// & -(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) .
+
+//Personal pronoun binding constraint (negative constraint)
+// For preventing:
+//EX.: He_i thinks that John_i likes Sue.
+//EX.: He_i likes John_i
+//EX.: John_i likes him_i
+//Ex.: John thinks that he likes him. 
+//PERS-BIND-FILTER(#a,#b) := 
+
+//Pronoun rules
+
+//Reflexives
+@ANT(#a) & #a SYNSEM #b & @REFL-BIND(#b,#c) & #c ^(SYNSEM) #d ==> #a POSSIBLE-ANT #d.
+
+//Personal pronouns
+@ANT(#a) & #a SYNSEM #b PRON-TYPE 'pers' & #c SYNSEM #d & 
+@DR-PRECEDENCE(#c,#a) & -(@COARG(#b,#d)) ==> #a POTENTIAL-ANT #c.
+
+//For cases like EX.: Kim thought he saw him"
+//More precise -(#a !(POTENTIAL-ANT+) #e & #c !(POTENTIAL-ANT+) #f & id(#f) == id(#e))
+//There is no antecedent path such that two coargs refer to the same DR 
+@ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
+@DR-PRECEDENCE(#c,#a) & @COARG(#b,#d) & 
+@CLOSEST-POTENTIAL-ANT(#a,#e) & 
+@CLOSEST-POTENTIAL-ANT(#c,#f) & 
+id(#f) != id(#e) ?=> #a POSSIBLE-ANT #e & #c POSSIBLE-ANT #f.
+
+//Preparing for elimination of redundant edges (reflexive closure)
+#a POTENTIAL-ANT #c & 
+-(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) &
+-(#a POSSIBLE-ANT) ==> #a POSSIBLE-ANT #c.
+
+@ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
+@COARG(#b,#d) & @DISJOINT(#a,#c) ?=> #z KEEP +.
+
+//Clean up
+edge=POTENTIAL-ANT =-> 0.

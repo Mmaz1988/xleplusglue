@@ -1,0 +1,20 @@
+# LiGER config of glue-basic-drt (grammars/dev/glue-basic-drt.lfg), the grammar
+# tests/test_full_analysis_workflow.py parses with. Paths are relative to this file.
+# Nothing is inherited from anywhere: this config gets exactly what it lists.
+
+scope: .
+
+# Rules applied to the parse before semantic composition (GSWB).
+semantics:
+  - semantics/basic_axiom_rules.txt
+
+# Post-processing rules. A copy of the lfgxdrt grammar's pragmatics rules
+# (lfgxdrt_inference_grammar/liger/pragmatics/), kept here so this grammar is self-contained.
+pragmatics:
+  - pragmatics/core.liger
+  - pragmatics/presupposition.liger
+  - pragmatics/pronouns.liger
+
+# TPTP axioms for inference (Vampire).
+axioms:
+  - axioms/basic_axioms.txt

@@ -13,6 +13,7 @@ two cannot drift apart unnoticed:
     the rule file's directory, as LiGER's LexiconDirectives.absolutize does;
   - for a single rule file (kind "rules") semantics is that file's text alone,
     without a marker line; its tree path is absolute, so directives resolve.
+    It has nothing else: nothing is inherited, from a default config or anywhere.
 
 It also checks /list_configs on a grammar directory.
 
@@ -32,9 +33,10 @@ import urllib.request
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LIGER_URL = os.environ.get("LIGER_URL", "http://localhost:8080")
 CONFIG_PATH = os.environ.get(
-    "LIGER_CONFIG_PATH", os.path.join(REPO, "liger_resources", "rules", "default.liger.yaml"))
+    "LIGER_CONFIG_PATH",
+    os.path.join(REPO, "grammars", "dev", "lfgxdrt_inference_grammar", "liger", "lfgxdrt.liger.yaml"))
 RULE_FILE_PATH = os.environ.get(
-    "LIGER_RULE_FILE_PATH", os.path.join(REPO, "liger_resources", "rules", "basic_axiom_rules.txt"))
+    "LIGER_RULE_FILE_PATH", os.path.join(REPO, "liger_resources", "rules", "degree_rules.txt"))
 # A directory that contains CONFIG_PATH somewhere below it.
 GRAMMAR_DIR = os.environ.get("LIGER_GRAMMAR_DIR", os.path.dirname(CONFIG_PATH))
 
@@ -112,9 +114,11 @@ def check_matches(path):
     if tree_lexica != [real(p) for p in rule_set["lexica"]]:
         failures.append(f"lexica {tree_lexica} != /load_rules {rule_set['lexica']}")
 
-    counts = ", ".join(f"{s['field']} {len(s['files'])}"
-                       + (f" (from {os.path.basename(s['inheritedFrom'])})" if s["inheritedFrom"] else "")
-                       for s in tree["sections"])
+    if tree["kind"] == "rules" and any(s["present"] for s in tree["sections"] if s["field"] != "semantics"):
+        failures.append("a single rule file must be semantics only")
+    outside = [f["path"] for s in tree["sections"] for f in s["files"] if not f["inScope"]]
+    counts = ", ".join(f"{s['field']} {len(s['files'])}" for s in tree["sections"])
+    counts += f"; scope {tree['scope']}" + (f"; outside scope: {outside}" if outside else "")
     return failures, counts
 
 

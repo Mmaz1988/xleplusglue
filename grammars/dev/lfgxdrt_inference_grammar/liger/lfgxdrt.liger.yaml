@@ -1,0 +1,27 @@
+# LiGER config of the lfgxdrt inference grammar: the rule set the xleplusglue client opens
+# on startup. Paths are relative to this file. Rule files of a stage are concatenated in
+# order, so templates and hierarchies from an earlier file are visible to later ones.
+# Nothing is inherited from anywhere: this config gets exactly what it lists.
+
+# The folder this rule set's files belong in (the default: this config's folder).
+scope: .
+
+# Rules applied to the parse before semantic composition (GSWB).
+semantics:
+  - semantics/degree_rules_lfgxdrt.liger
+  - semantics/tam_rules_lfgxdrt.liger
+
+# Post-processing rules, applied to the merged syntax + DRS of a sentence or sequence.
+# Post-processing needs them: without pragmatics rules the client blocks it.
+pragmatics:
+  - pragmatics/core.liger
+  - pragmatics/presupposition.liger
+  - pragmatics/pronouns.liger
+
+# Dictionaries for lex(value,dictionary), available to every rule set above.
+lexica:
+  - dicts/ling_dict_eng.txt
+
+# TPTP axioms for inference (Vampire).
+axioms:
+  - axioms/degree_axioms.txt

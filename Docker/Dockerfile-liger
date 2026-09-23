@@ -35,8 +35,7 @@ COPY src/.bashrc /root/.bashrc
 # copy grammars
 COPY grammars /grammars
 
-#Copy testsuites and axiom files
-COPY inference/axioms /axioms
+# copy testsuites
 COPY testsuites /testsuites
 
 ## ENTRYPOINT ["java", "-jar", "/app.jar"]
