@@ -12,7 +12,7 @@ two cannot drift apart unnoticed:
   - relative --lexicon(...) directives in rule files are made absolute against
     the rule file's directory, as LiGER's LexiconDirectives.absolutize does;
   - for a single rule file (kind "rules") semantics is that file's text alone,
-    without a marker line.
+    without a marker line; its tree path is absolute, so directives resolve.
 
 It also checks /list_configs on a grammar directory.
 
@@ -98,7 +98,8 @@ def check_matches(path):
                                      ("axioms", "% ", False)]:
         section = sections[field]
         if field == "semantics" and tree["kind"] == "rules":
-            expected = absolutize(post("load_file", path)["grammar"], path)
+            rule_file = section["files"][0]["path"]  # absolute, even if path is not
+            expected = absolutize(post("load_file", rule_file)["grammar"], rule_file)
         elif not section["present"]:
             expected = None
         else:
