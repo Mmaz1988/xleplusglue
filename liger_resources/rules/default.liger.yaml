@@ -5,6 +5,7 @@
 # Rules applied to the parse before semantic composition (GSWB).
 semantics:
   - degree_rules_lfgxdrt.liger
+  - tam_rules_lfgxdrt.liger
 
 # Post-processing rules, applied to the merged syntax + DRS of a sentence or sequence.
 pragmatics:
