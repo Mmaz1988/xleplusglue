@@ -586,6 +586,13 @@ def _multiple_vampire_request(request, session_key):
     # run was actually done. proofCount (a Check per branch/pair, counted as they land) does
     # not have this problem and is left as-is.
     completed_item_ids = []
+    # Per completed item, milliseconds from its start to its last check -- so a client can
+    # name the slowest and fastest item of a run.
+    item_timings_ms = {}
+
+    def complete_item(item_id, item_started_at):
+        completed_item_ids.append(item_id)
+        item_timings_ms[item_id] = int((time.monotonic() - item_started_at) * 1000)
 
     def snapshot_progress(state: str, active_item_id=None):
         _update_vampire_progress(
@@ -600,6 +607,7 @@ def _multiple_vampire_request(request, session_key):
             # last_session, nothing reads them back off the progress record, and copying
             # them here made every per-branch snapshot rewrite the whole run's output.
             itemResults={key: len(checks) for key, checks in inference_results.items()},
+            itemTimingsMs=dict(item_timings_ms),
             totalItemCount=len(request.nli_items),
         )
 
@@ -608,6 +616,7 @@ def _multiple_vampire_request(request, session_key):
     try:
         for id, nli_item in request.nli_items.items():
             _ensure_not_cancelled(session_key)
+            item_started_at = time.monotonic()
             # Presence of the key, not truthiness of its value: an lfgxdrt item whose
             # reading-pair preparation failed on the client (see nliPreparationFailures in
             # the regression component) is sent with tptp_checks=[] rather than omitted, so
@@ -636,7 +645,7 @@ def _multiple_vampire_request(request, session_key):
                     tmp_root,
                     session_key,
                     on_branch=_on_branch)
-                completed_item_ids.append(id)
+                complete_item(id, item_started_at)
                 snapshot_progress("running", id)
                 continue
             output_folder = os.path.join(tmp_root, "current")
@@ -648,7 +657,7 @@ def _multiple_vampire_request(request, session_key):
                 # request is otherwise lost to the resulting 500.
                 logger.warning("Skipping NLI item %s: empty premises or hypothesis", id)
                 inference_results[id] = []
-                completed_item_ids.append(id)
+                complete_item(id, item_started_at)
                 snapshot_progress("running", id)
                 continue
 
@@ -755,7 +764,7 @@ def _multiple_vampire_request(request, session_key):
                             snapshot_progress("running", id)
 
             inference_results[id] = inference_checks
-            completed_item_ids.append(id)
+            complete_item(id, item_started_at)
             snapshot_progress("running", id)
 
         snapshot_progress("completed")

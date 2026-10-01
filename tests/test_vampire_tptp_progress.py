@@ -148,6 +148,11 @@ def test_tptp_branch_persists_last_session_and_snapshots_progress():
     check(final_snapshot["state"] == "completed", "the run ends in a completed snapshot")
     check(final_snapshot["itemCount"] == 1, "one item was processed")
     check(final_snapshot["proofCount"] == 2, "both branches' checks are counted")
+    timings = final_snapshot.get("itemTimingsMs", {})
+    check(set(timings) == {"item-1"} and isinstance(timings["item-1"], int) and timings["item-1"] >= 0,
+          "the completed item's time is recorded in milliseconds")
+    check("item-1" not in running_snapshots[0].get("itemTimingsMs", {}),
+          "an item's time is recorded only once all of its branches are done")
 
 
 def test_item_with_empty_tptp_checks_does_not_crash_the_batch():
