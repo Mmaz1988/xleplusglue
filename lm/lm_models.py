@@ -122,10 +122,12 @@ class RankedRelation(BaseModel):
     antecedent: str
     pronounText: str = ""
     antecedentText: str = ""
-    # method-specific, higher is better: a cosine, or a mean log-probability for mlm-substitution
+    # in [0, 1] for every method, higher is better (lm_endpoints.normalized_score)
     score: Optional[float] = None
-    # set for cosine rankings (equal to score), kept for clients reading the first contract
+    # the raw value behind score: cosine rankings' cosine, in [-1, 1] ...
     cosine: Optional[float] = None
+    # ... and mlm-substitution's mean log-probability of the scored subwords, <= 0
+    logProb: Optional[float] = None
     # mlm-substitution: the words that replaced the pronoun
     substitution: Optional[str] = None
     recencyRank: Optional[int] = None
@@ -133,6 +135,7 @@ class RankedRelation(BaseModel):
 
 class RankedBranch(BaseModel):
     discourseId: str
+    # mean of its relations' scores: in [0, 1] too
     score: Optional[float] = None
     rank: int
 

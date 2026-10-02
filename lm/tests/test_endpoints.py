@@ -1,3 +1,4 @@
+import math
 import pytest
 from fastapi.testclient import TestClient
 
@@ -147,7 +148,8 @@ def test_rank_anaphora_embeds_once_per_text_and_ranks_branches(client, monkeypat
     assert encoder_passes[0] == ["sem-1|x1", "sem-1|x3", "sem-1|x9", "sem-2|x1", "sem-2|x9"]
 
     assert body["method"] == "cosine-description"
-    assert all(r["score"] == r["cosine"] for r in body["relations"])
+    assert all(r["score"] == (r["cosine"] + 1) / 2 for r in body["relations"])
+    assert all(0.0 <= b["score"] <= 1.0 for b in body["branches"] if b["score"] is not None)
     assert body["createdAt"]
     branches = {b["discourseId"]: b for b in body["branches"]}
     assert branches["sem-2-pcdrs-2"]["score"] is None and branches["sem-2-pcdrs-2"]["rank"] == 4
@@ -234,10 +236,21 @@ def test_rank_anaphora_by_substitution(monkeypatch):
     by_antecedent = {r["antecedent"]: r for r in body["relations"]}
     assert by_antecedent["x1"]["substitution"] == "The man"
     assert by_antecedent["x1"]["antecedentText"] == "man"
-    assert by_antecedent["x1"]["cosine"] is None and by_antecedent["x1"]["score"] == -1.0
+    assert by_antecedent["x1"]["cosine"] is None and by_antecedent["x1"]["logProb"] == -1.0
+    assert by_antecedent["x1"]["score"] == math.exp(-1.0) and by_antecedent["x2"]["score"] == math.exp(-5.0)
     assert {b["discourseId"]: b["rank"] for b in body["branches"]} == {"to-man": 1, "to-event": 2}
 
 
 def test_rank_anaphora_rejects_an_unknown_method(client):
     response = client.post("/rank_anaphora", json={"method": "vibes", "syntax": {}, "semantics": [], "branches": []})
     assert response.status_code == 422
+
+
+def test_normalized_scores_are_in_unit_interval_and_keep_the_order():
+    mlm = [lm_endpoints.normalized_score("mlm-substitution", v) for v in (0.0, -1.39, -4.45, -50.0)]
+    cos = [lm_endpoints.normalized_score("cosine", v) for v in (1.0, 0.5, -0.2, -1.0)]
+    for values in (mlm, cos):
+        assert all(0.0 <= v <= 1.0 for v in values)
+        assert values == sorted(values, reverse=True)
+    assert mlm[0] == 1.0 and cos[0] == 1.0 and cos[-1] == 0.0
+    assert lm_endpoints.normalized_score("cosine", None) is None

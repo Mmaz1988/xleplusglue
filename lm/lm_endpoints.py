@@ -6,13 +6,16 @@
               discourse referent -> surface representation and condition -> embedding.
 /rank_anaphora orders the PCDRS branches of one discourse update by the mean score of their
               bindings: Winograd-style substitution with a masked LM (default, see
-              substitution_scorer) or the cosine of the two referents' embeddings.
+              substitution_scorer) or the cosine of the two referents' embeddings. Every
+              method's score is in [0, 1], higher is better (see normalized_score); the raw
+              value is reported beside it.
 
 Run from this directory:  venv/bin/uvicorn lm_endpoints:app --port 8084
 Model: LM_MODEL (default FacebookAI/xlm-roberta-base); LiGER: LIGER_URL (default :8080).
 """
 
 import logging
+import math
 import os
 from datetime import datetime, timezone
 
@@ -170,6 +173,17 @@ def embed_drs(request: EmbedDrsRequest):
 
 
 RANK_METHODS = ("mlm-substitution", "cosine")
+
+
+def normalized_score(method, raw):
+    """A method's raw relation score mapped onto [0, 1], order-preserving, so every ranking reads
+    the same way. mlm-substitution: e^(mean log-probability), the average probability per
+    scored subword. cosine: (cos + 1) / 2. None stays None."""
+    if raw is None:
+        return None
+    if method == "cosine":
+        return min(1.0, max(0.0, (raw + 1.0) / 2.0))
+    return math.exp(raw)
 DEFAULT_RANK_METHOD = os.environ.get("LM_RANK_METHOD", "mlm-substitution")
 DESCRIPTIONS = {"lexical": "lexicalSpans", "description": "spans"}
 
@@ -270,7 +284,7 @@ def _cosine_scorer(request, provenance_by_origin, warnings):
         if a is None or b is None:
             return None, {"reason": "missing embedding"}
         value = span_embedder.cosine(a, b)
-        return value, {"cosine": value}
+        return normalized_score("cosine", value), {"cosine": value}
 
     return score, model_name
 
@@ -294,6 +308,8 @@ def _substitution_scorer(model_name, provenance_by_origin):
             value = substitution_scorer.get_scorer(model_name).score(text, (start, end), words)
         except substitution_scorer.SubstitutionError as e:
             raise HTTPException(status_code=422, detail=str(e))
-        return value, {"substitution": words, **({} if value is not None else {"reason": "nothing left to score"})}
+        return normalized_score("mlm-substitution", value), {
+            "substitution": words, "logProb": value,
+            **({} if value is not None else {"reason": "nothing left to score"})}
 
     return score
