@@ -10,7 +10,8 @@ then asks lm /rank_anaphora to rank the PCDRS branches with each method, and com
   recency   the same test for the branches whose gold-pronoun bindings all have recency rank 1
   coverage  some formally generated branch is gold at all -- if not, no method can be right
 
-Gold antecedents are matched against the antecedent's lexical text (lowercased substring).
+Gold antecedents are matched against the words of the antecedent's lexical text (lowercased;
+a whole word, so "man" does not match "woman").
 
 Needs LiGER (LIGER_URL, with the lexical /drs_provenance), GSWB (GSWB_URL) and lm (LM_URL). lm
 calls LiGER itself, through its own LIGER_URL -- point both at the same LiGER.
@@ -68,7 +69,7 @@ def pcdrs_branches(sentences):
 
 def is_gold(relations, gold):
     for entry in gold:
-        if not any(r["pronounText"].lower() == entry["pronoun"] and entry["antecedent"] in r["antecedentText"].lower()
+        if not any(r["pronounText"].lower() == entry["pronoun"] and entry["antecedent"] in r["antecedentText"].lower().split()
                    for r in relations):
             return False
     return True

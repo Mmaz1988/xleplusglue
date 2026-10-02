@@ -201,6 +201,11 @@ class FakeMaskedLm:
         self.calls.append((text[span[0]:span[1]], words))
         return -1.0 if "man" in words.lower() else -5.0
 
+    def slot_log_prob(self, text, head_interval):
+        head = text[head_interval[0]:head_interval[1]]
+        self.calls.append(("slot", text))
+        return -0.5 if head == "man" else -7.0
+
 
 def _man_appeared(monkeypatch):
     text = "a man appeared\nhe smiled"
@@ -289,3 +294,17 @@ def test_normalized_scores_are_in_unit_interval_and_keep_the_order():
         assert values == sorted(values, reverse=True)
     assert mlm[0] == 1.0 and cos[0] == 1.0 and cos[-1] == 0.0
     assert lm_endpoints.normalized_score("cosine", None) is None
+
+
+def test_rank_anaphora_by_masked_slot(monkeypatch):
+    fake = _man_appeared(monkeypatch)
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={**MAN_APPEARED, "methods": ["mlm-slot"]}).json()
+
+    assert body["method"] == "mlm-slot"
+    # only the noun antecedent is predicted; the event has no head word
+    assert fake.calls == [("slot", "a man appeared\nThe man smiled")]
+    by_antecedent = {r["antecedent"]: r for r in body["relations"]}
+    assert by_antecedent["x1"]["substitution"] == "man" and by_antecedent["x1"]["logProb"] == -0.5
+    assert by_antecedent["x1"]["score"] == math.exp(-0.5) and by_antecedent["x2"]["score"] is None
+    assert {b["discourseId"]: b["rank"] for b in body["branches"]} == {"to-man": 1, "to-event": 2}
+    assert any("no head word" in w for w in body["warnings"])

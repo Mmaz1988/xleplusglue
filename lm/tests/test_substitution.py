@@ -1,4 +1,4 @@
-from substitution_scorer import scoring_intervals, sentence_bounds, substitution_text
+from substitution_scorer import head_word, scoring_intervals, sentence_bounds, slot_text, substitution_text
 
 
 def test_substitution_text_by_antecedent_kind():
@@ -27,3 +27,32 @@ def test_a_sentence_final_pronoun_is_scored_by_what_precedes_it():
     new_text, _, intervals = scoring_intervals(text, (10, 17), "the man")
     assert new_text == "a man saw the man"
     assert [new_text[a:b] for a, b in intervals] == ["a man saw "]
+
+
+BLACK_DOG_CONDITIONS = {
+    "c-black": {"nodeId": "c-black", "symbol": "black", "spans": [[20, 25]], "text": "black"},
+    "c-dog": {"nodeId": "c-dog", "symbol": "dog", "spans": [[26, 29]], "text": "dog"},
+}
+
+
+def test_head_word_is_the_last_lexical_condition_of_a_noun():
+    black_dog = {"kind": "noun", "lexicalText": "black dog", "lexicalConditionIds": ["c-dog", "c-black"]}
+    assert head_word(black_dog, BLACK_DOG_CONDITIONS) == "dog"
+    assert head_word({"kind": "name", "lexicalText": "Sue"}, {}) == "Sue"
+    assert head_word({"kind": "noun", "lexicalText": "big cat", "lexicalConditionIds": []}, {}) == "cat"
+
+
+def test_no_head_word_for_pronoun_or_event_antecedents():
+    assert head_word({"kind": "event", "lexicalText": "ate"}, {}) is None
+    assert head_word({"kind": "pronoun", "lexicalText": "he"}, {}) is None
+
+
+def test_slot_text_puts_the_head_where_the_pronoun_was():
+    text = "The big cat ate the black dog.\nIt barked."
+    new_text, (a, b) = slot_text(text, (31, 33), "dog", "noun", True)
+    assert new_text == "The big cat ate the black dog.\nThe dog barked."
+    assert new_text[a:b] == "dog"
+    new_text, (a, b) = slot_text("Kim saw his dog", (8, 11), "Kim", "name", False)
+    assert new_text == "Kim saw Kim's dog" and new_text[a:b] == "Kim"
+    new_text, (a, b) = slot_text("a man saw himself", (10, 17), "man", "noun", False)
+    assert new_text == "a man saw the man" and new_text[a:b] == "man"

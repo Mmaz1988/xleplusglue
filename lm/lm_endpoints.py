@@ -174,13 +174,14 @@ def embed_drs(request: EmbedDrsRequest):
 
 
 RANK_METHODS = ("mlm-substitution", "cosine")
-RANKERS = ("mlm-substitution", "cosine-lexical", "cosine-description", anaphora_ranker.RECENCY)
+RANKERS = ("mlm-substitution", "mlm-slot", "cosine-lexical", "cosine-description", anaphora_ranker.RECENCY)
 
 
 def normalized_score(method, raw):
     """A method's raw relation score mapped onto [0, 1], order-preserving, so every ranking reads
     the same way. mlm-substitution: e^(mean log-probability), the average probability per
-    scored subword. cosine: (cos + 1) / 2. recency: 1 / recencyRank. None stays None."""
+    scored subword. mlm-slot: e^(log-probability), the probability of the antecedent's head word
+    in the pronoun's slot. cosine: (cos + 1) / 2. recency: 1 / recencyRank. None stays None."""
     if raw is None:
         return None
     if method.startswith("cosine"):
@@ -250,6 +251,8 @@ def rank_anaphora(request: RankAnaphoraRequest):
                 request, ranker[len("cosine-"):], provenance_by_origin, warnings)
         elif ranker == "mlm-substitution":
             scorers[ranker] = _substitution_scorer(model_name, provenance_by_origin)
+        elif ranker == "mlm-slot":
+            scorers[ranker] = _slot_scorer(model_name, provenance_by_origin)
         else:
             scorers[ranker] = None
 
@@ -337,5 +340,34 @@ def _substitution_scorer(model_name, provenance_by_origin):
         return normalized_score("mlm-substitution", value), {
             "substitution": words, "logProb": value, "raw": value,
             **({} if value is not None else {"reason": "nothing left to score"})}
+
+    return score
+
+
+def _slot_scorer(model_name, provenance_by_origin):
+    """Scores a relation by the probability of the antecedent's head word in the pronoun's slot
+    ("The <mask> barked." -> P(dog)), the rest of the text as context (see substitution_scorer)."""
+    conditions = {origin: {c["nodeId"]: c for c in p.get("conditions", [])}
+                  for origin, p in provenance_by_origin.items()}
+
+    def score(origin, pronoun, antecedent):
+        spans = pronoun.get("lexicalSpans") or []
+        text = provenance_by_origin[origin].get("text") or ""
+        if len(spans) != 1:
+            return None, {"reason": f"pronoun '{pronoun.get('label')}' has {len(spans)} lexical spans, expected 1"}
+        start, end = spans[0]
+        kind = anaphora_ranker.referent_kind(antecedent, conditions[origin])
+        head = substitution_scorer.head_word(dict(antecedent, kind=kind), conditions[origin])
+        if head is None:
+            return None, {"reason": f"a {kind} antecedent has no head word to predict"}
+        sentence_start, _ = substitution_scorer.sentence_bounds(text, start)
+        new_text, head_interval = substitution_scorer.slot_text(text, (start, end), head, kind, start == sentence_start)
+        try:
+            value = substitution_scorer.get_scorer(model_name).slot_log_prob(new_text, head_interval)
+        except substitution_scorer.SubstitutionError as e:
+            raise HTTPException(status_code=422, detail=str(e))
+        return normalized_score("mlm-slot", value), {
+            "substitution": new_text[head_interval[0]:head_interval[1]], "logProb": value, "raw": value,
+            **({} if value is not None else {"reason": "the head word encodes to no subwords"})}
 
     return score

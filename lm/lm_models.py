@@ -106,7 +106,7 @@ class RankAnaphoraRequest(BaseModel):
     syntax: Dict[str, Dict[str, Any]]
     semantics: List[RankSemantics]
     branches: List[RankBranchIn]
-    # the rankers to run, in priority order (first = most important): "mlm-substitution",
+    # the rankers to run, in priority order (first = most important): "mlm-substitution", "mlm-slot",
     # "cosine-lexical", "cosine-description", "recency". Absent: [method] (see below).
     methods: Optional[List[str]] = None
     # fuses several rankers within each reading: "borda", "rrf" or "weighted" (anaphora_ranker)
@@ -136,9 +136,10 @@ class RankedRelation(BaseModel):
     raw: Dict[str, Optional[float]] = Field(default_factory=dict)
     # the raw value behind score: cosine rankings' cosine, in [-1, 1] ...
     cosine: Optional[float] = None
-    # ... and mlm-substitution's mean log-probability of the scored subwords, <= 0
+    # ... mlm-substitution's mean log-probability of the scored subwords, <= 0, and mlm-slot's
+    # log-probability of the antecedent's head word in the pronoun's slot, <= 0
     logProb: Optional[float] = None
-    # mlm-substitution: the words that replaced the pronoun
+    # mlm-substitution: the words that replaced the pronoun; mlm-slot: the head word predicted
     substitution: Optional[str] = None
     recencyRank: Optional[int] = None
 

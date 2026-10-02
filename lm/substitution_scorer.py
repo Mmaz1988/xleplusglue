@@ -9,7 +9,12 @@ words themselves are not scored, so a frequent antecedent word does not win by f
 context on both sides of the pronoun is scored, so a sentence-final pronoun (a reflexive) is
 still decided by what precedes it. Earlier sentences are part of the input but not scored.
 
-`substitution_text` and `scoring_intervals` are pure; `SubstitutionScorer` needs a model with a
+The masked-slot variant (`slot_text`, `SubstitutionScorer.slot_log_prob`) asks the reverse: with
+the antecedent's head noun masked in the pronoun's slot ("The <mask> barked."), how probable is
+that noun? Unlike substitution it scores the antecedent's own word, so world knowledge about the
+verb ("dogs bark") decides directly instead of through a subword of the verb.
+
+`substitution_text`, `scoring_intervals`, `head_word` and `slot_text` are pure; `SubstitutionScorer` needs a model with a
 masked-LM head (e.g. roberta-large).
 """
 
@@ -73,6 +78,44 @@ def scoring_intervals(text, pronoun_span, substitute):
     return new_text, substituted, intervals
 
 
+def head_word(antecedent, conditions_by_id):
+    """The word the masked-slot ranker predicts for an antecedent: a name as written, else the
+    noun's head -- the lexical condition ending last ("black dog" -> "dog"), as written in the
+    text. None for a pronoun or an event antecedent, which have no head noun to predict."""
+    kind = antecedent.get("kind")
+    if kind == "name":
+        return (antecedent.get("lexicalText") or antecedent.get("text") or "").strip() or None
+    if kind != "noun":
+        return None
+    conditions = [conditions_by_id.get(c, {}) for c in antecedent.get("lexicalConditionIds") or []]
+    spanned = [(max(end for _, end in c["spans"]), c.get("text") or "") for c in conditions if c.get("spans")]
+    if not spanned:
+        words = lexical_words(antecedent)
+        return words[-1] if words else None
+    return max(spanned)[1].strip() or None
+
+
+def lexical_words(antecedent):
+    return (antecedent.get("lexicalText") or antecedent.get("text") or "").split()
+
+
+def slot_text(text, pronoun_span, head, kind, sentence_initial):
+    """Put ``head`` in the pronoun's slot ("It barked." -> "The dog barked."); return the new
+    text and the head's interval in it. A noun gets "the" (a resumed mention is definite), a
+    name nothing; possessive pronouns get "'s" after the head."""
+    start, end = pronoun_span
+    pronoun_form = text[start:end]
+    determiner = "the " if kind == "noun" else ""
+    if sentence_initial and determiner:
+        determiner = "The "
+    elif sentence_initial:
+        head = head[:1].upper() + head[1:]
+    possessive = "'s" if pronoun_form.lower() in POSSESSIVE_PRONOUNS else ""
+    head_start = start + len(determiner)
+    new_text = text[:start] + determiner + head + possessive + text[end:]
+    return new_text, (head_start, head_start + len(head))
+
+
 class SubstitutionScorer:
     def __init__(self, model_name):
         self.model_name = model_name
@@ -124,6 +167,35 @@ class SubstitutionScorer:
                 for row, position in enumerate(chunk):
                     total += log_probs[row, position, ids[position]].item()
         return total / len(positions)
+
+    def slot_log_prob(self, text, head_interval):
+        """log P(the head's subwords | everything else in ``text``), the masked-slot score.
+
+        All of the head's subwords are masked; they are predicted left to right, each with the
+        ones after it still masked, so a later subword never gives an earlier one away (the leak
+        that made "▁bar" in "barked" uninformative for mlm-substitution). Summed, not averaged:
+        this is the probability of the whole word. The rest of the text, earlier sentences
+        included, is context."""
+        encoding = self.tokenizer(text, return_offsets_mapping=True, return_special_tokens_mask=True,
+                                  return_tensors="pt")
+        limit = getattr(self.tokenizer, "model_max_length", 512) or 512
+        if encoding["input_ids"].shape[1] > min(limit, 100_000):
+            raise SubstitutionError(f"Text encodes to more subwords than {self.model_name} accepts")
+        offsets = [tuple(pair) for pair in encoding.pop("offset_mapping")[0].tolist()]
+        special = encoding.pop("special_tokens_mask")[0].tolist()
+        ids = encoding["input_ids"][0]
+        positions = [i for i, (s, e) in enumerate(offsets)
+                     if not special[i] and s < e and max(s, head_interval[0]) < min(e, head_interval[1])]
+        if not positions:
+            return None
+
+        batch = ids.repeat(len(positions), 1)
+        for row in range(len(positions)):
+            batch[row, positions[row:]] = self.tokenizer.mask_token_id
+        attention = encoding["attention_mask"].repeat(len(positions), 1)
+        with torch.no_grad():
+            log_probs = torch.log_softmax(self.model(input_ids=batch, attention_mask=attention).logits, dim=-1)
+        return sum(log_probs[row, position, ids[position]].item() for row, position in enumerate(positions))
 
 
 _SCORERS = {}
