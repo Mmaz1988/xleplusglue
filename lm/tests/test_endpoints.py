@@ -152,10 +152,12 @@ def test_rank_anaphora_embeds_once_per_text_and_ranks_branches(client, monkeypat
     assert all(0.0 <= b["score"] <= 1.0 for b in body["branches"] if b["score"] is not None)
     assert body["createdAt"]
     branches = {b["discourseId"]: b for b in body["branches"]}
-    assert branches["sem-2-pcdrs-2"]["score"] is None and branches["sem-2-pcdrs-2"]["rank"] == 4
+    # ranks are per reading: sem-2's only scored branch is its rank 1, the empty one its rank 2
+    assert branches["sem-2-pcdrs-2"]["score"] is None and branches["sem-2-pcdrs-2"]["rank"] == 2
     assert branches["sem-1-pcdrs-1"]["score"] == branches["sem-2-pcdrs-1"]["score"]
-    assert branches["sem-1-pcdrs-1"]["rank"] == branches["sem-2-pcdrs-1"]["rank"]
-    assert {b["rank"] for b in body["branches"]} <= {1, 2, 3, 4}
+    assert branches["sem-2-pcdrs-1"]["rank"] == 1
+    assert {branches["sem-1-pcdrs-1"]["rank"], branches["sem-1-pcdrs-2"]["rank"]} <= {1, 2}
+    assert body["methods"] == ["cosine-description"] and body["averager"] == "borda"
     assert len(body["relations"]) == 3
     assert all(r["cosine"] is not None for r in body["relations"])
     assert "sem-1: condition c4 (EQ) has no SRC." in body["warnings"]
@@ -170,7 +172,8 @@ def test_rank_anaphora_without_relations_needs_no_liger_or_model(monkeypatch):
         "syntax": {}, "semantics": [],
         "branches": [{"discourseId": "b1", "semanticOrigin": "sem-1", "relations": []}],
     }).json()
-    assert body["branches"] == [{"discourseId": "b1", "score": None, "rank": 1}]
+    assert body["branches"] == [{"discourseId": "b1", "score": None, "rank": 1,
+                                 "scores": {"mlm-substitution": None}, "ranks": {"mlm-substitution": 1}}]
     assert body["relations"] == [] and body["warnings"] == []
 
 
@@ -199,7 +202,7 @@ class FakeMaskedLm:
         return -1.0 if "man" in words.lower() else -5.0
 
 
-def test_rank_anaphora_by_substitution(monkeypatch):
+def _man_appeared(monkeypatch):
     text = "a man appeared\nhe smiled"
     provenance = {
         "text": text, "tokens": [], "warnings": [],
@@ -221,15 +224,21 @@ def test_rank_anaphora_by_substitution(monkeypatch):
     monkeypatch.setattr(liger_client, "drs_provenance", lambda syntax, drs, timeout=60: provenance)
     fake = FakeMaskedLm()
     monkeypatch.setattr(lm_endpoints.substitution_scorer, "get_scorer", lambda model: fake)
+    return fake
 
-    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={
-        "method": "mlm-substitution",
-        "syntax": {"syn": {}}, "semantics": [{"semanticOrigin": "sem", "syntacticOrigin": "syn", "drs": {}}],
-        "branches": [
-            {"discourseId": "to-event", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x2"}]},
-            {"discourseId": "to-man", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x1"}]},
-        ],
-    }).json()
+
+MAN_APPEARED = {
+    "syntax": {"syn": {}}, "semantics": [{"semanticOrigin": "sem", "syntacticOrigin": "syn", "drs": {}}],
+    "branches": [
+        {"discourseId": "to-event", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x2"}]},
+        {"discourseId": "to-man", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x1"}]},
+    ],
+}
+
+
+def test_rank_anaphora_by_substitution(monkeypatch):
+    fake = _man_appeared(monkeypatch)
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={**MAN_APPEARED, "method": "mlm-substitution"}).json()
 
     assert body["method"] == "mlm-substitution"
     assert sorted(fake.calls) == [("he", "That"), ("he", "The man")]
@@ -239,6 +248,32 @@ def test_rank_anaphora_by_substitution(monkeypatch):
     assert by_antecedent["x1"]["cosine"] is None and by_antecedent["x1"]["logProb"] == -1.0
     assert by_antecedent["x1"]["score"] == math.exp(-1.0) and by_antecedent["x2"]["score"] == math.exp(-5.0)
     assert {b["discourseId"]: b["rank"] for b in body["branches"]} == {"to-man": 1, "to-event": 2}
+    assert body["methods"] == ["mlm-substitution"]
+    assert by_antecedent["x1"]["scores"] == {"mlm-substitution": math.exp(-1.0)}
+
+
+def test_rank_anaphora_fuses_rankers_by_borda(monkeypatch):
+    _man_appeared(monkeypatch)
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={
+        **MAN_APPEARED, "methods": ["mlm-substitution", "recency"], "averager": "borda"}).json()
+
+    assert body["method"] == "borda(mlm-substitution>recency)"
+    assert body["methods"] == ["mlm-substitution", "recency"] and body["averager"] == "borda"
+    branches = {b["discourseId"]: b for b in body["branches"]}
+    assert branches["to-man"]["score"] == branches["to-event"]["score"] == 0.5
+    assert branches["to-man"]["rank"] == 1 and branches["to-event"]["rank"] == 2, "tie goes to mlm"
+    assert branches["to-man"]["ranks"] == {"mlm-substitution": 1, "recency": 2}
+    assert branches["to-man"]["scores"] == {"mlm-substitution": math.exp(-1.0), "recency": 0.5}
+    man = next(r for r in body["relations"] if r["antecedent"] == "x1")
+    assert man["score"] == math.exp(-1.0) and man["recencyRank"] == 2
+    assert man["raw"] == {"mlm-substitution": -1.0, "recency": 2}
+
+
+def test_rank_anaphora_rejects_bad_ranker_selections(client):
+    base = {"syntax": {}, "semantics": [], "branches": []}
+    for options in ({"methods": []}, {"methods": ["recency", "recency"]}, {"methods": ["cosine"]},
+                    {"methods": ["recency"], "averager": "median"}):
+        assert client.post("/rank_anaphora", json={**base, **options}).status_code == 422
 
 
 def test_rank_anaphora_rejects_an_unknown_method(client):

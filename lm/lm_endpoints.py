@@ -5,10 +5,11 @@
               in the input, then embeds all of them in one encoder pass: the backend maps
               discourse referent -> surface representation and condition -> embedding.
 /rank_anaphora orders the PCDRS branches of one discourse update by the mean score of their
-              bindings: Winograd-style substitution with a masked LM (default, see
-              substitution_scorer) or the cosine of the two referents' embeddings. Every
-              method's score is in [0, 1], higher is better (see normalized_score); the raw
-              value is reported beside it.
+              bindings under each selected ranker: Winograd-style substitution with a masked
+              LM (default, see substitution_scorer), the cosine of the two referents'
+              embeddings, or recency. Every ranker's score is in [0, 1], higher is better (see
+              normalized_score); the raw value is reported beside it. Several rankers are
+              fused by an averager within each reading (anaphora_ranker.fuse_branches).
 
 Run from this directory:  venv/bin/uvicorn lm_endpoints:app --port 8084
 Model: LM_MODEL (default FacebookAI/xlm-roberta-base); LiGER: LIGER_URL (default :8080).
@@ -173,29 +174,49 @@ def embed_drs(request: EmbedDrsRequest):
 
 
 RANK_METHODS = ("mlm-substitution", "cosine")
+RANKERS = ("mlm-substitution", "cosine-lexical", "cosine-description", anaphora_ranker.RECENCY)
 
 
 def normalized_score(method, raw):
     """A method's raw relation score mapped onto [0, 1], order-preserving, so every ranking reads
     the same way. mlm-substitution: e^(mean log-probability), the average probability per
-    scored subword. cosine: (cos + 1) / 2. None stays None."""
+    scored subword. cosine: (cos + 1) / 2. recency: 1 / recencyRank. None stays None."""
     if raw is None:
         return None
-    if method == "cosine":
+    if method.startswith("cosine"):
         return min(1.0, max(0.0, (raw + 1.0) / 2.0))
+    if method == anaphora_ranker.RECENCY:
+        return anaphora_ranker.recency_score(raw)
     return math.exp(raw)
 DEFAULT_RANK_METHOD = os.environ.get("LM_RANK_METHOD", "mlm-substitution")
 DESCRIPTIONS = {"lexical": "lexicalSpans", "description": "spans"}
 
 
+def requested_rankers(request):
+    """The selected rankers in priority order. Without ``methods``, the old single-method request:
+    ``method`` (default LM_RANK_METHOD), with ``description`` for cosine."""
+    if request.methods is not None:
+        rankers = list(request.methods)
+    else:
+        method = request.method or DEFAULT_RANK_METHOD
+        if method == "cosine":
+            if request.description not in DESCRIPTIONS:
+                raise HTTPException(status_code=422, detail=f"Unknown description '{request.description}', "
+                                                            f"expected one of {tuple(DESCRIPTIONS)}")
+            method = f"cosine-{request.description}"
+        rankers = [method]
+    unknown = [r for r in rankers if r not in RANKERS]
+    if not rankers or unknown or len(set(rankers)) != len(rankers):
+        raise HTTPException(status_code=422, detail=f"Expected distinct rankers from {RANKERS}, got {rankers}")
+    if request.averager not in anaphora_ranker.AVERAGERS:
+        raise HTTPException(status_code=422, detail=f"Unknown averager '{request.averager}', "
+                                                    f"expected one of {anaphora_ranker.AVERAGERS}")
+    return rankers
+
+
 @app.post("/rank_anaphora", response_model=AnaphoraRanking)
 def rank_anaphora(request: RankAnaphoraRequest):
-    method = request.method or DEFAULT_RANK_METHOD
-    if method not in RANK_METHODS:
-        raise HTTPException(status_code=422, detail=f"Unknown method '{method}', expected one of {RANK_METHODS}")
-    if method == "cosine" and request.description not in DESCRIPTIONS:
-        raise HTTPException(status_code=422, detail=f"Unknown description '{request.description}', "
-                                                    f"expected one of {tuple(DESCRIPTIONS)}")
+    rankers = requested_rankers(request)
     model_name = request.model or span_embedder.DEFAULT_MODEL
     warnings = []
     semantics = {entry.semanticOrigin: entry for entry in request.semantics}
@@ -205,7 +226,7 @@ def rank_anaphora(request: RankAnaphoraRequest):
             used_origins.append(branch.semanticOrigin)
 
     # Referent descriptions are computed once per semantic origin, not per branch: every
-    # branch of an origin labels its referents from the same DRS.
+    # branch of an origin labels its referents from the same DRS, and every ranker reads them.
     provenance_by_origin = {}
     for origin in used_origins:
         entry = semantics.get(origin)
@@ -222,35 +243,40 @@ def rank_anaphora(request: RankAnaphoraRequest):
         provenance_by_origin[origin] = provenance
         warnings.extend(f"{origin}: {w}" for w in provenance.get("warnings") or [])
 
-    if method == "cosine":
-        score_relation, model_name = _cosine_scorer(request, provenance_by_origin, warnings)
-        method_name = f"cosine-{request.description}"
-    else:
-        score_relation = _substitution_scorer(model_name, provenance_by_origin)
-        method_name = method
+    scorers = {}
+    for ranker in rankers:
+        if ranker.startswith("cosine-"):
+            scorers[ranker], model_name = _cosine_scorer(
+                request, ranker[len("cosine-"):], provenance_by_origin, warnings)
+        elif ranker == "mlm-substitution":
+            scorers[ranker] = _substitution_scorer(model_name, provenance_by_origin)
+        else:
+            scorers[ranker] = None
 
-    relations, scores, ranking_warnings = anaphora_ranker.rank_branches(
-        [branch.model_dump() for branch in request.branches], provenance_by_origin, score_relation)
+    relations, branch_scores, ranking_warnings = anaphora_ranker.rank_branches(
+        [branch.model_dump() for branch in request.branches], provenance_by_origin, scorers)
     warnings.extend(ranking_warnings)
-    ranks = anaphora_ranker.competition_ranks(scores)
+    fused = anaphora_ranker.fuse_branches(
+        [branch.semanticOrigin for branch in request.branches], branch_scores, rankers, request.averager)
 
     return AnaphoraRanking(
-        method=method_name,
+        method=rankers[0] if len(rankers) == 1 else f"{request.averager}({'>'.join(rankers)})",
+        methods=rankers,
+        averager=request.averager,
         model=model_name,
         layers=request.layers,
         pooling=request.pooling,
         createdAt=datetime.now(timezone.utc).isoformat(),
         relations=[RankedRelation(**relation) for relation in relations],
-        branches=[RankedBranch(discourseId=branch.discourseId, score=score, rank=rank)
-                  for branch, score, rank in zip(request.branches, scores, ranks)],
+        branches=[RankedBranch(discourseId=branch.discourseId, **f) for branch, f in zip(request.branches, fused)],
         warnings=warnings,
     )
 
 
-def _cosine_scorer(request, provenance_by_origin, warnings):
-    """Embeds every bound referent's surface once per distinct text (readings of one element share
-    it) and scores a relation by the cosine of the two vectors."""
-    spans_key = DESCRIPTIONS[request.description]
+def _cosine_scorer(request, description, provenance_by_origin, warnings):
+    """Embeds every bound referent's ``description`` surface once per distinct text (readings of one
+    element share it) and scores a relation by the cosine of the two vectors."""
+    spans_key = DESCRIPTIONS[description]
     labels_needed = {}
     for branch in request.branches:
         for relation in branch.relations:
@@ -266,7 +292,7 @@ def _cosine_scorer(request, provenance_by_origin, warnings):
             if referent.get(spans_key):
                 spans[f"{origin}|{label}"] = referent[spans_key]
             else:
-                warnings.append(f"{origin}: referent '{label}' has no {request.description} span.")
+                warnings.append(f"{origin}: referent '{label}' has no {description} span.")
 
     model_name = request.model or span_embedder.DEFAULT_MODEL
     vectors = {}
@@ -284,7 +310,7 @@ def _cosine_scorer(request, provenance_by_origin, warnings):
         if a is None or b is None:
             return None, {"reason": "missing embedding"}
         value = span_embedder.cosine(a, b)
-        return normalized_score("cosine", value), {"cosine": value}
+        return normalized_score("cosine", value), {"cosine": value, "raw": value}
 
     return score, model_name
 
@@ -309,7 +335,7 @@ def _substitution_scorer(model_name, provenance_by_origin):
         except substitution_scorer.SubstitutionError as e:
             raise HTTPException(status_code=422, detail=str(e))
         return normalized_score("mlm-substitution", value), {
-            "substitution": words, "logProb": value,
+            "substitution": words, "logProb": value, "raw": value,
             **({} if value is not None else {"reason": "nothing left to score"})}
 
     return score

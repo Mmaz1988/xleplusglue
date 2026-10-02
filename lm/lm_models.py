@@ -106,7 +106,13 @@ class RankAnaphoraRequest(BaseModel):
     syntax: Dict[str, Dict[str, Any]]
     semantics: List[RankSemantics]
     branches: List[RankBranchIn]
-    # "mlm-substitution" (Winograd-style substitution scoring) or "cosine"; default LM_RANK_METHOD
+    # the rankers to run, in priority order (first = most important): "mlm-substitution",
+    # "cosine-lexical", "cosine-description", "recency". Absent: [method] (see below).
+    methods: Optional[List[str]] = None
+    # fuses several rankers within each reading: "borda", "rrf" or "weighted" (anaphora_ranker)
+    averager: str = "borda"
+    # single-method request, used when methods is absent: "mlm-substitution" (Winograd-style
+    # substitution scoring) or "cosine"; default LM_RANK_METHOD
     method: Optional[str] = None
     model: Optional[str] = None
     # cosine only: which referent surface is embedded -- "lexical" (one-place conditions) or
@@ -122,8 +128,12 @@ class RankedRelation(BaseModel):
     antecedent: str
     pronounText: str = ""
     antecedentText: str = ""
-    # in [0, 1] for every method, higher is better (lm_endpoints.normalized_score)
+    # the first ranker's score: in [0, 1] for every ranker, higher is better
+    # (lm_endpoints.normalized_score)
     score: Optional[float] = None
+    # every selected ranker's score, and the raw value behind it (logProb, cosine, recencyRank)
+    scores: Dict[str, Optional[float]] = Field(default_factory=dict)
+    raw: Dict[str, Optional[float]] = Field(default_factory=dict)
     # the raw value behind score: cosine rankings' cosine, in [-1, 1] ...
     cosine: Optional[float] = None
     # ... and mlm-substitution's mean log-probability of the scored subwords, <= 0
@@ -135,13 +145,20 @@ class RankedRelation(BaseModel):
 
 class RankedBranch(BaseModel):
     discourseId: str
-    # mean of its relations' scores: in [0, 1] too
+    # the rankers' combined score (one ranker: the mean of its relations' scores), in [0, 1]
     score: Optional[float] = None
+    # rank among the branches of the same semantic origin (readings are never compared)
     rank: int
+    # per ranker: the mean of its relation scores, and the competition rank within the origin
+    scores: Dict[str, Optional[float]] = Field(default_factory=dict)
+    ranks: Dict[str, int] = Field(default_factory=dict)
 
 
 class AnaphoraRanking(BaseModel):
+    # readable summary: "mlm-substitution", or "borda(mlm-substitution>recency)"
     method: str
+    methods: List[str] = Field(default_factory=list)
+    averager: str = "borda"
     model: str
     layers: List[int]
     pooling: str
