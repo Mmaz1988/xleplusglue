@@ -89,8 +89,8 @@ services:
       - '8084:8084'
     environment:
       # Any Hugging Face model with a fast tokenizer. Downloaded on first request into the
-      # lm-models volume (xlm-roberta-base: ~1 GB), then reused.
-      LM_MODEL: ${LM_MODEL:-FacebookAI/xlm-roberta-base}
+      # lm-models volume (roberta-large: ~1.4 GB, English-only), then reused.
+      LM_MODEL: ${LM_MODEL:-FacebookAI/roberta-large}
       # Where /drs_provenance lives. Keep exactly one of these two lines active: LiGER running
       # on the host (e.g. from IntelliJ), or the liger service of this stack.
       LIGER_URL: http://host.docker.internal:8080
@@ -105,7 +105,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-    # Same backstop as the others. xlm-roberta-base on CPU stays well under this.
+    # Same backstop as the others. roberta-large on CPU stays under this.
     mem_limit: 3g
     # No depends_on: lm starts without LiGER and reports it unreachable per request, and
     # nothing depends on lm -- the client ranks when it is up and carries on when it is not.

@@ -12,7 +12,7 @@
               fused by an averager within each reading (anaphora_ranker.fuse_branches).
 
 Run from this directory:  venv/bin/uvicorn lm_endpoints:app --port 8084
-Model: LM_MODEL (default FacebookAI/xlm-roberta-base); LiGER: LIGER_URL (default :8080).
+Model: LM_MODEL (default FacebookAI/roberta-large); LiGER: LIGER_URL (default :8080).
 """
 
 import logging

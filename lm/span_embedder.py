@@ -16,7 +16,7 @@ from transformers import AutoModel, AutoTokenizer
 
 LOGGER = logging.getLogger(__name__)
 
-DEFAULT_MODEL = os.environ.get("LM_MODEL", "FacebookAI/xlm-roberta-base")
+DEFAULT_MODEL = os.environ.get("LM_MODEL", "FacebookAI/roberta-large")
 POOLING_METHODS = ("mean", "first", "last")
 
 

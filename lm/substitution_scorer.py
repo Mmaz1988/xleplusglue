@@ -10,7 +10,7 @@ context on both sides of the pronoun is scored, so a sentence-final pronoun (a r
 still decided by what precedes it. Earlier sentences are part of the input but not scored.
 
 `substitution_text` and `scoring_intervals` are pure; `SubstitutionScorer` needs a model with a
-masked-LM head (e.g. xlm-roberta-base).
+masked-LM head (e.g. roberta-large).
 """
 
 import logging
