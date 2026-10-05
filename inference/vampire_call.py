@@ -31,6 +31,98 @@ CHECK_ROLES = {
 }
 
 
+BOXER = os.getenv("BOXER_PATH", "boxer")
+
+
+class GrammarAxiomError(ValueError):
+    """A grammar axiom (from a LiGER AXIOM annotation) could not be translated to TPTP."""
+
+
+def wrap_hyphenated_words(text):
+    pattern = r'\b[\w\d]+-[\w\d]+\b'
+    return re.sub(pattern, lambda m: f"'{m.group(0)}'", text)
+
+
+# Translates every axiom in one swipl process: one OK/ERR line per axiom, so a term that
+# does not parse or translate is named instead of silently dropping out of the problem.
+_AXIOM_TRANSLATOR = r"""
+:- use_module('{boxer}/fol2fof').
+:- use_module('{boxer}/fol2tff').
+{drs_modules}
+one(I, S, L) :-
+    catch(( term_string(T, S), tr(T, L, F)
+          -> format("OK\t~w\t~w~n", [I, F])
+          ;  format("ERR\t~w\tno translation~n", [I]) ),
+          E, format("ERR\t~w\t~q~n", [I, E])).
+tr(T, L, F) :- T =.. [drs|_], !, betaConvert(T, C), resolveDrs(C, R), drs2fol(R, Fol), tptp(L, Fol, F).
+tr(T, L, F) :- tptp(L, T, F).
+tptp(fof, Fol, F) :- fol2fof_string(Fol, F).
+tptp(tff, Fol, F) :- fol2tff_string(Fol, F).
+"""
+_DRS_MODULES = """:- use_module('{boxer}/betaConversionDRT').
+:- use_module('{boxer}/presupDRT').
+:- use_module('{boxer}/drs2fol').
+"""
+
+
+def _prolog_string(text):
+    return '"' + text.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def translate_prolog_axioms(terms, logic, workdir, timeout=30):
+    """Translates Prolog FOL/DRS axiom terms (LiGER AXIOM values) to TPTP formulas for
+    `logic` ('fof' or 'tff'), in one swipl call. Returns {term: formula}. Raises
+    GrammarAxiomError naming every term that could not be translated."""
+    terms = list(dict.fromkeys(term.strip() for term in terms if term and term.strip()))
+    if not terms:
+        return {}
+    os.makedirs(workdir, exist_ok=True)
+    program = os.path.join(workdir, "grammar_axioms.pl")
+    needs_drs = any(term.startswith("drs(") for term in terms)
+    boxer = os.path.abspath(BOXER)
+    with open(program, "w") as file:
+        file.write(_AXIOM_TRANSLATOR.format(
+            boxer=boxer, drs_modules=_DRS_MODULES.format(boxer=boxer) if needs_drs else ""))
+        for index, term in enumerate(terms):
+            file.write(f"ax({index}, {_prolog_string(term)}).\n")
+    goal = f"forall(ax(I, S), one(I, S, {logic}))"
+    try:
+        completed = subprocess.run(["swipl", "-q", "-g", goal, "-t", "halt", program],
+                                   capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise GrammarAxiomError(f"translating {len(terms)} grammar axiom(s) to {logic} timed out")
+    formulas, errors = {}, []
+    for line in completed.stdout.splitlines():
+        status, _, rest = line.partition("\t")
+        index, _, detail = rest.partition("\t")
+        if status == "OK" and index.isdigit():
+            formulas[terms[int(index)]] = wrap_hyphenated_words(detail.strip())
+        elif status == "ERR" and index.isdigit():
+            errors.append(f"{terms[int(index)]}: {detail}")
+    missing = [term for term in terms if term not in formulas
+               and not any(error.startswith(term + ":") for error in errors)]
+    errors += [f"{term}: no output from swipl ({completed.stderr.strip()[:300]})" for term in missing]
+    if errors:
+        raise GrammarAxiomError(f"grammar axiom(s) could not be translated to {logic}: "
+                                + "; ".join(errors))
+    return formulas
+
+
+def grammar_axiom_lines(grammar_axioms, logic, prolog_translations):
+    """The TPTP lines for one item's grammar axioms, encoded for this run's logic.
+
+    grammar_axioms is LiGER's {prolog: [...], tptp: [...]}: TPTP formulas are used as
+    written, Prolog terms via prolog_translations (from translate_prolog_axioms)."""
+    grammar_axioms = grammar_axioms or {}
+    formulas = [prolog_translations[term.strip()]
+                for term in grammar_axioms.get("prolog") or [] if term and term.strip()]
+    formulas += [formula.strip() for formula in grammar_axioms.get("tptp") or []
+                 if formula and formula.strip()]
+    formulas = list(dict.fromkeys(formulas))
+    return "".join(f"{logic}(grammar_axiom{index}, axiom, ({formula})).\n"
+                   for index, formula in enumerate(formulas))
+
+
 def comment_line(value):
     """Flattens a value so it is safe on a single TPTP `%` comment line."""
     return " ".join(str(value).split())

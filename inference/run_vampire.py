@@ -12,7 +12,8 @@ import uuid
 
 
 from vampire_call import (generate_tptp_files, massacer, generate_svg_glyph, discourse_checks,
-                          comment_line, CHECK_ROLES)
+                          comment_line, CHECK_ROLES, translate_prolog_axioms,
+                          grammar_axiom_lines, wrap_hyphenated_words)
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
 from vampire_redis_calls import clear_vampire_progress, merge_and_save_last_session, load_vampire_progress, save_vampire_progress
 from logging_config import session_log_file
@@ -171,13 +172,26 @@ def run_tptp_vampire_batch(checks, axioms, logic_type, vampire_mode,
     return proof_files, results
 
 
-def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration):
+def _request_axioms(axioms, grammar_axioms, logic_type, prolog_translations):
+    """The background axioms (TPTP text, already encoded) plus the grammar axioms, encoded
+    for this run's logic type."""
+    lines = grammar_axiom_lines(grammar_axioms, logic_type, prolog_translations)
+    return f"{axioms or ''}\n{lines}" if lines else (axioms or "")
+
+
+def _translate_grammar_axioms(grammar_axiom_sets, logic_type, tmp_root):
+    """One swipl call for the Prolog grammar axioms of every item in the request."""
+    terms = [term for axioms in grammar_axiom_sets for term in (axioms or {}).get("prolog") or []]
+    return translate_prolog_axioms(terms, logic_type, os.path.join(tmp_root, "grammar_axioms"))
+
+
+def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration, axioms):
     current_checks = []
     for index, tptp_bundle in enumerate(request.tptp_checks):
         checks = _item_value(tptp_bundle, "checks", tptp_bundle)
         output_folder = os.path.join(tmp_root, "tptp", str(index))
         proof_files, results = run_tptp_vampire_batch(
-            checks, request.axioms, logic_type, vampire_mode,
+            checks, axioms, logic_type, vampire_mode,
             max_duration, output_folder,
             _bundle_value(tptp_bundle, "context_tptp", "contextTptp"))
         consistent, informative, relevant = discourse_checks(data=results)
@@ -402,7 +416,10 @@ def _single_vampire_request(request, session_key):
         model_building = request.vampire_preferences['model_building'] is True
         vampire_mode = ["-sa", "fmb"] if logic_type == "fof" and model_building else ["--mode", "casc"]
         max_duration = int(request.vampire_preferences.get('max_duration', 45))
-        result = _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration)
+        axioms = _request_axioms(
+            request.axioms, request.grammar_axioms, logic_type,
+            _translate_grammar_axioms([request.grammar_axioms], logic_type, tmp_root))
+        result = _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration, axioms)
         _cleanup_tmp_root(tmp_root)
         logger.info("Single Vampire request %s finished (tptp checks) in %.1fs",
                     session_key, time.monotonic() - started_at)
@@ -426,6 +443,9 @@ def _single_vampire_request(request, session_key):
     # CHeck if vampire preferences have max_duration with default 45 seconds
     max_duration = int(request.vampire_preferences.get('max_duration', 45))
     logger.debug("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
+    axioms = _request_axioms(
+        request.axioms, request.grammar_axioms, logic_type,
+        _translate_grammar_axioms([request.grammar_axioms], logic_type, tmp_root))
 
     hypotheses = []
     for reading in readings:
@@ -456,7 +476,7 @@ def _single_vampire_request(request, session_key):
                 proof_files, results = run_vampire_batch(
                     ctx.tptp,
                     hypothesis.tptp,
-                    request.axioms,
+                    axioms,
                     logic_type,
                     vampire_mode,
                     max_duration,
@@ -612,6 +632,17 @@ def _multiple_vampire_request(request, session_key):
             totalItemCount=len(request.nli_items),
         )
 
+    # Encoded once, up front, for this run's logic type: a grammar axiom that cannot be
+    # translated fails the request by name instead of dropping out of every problem.
+    prolog_translations = _translate_grammar_axioms(
+        [_item_value(item, "grammar_axioms", {}) for item in request.nli_items.values()],
+        logic_type, tmp_root)
+    item_axioms = {
+        item_id: _request_axioms(_item_value(item, "axioms", ""),
+                                 _item_value(item, "grammar_axioms", {}),
+                                 logic_type, prolog_translations)
+        for item_id, item in request.nli_items.items()}
+
     snapshot_progress("running")
 
     try:
@@ -639,7 +670,7 @@ def _multiple_vampire_request(request, session_key):
 
                 inference_results[id] = _run_tptp_item(
                     nli_item,
-                    _item_value(nli_item, "axioms", ""),
+                    item_axioms[id],
                     logic_type,
                     vampire_mode,
                     max_duration,
@@ -738,7 +769,7 @@ def _multiple_vampire_request(request, session_key):
                             proof_files, results = run_vampire_batch(
                                 fof_premise,
                                 fof_hypothesis,
-                                nli_item['axioms'],
+                                item_axioms[id],
                                 logic_type,
                                 vampire_mode,
                                 max_duration,
@@ -814,9 +845,6 @@ def _multiple_vampire_request(request, session_key):
 Utilities
 """
 
-def wrap_hyphenated_words(text):
-    pattern = r'\b[\w\d]+-[\w\d]+\b'
-    return re.sub(pattern, lambda m: f"'{m.group(0)}'", text)
 
 
 

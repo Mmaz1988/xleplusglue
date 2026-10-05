@@ -21,6 +21,9 @@ class VampireRequest(BaseModel):
     text: str
     context: List[Context] = Field(default_factory=list)
     axioms: str = ""
+    # LiGER's grammar axioms, {"prolog": [...], "tptp": [...]}, not yet encoded for a logic:
+    # encoded here with this request's logic type (vampire_call.grammar_axiom_lines).
+    grammar_axioms: dict = Field(default_factory=dict)
     hypothesis: str = ""
     pruning: bool = False
     active_indices: List[int] = Field(default_factory=list)
