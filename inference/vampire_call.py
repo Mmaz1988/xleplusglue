@@ -19,6 +19,17 @@ KEEP_TPTP_FILES = os.getenv("VAMPIRE_KEEP_TPTP", "false").strip().lower() in ("1
 # retry in run_vampire.run_vampire_batch) replaces the summary instead of stacking them.
 SUMMARY_MARKER = "% ---- Vampire run ----"
 
+# TPTP role of each discourse check's formula. info_pos and cons_neg test validity: they are
+# written as conjectures and Vampire negates them itself. info_neg and cons_pos are
+# satisfiability checks and stay plain axioms. Must match ReasoningCheckType.tptpRole() in
+# LFGxDRT, which builds the LFGxDRT-path formulas in exactly this shape.
+CHECK_ROLES = {
+    "info_pos_check": "conjecture",
+    "info_neg_check": "axiom",
+    "cons_pos_check": "axiom",
+    "cons_neg_check": "conjecture",
+}
+
 
 def comment_line(value):
     """Flattens a value so it is safe on a single TPTP `%` comment line."""
@@ -76,11 +87,15 @@ def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_fold
     os.makedirs(output_folder, exist_ok=True)
 
     # Define TPTP templates with placeholders for p and q
+    # The conjecture checks carry q as a separate axiom; each file is logically equivalent to
+    # the all-axiom version it replaced (axiom q & ~X == axiom q + conjecture X).
     templates = {
-        'info_pos_check': '{}(info_pos_check, axiom, ({q}) & ~(({q}) => ({p}))).\n',
-        'info_neg_check': '{}(info_neg_check, axiom, ({q}) & (({q}) => ({p}))).\n',
-        'cons_pos_check': '{}(cons_pos_check, axiom, ({q} & {p})).\n',
-        'cons_neg_check': '{}(cons_neg_check, axiom, ({q}) & ~(({q}) => ~({p}))).\n'
+        'info_pos_check': '{0}(context, axiom, ({q})).\n'
+                          '{0}(info_pos_check, conjecture, (({q}) => ({p}))).\n',
+        'info_neg_check': '{0}(info_neg_check, axiom, ({q}) & (({q}) => ({p}))).\n',
+        'cons_pos_check': '{0}(cons_pos_check, axiom, ({q} & {p})).\n',
+        'cons_neg_check': '{0}(context, axiom, ({q})).\n'
+                          '{0}(cons_neg_check, conjecture, (({q}) => ~({p}))).\n'
     }
     q = context
     p = hypothesis
@@ -278,8 +293,13 @@ def generate_svg_glyph(data):
     """
 
     # Define mapping for symbols and colors
+    # With a conjecture, Vampire reports Theorem/CounterSatisfiable where an all-axiom problem
+    # reports Unsatisfiable/Satisfiable; they are drawn the same (see discourse_checks).
     symbol_map = {
         "Satisfiable": ("▲", "green", 16),  # Upward triangle for positive
+        "CounterSatisfiable": ("▲", "green", 16),
+        "Theorem": ("▼", "red", 16),
+        "ContradictoryAxioms": ("▼", "red", 16),
         "Refutation": ("▼", "red", 16),  # Downward triangle for negative
         "Refutation not found": ("●", "yellow", 18),
         "Unknown": ("●", "yellow", 18),  # Larger circle for neutral
@@ -363,10 +383,16 @@ def discourse_checks(data):
     - Two booleans: (consistent, informative)
     """
 
-    # Define mapping for values
+    # Values encode whether the clause set Vampire searched is satisfiable. For a conjecture
+    # check that set is axioms + negated conjecture, so Theorem (refuted) maps like
+    # Unsatisfiable and CounterSatisfiable (model found) like Satisfiable. ContradictoryAxioms
+    # is a refutation too, but one that did not need the conjecture.
     value_map = {
         "Satisfiable": 1,
+        "CounterSatisfiable": 1,
         "Unsatisfiable": -1,
+        "Theorem": -1,
+        "ContradictoryAxioms": -1,
         "Refutation": -1,
         "True": 1,
         "False": -1,
@@ -380,6 +406,14 @@ def discourse_checks(data):
     informativity_check = {}
 
     for check in data:
+        if check["SZS Status"] == "ContradictoryAxioms":
+            logger.warning("%s: Vampire found the axioms (context and background axioms) "
+                           "inconsistent on their own", check["Filename"])
+        unmapped = [check[key] for key in ("Termination Reason", "Finite Model Found", "SZS Status")
+                    if check[key] not in value_map]
+        if unmapped:
+            logger.warning("%s: unmapped Vampire value(s) %s, counted as -9",
+                           check["Filename"], unmapped)
         # Extract values and map them
         mapped_values = [
             value_map.get(check["Termination Reason"], -9),
