@@ -1,0 +1,34 @@
+% --- Temporal relation algebra ---
+
+fof(after_is_inverse_before, axiom,
+  ![T,R] :
+    (after(T,R) <=> before(R,T))).
+
+fof(before_irreflexive, axiom,
+  ![T] :
+    ~ before(T,T)).
+
+fof(before_transitive, axiom,
+  ![T1,T2,T3] :
+    ((before(T1,T2) & before(T2,T3))
+      => before(T1,T3))).
+
+fof(overlap_symmetric, axiom,
+  ![T,R] :
+    (overlap(T,R) => overlap(R,T))).
+
+fof(before_excludes_overlap, axiom,
+  ![T,R] :
+    (before(T,R) => ~ overlap(T,R))).
+
+% non-future = past or present
+fof(nonfuture_definition, axiom,
+  ![T,R] :
+    (nonfut(T,R) <=>
+      (before(T,R) | overlap(T,R)))).
+
+% non-past = present or future
+fof(nonpast_definition, axiom,
+  ![T,R] :
+    (nonpast(T,R) <=>
+      (overlap(T,R) | after(T,R)))).

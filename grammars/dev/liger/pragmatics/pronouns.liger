@@ -10,7 +10,7 @@ REFL-BIND(#f,#h) := #f PRON-TYPE 'refl' & @MCN-PATH(#f,#i,#j) & #j !(@GF) #h & s
 //Checks if two antecedent paths remain disjoint
 DISJOINT(#a,#b) := -(#a !(POSSIBLE-ANT+) #g & #b !(POSSIBLE-ANT+) #h & id(#g) == id(#h)) .
 
-CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c .
+CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c & - (#a POTENTIAL-ANT #b & #b POTENTIAL-ANT #c) .
 
 ANT(#a) := #a ^(TERM1) #b & #b NAME 'ant' .
 

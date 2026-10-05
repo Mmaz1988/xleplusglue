@@ -76,11 +76,6 @@
 		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))).
 
 //Axioms
-
-//Be equality axiom
-#p PRED %p & strip(%p) == 'be' & #p PREDLINK #c s:: #s TYPE 'entity' ==>
-#p AXIOM all(X,all(Y,all(Z,imp(and(be(X),and(arg1(X,Y),arg2(X,Z))),eq(Y,Z))))).
-
 //Comparative axioms
 #a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p ==>
 #a AXIOM all(X, all(Y, all(D:d, imp(and(arg1(X, Y), fast(X, D)), fast(Y, D))))).

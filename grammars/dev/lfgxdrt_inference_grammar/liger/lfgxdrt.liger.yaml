@@ -8,6 +8,7 @@ scope: .
 
 # Rules applied to the parse before semantic composition (GSWB).
 semantics:
+  - semantics/meaning_postulates.liger
   - semantics/degree_rules_lfgxdrt.liger
   - semantics/tam_rules_lfgxdrt.liger
 
