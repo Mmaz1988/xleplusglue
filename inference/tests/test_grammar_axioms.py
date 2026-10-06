@@ -12,7 +12,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from vampire_call import GrammarAxiomError, grammar_axiom_lines, translate_prolog_axioms
+from vampire_call import GrammarAxiomError, grammar_axiom_lines, grammar_type_lines, translate_prolog_axioms
 
 DEGREE = "all(X, all(Y, all(D:d, imp(and(arg1(X, Y), fast(X, D)), fast(Y, D)))))"
 TPTP = "![X:$i, D:$int]: (fast(X,D) => ?[E:$int]: $lesseq(E,D))"
@@ -54,6 +54,43 @@ class GrammarAxiomTest(unittest.TestCase):
         with self.assertRaises(GrammarAxiomError) as raised:
             translate_prolog_axioms(["all(X, broken(", "all(X,p(X))"], "fof", self.workdir)
         self.assertIn("all(X, broken(", str(raised.exception))
+
+
+class GrammarTypeTest(unittest.TestCase):
+    """TFF_TYPE values: tff type declarations, each symbol once, none in fof."""
+
+    BIG = "big: ($i * $int) > $o"
+    TH_BIG = "th_big: $i > $int"
+
+    def test_each_symbol_is_declared_once_in_tff(self):
+        lines = grammar_type_lines({"tffTypes": [self.BIG, self.TH_BIG, "big:($i*$int)>$o"]}, "tff")
+        self.assertEqual(lines, "tff(grammar_type0, type, big: ($i * $int) > $o).\n"
+                                "tff(grammar_type1, type, th_big: $i > $int).\n")
+
+    def test_fof_declares_no_types(self):
+        self.assertEqual(grammar_type_lines({"tffTypes": [self.BIG]}, "fof"), "")
+
+    def test_a_symbol_the_background_declares_alike_is_not_declared_again(self):
+        background = "tff(fast_type, type, fast: ($i * $int) > $o).\ntff(pn, type, 'pc-6082': $i).\n"
+        lines = grammar_type_lines({"tffTypes": ["fast: ($i * $int) > $o", "'pc-6082': $i", self.BIG]},
+                                   "tff", background)
+        self.assertEqual(lines, "tff(grammar_type0, type, big: ($i * $int) > $o).\n")
+
+    def test_conflicting_types_fail_by_name(self):
+        with self.assertRaises(GrammarAxiomError) as raised:
+            grammar_type_lines({"tffTypes": [self.BIG, "big: ($i * $i) > $o"]}, "tff")
+        self.assertIn("big", str(raised.exception))
+        with self.assertRaises(GrammarAxiomError):
+            grammar_type_lines({"tffTypes": ["fast: $i > $o"]}, "tff",
+                               "tff(fast_type, type, fast: ($i * $int) > $o).")
+
+    def test_a_declaration_without_a_type_fails(self):
+        with self.assertRaises(GrammarAxiomError):
+            grammar_type_lines({"tffTypes": ["big"]}, "tff")
+
+    def test_no_types_no_lines(self):
+        self.assertEqual(grammar_type_lines({"prolog": [], "tptp": []}, "tff"), "")
+        self.assertEqual(grammar_type_lines(None, "tff"), "")
 
 
 if __name__ == "__main__":

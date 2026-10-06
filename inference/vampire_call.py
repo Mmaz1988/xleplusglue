@@ -125,6 +125,61 @@ def grammar_axiom_lines(grammar_axioms, logic, prolog_translations):
                    for index, formula in enumerate(formulas))
 
 
+# A tff type declaration in background axiom text: tff(name, type, body).
+_TFF_TYPE_DECLARATION = re.compile(r"tff\(\s*[^,()]+?\s*,\s*type\s*,\s*(.*?)\)\s*\.", re.S)
+
+
+def _split_type_declaration(body):
+    """`symbol: signature` -> (symbol, signature with whitespace normalized). The symbol may
+    be quoted ('pc-6082'), so its colon is the first one outside quotes."""
+    body = body.strip()
+    if body.startswith("'"):
+        closing = body.find("'", 1)
+        colon = body.find(":", closing + 1) if closing != -1 else -1
+    else:
+        colon = body.find(":")
+    if colon <= 0:
+        raise GrammarAxiomError(f"TFF type declaration without 'symbol: type': {body}")
+    signature = " ".join(body[colon + 1:].split())
+    if not signature:
+        raise GrammarAxiomError(f"TFF type declaration without a type: {body}")
+    return body[:colon].strip(), signature
+
+
+def _type_key(signature):
+    """Two signatures are the same type whatever their spacing."""
+    return "".join(signature.split())
+
+
+def grammar_type_lines(grammar_axioms, logic, background=""):
+    """The tff type declarations for one item's grammar types (LiGER's `tffTypes`, TFF_TYPE
+    values): each symbol once, before anything that uses it. fof has no types: none.
+
+    A symbol the background axioms already declare with the same type is not declared again;
+    the same symbol with two different types fails by name, rather than Vampire rejecting
+    the problem or one of them silently winning."""
+    if logic != "tff":
+        return ""
+    declared = {}
+    for body in _TFF_TYPE_DECLARATION.findall(background or ""):
+        symbol, signature = _split_type_declaration(body)
+        declared[symbol] = (signature, "the background axioms")
+    lines = []
+    for body in (grammar_axioms or {}).get("tffTypes") or []:
+        if not body or not body.strip():
+            continue
+        symbol, signature = _split_type_declaration(body)
+        if symbol in declared:
+            known, origin = declared[symbol]
+            if _type_key(known) != _type_key(signature):
+                raise GrammarAxiomError(f"{symbol} is declared as {known} by {origin} "
+                                        f"and as {signature} by the grammar rules")
+            continue
+        declared[symbol] = (signature, "the grammar rules")
+        lines.append(f"tff(grammar_type{len(lines)}, type, {symbol}: {signature}).\n")
+    return "".join(lines)
+
+
 def comment_line(value):
     """Flattens a value so it is safe on a single TPTP `%` comment line."""
     return " ".join(str(value).split())

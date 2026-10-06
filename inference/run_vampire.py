@@ -14,7 +14,7 @@ import vampire_runs
 
 
 from vampire_call import (generate_tptp_files, massacer, generate_svg_glyph, discourse_checks,
-                          comment_line, CHECK_ROLES, translate_prolog_axioms,
+                          comment_line, CHECK_ROLES, translate_prolog_axioms, grammar_type_lines,
                           grammar_axiom_lines, wrap_hyphenated_words)
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
 from vampire_redis_calls import merge_and_save_last_session, load_vampire_progress, save_vampire_progress
@@ -173,10 +173,13 @@ def run_tptp_vampire_batch(checks, axioms, logic_type, vampire_mode,
 
 
 def _request_axioms(axioms, grammar_axioms, logic_type, prolog_translations):
-    """The background axioms (TPTP text, already encoded) plus the grammar axioms, encoded
-    for this run's logic type."""
+    """The grammar's tff type declarations, then the background axioms (TPTP text, already
+    encoded), then the grammar axioms encoded for this run's logic type. Types come first:
+    everything after them may use the symbols they declare."""
+    types = grammar_type_lines(grammar_axioms, logic_type, axioms)
     lines = grammar_axiom_lines(grammar_axioms, logic_type, prolog_translations)
-    return f"{axioms or ''}\n{lines}" if lines else (axioms or "")
+    text = f"{axioms or ''}\n{lines}" if lines else (axioms or "")
+    return f"{types}\n{text}" if types else text
 
 
 def _translate_grammar_axioms(grammar_axiom_sets, logic_type, tmp_root):

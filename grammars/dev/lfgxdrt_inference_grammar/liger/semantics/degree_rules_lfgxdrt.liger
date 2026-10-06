@@ -75,6 +75,14 @@
 #n GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) :
 		((#y_v -o #m_t) -o (#o_e -o (#y_v -o #m_t))).
 
+//TFF types (TFF_TYPE: the body of a tff type declaration, declared once per inference run;
+//dropped for fof). Keyed on the semantics: wherever a degree rule introduced a degree
+//predicate (DEGREE-PRED), that predicate relates an individual to a degree, and its threshold
+//maps an individual to a degree. Symbols over $i alone need no declaration.
+#a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-PRED #p ==>
+#p TFF_TYPE strip(%a): ($i * $int) > $o &
+#d TFF_TYPE th_strip(%a): $i > $int.
+
 //Axioms (TPTP_AXIOM: TPTP formulas, typed for tff; escape conjunction as \&)
 //Comparative axioms
 #a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p ==>

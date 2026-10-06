@@ -23,6 +23,5 @@ pragmatics:
 lexica:
   - dicts/ling_dict_eng.txt
 
-# TPTP axioms for inference (Vampire).
-axioms:
-  - axioms/degree_axioms.txt
+# No background axiom file: the degree rules declare the tff types of the symbols they
+# introduce (TFF_TYPE) and add their axioms (TPTP_AXIOM) per sentence.
