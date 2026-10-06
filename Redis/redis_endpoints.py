@@ -1,3 +1,7 @@
+import logging
+import os
+import threading
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,6 +15,8 @@ from Redis.redis_store import (
     delete_regression_session,
     delete_regression_sessions,
     cleanup_regression_store,
+    hold_session_lease,
+    release_session_lease,
     load_chat_document,
     load_gswb_batch_session,
     load_analysis_document,
@@ -32,7 +38,42 @@ from Redis.redis_store import (
 )
 
 
+logger = logging.getLogger("redis_endpoints")
+
 app = FastAPI()
+
+# The store sweeps itself every so often (cleanup_regression_store): unnamed sessions no
+# browser holds open, and records left without a session. 0 turns it off.
+CLEANUP_INTERVAL_MINUTES = float(os.getenv("SESSION_CLEANUP_INTERVAL_MINUTES", "30"))
+
+
+def _cleanup_loop(stop: threading.Event):
+    while not stop.wait(CLEANUP_INTERVAL_MINUTES * 60):
+        try:
+            report = cleanup_regression_store()
+            removed = len(report["sessions"]) + len(report["results"]) + len(report["progress"])
+            if removed or report["indexEntries"]:
+                logger.warning("Store cleanup: %d sessions %s, %d results, %d progress records, "
+                               "%d index entries, %.1f MB", len(report["sessions"]), report["sessions"],
+                               len(report["results"]), len(report["progress"]),
+                               len(report["indexEntries"]), report["bytes"] / 1e6)
+        except Exception:
+            logger.exception("Store cleanup failed; trying again next interval")
+
+
+_cleanup_stop = threading.Event()
+
+
+@app.on_event("startup")
+def start_cleanup_loop():
+    if CLEANUP_INTERVAL_MINUTES > 0:
+        threading.Thread(target=_cleanup_loop, args=(_cleanup_stop,), daemon=True,
+                         name="store-cleanup").start()
+
+
+@app.on_event("shutdown")
+def stop_cleanup_loop():
+    _cleanup_stop.set()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -212,13 +253,31 @@ def patch_regression_session_endpoint(session_key: str, payload: dict):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+@app.post("/session_lease/{session_key}/{holder_id}")
+def hold_session_lease_endpoint(session_key: str, holder_id: str):
+    """A browser that has a regression session open renews this every couple of minutes; the
+    store cleanup leaves leased sessions alone."""
+    try:
+        return hold_session_lease(session_key, holder_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/session_lease/{session_key}/{holder_id}/release")
+def release_session_lease_endpoint(session_key: str, holder_id: str):
+    try:
+        return release_session_lease(session_key, holder_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 @app.post("/regression_sessions/cleanup")
 def cleanup_regression_sessions_endpoint(payload: dict):
     try:
         return cleanup_regression_store(
             keep=payload.get("keep") or [],
             busy=payload.get("busy") or [],
-            max_age_seconds=int(float(payload.get("maxAgeHours", 24)) * 3600),
+            max_age_seconds=int(float(payload.get("maxAgeHours", 0.5)) * 3600),
             dry_run=bool(payload.get("dryRun", False)),
         )
     except Exception as exc:

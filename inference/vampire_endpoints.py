@@ -297,7 +297,7 @@ async def patch_regression_session(session_key: str, request: Request):
 
 @app.post("/regression_sessions/cleanup")
 def cleanup_regression_sessions_endpoint(payload: dict):
-    """Sweep unnamed sessions untouched for a day, and results and progress records left
+    """Sweep unnamed sessions no browser holds open, and results and progress records left
     without a session (see redis_store.cleanup_regression_store). `keep` names the sessions
     the caller has open; sessions with a run in progress here are kept too."""
     try:
@@ -305,7 +305,7 @@ def cleanup_regression_sessions_endpoint(payload: dict):
             keep=payload.get("keep") or [],
             busy=vampire_runs.active_session_keys(),
             dry_run=bool(payload.get("dryRun", False)),
-            max_age_hours=payload.get("maxAgeHours", 24),
+            max_age_hours=payload.get("maxAgeHours", 0.5),
         )
         if not report.get("dryRun"):
             logger.info("Store cleanup: %d sessions, %d results, %d progress records, %d index entries, %.1f MB",

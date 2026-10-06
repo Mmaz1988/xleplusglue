@@ -592,24 +592,83 @@ def _age_seconds(iso, now):
     return (now - then).total_seconds()
 
 
-def cleanup_regression_store(keep=(), busy=(), max_age_seconds=24 * 3600, dry_run=False, client=None, now=None):
+# A browser holding a session open renews its lease every couple of minutes; one that stops
+# (tab closed, machine asleep) lets it lapse, and the session becomes sweepable again.
+SESSION_LEASE_TTL_SECONDS = 600
+# How long a session or record must sit untouched before a sweep may take it. Short: open
+# sessions are protected by their lease, not by this; it only covers the moment between
+# creating a session and its first lease.
+CLEANUP_MAX_AGE_SECONDS = 30 * 60
+
+
+def _session_lease_key(session_key, holder_id):
+    return f"session_open:{session_key}:{holder_id}"
+
+
+def hold_session_lease(session_key, holder_id, client=None):
+    client = client or redis_client()
+    client.set(_session_lease_key(session_key, holder_id), _now_iso(), ex=SESSION_LEASE_TTL_SECONDS)
+    return {"status": "ok", "ttlSeconds": SESSION_LEASE_TTL_SECONDS}
+
+
+def release_session_lease(session_key, holder_id, client=None):
+    client = client or redis_client()
+    client.delete(_session_lease_key(session_key, holder_id))
+    return {"status": "ok"}
+
+
+def leased_session_keys(client=None):
+    """Sessions some browser currently holds open."""
+    client = client or redis_client()
+    leased = set()
+    for key in client.scan_iter(match="session_open:*"):
+        key = key.decode("utf-8") if isinstance(key, bytes) else key
+        session_key = key[len("session_open:"):].rsplit(":", 1)[0]
+        if session_key:
+            leased.add(session_key)
+    return leased
+
+
+def _running_session_keys(client, now, horizon_seconds=3600):
+    """Sessions whose progress record says a Vampire run is going and moved recently."""
+    running = set()
+    for key in client.scan_iter(match="vampire_progress:*"):
+        key = key.decode("utf-8") if isinstance(key, bytes) else key
+        raw = client.get(key)
+        if isinstance(raw, bytes):
+            raw = raw.decode("utf-8")
+        try:
+            progress = json.loads(raw) if raw else {}
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(progress, dict) or progress.get("state") not in ("running", "cancel_requested"):
+            continue
+        age = _age_seconds(progress.get("updatedAt"), now)
+        if age is None or age < horizon_seconds:
+            running.add(key[len("vampire_progress:"):])
+    return running
+
+
+def cleanup_regression_store(keep=(), busy=(), max_age_seconds=CLEANUP_MAX_AGE_SECONDS, dry_run=False,
+                             client=None, now=None):
     """Sweep what nothing will open again.
 
-    * Unnamed sessions (DEFAULT_SESSION_KEY) untouched for `max_age_seconds`: a working
-      session that was saved under a name, abandoned, or never meant to be kept. Deleted
+    * Unnamed sessions (DEFAULT_SESSION_KEY) no browser holds open and untouched for
+      `max_age_seconds`: abandoned working sessions. Deleted
       with their Vampire results and progress record.
     * Vampire results and progress records whose session no longer exists, idle as long --
       left behind by banks deleted before deletion took them along, and by runs of sessions
       that were never saved.
     * Index entries whose session no longer exists.
 
-    Never touched: `keep` (the sessions a client has open), `busy` (sessions with a Vampire
-    run in progress), chat and analysis keys, and the store's own keys. The grace period is
-    what protects work in progress elsewhere -- another tab, or a session with autosave off.
+    Never touched: sessions a browser holds open (their lease, see hold_session_lease), `keep`,
+    sessions with a Vampire run in progress (`busy`, and any whose progress record says it is
+    running), chat and analysis keys, and the store's own keys.
     """
     client = client or redis_client()
     now = now or datetime.now(timezone.utc)
-    protected = {str(key) for key in (keep or ())} | {str(key) for key in (busy or ())}
+    protected = ({str(key) for key in (keep or ())} | {str(key) for key in (busy or ())}
+                 | leased_session_keys(client) | _running_session_keys(client, now))
     index = _load_sessions_index(client)
     indexed = {entry.get("sessionKey"): entry for entry in index}
     report = {"dryRun": bool(dry_run), "sessions": [], "results": [], "progress": [], "indexEntries": [],
@@ -652,6 +711,8 @@ def cleanup_regression_store(keep=(), busy=(), max_age_seconds=24 * 3600, dry_ru
 
     for key in client.scan_iter():
         key = key.decode("utf-8") if isinstance(key, bytes) else key
+        if key.startswith("session_open:"):
+            continue
         if key.startswith("vampire_progress:"):
             owner = key[len("vampire_progress:"):]
             if owner in protected or owner.startswith(_FOREIGN_KEY_PREFIXES):

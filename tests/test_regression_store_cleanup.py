@@ -1,4 +1,4 @@
-"""Store cleanup: unnamed sessions untouched for a day go, with their results and progress;
+"""Store cleanup: unnamed sessions no browser holds open, untouched for half an hour, go, with their results and progress;
 results and progress records without a session go; banks, open sessions, running sessions,
 chat and analysis keys stay.
 
@@ -93,7 +93,7 @@ def test_sweeps_stale_unnamed_sessions_and_orphans_only():
     running_default = "session-2026-09-28_13-11-28-677Z"
     stored(client, "degree-basic-disambig", 200)
     stored(client, old_default, 48)
-    stored(client, fresh_default, 2)
+    stored(client, fresh_default, 0.2)
     stored(client, open_default, 72)
     stored(client, running_default, 72)
     # Results and progress of a bank deleted long ago, and of a run never saved.
@@ -101,9 +101,9 @@ def test_sweeps_stale_unnamed_sessions_and_orphans_only():
     client.idle["first-degree"] = 3 * DAY
     client.set("vampire_progress:first-degree", json.dumps({"state": "completed"}))
     client.idle["vampire_progress:first-degree"] = 3 * DAY
-    # The same, but touched an hour ago: may belong to a session with autosave off.
+    # The same, but touched ten minutes ago: its session may not have been saved yet.
     client.set("recent-unsaved", json.dumps({"results": {}}))
-    client.idle["recent-unsaved"] = 3600
+    client.idle["recent-unsaved"] = 600
     # Not ours.
     client.set("chat-2026-10-01_10-00-00-000Z-abc", json.dumps({"results": {}}))
     client.idle["chat-2026-10-01_10-00-00-000Z-abc"] = 5 * DAY
@@ -165,6 +165,39 @@ def test_a_dry_run_deletes_nothing():
 
     check(report["sessions"] == ["session-2026-10-01_08-50-54-457Z"], "it says what it would delete")
     check(client.values == before, "and deletes nothing")
+
+
+def test_a_session_open_in_a_browser_is_never_swept():
+    from Redis.redis_store import hold_session_lease, release_session_lease
+    client = FakeRedis()
+    open_default = "session-2026-10-01_08-50-54-457Z"
+    stored(client, open_default, 48)
+    hold_session_lease(open_default, "tab-1", client=client)
+    hold_session_lease(open_default, "tab-2", client=client)
+
+    cleanup_regression_store(client=client, now=NOW)
+    check(f"regression_session:{open_default}" in client.values, "a leased session stays")
+
+    release_session_lease(open_default, "tab-1", client=client)
+    cleanup_regression_store(client=client, now=NOW)
+    check(f"regression_session:{open_default}" in client.values, "as long as any tab still holds it")
+
+    release_session_lease(open_default, "tab-2", client=client)
+    report = cleanup_regression_store(client=client, now=NOW)
+    check(report["sessions"] == [open_default], "and goes once no tab does")
+
+
+def test_a_session_with_a_run_going_is_never_swept():
+    client = FakeRedis()
+    running = "session-2026-10-01_08-50-54-457Z"
+    stored(client, running, 48)
+    client.set(f"vampire_progress:{running}",
+               json.dumps({"state": "running", "updatedAt": (NOW - timedelta(minutes=2)).isoformat()}))
+
+    report = cleanup_regression_store(client=client, now=NOW)
+
+    check(report["sessions"] == [] and f"regression_session:{running}" in client.values,
+          "its progress record says it is running")
 
 
 def main():
