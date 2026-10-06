@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+import threading
 from datetime import datetime, timezone
 
 import redis
@@ -419,6 +420,21 @@ def _save_sessions_index(client, sessions):
     client.set(_sessions_index_key(), json.dumps(sessions))
 
 
+# Every index change is a read-modify-write of one JSON list, and the endpoints run in a
+# thread pool: two deletes in parallel each read the old list, and the last writer put the
+# other's bank back -- listed, with its blob already gone. One lock serialises them; the
+# CRUD service is a single uvicorn process (Docker/redis-init.sh) and is the index's only
+# writer.
+_SESSIONS_INDEX_LOCK = threading.Lock()
+
+
+def _update_sessions_index(client, mutate):
+    with _SESSIONS_INDEX_LOCK:
+        sessions = mutate(_load_sessions_index(client))
+        _save_sessions_index(client, sessions)
+        return sessions
+
+
 def list_recent_sessions(client=None):
     client = client or redis_client()
     sessions = _load_sessions_index(client)
@@ -430,11 +446,9 @@ def save_regression_session(session_key, payload, client=None):
     payload = _prepare_regression_session_payload(session_key, payload)
     client.set(_session_storage_key(session_key), json.dumps(payload))
 
-    sessions = _load_sessions_index(client)
     summary = _build_session_summary(session_key, payload)
-    sessions = [session for session in sessions if session.get("sessionKey") != session_key]
-    sessions.insert(0, summary)
-    _save_sessions_index(client, sessions)
+    sessions = _update_sessions_index(client, lambda sessions: [summary] + [
+        session for session in sessions if session.get("sessionKey") != session_key])
     return {"status": "ok", "recent_sessions": sessions, "session": payload}
 
 
@@ -503,11 +517,44 @@ def load_regression_session(session_key, client=None):
 
 
 def delete_regression_session(session_key, client=None):
+    return delete_regression_sessions([session_key], client=client)
+
+
+# Keys that are not a bank's own results however a bank is named.
+_RESERVED_KEYS = {"last_session", "regression_sessions_index"}
+
+
+def _is_last_session_record(client, key):
+    """Whether `key` holds a Vampire results record (what run_vampire merges into under the
+    bank's own key), so deleting a bank never takes an unrelated key of the same name."""
+    if key in _RESERVED_KEYS or ":" in key:
+        return False
+    raw = client.get(key)
+    if not raw:
+        return False
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8")
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return False
+    return isinstance(payload, dict) and "results" in payload
+
+
+def delete_regression_sessions(session_keys, client=None):
+    """Delete banks with everything stored under their key -- the session, its Vampire
+    results and its progress record -- and drop them from the index in ONE update."""
     client = client or redis_client()
-    client.delete(_session_storage_key(session_key))
-    sessions = [session for session in _load_sessions_index(client) if session.get("sessionKey") != session_key]
-    _save_sessions_index(client, sessions)
-    return {"status": "ok", "recent_sessions": sessions}
+    keys = [str(key) for key in (session_keys or []) if str(key or "").strip()]
+    for session_key in keys:
+        client.delete(_session_storage_key(session_key))
+        client.delete(_vampire_progress_key(session_key))
+        if _is_last_session_record(client, session_key):
+            client.delete(session_key)
+    deleted = set(keys)
+    sessions = _update_sessions_index(client, lambda sessions: [
+        session for session in sessions if session.get("sessionKey") not in deleted])
+    return {"status": "ok", "deleted": keys, "recent_sessions": sessions}
 
 
 def _default_vampire_progress(session_key):

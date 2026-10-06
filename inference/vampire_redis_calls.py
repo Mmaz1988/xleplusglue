@@ -186,6 +186,10 @@ def delete_regression_session(session_key):
     return _call(f"/regression_session/{session_key}", method="DELETE")
 
 
+def delete_regression_sessions(session_keys):
+    return _call("/regression_sessions/delete", method="POST", payload={"sessionKeys": list(session_keys)})
+
+
 def summarize_last_session(session_key="last_session"):
     """Raises `urllib.error.URLError` if the Redis CRUD service is unreachable -- see
     `load_last_session`'s docstring for why this must not degrade to a zero-item summary."""

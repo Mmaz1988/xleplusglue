@@ -9,6 +9,7 @@ from Redis.redis_store import (
     clear_last_session,
     clear_vampire_progress,
     delete_regression_session,
+    delete_regression_sessions,
     load_chat_document,
     load_gswb_batch_session,
     load_analysis_document,
@@ -206,6 +207,14 @@ def patch_regression_session_endpoint(session_key: str, payload: dict):
         raise HTTPException(status_code=404, detail=str(exc))
     except UnsupportedSchemaVersion as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/regression_sessions/delete")
+def delete_regression_sessions_endpoint(payload: dict):
+    try:
+        return delete_regression_sessions(payload.get("sessionKeys") or [])
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 

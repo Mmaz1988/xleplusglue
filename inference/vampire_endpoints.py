@@ -17,6 +17,7 @@ from vampire_redis_calls import (
     clear_last_session,
     clear_vampire_progress,
     delete_regression_session,
+    delete_regression_sessions,
     list_recent_sessions,
     load_last_session,
     load_last_session_raw,
@@ -263,6 +264,19 @@ async def patch_regression_session(session_key: str, request: Request):
         raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
     except Exception as e:
         logger.error("Unable to patch regression session", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.post("/regression_sessions/delete")
+def delete_regression_sessions_endpoint(payload: dict):
+    """Delete several banks in one store call, which updates the index once."""
+    try:
+        return delete_regression_sessions(payload.get("sessionKeys") or [])
+    except urllib_error.URLError as e:
+        logger.error("Redis CRUD service unreachable", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
+    except Exception as e:
+        logger.error("Unable to delete regression sessions", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
