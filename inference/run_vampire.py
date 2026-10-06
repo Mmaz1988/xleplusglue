@@ -108,7 +108,7 @@ def _update_vampire_progress(session_key, **updates):
         logger.warning("Unable to persist Vampire progress; continuing", exc_info=True)
 
 
-def _ensure_not_cancelled(session_key):
+def _ensure_not_cancelled(session_key=None):
     # The run's own cancel event (vampire_runs), not a flag on the progress record: the
     # client clears that record before each submission, which used to clear a pending
     # cancel with it. A request outside a batch run (chat's single request) has no run.
@@ -166,6 +166,9 @@ def run_tptp_vampire_batch(checks, axioms, logic_type, vampire_mode,
         context_tptp=context_tptp)
     results = massacer(output_folder, mode=vampire_mode,
                        timeout=max_duration, vampire_path="bin")
+    # A cancel kills the running process; what it left behind is not a verdict and must
+    # not be recorded as one.
+    _ensure_not_cancelled(None)
     return proof_files, results
 
 
@@ -375,6 +378,7 @@ def run_vampire_batch(ctx_tptp, hypothesis_tptp, axioms, logic_type, vampire_mod
     proof_files = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
                                       output_folder=output_folder)
     results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
+    _ensure_not_cancelled(None)
 
     timeout_count = sum(1 for result in results if result.get("Termination Reason") == "Timeout")
     if vampire_mode == ["-sa", "fmb"] and results and timeout_count > len(results) / 2:
@@ -382,6 +386,7 @@ def run_vampire_batch(ctx_tptp, hypothesis_tptp, axioms, logic_type, vampire_mod
         proof_files = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
                                           output_folder=output_folder)
         results = massacer(output_folder, mode=["--mode", "casc"], timeout=max_duration, vampire_path="bin")
+        _ensure_not_cancelled(None)
 
     return proof_files, results
 
