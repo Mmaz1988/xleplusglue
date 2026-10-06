@@ -76,6 +76,11 @@ def active_run_id(session_key: str) -> Optional[str]:
         return active.run_id if active else None
 
 
+def active_session_keys() -> list:
+    with _lock:
+        return list(_active)
+
+
 def cancel_run(session_key: str, run_id: Optional[str] = None) -> Optional[str]:
     """Cancel the session's active run -- only if it is `run_id`, when one is given -- and
     kill its Vampire process. Returns the cancelled run's id, or None if nothing matched (a

@@ -20,6 +20,7 @@ from vampire_redis_calls import (
     clear_vampire_progress,
     delete_regression_session,
     delete_regression_sessions,
+    cleanup_regression_sessions,
     list_recent_sessions,
     load_last_session,
     load_last_session_raw,
@@ -291,6 +292,32 @@ async def patch_regression_session(session_key: str, request: Request):
         raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
     except Exception as e:
         logger.error("Unable to patch regression session", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.post("/regression_sessions/cleanup")
+def cleanup_regression_sessions_endpoint(payload: dict):
+    """Sweep unnamed sessions untouched for a day, and results and progress records left
+    without a session (see redis_store.cleanup_regression_store). `keep` names the sessions
+    the caller has open; sessions with a run in progress here are kept too."""
+    try:
+        report = cleanup_regression_sessions(
+            keep=payload.get("keep") or [],
+            busy=vampire_runs.active_session_keys(),
+            dry_run=bool(payload.get("dryRun", False)),
+            max_age_hours=payload.get("maxAgeHours", 24),
+        )
+        if not report.get("dryRun"):
+            logger.info("Store cleanup: %d sessions, %d results, %d progress records, %d index entries, %.1f MB",
+                        len(report.get("sessions", [])), len(report.get("results", [])),
+                        len(report.get("progress", [])), len(report.get("indexEntries", [])),
+                        report.get("bytes", 0) / 1e6)
+        return report
+    except urllib_error.URLError as e:
+        logger.error("Redis CRUD service unreachable", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
+    except Exception as e:
+        logger.error("Unable to clean up regression sessions", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 

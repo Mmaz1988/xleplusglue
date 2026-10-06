@@ -198,3 +198,8 @@ def summarize_last_session(session_key="last_session"):
 
 def merge_and_save_last_session(session_key, payload):
     return _call(f"/last_session/{session_key}/merge", method="PUT", payload=payload)
+
+
+def cleanup_regression_sessions(keep, busy, dry_run=False, max_age_hours=24):
+    return _call("/regression_sessions/cleanup", method="POST", payload={
+        "keep": list(keep), "busy": list(busy), "dryRun": bool(dry_run), "maxAgeHours": max_age_hours})

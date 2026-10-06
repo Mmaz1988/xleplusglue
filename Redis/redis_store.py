@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+import re
 import threading
 from datetime import datetime, timezone
 
@@ -60,6 +61,9 @@ def _build_last_session_summary(payload):
 def _prepare_last_session_payload(payload):
     prepared = dict(payload or {})
     prepared["_summary"] = _build_last_session_summary(prepared)
+    # When the results last changed, for the store cleanup: Redis's own idle time restarts
+    # at zero whenever Redis reloads, so it cannot age a record across restarts.
+    prepared["updatedAt"] = _now_iso()
     return prepared
 
 
@@ -555,6 +559,130 @@ def delete_regression_sessions(session_keys, client=None):
     sessions = _update_sessions_index(client, lambda sessions: [
         session for session in sessions if session.get("sessionKey") not in deleted])
     return {"status": "ok", "deleted": keys, "recent_sessions": sessions}
+
+
+# The key a regression session gets until it is saved under a name: "session-" and its
+# creation time (models.ts createRegressionTestingSession). Save As refuses names of this
+# shape, so the pattern tells unnamed working sessions from banks.
+DEFAULT_SESSION_KEY = re.compile(r"^session-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}Z$")
+# Keys of other views that live beside the banks and are never swept here.
+_FOREIGN_KEY_PREFIXES = ("chat-", "analysis-")
+
+
+def is_default_session_key(session_key):
+    return bool(DEFAULT_SESSION_KEY.match(str(session_key or "")))
+
+
+def _idle_seconds(client, key):
+    """Seconds since the key was last read or written (Redis OBJECT IDLETIME), or None."""
+    try:
+        idle = client.object("idletime", key)
+    except Exception:
+        return None
+    return int(idle) if idle is not None else None
+
+
+def _age_seconds(iso, now):
+    try:
+        then = datetime.fromisoformat(str(iso).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    if then.tzinfo is None:
+        then = then.replace(tzinfo=timezone.utc)
+    return (now - then).total_seconds()
+
+
+def cleanup_regression_store(keep=(), busy=(), max_age_seconds=24 * 3600, dry_run=False, client=None, now=None):
+    """Sweep what nothing will open again.
+
+    * Unnamed sessions (DEFAULT_SESSION_KEY) untouched for `max_age_seconds`: a working
+      session that was saved under a name, abandoned, or never meant to be kept. Deleted
+      with their Vampire results and progress record.
+    * Vampire results and progress records whose session no longer exists, idle as long --
+      left behind by banks deleted before deletion took them along, and by runs of sessions
+      that were never saved.
+    * Index entries whose session no longer exists.
+
+    Never touched: `keep` (the sessions a client has open), `busy` (sessions with a Vampire
+    run in progress), chat and analysis keys, and the store's own keys. The grace period is
+    what protects work in progress elsewhere -- another tab, or a session with autosave off.
+    """
+    client = client or redis_client()
+    now = now or datetime.now(timezone.utc)
+    protected = {str(key) for key in (keep or ())} | {str(key) for key in (busy or ())}
+    index = _load_sessions_index(client)
+    indexed = {entry.get("sessionKey"): entry for entry in index}
+    report = {"dryRun": bool(dry_run), "sessions": [], "results": [], "progress": [], "indexEntries": [],
+              "bytes": 0}
+
+    def size(key):
+        try:
+            return int(client.memory_usage(key) or 0)
+        except Exception:
+            return 0
+
+    def stale(key, updated_at=None):
+        age = _age_seconds(updated_at, now) if updated_at else None
+        if age is None:
+            age = _idle_seconds(client, key)
+        return age is not None and age >= max_age_seconds
+
+    def stamp(key):
+        """The record's own updatedAt, if it is a JSON object that has one."""
+        raw = client.get(key)
+        if isinstance(raw, bytes):
+            raw = raw.decode("utf-8")
+        try:
+            payload = json.loads(raw) if raw else None
+        except (TypeError, json.JSONDecodeError):
+            return None
+        return payload.get("updatedAt") if isinstance(payload, dict) else None
+
+    stored_sessions = set()
+    for key in client.scan_iter(match="regression_session:*"):
+        key = key.decode("utf-8") if isinstance(key, bytes) else key
+        stored_sessions.add(key[len("regression_session:"):])
+
+    for session_key in sorted(stored_sessions):
+        if not is_default_session_key(session_key) or session_key in protected:
+            continue
+        if stale(_session_storage_key(session_key), (indexed.get(session_key) or {}).get("updatedAt")):
+            report["sessions"].append(session_key)
+            report["bytes"] += size(_session_storage_key(session_key))
+
+    for key in client.scan_iter():
+        key = key.decode("utf-8") if isinstance(key, bytes) else key
+        if key.startswith("vampire_progress:"):
+            owner = key[len("vampire_progress:"):]
+            if owner in protected or owner.startswith(_FOREIGN_KEY_PREFIXES):
+                continue
+            if (owner not in stored_sessions or owner in report["sessions"]) and stale(key, stamp(key)):
+                report["progress"].append(key)
+                report["bytes"] += size(key)
+        elif ":" not in key and key not in _RESERVED_KEYS and key not in protected \
+                and not key.startswith(_FOREIGN_KEY_PREFIXES):
+            # Results written before they were stamped are aged by their run's progress
+            # record, which always was.
+            if (key not in stored_sessions or key in report["sessions"]) \
+                    and _is_last_session_record(client, key) \
+                    and stale(key, stamp(key) or stamp(_vampire_progress_key(key))):
+                report["results"].append(key)
+                report["bytes"] += size(key)
+
+    deleted = set(report["sessions"])
+    report["indexEntries"] = [key for key in indexed
+                              if key not in protected and (key in deleted or key not in stored_sessions)]
+
+    if not dry_run:
+        for session_key in report["sessions"]:
+            client.delete(_session_storage_key(session_key))
+        for key in report["results"] + report["progress"]:
+            client.delete(key)
+        dropped = set(report["indexEntries"])
+        if dropped:
+            _update_sessions_index(client, lambda sessions: [
+                session for session in sessions if session.get("sessionKey") not in dropped])
+    return report
 
 
 def _default_vampire_progress(session_key):
