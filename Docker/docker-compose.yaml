@@ -100,11 +100,8 @@ services:
       - 'host.docker.internal:host-gateway'
     volumes:
       - lm-models:/models
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8084/health', timeout=3)"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+    # No healthcheck: nothing waits on lm, and a probe every 10s only filled its log.
+    # GET /health stays for a manual check.
     # Same backstop as the others. roberta-large on CPU stays under this.
     mem_limit: 3g
     # No depends_on: lm starts without LiGER and reports it unreachable per request, and
