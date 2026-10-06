@@ -107,9 +107,9 @@ def test_tptp_branch_persists_last_session_and_snapshots_progress():
         load_vampire_progress=fake_load_vampire_progress,
         save_vampire_progress=fake_save_vampire_progress,
     ):
-        result = run_vampire._multiple_vampire_request(request, "test-tptp-session")
+        result = run_vampire._multiple_vampire_request(request, "test-tptp-session", "run-1")
 
-    check(result == {"status": "ok"}, "the request still reports ok")
+    check(result == {"status": "ok", "runId": "run-1"}, "the request still reports ok")
     check(len(saved_sessions) == 2,
           "merge_and_save_last_session is called once per TPTP branch, not left unwritten")
 
@@ -204,9 +204,9 @@ def test_item_with_empty_tptp_checks_does_not_crash_the_batch():
         load_vampire_progress=fake_load_vampire_progress,
         save_vampire_progress=fake_save_vampire_progress,
     ):
-        result = run_vampire._multiple_vampire_request(request, "test-empty-tptp-session")
+        result = run_vampire._multiple_vampire_request(request, "test-empty-tptp-session", "run-1")
 
-    check(result == {"status": "ok"}, "the batch completes instead of raising an IndexError")
+    check(result == {"status": "ok", "runId": "run-1"}, "the batch completes instead of raising an IndexError")
     saved_item_ids = {key for _, payload in saved_sessions for key in payload["results"]}
     check("item-ok" in saved_item_ids, "the normal item still persists its result")
 

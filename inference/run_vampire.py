@@ -10,12 +10,14 @@ import shutil
 import logging
 import uuid
 
+import vampire_runs
+
 
 from vampire_call import (generate_tptp_files, massacer, generate_svg_glyph, discourse_checks,
                           comment_line, CHECK_ROLES, translate_prolog_axioms,
                           grammar_axiom_lines, wrap_hyphenated_words)
 from vampire_models import VampireRequest, VampireResponse, Context, Item, Check, VampireMultipleRequest
-from vampire_redis_calls import clear_vampire_progress, merge_and_save_last_session, load_vampire_progress, save_vampire_progress
+from vampire_redis_calls import merge_and_save_last_session, load_vampire_progress, save_vampire_progress
 from logging_config import session_log_file
 
 # Level and handlers are configured once in logging_config, from the entrypoint.
@@ -82,15 +84,6 @@ def _vampire_session_key(request):
     return getattr(request, "session_key", "last_session")
 
 
-def _is_vampire_cancel_requested(session_key):
-    try:
-        progress = load_vampire_progress(session_key)
-    except Exception:
-        return False
-
-    return bool(progress.get("cancelRequested")) or progress.get("state") == "cancel_requested"
-
-
 def _update_vampire_progress(session_key, **updates):
     try:
         progress = load_vampire_progress(session_key)
@@ -116,7 +109,11 @@ def _update_vampire_progress(session_key, **updates):
 
 
 def _ensure_not_cancelled(session_key):
-    if _is_vampire_cancel_requested(session_key):
+    # The run's own cancel event (vampire_runs), not a flag on the progress record: the
+    # client clears that record before each submission, which used to clear a pending
+    # cancel with it. A request outside a batch run (chat's single request) has no run.
+    run = vampire_runs.current_run()
+    if run is not None and run.cancelled:
         raise VampireCancelled()
 
 
@@ -570,12 +567,18 @@ def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
 
 # Define the Pydantic model for request validation
 def multiple_vampire_request(request):
+    """Raises vampire_runs.RunInProgress while another run of this session is active."""
     session_key = _vampire_session_key(request)
-    with session_log_file(session_key):
-        return _multiple_vampire_request(request, session_key)
+    run_id = getattr(request, "run_id", None) or uuid.uuid4().hex
+    run = vampire_runs.start_run(session_key, run_id)
+    try:
+        with session_log_file(session_key):
+            return _multiple_vampire_request(request, session_key, run_id)
+    finally:
+        vampire_runs.finish_run(run)
 
 
-def _multiple_vampire_request(request, session_key):
+def _multiple_vampire_request(request, session_key, run_id):
     started_at = time.monotonic()
     tmp_root = _make_vampire_tmp_root(session_key)
 
@@ -618,6 +621,7 @@ def _multiple_vampire_request(request, session_key):
     def snapshot_progress(state: str, active_item_id=None):
         _update_vampire_progress(
             session_key,
+            runId=run_id,
             state=state,
             cancelRequested=(state == "cancelled"),
             activeItemId=active_item_id,
@@ -805,19 +809,17 @@ def _multiple_vampire_request(request, session_key):
                     session_key, len(inference_results),
                     sum(len(checks) for checks in inference_results.values()),
                     time.monotonic() - started_at)
-        return {"status": "ok"}
+        return {"status": "ok", "runId": run_id}
     except VampireCancelled:
         snapshot_progress("cancelled")
         logger.info("Vampire request %s cancelled after %d items, %d check bundles, %.1fs",
                     session_key, len(inference_results),
                     sum(len(checks) for checks in inference_results.values()),
                     time.monotonic() - started_at)
-        cancelled_result = {"status": "cancelled", "results": {key: [item.dict() for item in checks] for key, checks in inference_results.items()}}
-        try:
-            clear_vampire_progress(session_key)
-        except Exception:
-            logger.warning("Unable to clear Vampire progress after cancel", exc_info=True)
-        return cancelled_result
+        # The record keeps saying "cancelled" for this run id rather than being deleted:
+        # it is how the client learns the run has actually stopped.
+        return {"status": "cancelled", "runId": run_id,
+                "results": {key: [item.dict() for item in checks] for key, checks in inference_results.items()}}
     except Exception as failure:
         # A run that dies must SAY it died. Without this the progress record kept its last
         # "running" snapshot forever and the client polled it indefinitely -- the failure
@@ -828,6 +830,7 @@ def _multiple_vampire_request(request, session_key):
         try:
             _update_vampire_progress(
                 session_key,
+                runId=run_id,
                 state="failed",
                 activeItemId=None,
                 failure=f"{type(failure).__name__}: {failure}",

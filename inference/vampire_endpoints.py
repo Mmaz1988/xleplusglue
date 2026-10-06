@@ -8,9 +8,11 @@ import traceback
 import time
 import shutil
 import logging
+from typing import Optional
 from urllib import error as urllib_error
 
 from logging_config import configure_logging
+import vampire_runs
 from vampire_models import VampireRequest, VampireMultipleRequest
 from vampire_redis_calls import (
     RedisApiError,
@@ -100,6 +102,11 @@ def process_vampire_request_multiple(request: VampireMultipleRequest):
 
         return multiple_vampire_request(request)
 
+    except vampire_runs.RunInProgress as busy:
+        # A second run of a session would share its progress record and result store with
+        # the first; the client waits for the first to stop instead.
+        raise HTTPException(status_code=409, detail={
+            "reason": "run_in_progress", "activeRunId": busy.active_run_id})
     except HTTPException:
         raise
     except Exception as e:
@@ -133,8 +140,13 @@ def get_named_session_summary(session_key: str):
 
 @app.get("/vampire_progress/{session_key}")
 def get_vampire_progress(session_key: str):
+    """The stored progress record, plus `activeRunId`: the run this service is executing for
+    the session right now, or None. That -- not the record's state -- says whether a run
+    has actually stopped."""
     try:
-        return load_vampire_progress(session_key)
+        progress = dict(load_vampire_progress(session_key))
+        progress["activeRunId"] = vampire_runs.active_run_id(session_key)
+        return progress
     except urllib_error.URLError as e:
         logger.error("Redis CRUD service unreachable", exc_info=True)
         raise HTTPException(status_code=503, detail=f"Redis service unavailable: {str(e)}")
@@ -155,6 +167,10 @@ def delete_vampire_progress(session_key: str):
     snapshot landed. Clearing before submitting makes that first read return nothing,
     which the client renders as 0%.
     """
+    active = vampire_runs.active_run_id(session_key)
+    if active is not None:
+        # The record belongs to a run that is still going; it is not stale.
+        raise HTTPException(status_code=409, detail={"reason": "run_in_progress", "activeRunId": active})
     try:
         return clear_vampire_progress(session_key)
     except urllib_error.URLError as e:
@@ -166,9 +182,20 @@ def delete_vampire_progress(session_key: str):
 
 
 @app.post("/vampire_progress/{session_key}/cancel")
-def cancel_vampire_progress(session_key: str):
+def cancel_vampire_progress(session_key: str, run_id: Optional[str] = None):
+    """Cancel the session's active run (only if it is `run_id`, when given) and kill its
+    Vampire process. The run then records "cancelled" and frees the session; poll
+    `activeRunId` on the progress record to see that it has."""
     try:
-        return request_vampire_cancel(session_key)
+        cancelled = vampire_runs.cancel_run(session_key, run_id)
+        if cancelled is not None:
+            try:
+                request_vampire_cancel(session_key)
+            except Exception:
+                logger.warning("Unable to mark the progress record as cancelling", exc_info=True)
+        logger.info("Cancel for session %s (run %s): %s", session_key, run_id or "any",
+                    f"cancelled run {cancelled}" if cancelled else "no matching active run")
+        return {"cancelledRunId": cancelled, "activeRunId": vampire_runs.active_run_id(session_key)}
     except Exception as e:
         logger.error("Unable to request Vampire cancel", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

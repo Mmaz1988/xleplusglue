@@ -42,6 +42,8 @@ class VampireMultipleRequest(BaseModel):
     pruning: bool
     vampire_preferences: dict
     session_key: str = "last_session"
+    # Names this run on its progress record and in cancel requests. Generated when absent.
+    run_id: Optional[str] = None
 
 
 class VampireNLI(BaseModel):

@@ -6,6 +6,8 @@ import logging
 import time
 import traceback
 
+import vampire_runs
+
 # Level and handlers are configured once in logging_config, from the entrypoint.
 logger = logging.getLogger(__name__)
 
@@ -284,19 +286,34 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
 
     started_at = time.monotonic()
     try:
-        # Run Vampire with timeout
-        completed_process = subprocess.run(
+        # Run Vampire with timeout. Popen rather than subprocess.run so the batch run this
+        # belongs to can kill it on cancel (vampire_runs) instead of waiting out the limit.
+        process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            timeout=timeout
         )
+        vampire_runs.register_process(process)
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            stdout, stderr = process.communicate()
+            raise subprocess.TimeoutExpired(command, timeout, output=stdout, stderr=stderr)
+        finally:
+            vampire_runs.unregister_process(process)
         #Logg exit code
-        logger.debug("Vampire exited with code: %s", completed_process.returncode)
+        logger.debug("Vampire exited with code: %s", process.returncode)
+
+        run = vampire_runs.current_run()
+        if run is not None and run.cancelled:
+            result.update({"Termination Reason": "Cancelled", "Termination Phase": "Cancelled",
+                           "SZS Status": "Cancelled"})
+            return result
 
         # Extract information from the output
-        output = completed_process.stdout
+        output = stdout
         # print(f"Vampire Output: {output}")
         # print(f"Error output: {completed_process.stderr}")
         # logger.info("Vampire Output: %s" + output)
