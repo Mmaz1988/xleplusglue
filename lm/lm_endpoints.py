@@ -174,14 +174,17 @@ def embed_drs(request: EmbedDrsRequest):
 
 
 RANK_METHODS = ("mlm-substitution", "cosine")
-RANKERS = ("mlm-substitution", "mlm-slot", "cosine-lexical", "cosine-description", anaphora_ranker.RECENCY)
+RANKERS = ("mlm-substitution", "mlm-pronoun-product", "mlm-pronoun", "mlm-slot",
+           "cosine-lexical", "cosine-description", anaphora_ranker.RECENCY)
 
 
 def normalized_score(method, raw):
     """A method's raw relation score mapped onto [0, 1], order-preserving, so every ranking reads
     the same way. mlm-substitution: e^(mean log-probability), the average probability per
     scored subword. mlm-slot: e^(log-probability), the probability of the antecedent's head word
-    in the pronoun's slot. cosine: (cos + 1) / 2. recency: 1 / recencyRank. None stays None."""
+    in the pronoun's slot. mlm-pronoun: e^(log-probability), the probability of the pronoun's
+    written form for the antecedent. mlm-pronoun-product: the product of the two. cosine:
+    (cos + 1) / 2. recency: 1 / recencyRank. None stays None."""
     if raw is None:
         return None
     if method.startswith("cosine"):
@@ -253,6 +256,10 @@ def rank_anaphora(request: RankAnaphoraRequest):
             scorers[ranker] = _substitution_scorer(model_name, provenance_by_origin)
         elif ranker == "mlm-slot":
             scorers[ranker] = _slot_scorer(model_name, provenance_by_origin)
+        elif ranker == "mlm-pronoun":
+            scorers[ranker] = _pronoun_scorer(model_name, provenance_by_origin)
+        elif ranker == "mlm-pronoun-product":
+            scorers[ranker] = _pronoun_product_scorer(model_name, provenance_by_origin)
         else:
             scorers[ranker] = None
 
@@ -369,5 +376,79 @@ def _slot_scorer(model_name, provenance_by_origin):
         return normalized_score("mlm-slot", value), {
             "substitution": new_text[head_interval[0]:head_interval[1]], "logProb": value, "raw": value,
             **({} if value is not None else {"reason": "the head word encodes to no subwords"})}
+
+    return score
+
+
+def _pronoun_form_log_prob(model_name, provenance_by_origin, conditions, origin, pronoun, antecedent):
+    """log P(the pronoun's written form | the antecedent), or (None, reason)."""
+    spans = pronoun.get("lexicalSpans") or []
+    text = provenance_by_origin[origin].get("text") or ""
+    if len(spans) != 1:
+        return None, f"pronoun '{pronoun.get('label')}' has {len(spans)} lexical spans, expected 1"
+    start, end = spans[0]
+    form = text[start:end]
+    kind = anaphora_ranker.referent_kind(antecedent, conditions[origin])
+    phrase = substitution_scorer.antecedent_phrase(dict(antecedent, kind=kind))
+    if phrase is None:
+        return None, f"a {kind} antecedent is not named by a personal pronoun"
+    if substitution_scorer.pronoun_slot(form) is None:
+        return None, f"'{form}' is not a third-person pronoun form"
+    try:
+        probability = substitution_scorer.get_scorer(model_name).pronoun_probability(form, phrase)
+    except substitution_scorer.SubstitutionError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    if probability is None:
+        return None, f"the forms competing with '{form}' are not single subwords in {model_name}"
+    return math.log(max(probability, 1e-12)), None
+
+
+def _pronoun_scorer(model_name, provenance_by_origin):
+    """Scores a relation by how probable the pronoun's written form is for the antecedent ("he"
+    for "the man" against "she", "it", "they"), in neutral frames (see substitution_scorer). The
+    only ranker that sees the pronoun's gender and number; graded, never a veto."""
+    conditions = {origin: {c["nodeId"]: c for c in p.get("conditions", [])}
+                  for origin, p in provenance_by_origin.items()}
+
+    def score(origin, pronoun, antecedent):
+        value, reason = _pronoun_form_log_prob(model_name, provenance_by_origin, conditions,
+                                               origin, pronoun, antecedent)
+        if value is None:
+            return None, {"reason": reason}
+        return normalized_score("mlm-pronoun", value), {"logProb": value, "raw": value}
+
+    return score
+
+
+def _pronoun_product_scorer(model_name, provenance_by_origin):
+    """mlm-substitution and mlm-pronoun as one score: log P(rest of the pronoun's sentence | the
+    antecedent in its place) + log P(the pronoun's form | the antecedent). One question -- how
+    well does the antecedent fit the pronoun and its sentence -- so each term counts by the size
+    of its evidence: a clear gender contrast outweighs a small substitution margin, an
+    uninformative one ("it" for a cat or a dog) barely moves it. Fused with other rankers by
+    rank, it is one vote among them like any other. Where the pronoun term has no answer (an
+    event antecedent), it counts as no information -- the uniform probability over the slot's
+    forms -- not as certainty, which would let such a candidate skip the term every other
+    candidate pays."""
+    conditions = {origin: {c["nodeId"]: c for c in p.get("conditions", [])}
+                  for origin, p in provenance_by_origin.items()}
+    substitution = _substitution_scorer(model_name, provenance_by_origin)
+
+    def score(origin, pronoun, antecedent):
+        _, details = substitution(origin, pronoun, antecedent)
+        sentence = details.get("raw")
+        if sentence is None:
+            return None, details
+        form, reason = _pronoun_form_log_prob(model_name, provenance_by_origin, conditions,
+                                              origin, pronoun, antecedent)
+        if form is None:
+            form_text = (provenance_by_origin[origin].get("text") or "")
+            spans = pronoun.get("lexicalSpans") or [[0, 0]]
+            slot = substitution_scorer.pronoun_slot(form_text[spans[0][0]:spans[0][1]])
+            uninformed = math.log(1.0 / len(substitution_scorer.PRONOUN_SLOTS[slot or "nom"]))
+        value = sentence + (form if form is not None else uninformed)
+        return normalized_score("mlm-pronoun-product", value), {
+            **details, "logProb": value, "raw": value, "sentenceLogProb": sentence,
+            "pronounLogProb": form, **({"pronounReason": reason} if form is None else {})}
 
     return score

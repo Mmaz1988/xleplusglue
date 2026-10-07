@@ -308,3 +308,101 @@ def test_rank_anaphora_by_masked_slot(monkeypatch):
     assert by_antecedent["x1"]["score"] == math.exp(-0.5) and by_antecedent["x2"]["score"] is None
     assert {b["discourseId"]: b["rank"] for b in body["branches"]} == {"to-man": 1, "to-event": 2}
     assert any("no head word" in w for w in body["warnings"])
+
+
+class FakeGenderedLm:
+    """Substitution prefers the woman (as roberta-large does for "A man saw a woman. He smiled."),
+    the pronoun's form prefers the man."""
+
+    def __init__(self):
+        self.pronoun_calls = []
+
+    def score(self, text, span, words):
+        return -1.8 if "woman" in words.lower() else -2.1
+
+    def pronoun_probability(self, form, phrase):
+        self.pronoun_calls.append((form, phrase))
+        return 0.99 if phrase == "the man" else 0.005
+
+
+def _man_saw_woman(monkeypatch):
+    text = "a man saw a woman\nhe smiled"
+    provenance = {
+        "text": text, "tokens": [], "warnings": [],
+        "conditions": [
+            {"nodeId": "c-man", "symbol": "man", "args": ["r-man"]},
+            {"nodeId": "c-woman", "symbol": "woman", "args": ["r-woman"]},
+            {"nodeId": "c-see", "symbol": "see", "args": ["r-e"]},
+            {"nodeId": "c-arg1", "symbol": "arg1", "args": ["r-e", "r-man"]},
+            {"nodeId": "c-ant", "symbol": "ant", "args": ["r-he"]},
+        ],
+        "referents": [
+            {"nodeId": "r-man", "label": "x1", "lexicalConditionIds": ["c-man"],
+             "directConditionIds": ["c-man", "c-arg1"], "lexicalText": "man", "lexicalSpans": [[2, 5]]},
+            {"nodeId": "r-woman", "label": "x2", "lexicalConditionIds": ["c-woman"],
+             "directConditionIds": ["c-woman"], "lexicalText": "woman", "lexicalSpans": [[12, 17]]},
+            {"nodeId": "r-e", "label": "x4", "lexicalConditionIds": ["c-see"],
+             "directConditionIds": ["c-see", "c-arg1"], "lexicalText": "saw", "lexicalSpans": [[6, 9]]},
+            {"nodeId": "r-he", "label": "x3", "lexicalConditionIds": ["c-ant"], "directConditionIds": ["c-ant"],
+             "lexicalText": "he", "lexicalSpans": [[18, 20]]},
+        ],
+    }
+    monkeypatch.setattr(liger_client, "drs_provenance", lambda syntax, drs, timeout=60: provenance)
+    fake = FakeGenderedLm()
+    monkeypatch.setattr(lm_endpoints.substitution_scorer, "get_scorer", lambda model: fake)
+    return fake
+
+
+MAN_SAW_WOMAN = {
+    "syntax": {"syn": {}}, "semantics": [{"semanticOrigin": "sem", "syntacticOrigin": "syn", "drs": {}}],
+    "branches": [
+        {"discourseId": "to-woman", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x2"}]},
+        {"discourseId": "to-man", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x1"}]},
+        {"discourseId": "to-event", "semanticOrigin": "sem", "relations": [{"pronoun": "x3", "antecedent": "x4"}]},
+    ],
+}
+
+
+def _ranks(body):
+    return {b["discourseId"]: b["rank"] for b in body["branches"]}
+
+
+def test_rank_anaphora_by_the_pronoun_form(monkeypatch):
+    fake = _man_saw_woman(monkeypatch)
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={**MAN_SAW_WOMAN, "methods": ["mlm-pronoun"]}).json()
+
+    assert sorted(fake.pronoun_calls) == [("he", "the man"), ("he", "the woman")]
+    by_antecedent = {r["antecedent"]: r for r in body["relations"]}
+    assert math.isclose(by_antecedent["x1"]["score"], 0.99) and math.isclose(by_antecedent["x2"]["score"], 0.005)
+    assert by_antecedent["x4"]["score"] is None, "no personal pronoun names an event"
+    assert _ranks(body) == {"to-man": 1, "to-woman": 2, "to-event": 3}
+
+
+def test_substitution_alone_misses_the_pronoun_gender(monkeypatch):
+    _man_saw_woman(monkeypatch)
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={**MAN_SAW_WOMAN, "methods": ["mlm-substitution"]}).json()
+
+    assert _ranks(body)["to-woman"] == 1
+
+
+def test_the_joint_score_puts_the_pronoun_gender_into_substitution(monkeypatch):
+    _man_saw_woman(monkeypatch)
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={
+        **MAN_SAW_WOMAN, "methods": ["mlm-pronoun-product"]}).json()
+
+    by_antecedent = {r["antecedent"]: r for r in body["relations"]}
+    assert math.isclose(by_antecedent["x1"]["logProb"], -2.1 + math.log(0.99))
+    assert math.isclose(by_antecedent["x2"]["logProb"], -1.8 + math.log(0.005))
+    # The event has no pronoun term: it pays the uninformed 1/4, not nothing.
+    assert math.isclose(by_antecedent["x4"]["logProb"], -2.1 + math.log(0.25))
+    assert _ranks(body) == {"to-man": 1, "to-event": 2, "to-woman": 3}
+
+
+def test_borda_lets_rankers_blind_to_the_pronoun_outvote_it(monkeypatch):
+    """Why the joint score exists: as one vote among rankers that never see the pronoun, its
+    gender loses."""
+    _man_saw_woman(monkeypatch)
+    body = TestClient(lm_endpoints.app).post("/rank_anaphora", json={
+        **MAN_SAW_WOMAN, "methods": ["mlm-substitution", "recency", "mlm-pronoun"], "averager": "borda"}).json()
+
+    assert _ranks(body)["to-man"] != 1

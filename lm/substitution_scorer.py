@@ -14,7 +14,15 @@ the antecedent's head noun masked in the pronoun's slot ("The <mask> barked."), 
 that noun? Unlike substitution it scores the antecedent's own word, so world knowledge about the
 verb ("dogs bark") decides directly instead of through a subword of the verb.
 
-`substitution_text`, `scoring_intervals`, `head_word` and `slot_text` are pure; `SubstitutionScorer` needs a model with a
+The pronoun-form variant (`pronoun_slot`, `pronoun_frames`, `antecedent_phrase`,
+`SubstitutionScorer.pronoun_probability`) asks how probable the pronoun's own written form is for
+the antecedent: the antecedent's phrase in neutral frames, the pronoun's slot masked, P(form) over
+the slot's competing forms ("he" against "she", "it", "they"). Substitution and slot both remove
+the pronoun from the input, so neither sees its gender or number; this does, graded, not as a
+constraint.
+
+`substitution_text`, `scoring_intervals`, `head_word`, `slot_text`, `pronoun_slot`,
+`pronoun_frames` and `antecedent_phrase` are pure; `SubstitutionScorer` needs a model with a
 masked-LM head (e.g. roberta-large).
 """
 
@@ -28,6 +36,30 @@ LOGGER = logging.getLogger(__name__)
 
 POSSESSIVE_PRONOUNS = {"his", "its", "their"}
 SENTENCE_SEPARATOR = "\n"
+
+
+# The forms competing for a pronoun's slot. "her" is read as accusative; its possessive use
+# competes with the same gender contrast, so the answer is the same.
+PRONOUN_SLOTS = {
+    "nom": ("he", "she", "it", "they"),
+    "acc": ("him", "her", "it", "them"),
+    "poss": ("his", "her", "its", "their"),
+    "refl": ("himself", "herself", "itself", "themselves"),
+}
+# Neutral frames, {a} the antecedent's phrase: they ask about the antecedent alone, so the answer
+# differs between candidates (masking the pronoun in the real text would ask the same question
+# for all of them).
+PRONOUN_FRAMES = {
+    "nom": ("Yesterday {a} came in, and then <mask> sat down.",
+            "I met {a} last week, and <mask> was very friendly.",
+            "When {a} arrived, <mask> looked around."),
+    "acc": ("{a} came in, and I greeted <mask> at once.",
+            "When {a} arrived, everyone looked at <mask>."),
+    "poss": ("{a} came in with <mask> bag.",
+             "I saw {a} and <mask> friend yesterday."),
+    "refl": ("{a} looked at <mask> in the mirror.",
+             "{a} was proud of <mask>."),
+}
 
 
 class SubstitutionError(ValueError):
@@ -93,6 +125,39 @@ def head_word(antecedent, conditions_by_id):
         words = lexical_words(antecedent)
         return words[-1] if words else None
     return max(spanned)[1].strip() or None
+
+
+def pronoun_slot(pronoun_form):
+    """The slot a pronoun form competes in ("nom", "acc", "poss", "refl"), or None for a form
+    outside the third person (I, you, we) or not a pronoun at all."""
+    form = pronoun_form.strip().lower()
+    if form == "her":
+        return "acc"
+    for slot, forms in PRONOUN_SLOTS.items():
+        if form in forms:
+            return slot
+    return None
+
+
+def antecedent_phrase(antecedent):
+    """How the frames name an antecedent: a noun as "the" + its lexical text, a name as written,
+    a pronoun as its own form. None for an event, which no personal pronoun competes for."""
+    lexical = (antecedent.get("lexicalText") or antecedent.get("text") or "").strip()
+    kind = antecedent.get("kind")
+    if kind == "event" or not lexical:
+        return None
+    if kind in ("pronoun", "name"):
+        return lexical
+    return f"the {lexical}"
+
+
+def pronoun_frames(slot, phrase, mask_token):
+    """The slot's frames with the antecedent's phrase filled in, sentence-initial capitalised."""
+    frames = []
+    for frame in PRONOUN_FRAMES[slot]:
+        text = frame.format(a=phrase).replace("<mask>", mask_token)
+        frames.append(text[:1].upper() + text[1:])
+    return frames
 
 
 def lexical_words(antecedent):
@@ -196,6 +261,31 @@ class SubstitutionScorer:
         with torch.no_grad():
             log_probs = torch.log_softmax(self.model(input_ids=batch, attention_mask=attention).logits, dim=-1)
         return sum(log_probs[row, position, ids[position]].item() for row, position in enumerate(positions))
+
+    def pronoun_probability(self, pronoun_form, phrase):
+        """P(pronoun_form | the antecedent ``phrase``) over the forms competing for its slot,
+        averaged over the slot's frames; None for a form outside the slots, or when a competing
+        form is not a single subword in this model's vocabulary."""
+        slot = pronoun_slot(pronoun_form)
+        if slot is None or not phrase:
+            return None
+        forms = PRONOUN_SLOTS[slot]
+        ids = []
+        for form in forms:
+            encoded = self.tokenizer.encode(" " + form, add_special_tokens=False)
+            if len(encoded) != 1:
+                return None
+            ids.append(encoded[0])
+        target = forms.index(pronoun_form.strip().lower())
+        frames = pronoun_frames(slot, phrase, self.tokenizer.mask_token)
+        batch = self.tokenizer(frames, return_tensors="pt", padding=True)
+        with torch.no_grad():
+            logits = self.model(**batch).logits
+        total = 0.0
+        for row in range(len(frames)):
+            position = (batch["input_ids"][row] == self.tokenizer.mask_token_id).nonzero()[0].item()
+            total += torch.softmax(logits[row, position, ids], dim=-1)[target].item()
+        return total / len(frames)
 
 
 _SCORERS = {}

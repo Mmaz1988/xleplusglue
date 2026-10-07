@@ -1,4 +1,5 @@
-from substitution_scorer import head_word, scoring_intervals, sentence_bounds, slot_text, substitution_text
+from substitution_scorer import (antecedent_phrase, head_word, pronoun_frames, pronoun_slot, scoring_intervals,
+                                 sentence_bounds, slot_text, substitution_text)
 
 
 def test_substitution_text_by_antecedent_kind():
@@ -56,3 +57,25 @@ def test_slot_text_puts_the_head_where_the_pronoun_was():
     assert new_text == "Kim saw Kim's dog" and new_text[a:b] == "Kim"
     new_text, (a, b) = slot_text("a man saw himself", (10, 17), "man", "noun", False)
     assert new_text == "a man saw the man" and new_text[a:b] == "man"
+
+
+def test_pronoun_slot_by_form():
+    assert pronoun_slot("He") == "nom" and pronoun_slot("they") == "nom"
+    assert pronoun_slot("him") == "acc" and pronoun_slot("her") == "acc"
+    assert pronoun_slot("his") == "poss" and pronoun_slot("its") == "poss"
+    assert pronoun_slot("herself") == "refl"
+    assert pronoun_slot("I") is None and pronoun_slot("dog") is None
+
+
+def test_antecedent_phrase_by_kind():
+    assert antecedent_phrase({"lexicalText": "black dog", "kind": "noun"}) == "the black dog"
+    assert antecedent_phrase({"lexicalText": "Mary", "kind": "name"}) == "Mary"
+    assert antecedent_phrase({"lexicalText": "he", "kind": "pronoun"}) == "he"
+    assert antecedent_phrase({"lexicalText": "smiled", "kind": "event"}) is None
+
+
+def test_pronoun_frames_fill_in_the_antecedent_and_the_mask():
+    frames = pronoun_frames("nom", "the woman", "<mask>")
+    assert frames[0] == "Yesterday the woman came in, and then <mask> sat down."
+    assert all(frame.count("<mask>") == 1 and "the woman" in frame.lower() for frame in frames)
+    assert pronoun_frames("refl", "the man", "<mask>")[0] == "The man looked at <mask> in the mirror."

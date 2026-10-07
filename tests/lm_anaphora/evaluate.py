@@ -32,6 +32,9 @@ import test_full_analysis_workflow as workflow  # noqa: E402
 
 LM_URL = os.environ.get("LM_URL", "http://localhost:8084")
 METHODS = [
+    ("pronoun-product", {"methods": ["mlm-pronoun-product"]}),
+    ("pronoun", {"methods": ["mlm-pronoun"]}),
+    ("slot", {"methods": ["mlm-slot"]}),
     ("substitution", {"method": "mlm-substitution"}),
     ("cos-lexical", {"method": "cosine", "description": "lexical"}),
     ("cos-description", {"method": "cosine", "description": "description"}),
