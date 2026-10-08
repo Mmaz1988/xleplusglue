@@ -1,0 +1,453 @@
+#!/usr/bin/env python3
+"""Acceptance examples for presupposition accommodation and pronoun resolution.
+
+The list of discourses that must come out right before the work in
+docs/plans/PRESUPPOSITION_PRONOUN_PIPELINE_PLAN.md is done. Each example runs the same chain
+the analysis view runs:
+
+  parse + compose semantics (sentence, or two-sentence sequence)
+  -> merge the syntax with the DRS graph (LiGER /merge_uploaded_structures)
+  -> post-processing rules (LiGER /apply_rules_uploaded_structure, the config's pragmatics)
+  -> PCDRS branches (GSWB /generate_pcdrs)
+  -> collapse of every branch (GSWB /collapse_anaphora)
+
+and then reads every collapsed DRS: where each presupposition's content landed (global,
+restrictor, consequent, negation, cont, or still unaccommodated) and what each pronoun was
+resolved to. Before the collapse it checks that the post-processing rules and the PCDRS name
+the same referents (one enumeration, see the plan).
+
+Semantics rules are the lfgxdrt inference grammar's meaning postulates and degree rules --
+**without the TAM rules**, whose `now`/event referents would count as binders. Sentences use
+no contractions.
+
+Requires LiGER and GSWB (LIGER_URL / GSWB_URL, default :8080 / :8081). Note that it selects the
+lfgxdrt inference grammar on that LiGER. Run directly (prints every reading, exits non-zero on
+a failure) or via pytest.
+
+As of 2026-10-08 most examples fail: that is the point of the list.
+"""
+import os
+import re
+import sys
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+GRAMMAR_DIR = os.path.join(REPO_ROOT, "grammars", "dev", "lfgxdrt_inference_grammar")
+os.environ.setdefault("LIGER_GRAMMAR_PATH", os.path.join(GRAMMAR_DIR, "main_lfgxdrt_inference_grammar.lfg.glue"))
+os.environ.setdefault("LIGER_RULES_PATH", os.path.join(GRAMMAR_DIR, "liger", "lfgxdrt.liger.yaml"))
+os.environ.setdefault("DUMP_REQUESTS", "0")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import test_full_analysis_workflow as w  # noqa: E402
+
+SEMANTICS_RULE_FILES = ["meaning_postulates.liger", "degree_rules_lfgxdrt.liger"]  # no TAM rules
+
+# ---------------------------------------------------------------------------------------------
+# The examples. `contents` names a presupposition by a condition of its content ({r}: the
+# referent); `sites` is the exact set of places that content must land in across all readings.
+# `pairs_required` / `pairs_forbidden` are (content, site, pronoun antecedent) combinations.
+# ---------------------------------------------------------------------------------------------
+
+EXAMPLES = [
+    {
+        "id": "1-every-person-the-cat",
+        "sentences": ["Every person saw the cat."],
+        "contents": {"cat": "cat({r})"},
+        "sites": {"cat": {"consequent", "restrictor", "global"}},
+    },
+    {
+        "id": "2-cyclist-he",
+        "sentences": ["Mary did not see the cyclist.", "He was invisible."],
+        "contents": {"mary": "{r}='mary'", "cyclist": "cyclist({r})"},
+        "sites": {"mary": {"global"}, "cyclist": {"negation", "global"}},
+        "antecedents": {"cyclist": "cyclist({r})", "mary": "{r}='mary'"},
+        "pairs_required": [("cyclist", "global", "cyclist")],
+        "pairs_forbidden": [("cyclist", "negation", "cyclist")],
+    },
+    {
+        "id": "3-cyclist",
+        "sentences": ["Mary did not see the cyclist."],
+        "contents": {"mary": "{r}='mary'", "cyclist": "cyclist({r})"},
+        "sites": {"mary": {"global"}, "cyclist": {"negation", "global"}},
+    },
+    {
+        "id": "4-thought-the-cat",
+        "sentences": ["Kim thought that the cat slept."],
+        "contents": {"kim": "{r}='kim'", "cat": "cat({r})"},
+        "sites": {"kim": {"global"}, "cat": {"cont", "global"}},
+    },
+    {
+        "id": "5-two-names",
+        "sentences": ["The PC-6082 is faster than the ITEL-XZ."],
+        "contents": {"pc": "{r}='pc-6082'", "itel": "{r}='itel-xz'"},
+        "sites": {"pc": {"global"}, "itel": {"global"}},
+        "readings": 1,
+    },
+    {
+        "id": "6-indefinite-control",
+        "sentences": ["Every person saw a cat."],
+        "contents": {},
+        "sites": {},
+        "readings": 1,
+        "no_presuppositions": True,
+    },
+]
+
+# ---------------------------------------------------------------------------------------------
+# A reader for DRS strings as GSWB prints them: ([x1,x2],[cond,...]), ~box, box -> box,
+# p(box), name(args):box, unresolved "+" merges, optional sN: labels, trailing A:[..]/P:[..].
+# ---------------------------------------------------------------------------------------------
+
+REF = r"x\d+(?::\w+)?"
+LABEL = re.compile(r"^s\d+[a-z]?:")
+
+
+class Box:
+    def __init__(self, refs, conds):
+        self.refs = refs
+        self.conds = conds  # ("atom", text) | ("neg", Box) | ("imp", Box, Box) | ("presup", Box) | ("scoped", head, Box)
+
+
+def _split_top(text, sep):
+    parts, depth, quote, start, i = [], 0, False, 0, 0
+    while i < len(text):
+        ch = text[i]
+        if ch == "'":
+            quote = not quote
+        elif not quote:
+            if ch in "([":
+                depth += 1
+            elif ch in ")]":
+                depth -= 1
+            elif depth == 0 and text.startswith(sep, i):
+                parts.append(text[start:i])
+                i += len(sep)
+                start = i
+                continue
+        i += 1
+    parts.append(text[start:])
+    return [part.strip() for part in parts]
+
+
+def _strip_label(text):
+    return LABEL.sub("", text.strip(), count=1).strip()
+
+
+def _wraps(text):
+    """Whether the opening parenthesis of `text` closes at its very end."""
+    if not text.startswith("("):
+        return False
+    depth, quote = 0, False
+    for i, ch in enumerate(text):
+        if ch == "'":
+            quote = not quote
+        elif not quote:
+            depth += ch in "(["
+            depth -= ch in ")]"
+            if depth == 0:
+                return i == len(text) - 1
+    return False
+
+
+def parse_expr(text):
+    text = _strip_label(text)
+    parts = _split_top(text, "+")
+    if len(parts) > 1:
+        boxes = [parse_expr(part) for part in parts]
+        return Box([r for b in boxes for r in b.refs], [c for b in boxes for c in b.conds])
+    if _wraps(text):
+        inner = text[1:-1].strip()
+        if inner.startswith("["):
+            refs_part, conds_part = _split_top(inner, ",")
+            refs = [r for r in _split_top(refs_part[1:-1], ",") if r]
+            conds = [parse_cond(c) for c in _split_top(conds_part[1:-1], ",") if c]
+            return Box(refs, conds)
+        return parse_expr(inner)
+    raise ValueError(f"Not a DRS: {text!r}")
+
+
+def parse_cond(text):
+    text = _strip_label(text)
+    if text.startswith("~"):
+        return ("neg", parse_expr(text[1:]))
+    implication = _split_top(text, "->")
+    if len(implication) == 2:
+        return ("imp", parse_expr(implication[0]), parse_expr(implication[1]))
+    if text.startswith("p(") and _wraps(text[1:]):
+        return ("presup", parse_expr(text[2:-1]))
+    scoped = re.match(r"^([A-Za-z_]\w*\([^()]*\))\s*:\s*(.+)$", text, re.S)
+    if scoped:
+        return ("scoped", scoped.group(1), parse_expr(scoped.group(2)))
+    return ("atom", text)
+
+
+def parse_drs(text):
+    """The root box and its mappings (A:[..], P:[..]) as raw text."""
+    items = _split_top(text.strip(), ",")
+    mappings = [item for item in items[1:] if re.match(r"^[AP]:\[", item)]
+    root = ",".join(item for item in items if item not in mappings)
+    return parse_expr(root), mappings
+
+
+def atoms(box, path=()):
+    """(atom text, path of the box holding it) for every simple condition in the tree."""
+    for cond in box.conds:
+        kind = cond[0]
+        if kind == "atom":
+            yield cond[1], path
+        elif kind == "neg":
+            yield from atoms(cond[1], path + ("negation",))
+        elif kind == "imp":
+            yield from atoms(cond[1], path + ("restrictor",))
+            yield from atoms(cond[2], path + ("consequent",))
+        elif kind == "presup":
+            yield from atoms(cond[1], path + ("presupposition",))
+        elif kind == "scoped":
+            yield from atoms(cond[2], path + ("cont",))
+
+
+def referents(box):
+    yield from box.refs
+    for cond in box.conds:
+        for child in cond[1:]:
+            if isinstance(child, Box):
+                yield from referents(child)
+
+
+def presupposition_boxes(box):
+    for cond in box.conds:
+        if cond[0] == "presup":
+            yield cond[1]
+        for child in cond[1:]:
+            if isinstance(child, Box):
+                yield from presupposition_boxes(child)
+
+
+def _template(template):
+    return re.compile("^" + re.escape(template).replace(re.escape("{r}"), f"({REF})") + "$")
+
+
+def site_of(path):
+    if "presupposition" in path:
+        return "unaccommodated"
+    return path[-1] if path else "global"
+
+
+def content_sites(box, contents):
+    found = {}
+    for key, template in contents.items():
+        pattern = _template(template)
+        found[key] = {site_of(path) for text, path in atoms(box) if pattern.match(text)}
+    return found
+
+
+def pronoun_antecedents(box, antecedents):
+    """What each male pronoun was equated with: an `antecedents` key, 'other', or 'unresolved'."""
+    texts = [text for text, _ in atoms(box)]
+    result = []
+    for pronoun in [m.group(1) for t in texts for m in [re.match(rf"^male\(({REF})\)$", t)] if m]:
+        partner = None
+        for text in texts:
+            eq = re.match(rf"^({REF})=({REF})$", text)
+            if eq and pronoun in eq.groups() and eq.group(1) != eq.group(2):
+                partner = eq.group(2) if eq.group(1) == pronoun else eq.group(1)
+        if partner is None:
+            result.append("unresolved")
+            continue
+        described = [key for key, template in antecedents.items()
+                     for m in map(_template(template).match, texts) if m and m.group(1) == partner]
+        result.append(described[0] if described else "other")
+    return result
+
+
+# ---------------------------------------------------------------------------------------------
+# Running an example
+# ---------------------------------------------------------------------------------------------
+
+_RULES = None
+
+
+def _rules():
+    global _RULES
+    if _RULES is None:
+        rule_set = w.load_rules()
+        w.select_grammar()
+        semantics_dir = os.path.join(GRAMMAR_DIR, "liger", "semantics")
+        semantics = "\n".join(open(os.path.join(semantics_dir, name)).read() for name in SEMANTICS_RULE_FILES)
+        _RULES = (semantics, rule_set["pragmatics"])
+    return _RULES
+
+
+def _structure_names(structure):
+    facts = (structure.get("constraints") or []) + (structure.get("annotations") or [])
+    names = {f["sourceNode"]: f["targetNode"] for f in facts if f.get("relationLabel") == "NAME"}
+    return facts, names
+
+
+def consistency_problems(structure, pcdrs_text):
+    """Rules and PCDRS must name the same referents: a POSSIBLE-ANT pronoun carries ant() in the
+    PCDRS, its antecedent is a PCDRS referent, and a POSSIBLE-ACC presupposition state's referent
+    is introduced by a p(...) box marked bind/acc."""
+    facts, names = _structure_names(structure)
+    root, _ = parse_drs(pcdrs_text)
+    texts = {text for text, _ in atoms(root)}
+    all_refs = {ref.split(":")[0] for ref in referents(root)}
+    presupposed = {ref.split(":")[0] for b in presupposition_boxes(root) for ref in b.refs
+                   if f"bind({ref.split(':')[0]})" in {t for t, _ in atoms(b)} or
+                   f"acc({ref.split(':')[0]})" in {t for t, _ in atoms(b)}}
+    problems = []
+    for fact in facts:
+        label = fact.get("relationLabel")
+        if label == "POSSIBLE-ANT":
+            pronoun = names.get(fact["sourceNode"], "?").split(":")[0]
+            antecedent = names.get(fact["targetNode"], "?").split(":")[0]
+            if f"ant({pronoun})" not in texts:
+                problems.append(f"POSSIBLE-ANT pronoun {pronoun} has no ant({pronoun}) in the PCDRS")
+            if antecedent not in all_refs:
+                problems.append(f"POSSIBLE-ANT antecedent {antecedent} is no PCDRS referent")
+        elif label == "POSSIBLE-ACC":
+            state_refs = [names.get(f["targetNode"], "?").split(":")[0] for f in facts
+                          if f.get("relationLabel") == "IN" and f["sourceNode"] == fact["sourceNode"]]
+            if not any(ref in presupposed for ref in state_refs):
+                problems.append(f"POSSIBLE-ACC from a state introducing {state_refs}: "
+                                f"no such presupposed referent in the PCDRS")
+    return sorted(set(problems))
+
+
+def run_example(example):
+    """Every reading of the example: rule variant, branch, PCDRS, collapsed DRS, sites, pronouns."""
+    semantics, pragmatics = _rules()
+    sentences = example["sentences"]
+    if len(sentences) == 1:
+        _, _, sol, syntax, semantic = w.parse_and_deduce(sentences[0], semantics)
+        graph, semantic_id = sol["graph"], sol["id"]
+    else:
+        seq_solution, _, _, merged = w.run_sequence_semantics(sentences[0], sentences[1], semantics)
+        syntax, graph = seq_solution["structureJson"], merged["graph"]
+        semantic, semantic_id = merged["semantic"], merged["id"]
+
+    merged_structure = w.liger_merge_structure(syntax, graph)
+    applied = w.liger_apply_rules_to_structure(merged_structure["structureJson"], pragmatics,
+                                               f"{example['id']}.json")
+    readings, problems = [], []
+    for variant, annotation in enumerate(applied["annotations"]):
+        structure = annotation["structureJson"]
+        pcdrs = w._post_json(f"{w.GSWB_URL}/generate_pcdrs",
+                             {"semantic": semantic, "parentSolutionId": semantic_id,
+                              "mergedStructure": structure})
+        for branch in pcdrs["solutions"]:
+            problems += [f"variant {variant}, {branch['id']}: {p}"
+                         for p in consistency_problems(structure, branch["semantic"])]
+            request = {"semantic": branch["semantic"], "parentSolutionId": branch["id"],
+                       "anaphoraRelations": branch.get("anaphoraRelations") or []}
+            if branch.get("presuppositionRelations"):
+                request["presuppositionRelations"] = branch["presuppositionRelations"]
+            collapsed = w._post_json(f"{w.GSWB_URL}/collapse_anaphora", request)["semantic"]
+            root, _ = parse_drs(collapsed)
+            readings.append({
+                "variant": variant,
+                "branch": branch["id"],
+                "pcdrs": branch["semantic"],
+                "collapsed": collapsed,
+                "sites": content_sites(root, example["contents"]),
+                "pronouns": pronoun_antecedents(root, example.get("antecedents", {})),
+                "presuppositions_left": sum(1 for _ in presupposition_boxes(root)),
+            })
+    return semantic, readings, problems
+
+
+def check_example(example):
+    """The failures of one example (empty when it comes out right), and its readings."""
+    semantic, readings, failures = run_example(example)
+    for key, expected in example["sites"].items():
+        seen = set().union(*(r["sites"][key] for r in readings)) if readings else set()
+        if seen != expected:
+            failures.append(f"{key}: lands in {sorted(seen)}, expected {sorted(expected)}")
+    for reading in readings:
+        if reading["presuppositions_left"]:
+            failures.append(f"{reading['branch']}: {reading['presuppositions_left']} presupposition(s) "
+                            f"left unaccommodated")
+    if "readings" in example and len(readings) != example["readings"]:
+        failures.append(f"{len(readings)} reading(s), expected {example['readings']}")
+    if example.get("no_presuppositions") and any(r["collapsed"] != readings[0]["collapsed"] for r in readings):
+        failures.append("readings differ although nothing is presupposed")
+    pairs = {(key, site, antecedent)
+             for r in readings for key, sites in r["sites"].items() for site in sites
+             for antecedent in r["pronouns"]}
+    for pair in example.get("pairs_required", []):
+        if tuple(pair) not in pairs:
+            failures.append(f"no reading with {pair[0]} {pair[1]} and the pronoun resolved to {pair[2]}")
+    for pair in example.get("pairs_forbidden", []):
+        if tuple(pair) in pairs:
+            failures.append(f"a reading has {pair[0]} {pair[1]} with the pronoun resolved to {pair[2]}")
+    return semantic, readings, failures
+
+
+def _report(example, semantic, readings, failures):
+    print(f"\n##### {example['id']}: {' '.join(example['sentences'])}")
+    print(f"DRS: {semantic}")
+    for r in readings:
+        sites = ", ".join(f"{k}={'/'.join(sorted(v)) or '-'}" for k, v in r["sites"].items())
+        print(f"  [{r['variant']}] {r['branch']}: {sites}; pronouns={r['pronouns']}")
+        print(f"      PCDRS:     {r['pcdrs']}")
+        print(f"      collapsed: {r['collapsed']}")
+    print("  PASS" if not failures else "  FAIL\n" + "\n".join(f"    - {f}" for f in failures))
+
+
+def _run_one(index):
+    example = EXAMPLES[index]
+    semantic, readings, failures = check_example(example)
+    _report(example, semantic, readings, failures)
+    assert not failures, f"{example['id']}: " + "; ".join(failures)
+
+
+def test_example_1():
+    _run_one(0)
+
+
+def test_example_2():
+    _run_one(1)
+
+
+def test_example_3():
+    _run_one(2)
+
+
+def test_example_4():
+    _run_one(3)
+
+
+def test_example_5():
+    _run_one(4)
+
+
+def test_example_6():
+    _run_one(5)
+
+
+def _self_test_reader():
+    """The DRS reader on shapes the pipeline prints; runs without services."""
+    root, mappings = parse_drs("([],[([x1],[person(x1)]) -> ([x2],[p(([x3],[bind(x3),cat(x3)])),see(x2)])]),P:[p(s3,s1)]")
+    assert mappings == ["P:[p(s3,s1)]"]
+    assert content_sites(root, {"cat": "cat({r})"}) == {"cat": {"unaccommodated"}}
+    root, _ = parse_drs("([x3],[cat(x3),([x1],[person(x1)]) -> ([x2],[see(x2),arg2(x2,x3)])])")
+    assert content_sites(root, {"cat": "cat({r})"}) == {"cat": {"global"}}
+    root, _ = parse_drs("([x1,x2],[x3='mary',~([x4],[cyclist(x5),see(x4)]),x1=x5,male(x1),be(x2)])")
+    assert content_sites(root, {"c": "cyclist({r})"}) == {"c": {"negation"}}
+    assert pronoun_antecedents(root, {"cyclist": "cyclist({r})", "mary": "{r}='mary'"}) == ["cyclist"]
+    root, _ = parse_drs("s1:([x1],[think(x1),cont(x1):s2:([x3],[cat(x4),sleep(x3)])]) + ([x5],[x5='kim'])")
+    assert content_sites(root, {"cat": "cat({r})", "kim": "{r}='kim'"}) == {"cat": {"cont"}, "kim": {"global"}}
+
+
+if __name__ == "__main__":
+    _self_test_reader()
+    failed = []
+    for i, example in enumerate(EXAMPLES):
+        try:
+            _run_one(i)
+        except AssertionError:
+            failed.append(example["id"])
+        except Exception as error:  # a crash is a failure of the example, not of the list
+            print(f"\n##### {example['id']}: ERROR {type(error).__name__}: {error}")
+            failed.append(example["id"])
+    print(f"\n{len(EXAMPLES) - len(failed)}/{len(EXAMPLES)} examples pass" + (f"; failing: {', '.join(failed)}" if failed else ""))
+    sys.exit(1 if failed else 0)
