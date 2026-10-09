@@ -90,6 +90,19 @@ EXAMPLES = [
         "readings": 1,
         "no_presuppositions": True,
     },
+    {
+        # 2026-10-09: the rules pick the cat as the pronoun's antecedent; the PCDRS once named
+        # the person instead (stale names after renumbering). "It" is ambiguous (expletive /
+        # pronoun): only the pronoun parse has a pronoun, so every parse must be run.
+        "id": "7-every-person-the-cat-it",
+        "sentences": ["Every person saw the cat.", "It was cute."],
+        "contents": {"cat": "cat({r})"},
+        "sites": {"cat": {"consequent", "restrictor", "global"}},
+        "antecedents": {"cat": "cat({r})", "person": "person({r})"},
+        "pairs_required": [("cat", "global", "cat")],
+        "pairs_forbidden": [("cat", "consequent", "cat"), ("cat", "restrictor", "cat")],
+        "antecedents_forbidden": ["person"],
+    },
 ]
 
 # ---------------------------------------------------------------------------------------------
@@ -240,11 +253,20 @@ def content_sites(box, contents):
     return found
 
 
-def pronoun_antecedents(box, antecedents):
-    """What each male pronoun was equated with: an `antecedents` key, 'other', or 'unresolved'."""
+def pronouns_of(pcdrs_root):
+    """The pronouns of a PCDRS: the referents its ant(x) markers name (the collapse keeps the
+    PCDRS's names and drops the markers)."""
+    return [m.group(1) for t, _ in atoms(pcdrs_root) for m in [re.match(rf"^ant\(({REF})\)$", t)] if m]
+
+
+def pronoun_antecedents(box, antecedents, pronouns=None):
+    """What each pronoun was equated with: an `antecedents` key, 'other', or 'unresolved'.
+    `pronouns` defaults to the male(x) ones (older examples); runs pass the PCDRS's ant(x) ones."""
     texts = [text for text, _ in atoms(box)]
     result = []
-    for pronoun in [m.group(1) for t in texts for m in [re.match(rf"^male\(({REF})\)$", t)] if m]:
+    if pronouns is None:
+        pronouns = [m.group(1) for t in texts for m in [re.match(rf"^male\(({REF})\)$", t)] if m]
+    for pronoun in pronouns:
         partner = None
         for text in texts:
             eq = re.match(rf"^({REF})=({REF})$", text)
@@ -313,18 +335,56 @@ def consistency_problems(structure, pcdrs_text):
     return sorted(set(problems))
 
 
+def sequence_readings(first, second, semantics):
+    """Every reading of a two-sentence sequence, each with the merged structure of its own
+    parse pairing -- as the analysis view derives them (one ligerSequence over every parse, one
+    aggregate /deduce with a proof per variant, then each reading merged with the first
+    sentence's). Following only the first parse misses readings: "It was cute." parses as
+    expletive first, and that parse has no pronoun."""
+    _, _, sol1, syntax1, _ = w.parse_and_deduce(first, semantics, label="sentence 1", sentence_id="sentence-1")
+    parsed = w.liger_annotate(second, semantics)
+    sequence = w.liger_sequence([first, second], semantics,
+                                [[syntax1], [s["structureJson"] for s in parsed["solutions"]]])
+    proofs, structures = [], {}
+    for solution in sequence["solutions"]:
+        part = next(p for p in solution["sequenceParts"] if p["sourceIndex"] == 1)
+        key = solution["solutionKey"]
+        structures[key] = solution["structureJson"]
+        proofs.append({"proofId": key, "sentenceId": "sentence-2", "solutionKey": key, "mcSetId": key,
+                       "meaningConstructors": part["meaningConstructors"], "structure": solution["structureJson"]})
+    derived = w._post_json(f"{w.GSWB_URL}/deduce", {"premises": "\n".join(p["meaningConstructors"] for p in proofs),
+                                                     "gswbPreferences": w.GSWB_PREFERENCES,
+                                                     "structure": proofs[0]["structure"], "proofs": proofs})
+    readings = []
+    for reading in derived["solutions"]:
+        if not (reading.get("semantic") and reading.get("graph")):
+            continue
+        merged = w.gswb_merge_sequence_semantics([w.semantic_part(sol1), w.semantic_part(reading)],
+                                                 reading.get("id"), reading.get("solutionKey"), reading.get("mcSetId"))
+        readings.append((structures[reading["solutionKey"]], merged["graph"], merged["semantic"], merged["id"]))
+    return readings
+
+
 def run_example(example):
     """Every reading of the example: rule variant, branch, PCDRS, collapsed DRS, sites, pronouns."""
     semantics, pragmatics = _rules()
     sentences = example["sentences"]
     if len(sentences) == 1:
         _, _, sol, syntax, semantic = w.parse_and_deduce(sentences[0], semantics)
-        graph, semantic_id = sol["graph"], sol["id"]
+        derivations = [(syntax, sol["graph"], semantic, sol["id"])]
     else:
-        seq_solution, _, _, merged = w.run_sequence_semantics(sentences[0], sentences[1], semantics)
-        syntax, graph = seq_solution["structureJson"], merged["graph"]
-        semantic, semantic_id = merged["semantic"], merged["id"]
+        derivations = sequence_readings(sentences[0], sentences[1], semantics)
 
+    readings, problems, semantics_seen = [], [], []
+    for syntax, graph, semantic, semantic_id in derivations:
+        semantics_seen.append(semantic)
+        readings_, problems_ = _post_process(example, syntax, graph, semantic, semantic_id, pragmatics)
+        readings += readings_
+        problems += problems_
+    return " | ".join(semantics_seen), readings, problems
+
+
+def _post_process(example, syntax, graph, semantic, semantic_id, pragmatics):
     merged_structure = w.liger_merge_structure(syntax, graph)
     applied = w.liger_apply_rules_to_structure(merged_structure["structureJson"], pragmatics,
                                                f"{example['id']}.json")
@@ -343,16 +403,18 @@ def run_example(example):
                 request["presuppositionRelations"] = branch["presuppositionRelations"]
             collapsed = w._post_json(f"{w.GSWB_URL}/collapse_anaphora", request)["semantic"]
             root, _ = parse_drs(collapsed)
+            pronouns = pronouns_of(parse_drs(branch["semantic"])[0])
             readings.append({
                 "variant": variant,
                 "branch": branch["id"],
                 "pcdrs": branch["semantic"],
                 "collapsed": collapsed,
                 "sites": content_sites(root, example["contents"]),
-                "pronouns": pronoun_antecedents(root, example.get("antecedents", {})),
+                "pronouns": pronoun_antecedents(root, example.get("antecedents", {}),
+                                                pronouns if example.get("antecedents") else None),
                 "presuppositions_left": sum(1 for _ in presupposition_boxes(root)),
             })
-    return semantic, readings, problems
+    return readings, problems
 
 
 def check_example(example):
@@ -379,6 +441,9 @@ def check_example(example):
     for pair in example.get("pairs_forbidden", []):
         if tuple(pair) in pairs:
             failures.append(f"a reading has {pair[0]} {pair[1]} with the pronoun resolved to {pair[2]}")
+    for antecedent in example.get("antecedents_forbidden", []):
+        if any(antecedent in r["pronouns"] for r in readings):
+            failures.append(f"a reading resolves the pronoun to {antecedent}")
     return semantic, readings, failures
 
 
@@ -424,6 +489,10 @@ def test_example_6():
     _run_one(5)
 
 
+def test_example_7():
+    _run_one(6)
+
+
 def _self_test_reader():
     """The DRS reader on shapes the pipeline prints; runs without services."""
     root, mappings = parse_drs("([],[([x1],[person(x1)]) -> ([x2],[p(([x3],[bind(x3),cat(x3)])),see(x2)])]),P:[p(s3,s1)]")
@@ -434,6 +503,13 @@ def _self_test_reader():
     root, _ = parse_drs("([x1,x2],[x3='mary',~([x4],[cyclist(x5),see(x4)]),x1=x5,male(x1),be(x2)])")
     assert content_sites(root, {"c": "cyclist({r})"}) == {"c": {"negation"}}
     assert pronoun_antecedents(root, {"cyclist": "cyclist({r})", "mary": "{r}='mary'"}) == ["cyclist"]
+    pcdrs, _ = parse_drs("([x1,x2],[([x3],[person(x3)]) -> ([x4],[p(([x5],[bind(x5),cat(x5)])),see(x4)]),"
+                         "ant(x1),cute(x2)]),A:[a(x1,x5)]")
+    assert pronouns_of(pcdrs) == ["x1"]
+    root, _ = parse_drs("([x1,x2,x5],[cat(x5),([x3],[person(x3)]) -> ([x4],[see(x4),arg2(x4,x5)]),x1=x5,cute(x2)])")
+    assert pronoun_antecedents(root, {"cat": "cat({r})", "person": "person({r})"}, ["x1"]) == ["cat"]
+    root, _ = parse_drs("([x1,x2],[([x3],[person(x3)]) -> ([x4],[see(x4)]),x1=x3,cute(x2)])")
+    assert pronoun_antecedents(root, {"cat": "cat({r})", "person": "person({r})"}, ["x1"]) == ["person"]
     root, _ = parse_drs("s1:([x1],[think(x1),cont(x1):s2:([x3],[cat(x4),sleep(x3)])]) + ([x5],[x5='kim'])")
     assert content_sites(root, {"cat": "cat({r})", "kim": "{r}='kim'"}) == {"cat": {"cont"}, "kim": {"global"}}
 
