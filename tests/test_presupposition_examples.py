@@ -93,10 +93,11 @@ EXAMPLES = [
     {
         # 2026-10-09: the potential anaphora binding only, with the present rules. The rules
         # pick the cat as the pronoun's antecedent; the PCDRS once named the person instead
-        # (stale names after renumbering). Accommodation is deliberately not checked here.
-        # "It" is ambiguous (expletive / pronoun): only the pronoun parse has a pronoun, so
-        # every parse is run. The rules/PCDRS numbering check is off until one enumeration
-        # (plan, change 1) makes the names agree.
+        # (stale names after renumbering). Accommodation is deliberately not checked here, so
+        # the binding is read from A: and not from the collapse (which drops it unless the cat
+        # is accommodated globally: I9). "It" is ambiguous (expletive / pronoun): only the
+        # pronoun parse has a pronoun, so every parse is run. With one enumeration the rules
+        # and the PCDRS name referents alike, so the numbering check is on.
         "id": "7-every-person-the-cat-it",
         "sentences": ["Every person saw the cat.", "It was cute."],
         "contents": {},
@@ -105,7 +106,7 @@ EXAMPLES = [
         "antecedents_required": ["cat"],
         "antecedents_forbidden": ["person"],
         "check_accommodation": False,
-        "check_numbering": False,
+        "collapse_decides_binding": False,
     },
 ]
 
@@ -263,6 +264,33 @@ def pronouns_of(pcdrs_root):
     return [m.group(1) for t, _ in atoms(pcdrs_root) for m in [re.match(rf"^ant\(({REF})\)$", t)] if m]
 
 
+def bound_antecedents(pcdrs_text, collapsed_root, antecedents, collapse_decides=True):
+    """What each pronoun of a PCDRS is bound to: an `antecedents` key, 'other', or 'unresolved'.
+
+    The binding is the one the rules chose, its A: relation, read in the PCDRS's own names
+    (one enumeration: they are the names the rules used). The collapse renumbers (I7), so a
+    pronoun cannot be found again by name in the collapsed DRS; what the collapse decides is
+    whether the binding stands: it applies a well-formed one as an equation and drops one that
+    would leave the antecedent unbound (I9). With `collapse_decides`, a binding the collapse
+    dropped counts as unresolved.
+    """
+    root, _ = parse_drs(pcdrs_text)
+    texts = [text for text, _ in atoms(root)]
+    mapping = re.search(r"A:\[(.*?)\]", pcdrs_text)
+    relations = re.findall(rf"a\(({REF}),({REF}|/)\)", mapping.group(1)) if mapping else []
+    equations = sum(1 for text, _ in atoms(collapsed_root) if re.match(rf"^({REF})=({REF})$", text))
+    result = []
+    for pronoun in pronouns_of(root):
+        partner = next((q for p, q in relations if p == pronoun and q != "/"), None)
+        if partner is None or (collapse_decides and equations == 0):
+            result.append("unresolved")
+            continue
+        described = [key for key, template in antecedents.items()
+                     for m in map(_template(template).match, texts) if m and m.group(1) == partner]
+        result.append(described[0] if described else "other")
+    return result
+
+
 def pronoun_antecedents(box, antecedents, pronouns=None):
     """What each pronoun was equated with: an `antecedents` key, 'other', or 'unresolved'.
     `pronouns` defaults to the male(x) ones (older examples); runs pass the PCDRS's ant(x) ones."""
@@ -415,8 +443,9 @@ def _post_process(example, syntax, graph, semantic, semantic_id, pragmatics):
                 "pcdrs": branch["semantic"],
                 "collapsed": collapsed,
                 "sites": content_sites(root, example["contents"]),
-                "pronouns": pronoun_antecedents(root, example.get("antecedents", {}),
-                                                pronouns if example.get("antecedents") else None),
+                "pronouns": (bound_antecedents(branch["semantic"], root, example["antecedents"],
+                                               example.get("collapse_decides_binding", True))
+                             if example.get("antecedents") else pronoun_antecedents(root, {})),
                 "presuppositions_left": sum(1 for _ in presupposition_boxes(root)),
             })
     return readings, problems
