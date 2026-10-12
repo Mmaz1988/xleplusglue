@@ -338,8 +338,8 @@ def _structure_names(structure):
 
 
 def consistency_problems(structure, pcdrs_text):
-    """Rules and PCDRS must name the same referents: a POSSIBLE-ANT pronoun carries ant() in the
-    PCDRS, its antecedent is a PCDRS referent, and a POSSIBLE-ACC presupposition state's referent
+    """Rules and PCDRS must name the same referents: a POSSIBLE-ANT source carries ant() (a
+    pronoun) or bind() (a presupposed referent) in the PCDRS, its antecedent is a PCDRS referent, and a POSSIBLE-ACC presupposition state's referent
     is introduced by a p(...) box marked bind/acc."""
     facts, names = _structure_names(structure)
     root, _ = parse_drs(pcdrs_text)
@@ -352,10 +352,10 @@ def consistency_problems(structure, pcdrs_text):
     for fact in facts:
         label = fact.get("relationLabel")
         if label == "POSSIBLE-ANT":
-            pronoun = names.get(fact["sourceNode"], "?").split(":")[0]
+            anaphor = names.get(fact["sourceNode"], "?").split(":")[0]
             antecedent = names.get(fact["targetNode"], "?").split(":")[0]
-            if f"ant({pronoun})" not in texts:
-                problems.append(f"POSSIBLE-ANT pronoun {pronoun} has no ant({pronoun}) in the PCDRS")
+            if f"ant({anaphor})" not in texts and anaphor not in presupposed:
+                problems.append(f"POSSIBLE-ANT source {anaphor} is neither a pronoun nor presupposed in the PCDRS")
             if antecedent not in all_refs:
                 problems.append(f"POSSIBLE-ANT antecedent {antecedent} is no PCDRS referent")
         elif label == "POSSIBLE-ACC":
