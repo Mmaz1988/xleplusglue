@@ -426,15 +426,21 @@ def _post_process(example, syntax, graph, semantic, semantic_id, pragmatics):
         pcdrs = w._post_json(f"{w.GSWB_URL}/generate_pcdrs",
                              {"semantic": semantic, "parentSolutionId": semantic_id,
                               "mergedStructure": structure})
+        for rejected in pcdrs.get("rejected") or []:
+            print(f"  [{variant}] {rejected['id']} rejected: {rejected.get('anaphoraMapping') or ''} "
+                  f"{rejected.get('presuppositionMapping') or ''}: {rejected['rejection']}")
         for branch in pcdrs["solutions"]:
             if example.get("check_numbering", True):
                 problems += [f"variant {variant}, {branch['id']}: {p}"
                              for p in consistency_problems(structure, branch["semantic"])]
-            request = {"semantic": branch["semantic"], "parentSolutionId": branch["id"],
-                       "anaphoraRelations": branch.get("anaphoraRelations") or []}
-            if branch.get("presuppositionRelations"):
-                request["presuppositionRelations"] = branch["presuppositionRelations"]
-            collapsed = w._post_json(f"{w.GSWB_URL}/collapse_anaphora", request)["semantic"]
+            # The PCDRS carries its A: and P: inline. /generate_pcdrs returns only readings the
+            # collapse accepts, so a rejection here is a failure.
+            result = w._post_json(f"{w.GSWB_URL}/collapse_anaphora",
+                                  {"semantic": branch["semantic"], "parentSolutionId": branch["id"]})
+            if result.get("rejection"):
+                problems.append(f"variant {variant}, {branch['id']}: collapse rejects it: {result['rejection']}")
+                continue
+            collapsed = result["semantic"]
             root, _ = parse_drs(collapsed)
             pronouns = pronouns_of(parse_drs(branch["semantic"])[0])
             readings.append({
@@ -442,6 +448,7 @@ def _post_process(example, syntax, graph, semantic, semantic_id, pragmatics):
                 "branch": branch["id"],
                 "pcdrs": branch["semantic"],
                 "collapsed": collapsed,
+                "report": result.get("collapseReport") or "",
                 "sites": content_sites(root, example["contents"]),
                 "pronouns": (bound_antecedents(branch["semantic"], root, example["antecedents"],
                                                example.get("collapse_decides_binding", True))
@@ -492,6 +499,7 @@ def _report(example, semantic, readings, failures):
         print(f"  [{r['variant']}] {r['branch']}: {sites}; pronouns={r['pronouns']}")
         print(f"      PCDRS:     {r['pcdrs']}")
         print(f"      collapsed: {r['collapsed']}")
+        print(f"      report:    {r['report']}")
     print("  PASS" if not failures else "  FAIL\n" + "\n".join(f"    - {f}" for f in failures))
 
 
