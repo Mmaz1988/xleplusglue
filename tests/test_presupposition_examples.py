@@ -80,7 +80,9 @@ EXAMPLES = [
         "sentences": ["The PC-6082 is faster than the ITEL-XZ."],
         "contents": {"pc": "{r}='pc-6082'", "itel": "{r}='itel-xz'"},
         "sites": {"pc": {"global"}, "itel": {"global"}},
-        "readings": 1,
+        # Accommodated, or the ITEL-XZ bound to the PC-6082: one thing may have two names, and
+        # ranking decides.
+        "readings": 2,
     },
     {
         "id": "6-indefinite-control",
