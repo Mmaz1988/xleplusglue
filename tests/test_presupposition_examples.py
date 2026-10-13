@@ -170,7 +170,9 @@ def _wraps(text):
 
 def parse_expr(text):
     text = _strip_label(text)
-    parts = _split_top(text, "+")
+    # A chain of states, merged (+) or updated (;): one box here, as the sites are named by
+    # the box a condition ends up in.
+    parts = [part for update in _split_top(text, ";") for part in _split_top(update, "+")]
     if len(parts) > 1:
         boxes = [parse_expr(part) for part in parts]
         return Box([r for b in boxes for r in b.refs], [c for b in boxes for c in b.conds])
