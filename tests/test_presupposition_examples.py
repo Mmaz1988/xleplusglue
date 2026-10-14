@@ -26,6 +26,7 @@ a failure) or via pytest.
 
 As of 2026-10-08 most examples fail: that is the point of the list.
 """
+import itertools
 import os
 import re
 import sys
@@ -118,13 +119,17 @@ EXAMPLES = [
 # ---------------------------------------------------------------------------------------------
 
 REF = r"x\d+(?::\w+)?"
+# A referent as A: names it: with the state that introduces it (sibling branches reuse names).
+QREF = r"s\d+:x\d+"
 LABEL = re.compile(r"^s\d+[a-z]?:")
+_states = itertools.count()
 
 
 class Box:
-    def __init__(self, refs, conds):
+    def __init__(self, refs, conds, qualified=None):
         self.refs = refs
         self.conds = conds  # ("atom", text) | ("neg", Box) | ("imp", Box, Box) | ("presup", Box) | ("scoped", head, Box)
+        self.qualified = qualified or {}  # name -> state:name, for the referents this box introduces
 
 
 def _split_top(text, sep):
@@ -175,14 +180,17 @@ def parse_expr(text):
     parts = [part for update in _split_top(text, ";") for part in _split_top(update, "+")]
     if len(parts) > 1:
         boxes = [parse_expr(part) for part in parts]
-        return Box([r for b in boxes for r in b.refs], [c for b in boxes for c in b.conds])
+        return Box([r for b in boxes for r in b.refs], [c for b in boxes for c in b.conds],
+                   {name: q for b in boxes for name, q in b.qualified.items()})
     if _wraps(text):
         inner = text[1:-1].strip()
         if inner.startswith("["):
+            # Every box is a state, labelled in preorder (I3), as LFGxDRT prints the labels.
+            state = f"s{next(_states)}"
             refs_part, conds_part = _split_top(inner, ",")
             refs = [r for r in _split_top(refs_part[1:-1], ",") if r]
             conds = [parse_cond(c) for c in _split_top(conds_part[1:-1], ",") if c]
-            return Box(refs, conds)
+            return Box(refs, conds, {r.split(":")[0]: f"{state}:{r.split(':')[0]}" for r in refs})
         return parse_expr(inner)
     raise ValueError(f"Not a DRS: {text!r}")
 
@@ -204,6 +212,8 @@ def parse_cond(text):
 
 def parse_drs(text):
     """The root box and its mappings (A:[..], P:[..]) as raw text."""
+    global _states
+    _states = itertools.count()
     items = _split_top(text.strip(), ",")
     mappings = [item for item in items[1:] if re.match(r"^[AP]:\[", item)]
     root = ",".join(item for item in items if item not in mappings)
@@ -225,6 +235,29 @@ def atoms(box, path=()):
             yield from atoms(cond[1], path + ("presupposition",))
         elif kind == "scoped":
             yield from atoms(cond[2], path + ("cont",))
+
+
+def scoped_atoms(box, scope=None):
+    """(atom text, its names -> state:name) for every simple condition: a name is the nearest
+    referent of that name on the atom's path, a p-box's referents counting in its host."""
+    scope = dict(scope or {})
+    scope.update(box.qualified)
+    for p_box in _p_boxes(box):
+        scope.update(p_box.qualified)
+    for cond in box.conds:
+        if cond[0] == "atom":
+            yield cond[1], scope
+        else:
+            for child in cond[1:]:
+                if isinstance(child, Box):
+                    yield from scoped_atoms(child, scope)
+
+
+def _p_boxes(box):
+    for cond in box.conds:
+        if cond[0] == "presup":
+            yield cond[1]
+            yield from _p_boxes(cond[1])
 
 
 def referents(box):
@@ -263,9 +296,9 @@ def content_sites(box, contents):
 
 
 def pronouns_of(pcdrs_root):
-    """The pronouns of a PCDRS: the referents its ant(x) markers name (the collapse keeps the
-    PCDRS's names and drops the markers)."""
-    return [m.group(1) for t, _ in atoms(pcdrs_root) for m in [re.match(rf"^ant\(({REF})\)$", t)] if m]
+    """The pronouns of a PCDRS, as A: names them (s4:x2): the referents its ant(x) markers name."""
+    return [scope.get(m.group(1).split(":")[0]) for t, scope in scoped_atoms(pcdrs_root)
+            for m in [re.match(rf"^ant\(({REF})\)$", t)] if m]
 
 
 def bound_antecedents(pcdrs_text, collapsed_root, antecedents, collapse_decides=True):
@@ -279,9 +312,9 @@ def bound_antecedents(pcdrs_text, collapsed_root, antecedents, collapse_decides=
     dropped counts as unresolved.
     """
     root, _ = parse_drs(pcdrs_text)
-    texts = [text for text, _ in atoms(root)]
+    scoped = list(scoped_atoms(root))
     mapping = re.search(r"A:\[(.*?)\]", pcdrs_text)
-    relations = re.findall(rf"a\(({REF}),({REF}|/)\)", mapping.group(1)) if mapping else []
+    relations = re.findall(rf"a\(({QREF}),({QREF}|/)\)", mapping.group(1)) if mapping else []
     equations = sum(1 for text, _ in atoms(collapsed_root) if re.match(rf"^({REF})=({REF})$", text))
     result = []
     for pronoun in pronouns_of(root):
@@ -289,8 +322,8 @@ def bound_antecedents(pcdrs_text, collapsed_root, antecedents, collapse_decides=
         if partner is None or (collapse_decides and equations == 0):
             result.append("unresolved")
             continue
-        described = [key for key, template in antecedents.items()
-                     for m in map(_template(template).match, texts) if m and m.group(1) == partner]
+        described = [key for key, template in antecedents.items() for text, scope in scoped
+                     for m in [_template(template).match(text)] if m and scope.get(m.group(1)) == partner]
         result.append(described[0] if described else "other")
     return result
 
@@ -553,8 +586,14 @@ def _self_test_reader():
     assert content_sites(root, {"c": "cyclist({r})"}) == {"c": {"negation"}}
     assert pronoun_antecedents(root, {"cyclist": "cyclist({r})", "mary": "{r}='mary'"}) == ["cyclist"]
     pcdrs, _ = parse_drs("([x1,x2],[([x3],[person(x3)]) -> ([x4],[p(([x5],[bind(x5),cat(x5)])),see(x4)]),"
-                         "ant(x1),cute(x2)]),A:[a(x1,x5)]")
-    assert pronouns_of(pcdrs) == ["x1"]
+                         "ant(x1),cute(x2)]),A:[a(s0:x1,s3:x5)]")
+    assert pronouns_of(pcdrs) == ["s0:x1"]
+    # "It" and the person are both x1, in sibling paths: A: tells them apart by their states.
+    sibling = "([],[([x1],[person(x1)]) -> ([x2],[p(([x3],[bind(x3),cat(x3)])),see(x2)])]) ; ([x1,x2],[ant(x1),cute(x2)])"
+    equated, _ = parse_drs("([x1,x2,x3],[cat(x1),x2=x1,cute(x3)])")
+    kinds = {"cat": "cat({r})", "person": "person({r})"}
+    assert bound_antecedents(sibling + ",A:[a(s4:x1,s3:x3)]", equated, kinds) == ["cat"]
+    assert bound_antecedents(sibling + ",A:[a(s4:x1,s1:x1)]", equated, kinds) == ["person"]
     root, _ = parse_drs("([x1,x2,x5],[cat(x5),([x3],[person(x3)]) -> ([x4],[see(x4),arg2(x4,x5)]),x1=x5,cute(x2)])")
     assert pronoun_antecedents(root, {"cat": "cat({r})", "person": "person({r})"}, ["x1"]) == ["cat"]
     root, _ = parse_drs("([x1,x2],[([x3],[person(x3)]) -> ([x4],[see(x4)]),x1=x3,cute(x2)])")
