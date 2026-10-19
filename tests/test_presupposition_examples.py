@@ -119,8 +119,8 @@ EXAMPLES = [
 # ---------------------------------------------------------------------------------------------
 
 REF = r"[xy]\d+(?::\w+)?"
-# A referent as A: names it: plain (y-names are unique; an x-name is read on the pronoun's
-# path), or qualified by the state that introduces it (s4:x2).
+# A referent as A: names it: the pronoun with its state (s4:x2), the antecedent plain (a
+# y-name is unique, an x-name is read on the pronoun's path) or qualified.
 AREF = r"(?:s\d+:)?[xy]\d+"
 LABEL = re.compile(r"^s\d+[a-z]?:")
 _states = itertools.count()
@@ -614,15 +614,16 @@ def _self_test_reader():
     pcdrs, _ = parse_drs("([x1,x2],[([x3],[person(x3)]) -> ([x4],[p(([x5],[bind(x5),cat(x5)])),see(x4)]),"
                          "ant(x1),cute(x2)]),A:[a(s0:x1,s3:x5)]")
     assert pronouns_of(pcdrs) == ["s0:x1"]
-    # The pipeline's names: the cat and "it" are y (unique), the person and cute both x1.
-    sibling = "([],[([x1],[person(x1)]) -> ([x2],[p(([y1],[bind(y1),cat(y1)])),see(x2)])]) ; ([y2,x1],[ant(y2),cute(x1)])"
+    # The pipeline's names: the cat is y1 (presupposed); "it" and the person are both x1, in
+    # sibling paths. A: names the pronoun with its state, the antecedent read on its path.
+    sibling = "([],[([x1],[person(x1)]) -> ([x2],[p(([y1],[bind(y1),cat(y1)])),see(x2)])]) ; ([x1,x2],[ant(x1),cute(x2)])"
     equated, _ = parse_drs("([x1,x2,x3],[cat(x1),x2=x1,cute(x3)])")
     kinds = {"cat": "cat({r})", "person": "person({r})"}
-    assert bound_antecedents(sibling + ",A:[a(y2,y1)]", equated, kinds) == ["cat"]
-    assert bound_antecedents(sibling + ",A:[a(s4:y2,s1:x1)]", equated, kinds) == ["person"]
+    assert bound_antecedents(sibling + ",A:[a(s4:x1,y1)]", equated, kinds) == ["cat"]
+    assert bound_antecedents(sibling + ",A:[a(s4:x1,s1:x1)]", equated, kinds) == ["person"]
     # An x-name is read on the pronoun's path: x1 is the person, not the cat in the negation.
-    branches = "([],[~([x1],[cat(x1)])]) ; ([x1,y1],[person(x1),ant(y1)])"
-    assert bound_antecedents(branches + ",A:[a(y1,x1)]", equated, kinds) == ["person"]
+    branches = "([],[~([x1],[cat(x1)])]) ; ([x1,x2],[person(x1),ant(x2)])"
+    assert bound_antecedents(branches + ",A:[a(s2:x2,x1)]", equated, kinds) == ["person"]
     root, _ = parse_drs("([x1,x2,x5],[cat(x5),([x3],[person(x3)]) -> ([x4],[see(x4),arg2(x4,x5)]),x1=x5,cute(x2)])")
     assert pronoun_antecedents(root, {"cat": "cat({r})", "person": "person({r})"}, ["x1"]) == ["cat"]
     root, _ = parse_drs("([x1,x2],[([x3],[person(x3)]) -> ([x4],[see(x4)]),x1=x3,cute(x2)])")
