@@ -118,9 +118,10 @@ EXAMPLES = [
 # p(box), name(args):box, unresolved "+" merges, optional sN: labels, trailing A:[..]/P:[..].
 # ---------------------------------------------------------------------------------------------
 
-REF = r"x\d+(?::\w+)?"
-# A referent as A: names it: with the state that introduces it (sibling branches reuse names).
-QREF = r"s\d+:x\d+"
+REF = r"[xy]\d+(?::\w+)?"
+# A referent as A: names it: plain (y-names are unique; an x-name is read on the pronoun's
+# path), or qualified by the state that introduces it (s4:x2).
+AREF = r"(?:s\d+:)?[xy]\d+"
 LABEL = re.compile(r"^s\d+[a-z]?:")
 _states = itertools.count()
 
@@ -296,9 +297,32 @@ def content_sites(box, contents):
 
 
 def pronouns_of(pcdrs_root):
-    """The pronouns of a PCDRS, as A: names them (s4:x2): the referents its ant(x) markers name."""
-    return [scope.get(m.group(1).split(":")[0]) for t, scope in scoped_atoms(pcdrs_root)
-            for m in [re.match(rf"^ant\(({REF})\)$", t)] if m]
+    """The pronouns of a PCDRS, qualified by their states (s4:y2): the referents its ant(x)
+    markers name."""
+    return list(_pronoun_scopes(pcdrs_root))
+
+
+def _pronoun_scopes(pcdrs_root):
+    """Each pronoun (qualified) with the names on its path (name -> state:name)."""
+    return {scope.get(m.group(1).split(":")[0]): scope for t, scope in scoped_atoms(pcdrs_root)
+            for m in [re.match(rf"^ant\(({REF})\)$", t)] if m}
+
+
+def _qualified(name, path, everywhere):
+    """A name as A: writes it, qualified: a y-name is unique in the tree, an x-name is read on
+    the pronoun's path."""
+    if name == "/" or ":" in name:
+        return name
+    return everywhere.get(name) if name.startswith("y") else path.get(name)
+
+
+def _all_qualified(box):
+    names = dict(box.qualified)
+    for cond in box.conds:
+        for child in cond[1:]:
+            if isinstance(child, Box):
+                names.update(_all_qualified(child))
+    return names
 
 
 def bound_antecedents(pcdrs_text, collapsed_root, antecedents, collapse_decides=True):
@@ -314,11 +338,13 @@ def bound_antecedents(pcdrs_text, collapsed_root, antecedents, collapse_decides=
     root, _ = parse_drs(pcdrs_text)
     scoped = list(scoped_atoms(root))
     mapping = re.search(r"A:\[(.*?)\]", pcdrs_text)
-    relations = re.findall(rf"a\(({QREF}),({QREF}|/)\)", mapping.group(1)) if mapping else []
+    relations = re.findall(rf"a\(({AREF}),({AREF}|/)\)", mapping.group(1)) if mapping else []
     equations = sum(1 for text, _ in atoms(collapsed_root) if re.match(rf"^({REF})=({REF})$", text))
+    everywhere = _all_qualified(root)
     result = []
-    for pronoun in pronouns_of(root):
-        partner = next((q for p, q in relations if p == pronoun and q != "/"), None)
+    for pronoun, path in _pronoun_scopes(root).items():
+        partner = next((_qualified(q, path, everywhere) for p, q in relations
+                        if _qualified(p, path, everywhere) == pronoun and q != "/"), None)
         if partner is None or (collapse_decides and equations == 0):
             result.append("unresolved")
             continue
@@ -588,12 +614,15 @@ def _self_test_reader():
     pcdrs, _ = parse_drs("([x1,x2],[([x3],[person(x3)]) -> ([x4],[p(([x5],[bind(x5),cat(x5)])),see(x4)]),"
                          "ant(x1),cute(x2)]),A:[a(s0:x1,s3:x5)]")
     assert pronouns_of(pcdrs) == ["s0:x1"]
-    # "It" and the person are both x1, in sibling paths: A: tells them apart by their states.
-    sibling = "([],[([x1],[person(x1)]) -> ([x2],[p(([x3],[bind(x3),cat(x3)])),see(x2)])]) ; ([x1,x2],[ant(x1),cute(x2)])"
+    # The pipeline's names: the cat and "it" are y (unique), the person and cute both x1.
+    sibling = "([],[([x1],[person(x1)]) -> ([x2],[p(([y1],[bind(y1),cat(y1)])),see(x2)])]) ; ([y2,x1],[ant(y2),cute(x1)])"
     equated, _ = parse_drs("([x1,x2,x3],[cat(x1),x2=x1,cute(x3)])")
     kinds = {"cat": "cat({r})", "person": "person({r})"}
-    assert bound_antecedents(sibling + ",A:[a(s4:x1,s3:x3)]", equated, kinds) == ["cat"]
-    assert bound_antecedents(sibling + ",A:[a(s4:x1,s1:x1)]", equated, kinds) == ["person"]
+    assert bound_antecedents(sibling + ",A:[a(y2,y1)]", equated, kinds) == ["cat"]
+    assert bound_antecedents(sibling + ",A:[a(s4:y2,s1:x1)]", equated, kinds) == ["person"]
+    # An x-name is read on the pronoun's path: x1 is the person, not the cat in the negation.
+    branches = "([],[~([x1],[cat(x1)])]) ; ([x1,y1],[person(x1),ant(y1)])"
+    assert bound_antecedents(branches + ",A:[a(y1,x1)]", equated, kinds) == ["person"]
     root, _ = parse_drs("([x1,x2,x5],[cat(x5),([x3],[person(x3)]) -> ([x4],[see(x4),arg2(x4,x5)]),x1=x5,cute(x2)])")
     assert pronoun_antecedents(root, {"cat": "cat({r})", "person": "person({r})"}, ["x1"]) == ["cat"]
     root, _ = parse_drs("([x1,x2],[([x3],[person(x3)]) -> ([x4],[see(x4)]),x1=x3,cute(x2)])")
