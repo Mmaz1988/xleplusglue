@@ -58,6 +58,10 @@ EXTRA = [
     ["A man saw a woman.", "He smiled.", "She laughed."],
     ["Mary did not see a cat.", "It smiled."],
     ["Every man saw a dog that barked."],
+    # A single sentence: no discourse merge on top, so only resolving everywhere reaches the
+    # p-box's merge (its relative clause).
+    ["Every man saw the cat that smiled."],
+    ["Every man saw the dog that liked him."],
 ]
 
 

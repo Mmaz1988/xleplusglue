@@ -62,6 +62,17 @@ def test_branch_score_is_mean_over_its_relations():
     assert by_pair[("x4", "x1")]["antecedentText"] == "a man"
 
 
+def test_an_unbound_pronoun_is_not_scored_and_not_a_missing_referent():
+    relations, scores, warnings = _rank([
+        {"discourseId": "b1", "semanticOrigin": "s0", "relations": [{"pronoun": "x4", "antecedent": "x1"}]},
+        {"discourseId": "b2", "semanticOrigin": "s0", "relations": [{"pronoun": "x4", "antecedent": "/"}]},
+    ])
+    assert scores == [0.8, None]
+    assert warnings == []
+    assert [(r["pronoun"], r["antecedent"]) for r in relations] == [("x4", "x1")]
+    assert relations[0]["recencyRank"] == 1
+
+
 def test_missing_referents_and_embeddings_warn_without_dropping_branches():
     relations, scores, warnings = _rank([
         {"discourseId": "b1", "semanticOrigin": "s0", "relations": [{"pronoun": "x4", "antecedent": "x9"}]},

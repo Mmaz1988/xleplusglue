@@ -94,6 +94,7 @@ def mean(values):
 
 
 RECENCY = "recency"
+UNBOUND = "/"  # a(x,/): the pronoun explicitly left unbound
 
 
 def recency_score(rank):
@@ -122,8 +123,9 @@ def rank_branches(branches, provenance_by_origin, scorers):
     candidates = {}
     for branch in branches:
         for relation in branch.get("relations", []):
-            key = (branch.get("semanticOrigin"), relation.get("pronoun"))
-            candidates.setdefault(key, set()).add(relation.get("antecedent"))
+            if relation.get("antecedent") != UNBOUND:
+                key = (branch.get("semanticOrigin"), relation.get("pronoun"))
+                candidates.setdefault(key, set()).add(relation.get("antecedent"))
 
     recency = {}
     for (origin, pronoun), antecedents in candidates.items():
@@ -147,6 +149,9 @@ def rank_branches(branches, provenance_by_origin, scorers):
         relation_scores = {ranker: [] for ranker in rankers}
         for relation in branch.get("relations", []):
             pronoun, antecedent = relation.get("pronoun"), relation.get("antecedent")
+            if antecedent == UNBOUND:
+                # a(x,/): no antecedent to score; how unbound competes is the threshold's question.
+                continue
             key = (origin, pronoun, antecedent)
             if key not in relations:
                 found = {}
