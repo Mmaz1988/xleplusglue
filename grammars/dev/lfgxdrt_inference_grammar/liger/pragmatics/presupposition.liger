@@ -1,24 +1,24 @@
 // Presuppositions: binding of presupposed discourse referents (PRSP).
 // Needs pragmatics/core.liger before it.
 
-DRS := IMP | NOT | IN | MERGE | SUB . 
+DRS := IMP | NOT | IN | MERGE | UPDATE | SUB | SCOPE .
 
+//For definites restricting entities
 BIND-PATH(#a,#b) := #a ^(PRSP>@DRS*) #b & #a NAME %a & #b NAME %b & id(%b) < id(%a).
 
 BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
 
+//Binders come earlier: an earlier name, so two bind referents do not bind each other
+EARLIER(#d,#c) := #d NAME %d & #c NAME %c & id(%d) < id(%c) .
+
 //Presupposition rules
 
-//search for potential binders
-@BIND-PATH(#a,#b) ==> #a POTENTIAL-BINDER #b .
+//Accommodation sites: the p-box's host and every state above it
+@BIND-PATH(#a,#b) ==> #a POTENTIAL-ACC #b .
 
-//Check if DRs in PRSP have binders
-#a ^(POTENTIAL-BINDER) #b & #b IN #c & @BIND(#c) & #a IN #d &
-@DR-PRECEDENCE(#d,#c) ==> #c PRSP-ANT #d.
+//Binding: a presupposed referent may be bound by any accessible earlier referent; content is
+//left to ranking and to the collapse (partial match)
+@BIND(#c) & @DR-PRECEDENCE(#d,#c) ==> #c POSSIBLE-ANT #d .
 
-//search for bound referents 
-#a POTENTIAL-BINDER #b IN #c & #a IN #d & @BIND(#d) ==> #d POSSIBLE-BINDER #c .
-
-#a POTENTIAL-BINDER #b IN #c & #a IN #d & -(#d POSSIBLE-BINDER #c) ?=> #d acc #d.
-
-@BIND(#d) & #d acc #d =-> #d acc #d.
+//Accommodation: at every site, whether or not the presupposition can also be bound
+#p POTENTIAL-ACC #s ==> #p POSSIBLE-ACC #s .

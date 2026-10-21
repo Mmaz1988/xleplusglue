@@ -48,7 +48,17 @@ id(#f) != id(#e) ?=> #a POSSIBLE-ANT #e & #c POSSIBLE-ANT #f.
 -(#a POSSIBLE-ANT) ==> #a POSSIBLE-ANT #c.
 
 @ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
-@COARG(#b,#d) & @DISJOINT(#a,#c) ?=> #z KEEP +.
+@COARG(#b,#d) & -(@DISJOINT(#a,#c)) ?=> 0.
 
 //Clean up
 edge=POTENTIAL-ANT =-> 0.
+
+//Bound pronouns: the pronoun and its antecedent stand in one complex condition, e.g. "it" in
+//the consequent and "every cat" in the restrictor of "Every cat ate the mouse that it caught".
+//Any other antecedent is referential.
+COMPLEX := SUB | NOT | OR | SCOPE .
+
+IN-COMPLEX(#s,#k) := #s ^(@CONTEXT*) #k & #k ^(@COMPLEX) #h .
+
+@ANT(#a) & #a POSSIBLE-ANT #c & #s IN #a & #t IN #c &
+@IN-COMPLEX(#s,#k) & @IN-COMPLEX(#t,#k) ==> #a BOUND-ANT #c .

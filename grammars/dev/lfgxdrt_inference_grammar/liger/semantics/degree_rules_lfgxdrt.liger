@@ -86,7 +86,7 @@
 //Axioms (TPTP_AXIOM: TPTP formulas, typed for tff; escape conjunction as \&)
 //Comparative axioms
 #a ATYPE %u & #a DEGREE 'comparative' & #a PRED %p ==>
-#a TPTP_AXIOM ![X:$i, Y:$i, D:$int]: ((arg1(X,Y) \& fast(X,D)) => fast(Y,D)).
+#a TPTP_AXIOM ![X:$i, Y:$i, D:$int]: ((arg1(X,Y) \& strip(%p)(X,D)) => strip(%p)(Y,D)).
 
 #a ATYPE %u & #a SEMTYPE 'degree' & #a PRED %p &
 #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e & #b DEGREE-PRED #p  ==>

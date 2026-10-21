@@ -4,10 +4,12 @@
 // HIERARCHIES
 
 //Functional hierarchy
-GF ::= SUBJ > OBJ > OBJ2 > OBL .
+GF ::= SUBJ > OBJ > OBJ2 > OBL > OBL-COMP > PREDLINK .
 
 //Templates
-GF := SUBJ | OBJ | OBL .
+GF := SUBJ | OBJ | OBL | OBL-COMP | ADJUNCT | PREDLINK .
+
+DRS := IMP | NOT | MERGE | UPDATE | SUB | SCOPE .
 
 //Link DRs to their originating GFs
 DR-GF-LINK(#a, #d) := #a NODE_TYPE 'referent' & #a SRC %a & #b SYN-ID %b & %a == %b & #b ^(in_set>GLUE>g::>cproj) #c phi #d .
@@ -17,9 +19,18 @@ COARG-PATH(#a,#b,#c) := #a ^(@GF*:~(->PRED)) #b ^(@GF) #c.
 
 COARG(#a,#b) := @COARG-PATH(#a,#r,#s) & #s !(@GF) #b & id(#a) != id(#b).
 
-DR-PRECEDENCE(#a,#b) := #a NAME %a & #a NODE_TYPE referent &
-                        #b NAME %b & #b NODE_TYPE referent &
-			            id(%a) < id(%b).  
+//States a referent's state is evaluated in: its parents, a p-box's host included
+CONTEXT := IMP | NOT | MERGE | UPDATE | SUB | SCOPE | PRSP .
+
+DR-PRECEDENCE(#b,#d) := #a IN #b NAME %a & #b NODE_TYPE referent &
+                        #c IN #d NAME %b & #d NODE_TYPE referent &
+                        #c ^(@CONTEXT*) #e & #a !(POTENTIAL-ACC*) #e &
+                        id(#c) != id(#e) &
+                        #a NAME %s & #c NAME %t & id(%s) < id(%t) .
+
+//id(%a) < id(%b).
+
+DR-SEM(#a,#b) := #a SYNSEM #c s:: #b.
 
 // RULES
 
