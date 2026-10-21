@@ -1,4 +1,5 @@
 DETPRON ENGLISH LEXICON (1.0)
+
 At` least  ADV * (^PRED) = 'at` least'
                  (^ADV-TYPE) = num.
 
@@ -314,7 +315,7 @@ Nobody N * (^ PRED) = 'nobody'
 
 nobody N * (^ PRED) = 'nobody'
        (^ PRON-TYPE) = quant
-       (^ PERS) = 3f
+       (^ PERS) = 3
        (^ NUM) = sg
        (^ HUMAN) = +
        @(COUNT-NOUN-SEM person)
@@ -394,7 +395,7 @@ his 	  PRON * @(POSS-PRON he sg 3).
 
 "pronouns (not complete)"
 
-I 	  PRON * @(PRON I 1 sg pers)
+I 	  PRON * @(PRON-NEUTRAL I 1 sg indexical)
 		 @(CASE nom).
 
 
@@ -450,10 +451,10 @@ there PRON *     (^PRED) = 'pro'
 	             (^PRON-FORM) = there
 	             (^ PERS) = 3.
 
-They 	  PRON * @(PRON-ANA they 3 pl pers)
+They 	  PRON * @(PRON-NEUTRAL they 3 pl pers)
 		 @(CASE nom).
 
-they 	  PRON * @(PRON-ANA they 3 pl pers)
+they 	  PRON * @(PRON-NEUTRAL they 3 pl pers)
 		 @(CASE nom).
 
 We 	  PRON * @(PRON we 1 pl pers)
@@ -483,10 +484,10 @@ who PRON *      (^PRON-TYPE) = rel
                  :$ (\P.(\Q.(\x.(P@x + Q@x)))) :
                       ((%sem_e -o %sem_t) -o ((%arg_e -o %sit_t) -o (%sem_e -o %sem_t))) || noscope.
 
-You	PRON * {@(PRON you 2 sg pers)
-	       |@(PRON you 2 pl pers)}.
+You	PRON * {@(PRON-NEUTRAL you 2 sg indexical)
+	       |@(PRON-NEUTRAL you 2 pl indexical)}.
 
-you	PRON * {@(PRON you 2 sg pers)
-	       |@(PRON you 2 pl pers)}.
+you	PRON * {@(PRON-NEUTRAL you 2 sg indexical)
+           |@(PRON-NEUTRAL you 2 pl indexical)}.
 
 ----

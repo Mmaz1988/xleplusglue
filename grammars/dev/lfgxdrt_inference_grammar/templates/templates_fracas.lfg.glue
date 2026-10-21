@@ -268,14 +268,19 @@ Argument alternation templates
 	  (^ PRON-TYPE) = T
 	  (^ NTYPE) = pron.
 
+
+
    PRON-GEND(P G Z N T) = @(PRON P Z N T)
+      (^ GEND) = G
 	  @(PRON-SEM-GEND G).
 
-   PRON-ANA(P Z N T) = @(PRON P Z N T)
+
+   "TODO: What is PRON-ANA?"
+   PRON-NEUTRAL(P Z N T) = @(PRON P Z N T)
 	  @PRON-SEM.
 
-   PERS-OR-EXPL = { @(PRON-ANA it 3 sg pers) |
-                    @(PRON it 3 sg expl) }.
+   PERS-OR-EXPL = { @(PRON-NEUTRAL it 3 sg pers) |
+                    @(PRON-GEND it 3 sg neutral expl) }.
 
 "template for possessive pronouns, as these have conflicting heads in regular template"
    POSS-PRON(P N Z) = (^ POSS PRED) = 'P'
