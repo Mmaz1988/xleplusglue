@@ -104,7 +104,7 @@ PROPER-NOUN-SEM(P) = (s::^ TYPE) = entity
 
 "For names and def + name, EX.: Mary, The ITEL-XZ"
 DEF-NAME = @(NAME-SCOPE ^ %n)
-              :$ (\Q.(\R.([x],[]) + Q@x + R@x)) :
+              :$ (\P.(\Q.p(([x],[bind(x)]) + P@x) + Q@x)) :
               ((s::^_e -o s::^_t) -o ((s::^_e -o %n_t) -o %n_t)) || insitu.
 
 """

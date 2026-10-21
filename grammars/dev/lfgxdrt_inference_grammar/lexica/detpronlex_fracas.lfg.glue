@@ -314,7 +314,7 @@ Nobody N * (^ PRED) = 'nobody'
 
 nobody N * (^ PRED) = 'nobody'
        (^ PRON-TYPE) = quant
-       (^ PERS) = 3
+       (^ PERS) = 3f
        (^ NUM) = sg
        (^ HUMAN) = +
        @(COUNT-NOUN-SEM person)
