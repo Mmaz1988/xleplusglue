@@ -1,0 +1,104 @@
+# Ambiguity test set (docs/plans/PRESUPPOSITION_PRONOUN_PIPELINE_PLAN.md, hand-off step 1).
+# The discourses of tests/probes/ambiguity_probe.py, with the readings expected as of 2026-10-22
+# (lfgxdrt inference grammar, no TAM rules). No gold labels: these items check readings, not
+# inferences. In a multi-sentence item the last sentence is the hypothesis, as regression runs it.
+# Tags: [sort] an antecedent of the wrong sort (pronouns only: presupposition binding is sortally restricted);
+# [rel] "him" bound to the subject of its own relative clause (co-argument question, open);
+# [dup] a second analysis with the same meaning (deferred, kept apart);
+# [scope] a name or pronoun at the main-clause scope site (relaxed retry; kept for now).
+
+# syn1: PP attachment. 3 readings.
+# NP attachment x2 [dup], VP attachment; Kim accommodated globally in each.
+{
+Kim saw a man with a telescope.
+}
+
+# syn2: PP attachment and a pronoun. 15 readings.
+# Each of the three analyses: he -> Kim / the man / the telescope [sort] / the seeing [sort] / unbound.
+{
+Kim saw a man with a telescope.
+====
+He smiled.
+}
+
+# syn3: PP attachment with definites. 2 readings.
+# NP or VP attachment, Kim, the man and the telescope accommodated globally; no binding
+# (Condition C: f-command; i-within-i).
+{
+Kim saw the man with the telescope.
+}
+
+# sem1: scope. 2 readings.
+# every man > a dog; a dog > every man.
+{
+Every man saw a dog.
+}
+
+# sem2: scope and a pronoun across sentences. 3 readings.
+# Narrow dog: it unbound. Wide dog: it -> the dog, or unbound.
+{
+Every man saw a dog.
+====
+It barked.
+}
+
+# sem3: scope and a pronoun in a relative clause. 9 readings.
+# Analysis 1 (him at the main clause [scope]): every > him > a dog with him -> every man or
+# unbound; him > every > a dog, unbound; him > a dog > every, unbound.
+# Analysis 2 (him in the relative clause): every > a dog with him -> every man / the dog [rel] /
+# unbound; a dog > every with him -> the dog [rel] / unbound.
+{
+Every man saw a dog that liked him.
+}
+
+# prag1: pronoun across sentences. 4 readings.
+# he -> man 1 / man 2 / the seeing [sort] / unbound.
+{
+A man saw a man.
+====
+He smiled.
+}
+
+# prag2: pronoun in a relative clause. 5 readings.
+# Analysis 1: him -> man 1 / unbound. Analysis 2: him -> man 1 / man 2 [rel] / unbound.
+{
+A man saw a man that liked him.
+}
+
+# prag3: definite across sentences. 3 readings.
+# Accommodated globally, or bound to man 1 / man 2 (not the seeing: sortal restriction).
+{
+A man saw a man.
+====
+The man smiled.
+}
+
+# prag4: definite and a co-argument. 1 reading.
+# Accommodated globally; not bound to the subject (Condition C).
+{
+A man saw the man.
+}
+
+# prag5: accommodation site under negation. 2 readings.
+# The cat local (in the negation) or global; not bound to the man (Condition C).
+{
+No man saw the cat.
+}
+
+# prag6: accommodation site and a pronoun. 3 readings (1 more rejected by I9).
+# Cat global with it -> the cat; cat global with it unbound; cat local with it unbound.
+# Rejected: cat local with it -> the cat.
+{
+No man saw the cat.
+====
+It smiled.
+}
+
+{
+Kim saw a man with a telescope.
+He smiled.
+====
+Kim saw a man that smiled.
+>>> 1
+}
+
