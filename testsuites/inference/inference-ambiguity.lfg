@@ -2,7 +2,7 @@
 # The discourses of tests/probes/ambiguity_probe.py, with the readings expected as of 2026-10-22
 # (lfgxdrt inference grammar, no TAM rules). No gold labels: these items check readings, not
 # inferences. In a multi-sentence item the last sentence is the hypothesis, as regression runs it.
-# Tags: [sort] an antecedent of the wrong sort (pronouns only: presupposition binding is sortally restricted);
+# Tags: [sort] an antecedent of the right sort (e) but the wrong gender or animacy, which no rule checks yet;
 # [rel] "him" bound to the subject of its own relative clause (co-argument question, open);
 # [dup] a second analysis with the same meaning (deferred, kept apart);
 # [scope] a name or pronoun at the main-clause scope site (relaxed retry; kept for now).
@@ -13,8 +13,8 @@
 Kim saw a man with a telescope.
 }
 
-# syn2: PP attachment and a pronoun. 15 readings.
-# Each of the three analyses: he -> Kim / the man / the telescope [sort] / the seeing [sort] / unbound.
+# syn2: PP attachment and a pronoun. 12 readings.
+# Each of the three analyses: he -> Kim / the man / the telescope [sort] / unbound (not the seeing: sortal restriction).
 {
 Kim saw a man with a telescope.
 ====
@@ -51,8 +51,8 @@ It barked.
 Every man saw a dog that liked him.
 }
 
-# prag1: pronoun across sentences. 4 readings.
-# he -> man 1 / man 2 / the seeing [sort] / unbound.
+# prag1: pronoun across sentences. 3 readings.
+# he -> man 1 / man 2 / unbound (not the seeing: sortal restriction).
 {
 A man saw a man.
 ====

@@ -11,8 +11,6 @@ BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
 //Binders come earlier: an earlier name, so two bind referents do not bind each other
 EARLIER(#d,#c) := #d NAME %d & #c NAME %c & id(%d) < id(%c) .
 
-SORTAL-RESTRICTION(#a,#b) := #a SORT %q & #b SORT %r & %q == %r.
-
 //Embedding: grammatical functions and adjunct sets
 EMBED := SUBJ | OBJ | OBJ2 | OBL | OBL-COMP | COMP | XCOMP | ADJUNCT | PREDLINK | in_set .
 
@@ -26,9 +24,6 @@ WITHIN(#e,#f) := #e ^(@EMBED+) #f .
 
 //Accommodation sites: the p-box's host and every state above it
 @BIND-PATH(#a,#b) ==> #a POTENTIAL-ACC #b .
-
-//Default sort
-#a NODE_TYPE 'referent' & #a NAME %a & -(#a SORT %b) ==> #a SORT e.
 
 //Binding: a presupposed referent may be bound by any accessible earlier referent that neither
 //f-commands it (Condition C: not "A man saw the man", not "Kim saw the man with the telescope"

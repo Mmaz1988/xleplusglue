@@ -27,11 +27,11 @@ ANT(#a) := #a ^(TERM1) #b & #b NAME 'ant' .
 //Pronoun rules
 
 //Reflexives
-@ANT(#a) & #a SYNSEM #b & @REFL-BIND(#b,#c) & #c ^(SYNSEM) #d ==> #a POSSIBLE-ANT #d.
+@ANT(#a) & #a SYNSEM #b & @REFL-BIND(#b,#c) & #c ^(SYNSEM) #d & @SORTAL-RESTRICTION(#d,#a) ==> #a POSSIBLE-ANT #d.
 
 //Personal pronouns
 @ANT(#a) & #a SYNSEM #b PRON-TYPE 'pers' & #c SYNSEM #d & 
-@DR-PRECEDENCE(#c,#a) & -(@COARG(#b,#d)) ==> #a POTENTIAL-ANT #c.
+@DR-PRECEDENCE(#c,#a) & @SORTAL-RESTRICTION(#c,#a) & -(@COARG(#b,#d)) ==> #a POTENTIAL-ANT #c.
 
 //For cases like EX.: Kim thought he saw him"
 //More precise -(#a !(POTENTIAL-ANT+) #e & #c !(POTENTIAL-ANT+) #f & id(#f) == id(#e))

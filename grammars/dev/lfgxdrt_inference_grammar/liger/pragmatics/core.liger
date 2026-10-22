@@ -32,9 +32,15 @@ DR-PRECEDENCE(#b,#d) := #a IN #b NAME %a & #b NODE_TYPE referent &
 
 DR-SEM(#a,#b) := #a SYNSEM #c s:: #b.
 
+//Sortal restriction: an anaphor (pronoun or presupposition) binds only a referent of its sort
+SORTAL-RESTRICTION(#a,#b) := #a SORT %q & #b SORT %r & %q == %r.
+
 // RULES
 
 //Connects referents via SRC with syntactic indices via SYN-ID
 @DR-GF-LINK(#a,#d) ==> #a SYNSEM #d.
 
 @COARG(#a,#b) ==> #a COARG #b.
+
+//Default sort: referents without one (eventualities are v, degrees d) are entities
+#a NODE_TYPE 'referent' & #a NAME %a & -(#a SORT %b) ==> #a SORT e.
