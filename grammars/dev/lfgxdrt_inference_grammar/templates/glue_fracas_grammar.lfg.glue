@@ -58,7 +58,7 @@ EVENT(REL) =
           (s::^ SIT) = %sit
           :$ (\P.P) : (s::^_t -o %sit_t),
           :$ (\v.([],[REL(v)])) : ((s::^ EV)_v -o (s::^ EV)_t),
-          :$ (\V.([e],[]) + V@e) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
+          :$ (\V.([e:v],[]) + V@e) : (((s::^ EV)_v -o (s::^ EV)_t) -o s::^_t).
 
 
 "
