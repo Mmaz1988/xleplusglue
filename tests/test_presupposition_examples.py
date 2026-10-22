@@ -81,9 +81,9 @@ EXAMPLES = [
         "sentences": ["The PC-6082 is faster than the ITEL-XZ."],
         "contents": {"pc": "{r}='pc-6082'", "itel": "{r}='itel-xz'"},
         "sites": {"pc": {"global"}, "itel": {"global"}},
-        # Accommodated, or the ITEL-XZ bound to the PC-6082: one thing may have two names, and
-        # ranking decides.
-        "readings": 2,
+        # Both accommodated. The ITEL-XZ is not bound to the PC-6082: the subject f-commands it
+        # (Condition C, presupposition.liger), and "X is faster than X" says nothing anyway.
+        "readings": 1,
     },
     {
         "id": "6-indefinite-control",

@@ -11,14 +11,27 @@ BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
 //Binders come earlier: an earlier name, so two bind referents do not bind each other
 EARLIER(#d,#c) := #d NAME %d & #c NAME %c & id(%d) < id(%c) .
 
+//Embedding: grammatical functions and adjunct sets
+EMBED := SUBJ | OBJ | OBJ2 | OBL | OBL-COMP | COMP | XCOMP | ADJUNCT | PREDLINK | in_set .
+
+//#e f-commands #f: #e is a function of an f-structure containing #f (Condition C)
+F-COMMAND(#e,#f) := #f ^(@EMBED*) #s & #s !(@EMBED) #e & id(#e) != id(#f) .
+
+//#e lies within #f (i-within-i: "the man with the telescope" is not the telescope)
+WITHIN(#e,#f) := #e ^(@EMBED+) #f .
+
 //Presupposition rules
 
 //Accommodation sites: the p-box's host and every state above it
 @BIND-PATH(#a,#b) ==> #a POTENTIAL-ACC #b .
 
-//Binding: a presupposed referent may be bound by any accessible earlier referent; content is
-//left to ranking and to the collapse (partial match)
-@BIND(#c) & @DR-PRECEDENCE(#d,#c) ==> #c POSSIBLE-ANT #d .
+//Binding: a presupposed referent may be bound by any accessible earlier referent that neither
+//f-commands it (Condition C: not "A man saw the man", not "Kim saw the man with the telescope"
+//with the telescope Kim) nor lies within it (i-within-i); content is left to ranking and to the
+//collapse (partial match)
+@BIND(#c) & @DR-PRECEDENCE(#d,#c) &
+-(#c SYNSEM #f & #d SYNSEM #e & @F-COMMAND(#e,#f)) &
+-(#c SYNSEM #f & #d SYNSEM #e & @WITHIN(#e,#f)) ==> #c POSSIBLE-ANT #d .
 
 //Accommodation: at every site, whether or not the presupposition can also be bound
 #p POTENTIAL-ACC #s ==> #p POSSIBLE-ACC #s .
