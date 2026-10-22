@@ -475,6 +475,8 @@ def gswb_generate_pcdrs(semantic, parent_solution_id, merged_structure):
             "semantic": semantic,
             "parentSolutionId": parent_solution_id,
             "mergedStructure": merged_structure,
+            # The structure comes out of the post-processing rules: the readings are theirs.
+            "rulesApplied": True,
         },
     )
     solutions = response.get("solutions") or []

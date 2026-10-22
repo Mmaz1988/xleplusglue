@@ -488,7 +488,7 @@ def _post_process(example, syntax, graph, semantic, semantic_id, pragmatics):
         structure = annotation["structureJson"]
         pcdrs = w._post_json(f"{w.GSWB_URL}/generate_pcdrs",
                              {"semantic": semantic, "parentSolutionId": semantic_id,
-                              "mergedStructure": structure})
+                              "mergedStructure": structure, "rulesApplied": True})
         for rejected in pcdrs.get("rejected") or []:
             print(f"  [{variant}] {rejected['id']} rejected: {rejected.get('anaphoraMapping') or ''} "
                   f"{rejected.get('presuppositionMapping') or ''}: {rejected['rejection']}")
