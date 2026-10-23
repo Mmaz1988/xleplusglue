@@ -20,6 +20,18 @@ F-COMMAND(#e,#f) := #f ^(@EMBED*) #s & #s !(@EMBED) #e & id(#e) != id(#f) .
 //#e lies within #f (i-within-i: "the man with the telescope" is not the telescope)
 WITHIN(#e,#f) := #e ^(@EMBED+) #f .
 
+//Proper names: accommodated in, and bound from, clause boxes only
+CHAIN := MERGE | UPDATE .
+COMPLEMENT := COMP | XCOMP .
+PROPER-NAME(#c) := #c SYNSEM #f & #f NTYPE #n & #n NSYN 'proper' .
+//A name's binder: in a clause box's chain, or presupposed itself
+NAME-BINDER(#d) := #s IN #d & #s ^(@CHAIN*) #b & #b CLAUSE-BOX #b | #s IN #d & #q PRSP #s .
+
+//Clause boxes: the main DRS, and the DRS of a tensed propositional argument
+#r NODE_TYPE 'root' ==> #r CLAUSE-BOX #r .
+#c NAME 'cont' & #c SCOPE #b & #c TERM1 #m & #m SYNSEM #g & #g @COMPLEMENT #f &
+#f TNS-ASP #t & #t TENSE %a ==> #b CLAUSE-BOX #b .
+
 //Presupposition rules
 
 //Accommodation sites: the p-box's host and every state above it
@@ -28,10 +40,15 @@ WITHIN(#e,#f) := #e ^(@EMBED+) #f .
 //Binding: a presupposed referent may be bound by any accessible earlier referent that neither
 //f-commands it (Condition C: not "A man saw the man", not "Kim saw the man with the telescope"
 //with the telescope Kim) nor lies within it (i-within-i); content is left to ranking and to the
-//collapse (partial match)
-@BIND(#c) & @DR-PRECEDENCE(#d,#c) & @SORTAL-RESTRICTION(#d,#c) &
+//collapse (partial match). A proper name is bound only by a referent in a clause box or in a p-box
+@BIND(#c) & @DR-PRECEDENCE(#d,#c) & @SORTAL-RESTRICTION(#d,#c) & -(@PROPER-NAME(#c)) &
+-(#c SYNSEM #f & #d SYNSEM #e & @F-COMMAND(#e,#f)) &
+-(#c SYNSEM #f & #d SYNSEM #e & @WITHIN(#e,#f)) ==> #c POSSIBLE-ANT #d .
+@BIND(#c) & @DR-PRECEDENCE(#d,#c) & @SORTAL-RESTRICTION(#d,#c) & @PROPER-NAME(#c) & @NAME-BINDER(#d) &
 -(#c SYNSEM #f & #d SYNSEM #e & @F-COMMAND(#e,#f)) &
 -(#c SYNSEM #f & #d SYNSEM #e & @WITHIN(#e,#f)) ==> #c POSSIBLE-ANT #d .
 
-//Accommodation: at every site, whether or not the presupposition can also be bound
-#p POTENTIAL-ACC #s ==> #p POSSIBLE-ACC #s .
+//Accommodation: at every site, whether or not the presupposition can also be bound; a proper
+//name only in a clause box
+#p POTENTIAL-ACC #s & -(#p IN #c & @PROPER-NAME(#c)) ==> #p POSSIBLE-ACC #s .
+#p POTENTIAL-ACC #s & #p IN #c & @PROPER-NAME(#c) & #s CLAUSE-BOX #s ==> #p POSSIBLE-ACC #s .
