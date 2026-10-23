@@ -616,8 +616,12 @@ def run_discourse_postprocessing(structure_json, drs_graph, merged_semantic, sem
 
     If require_real_antecedent is True, assert that at least one PCDRS
     candidate actually found an antecedent via rule_string (rather than
-    falling back to a manually spliced mapping); use this for sentences
-    chosen specifically to exercise the rule engine's antecedent search.
+    collapsing a candidate without one); use this for sentences chosen
+    specifically to exercise the rule engine's antecedent search.
+
+    The collapse reads the candidate's A: and P: inline from its semantic and
+    folds each binding into the DRS as an equation, so its response carries no
+    anaphoraRelations of its own: the bindings are the PCDRS candidate's.
     """
     print("\n=== merge the syntax structure with its DRS graph (discourse post-processing) ===")
     merge_response = liger_merge_structure(structure_json, drs_graph)
@@ -640,26 +644,19 @@ def run_discourse_postprocessing(structure_json, drs_graph, merged_semantic, sem
             f"{pcdrs_candidates}"
         )
         # The rule engine found no antecedent for this sentence/pair -- a
-        # genuine finding about the rule pipeline for this input, not a bug
-        # in the anaphoraRelations plumbing being tested here. Splice an
-        # explicit mapping onto GSWB's own (already-valid) DRS string,
-        # matching DRS.toString()'s "(...),A:[a(pronoun,antecedent)]"
-        # format, so the rest of this test can still prove the structured
-        # round-trip end-to-end with a real DRS.
-        base_candidate = pcdrs_candidates[0]
+        # genuine finding about the rule pipeline for this input. The first
+        # candidate is collapsed as it is, with its own inline A:/P:, as the
+        # client's semantics view sends it.
+        candidate_with_mapping = pcdrs_candidates[0]
         print(f"[trace] no PCDRS candidate found a possible antecedent (semantic="
-              f"{base_candidate.get('semantic')!r}); splicing in a manual mapping to still "
-              f"exercise the anaphoraRelations round-trip")
-        candidate_with_mapping = dict(base_candidate)
-        candidate_with_mapping["semantic"] = f"{base_candidate['semantic']},A:[a(x3,x1)]"
+              f"{candidate_with_mapping.get('semantic')!r}); collapsing the first candidate as it is")
 
     print("\n=== collapse one candidate's anaphora mapping into a resolved DRS ===")
     collapsed = gswb_collapse_anaphora(candidate_with_mapping["semantic"], candidate_with_mapping["id"])
     print(f"[trace] collapsed DRS: {collapsed.get('semantic')}")
+    assert not collapsed.get("rejection"), f"Anaphora collapse rejected the reading: {collapsed['rejection']}"
     assert collapsed.get("semantic") and collapsed["semantic"].strip(), f"Anaphora collapse produced no DRS: {collapsed}"
-    assert collapsed.get("anaphoraRelations"), (
-        f"Collapse response did not carry the resolved structured anaphoraRelations: {collapsed}"
-    )
+    assert collapsed.get("collapseReport"), f"Anaphora collapse returned no collapse report: {collapsed}"
 
     return annotation, pcdrs_candidates, candidate_with_mapping, collapsed
 
@@ -704,19 +701,10 @@ def test_full_analysis_workflow():
                 "anaphoraMapping": {"relations": candidate_with_mapping.get("anaphoraRelations") or []},
                 "collapsed": False,
             },
-            {
-                "id": collapsed["id"],
-                "semanticOrigin": semantic_solution_id,
-                "drsString": collapsed.get("semantic"),
-                "drsGraph": collapsed.get("graph"),
-                "ruleBranch": rule_branch,
-                "svg": collapsed.get("solution"),
-                "anaphoraMapping": {"relations": collapsed.get("anaphoraRelations") or []},
-                "collapsed": True,
-            },
         ],
+        # The collapsed DRS is a view (the client's semantics view), not stored in the document.
         "semDiscourseMapping": {
-            semantic_solution_id: [candidate_with_mapping["id"], collapsed["id"]],
+            semantic_solution_id: [candidate_with_mapping["id"]],
         },
     }
 
@@ -751,8 +739,8 @@ def test_sequence_examples():
     test_full_analysis_workflow) over SEQUENCE_EXAMPLES. Each example's
     require_real_antecedent flag (see SEQUENCE_EXAMPLES above) records
     whether the current post-processing rule set is actually expected to resolve
-    that pair's pronoun, rather than silently falling back to a manually
-    spliced mapping.
+    that pair's pronoun, rather than collapsing a candidate without an
+    antecedent.
     """
     set_dump_run("sequence_examples_init")
     rules = load_rules()
@@ -771,7 +759,7 @@ def test_sequence_examples():
             rules["pragmatics"], content_id=f"{label}-merged-graph-test.json", require_real_antecedent=require_real_antecedent,
         )
         print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "
-              f"resolved antecedent(s)={[relation.get('antecedent') for relation in collapsed.get('anaphoraRelations') or []]}")
+              f"resolved antecedent(s)={[relation.get('antecedent') for relation in candidate_with_mapping.get('anaphoraRelations') or []]}")
 
 
 def test_single_sentence_discourse_examples():
@@ -796,7 +784,7 @@ def test_single_sentence_discourse_examples():
             content_id=f"{label}-merged-graph-test.json", require_real_antecedent=True,
         )
         print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "
-              f"resolved antecedent(s)={[relation.get('antecedent') for relation in collapsed.get('anaphoraRelations') or []]}")
+              f"resolved antecedent(s)={[relation.get('antecedent') for relation in candidate_with_mapping.get('anaphoraRelations') or []]}")
 
 
 ALL_TESTS = [
