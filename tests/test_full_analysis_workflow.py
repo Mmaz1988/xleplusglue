@@ -477,6 +477,8 @@ def gswb_generate_pcdrs(semantic, parent_solution_id, merged_structure):
             "mergedStructure": merged_structure,
             # The structure comes out of the post-processing rules: the readings are theirs.
             "rulesApplied": True,
+            # As the analysis view: its discourse entries carry each reading's SVG.
+            "includeSvg": True,
         },
     )
     solutions = response.get("solutions") or []

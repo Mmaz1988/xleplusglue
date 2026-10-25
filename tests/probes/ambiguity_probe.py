@@ -98,7 +98,8 @@ def readings(sentences, semantics, pragmatics):
                 scope = f"v{v}/c{c}/r{r}"
                 pcdrs = w._post_json(f"{w.GSWB_URL}/generate_pcdrs", {
                     "semantic": merged["semantic"], "parentSolutionId": scope,
-                    "mergedStructure": annotation["structureJson"], "rulesApplied": True})
+                    "mergedStructure": annotation["structureJson"], "rulesApplied": True,
+                    "includeSvg": False})
                 for rejected in pcdrs.get("rejected") or []:
                     found.append((scope, rejected, "rejected: " + (rejected.get("rejection") or "")))
                 for solution in pcdrs.get("solutions") or []:

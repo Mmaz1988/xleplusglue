@@ -361,7 +361,7 @@ def run(discourse_id, premises, hypothesis, semantics, pragmatics, stats):
                 structure = annotation["structureJson"]
                 pcdrs = w._post_json(f"{w.GSWB_URL}/generate_pcdrs", {
                     "semantic": merged["semantic"], "parentSolutionId": f"{scope}/r{r}", "mergedStructure": structure,
-                    "rulesApplied": True})
+                    "rulesApplied": True, "includeSvg": False})
                 stats["rejected readings"] += len(pcdrs.get("rejected") or [])
                 meanings = set()
                 for solution in pcdrs.get("solutions") or []:
