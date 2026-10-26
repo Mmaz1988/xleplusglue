@@ -27,6 +27,10 @@ import test_full_analysis_workflow as workflow  # noqa: E402
 
 LM_URL = os.environ.get("LM_URL", "http://localhost:8084")
 NO_RULES = os.path.join(workflow.REPO_ROOT, "liger_resources", "rules", "dummy_no_rules.txt")
+# The sentences need the inference grammar, so its rule set too: the workflow's default config
+# belongs to glue-basic-drt, whose pragmatics leave this grammar's definites no binder.
+workflow.RULES_PATH = os.environ.get(
+    "LIGER_RULES_PATH", "./grammars/dev/lfgxdrt_inference_grammar/liger/lfgxdrt.liger.yaml")
 
 # sentence -> {condition symbol: expected text of the referent that is its first argument}
 EXAMPLES = {
@@ -120,11 +124,13 @@ def run_ranking_example(sentence_1, sentence_2):
     assert [b["discourseId"] for b in body["branches"]] == [c["id"] for c in candidates]
     ranks = sorted(b["rank"] for b in body["branches"])
     assert ranks[0] == 1 and ranks[-1] <= len(ranks)
-    bound = [r for r in body["relations"]]
+    # Definites bind as presuppositions too ("the cat" -> ...); the substitution ranker cannot
+    # score a multi-word anaphor, so only the pronoun's relations must carry a score. The default
+    # ranker is mlm-substitution, which reports no cosine.
+    bound = [r for r in body["relations"] if r["pronounText"] == "it"]
     assert bound, "the rules bound no pronoun"
     for r in bound:
-        assert r["pronounText"] == "it", r
-        assert r["cosine"] is not None and r["recencyRank"] >= 1, r
+        assert r["score"] is not None and r["recencyRank"] >= 1, r
     assert any(b["score"] is not None for b in body["branches"])
 
 
