@@ -69,7 +69,7 @@ def readings(sentences, semantics, pragmatics):
                                                          "structure": proofs[0]["structure"], "proofs": proofs})
         by_key = {}
         for solution in derived.get("solutions") or []:
-            if (solution.get("semantic") or "").strip() and solution.get("graph"):
+            if (w.reading(solution).get("semString") or "").strip() and w.reading(solution).get("graph"):
                 by_key.setdefault(solution.get("solutionKey"), []).append(solution)
         composed.append(by_key)
 
@@ -88,7 +88,7 @@ def readings(sentences, semantics, pragmatics):
                     "parts": [w.semantic_part(merged), w.semantic_part(combination[i])],
                     "parentSolutionId": combination[i]["id"], "solutionKey": keys[i], "mcSetId": keys[i],
                     "resolveDrs": True})
-            base = w.liger_merge_structure(variant["structureJson"], merged["graph"])["structureJson"]
+            base = w.liger_merge_structure(variant["structureJson"], w.reading(merged)["graph"])["structureJson"]
             try:
                 applied = w.liger_apply_rules_to_structure(base, pragmatics, f"v{v}c{c}.json")
             except RuntimeError as error:
@@ -97,7 +97,7 @@ def readings(sentences, semantics, pragmatics):
             for r, annotation in enumerate(applied.get("annotations") or []):
                 scope = f"v{v}/c{c}/r{r}"
                 pcdrs = w._post_json(f"{w.GSWB_URL}/generate_pcdrs", {
-                    "semantic": merged["semantic"], "parentSolutionId": scope,
+                    "semantic": w.reading(merged)["semString"], "parentSolutionId": scope,
                     "mergedStructure": annotation["structureJson"], "rulesApplied": True,
                     "includeSvg": False})
                 for rejected in pcdrs.get("rejected") or []:

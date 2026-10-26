@@ -47,7 +47,7 @@ def run_example(sentence, expected):
     with open(NO_RULES) as f:
         rules = f.read()
     _, _, sol, syntax, semantic = workflow.parse_and_deduce(sentence, rules)
-    drs = sol["graph"]
+    drs = workflow.reading(sol)["graph"]
 
     referent_ids = [n["id"] for n in drs["nodes"] if n["node_type"] == "referent"]
     pairs = [[a, b] for i, a in enumerate(referent_ids) for b in referent_ids[i + 1:]]
@@ -93,7 +93,7 @@ def run_ranking_example(sentence_1, sentence_2):
     rules = workflow.load_rules()
     seq_solution, _, _, merged = workflow.run_sequence_semantics(sentence_1, sentence_2, rules["semantics"])
     _, candidates, _, _ = workflow.run_discourse_postprocessing(
-        seq_solution["structureJson"], merged["graph"], merged["semantic"], merged["id"],
+        seq_solution["structureJson"], workflow.reading(merged)["graph"], workflow.reading(merged)["semString"], merged["id"],
         rules["pragmatics"], content_id="lm-ranking-merged-graph-test.json", require_real_antecedent=True)
 
     # The request the client's ranking service builds from a DiscourseUpdate.
@@ -103,7 +103,7 @@ def run_ranking_example(sentence_1, sentence_2):
                 for c in candidates]
     body = post_lm("/rank_anaphora", {
         "syntax": {"syn": seq_solution["structureJson"]},
-        "semantics": [{"semanticOrigin": merged["id"], "syntacticOrigin": "syn", "drs": merged["graph"]}],
+        "semantics": [{"semanticOrigin": merged["id"], "syntacticOrigin": "syn", "drs": workflow.reading(merged)["graph"]}],
         "branches": branches,
     })
 

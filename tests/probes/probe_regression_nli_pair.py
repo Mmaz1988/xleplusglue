@@ -90,19 +90,19 @@ def main():
     prior = w.gswb_merge_sequence_semantics(premise_parts,
                                             parent_solution_id="pxq-n1-1-1-prior",
                                             solution_key="0", mc_set_id="0")
-    print(f"\nprior   : {prior['semantic']}")
-    print(f"sequence: {merged['semantic']}")
+    print(f"\nprior   : {w.reading(prior)['semString']}")
+    print(f"sequence: {w.reading(merged)['semString']}")
 
     # 4. check ASTs from a multi-part premise
     checks = w._post_json(f"{w.GSWB_URL}/reasoning_check_asts", {
-        "premiseAsts": [solution["graph"] for solution in solutions[:len(PREMISES)]],
-        "hypothesisAsts": [solution["graph"] for solution in solutions[len(PREMISES):]],
+        "premiseAsts": [w.reading(solution)["graph"] for solution in solutions[:len(PREMISES)]],
+        "hypothesisAsts": [w.reading(solution)["graph"] for solution in solutions[len(PREMISES):]],
         "typed": False,
     }).get("checks") or {}
     print(f"\ncheck ASTs: {sorted(checks)}")
 
     # 5. the syn/sem union, then the post-processing rules over it
-    tier_a = w.liger_merge_structure(sequence["structureJson"], merged.get("graph"))
+    tier_a = w.liger_merge_structure(sequence["structureJson"], w.reading(merged).get("graph"))
     annotations = w.liger_apply_rules_to_structure(
         tier_a["structureJson"], w.pragmatics_rules(), "probe-regression-nli.json")["annotations"]
     synsem = [c for c in (annotations[0].get("structureJson") or {}).get("annotations", [])
@@ -110,7 +110,7 @@ def main():
     print(f"rule branches: {len(annotations)}, SYNSEM edges in branch 1: {len(synsem)}")
 
     # 6. mappings, then the batch the client sends
-    pcdrs = w.gswb_generate_pcdrs(merged["semantic"], "pxq-n1-1-1-rule-1",
+    pcdrs = w.gswb_generate_pcdrs(w.reading(merged)["semString"], "pxq-n1-1-1-rule-1",
                                   annotations[0]["structureJson"])
     mappings = pcdrs.get("solutions") or []
 
@@ -123,7 +123,7 @@ def main():
     if not bound:
         print("  !! no anaphora relations -- no pronoun in this discourse bound to anything")
     for mapping in mappings[:2]:
-        items = [{"name": "context", "semantic": prior["semantic"]},
+        items = [{"name": "context", "semantic": w.reading(prior)["semString"]},
                  {"name": "sequence", "semantic": mapping["semantic"]}]
         items += [{"name": name, "semantic": check["semantic"]}
                   for name, check in checks.items() if check.get("semantic")]

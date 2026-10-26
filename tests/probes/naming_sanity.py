@@ -326,7 +326,7 @@ def run(discourse_id, premises, hypothesis, semantics, pragmatics, stats):
                                                          "structure": proofs[0]["structure"], "proofs": proofs})
         by_key = {}
         for solution in derived.get("solutions") or []:
-            if (solution.get("semantic") or "").strip() and solution.get("graph"):
+            if (w.reading(solution).get("semString") or "").strip() and w.reading(solution).get("graph"):
                 by_key.setdefault(solution.get("solutionKey"), []).append(solution)
         readings.append(by_key)
 
@@ -341,26 +341,26 @@ def run(discourse_id, premises, hypothesis, semantics, pragmatics, stats):
             continue
         for c, combination in enumerate(itertools.islice(itertools.product(*per_sentence), MAX_COMBINATIONS)):
             scope = f"{discourse_id}/v{v}/c{c}"
-            merged, premise_semantic = combination[0], combination[0]["semantic"]
+            merged, premise_semantic = combination[0], w.reading(combination[0])["semString"]
             for i in range(1, len(sentences)):
                 merged = w._post_json(f"{w.GSWB_URL}/merge_sequence_semantics", {
                     "parts": [w.semantic_part(merged), w.semantic_part(combination[i])],
                     "parentSolutionId": combination[i]["id"], "solutionKey": keys[i], "mcSetId": keys[i],
                     "resolveDrs": True})
                 if i == n_premises - 1:
-                    premise_semantic = merged["semantic"]
+                    premise_semantic = w.reading(merged)["semString"]
             stats["branches"] += 1
             checks = {}
             if hypothesis and premises:
                 checks = w._post_json(f"{w.GSWB_URL}/reasoning_check_asts", {
                     "premiseAsts": [s["graph"] for s in combination[:n_premises]],
                     "hypothesisAsts": [s["graph"] for s in combination[n_premises:]], "typed": True})["checks"]
-            base = w.liger_merge_structure(variant["structureJson"], merged["graph"])["structureJson"]
+            base = w.liger_merge_structure(variant["structureJson"], w.reading(merged)["graph"])["structureJson"]
             applied = w.liger_apply_rules_to_structure(base, pragmatics, f"{scope}.json")
             for r, annotation in enumerate(applied.get("annotations") or []):
                 structure = annotation["structureJson"]
                 pcdrs = w._post_json(f"{w.GSWB_URL}/generate_pcdrs", {
-                    "semantic": merged["semantic"], "parentSolutionId": f"{scope}/r{r}", "mergedStructure": structure,
+                    "semantic": w.reading(merged)["semString"], "parentSolutionId": f"{scope}/r{r}", "mergedStructure": structure,
                     "rulesApplied": True, "includeSvg": False})
                 stats["rejected readings"] += len(pcdrs.get("rejected") or [])
                 meanings = set()

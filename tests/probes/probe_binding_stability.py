@@ -88,7 +88,7 @@ def build_once(label):
         [w.semantic_part(merged2), w.semantic_part(current3)],
         parent_solution_id=label, solution_key="0", mc_set_id="0")
 
-    tier_a = w.liger_merge_structure(seq3["structureJson"], merged.get("graph"))
+    tier_a = w.liger_merge_structure(seq3["structureJson"], w.reading(merged).get("graph"))
     tier_b = w.liger_apply_rules_to_structure(
         tier_a["structureJson"], w.pragmatics_rules(), "probe-stability.json")["annotations"][0]["structureJson"]
     parts = [w.semantic_part(merged2), w.semantic_part(current3)]
@@ -106,7 +106,7 @@ def main():
     merged, tier_b, tier_a, parts = build_once("phaseA")
     phase_a = []
     for run in range(RUNS):
-        pcdrs = w.gswb_generate_pcdrs(merged["semantic"], f"phaseA-{run}-rule-1", tier_b)
+        pcdrs = w.gswb_generate_pcdrs(w.reading(merged)["semString"], f"phaseA-{run}-rule-1", tier_b)
         phase_a.append(mapping_set(pcdrs))
         print(f"  run {run + 1}: {len(phase_a[-1])} distinct candidate mapping(s)")
     stable_a = len(set(phase_a)) == 1
@@ -122,7 +122,7 @@ def main():
     for run in range(RUNS):
         rebuilt = w.liger_apply_rules_to_structure(
             tier_a["structureJson"], w.pragmatics_rules(), "probe-stability.json")["annotations"][0]["structureJson"]
-        pcdrs = w.gswb_generate_pcdrs(merged["semantic"], f"phaseA2-{run}-rule-1", rebuilt)
+        pcdrs = w.gswb_generate_pcdrs(w.reading(merged)["semString"], f"phaseA2-{run}-rule-1", rebuilt)
         phase_a2.append((fingerprint(rebuilt), ordered_fingerprint(rebuilt), mapping_set(pcdrs)))
         print(f"  run {run + 1}: {len(phase_a2[-1][2])} candidate mapping(s)")
     print(f"\n  tier-B identical (as a set)   ? {len({row[0] for row in phase_a2}) == 1}")
@@ -136,10 +136,10 @@ def main():
     for run in range(RUNS):
         remerged = w.gswb_merge_sequence_semantics(
             parts, parent_solution_id=f"phaseA3-{run}", solution_key="0", mc_set_id="0")
-        phase_a3.append((remerged["semantic"],
-                         fingerprint(remerged.get("graph")),
-                         ordered_fingerprint(remerged.get("graph"))))
-        print(f"  run {run + 1}: semantic length {len(remerged['semantic'])}")
+        phase_a3.append((w.reading(remerged)["semString"],
+                         fingerprint(w.reading(remerged).get("graph")),
+                         ordered_fingerprint(w.reading(remerged).get("graph"))))
+        print(f"  run {run + 1}: semantic length {len(w.reading(remerged)['semString'])}")
     print(f"\n  merged semantic identical      ? {len({row[0] for row in phase_a3}) == 1}")
     print(f"  merged graph identical (set)   ? {len({row[1] for row in phase_a3}) == 1}")
     print(f"  merged graph identical (list)  ? {len({row[2] for row in phase_a3}) == 1}")
@@ -158,7 +158,7 @@ def main():
         space = set()
         for index, branch in enumerate(branches):
             space |= set(mapping_set(w.gswb_generate_pcdrs(
-                merged["semantic"], f"phaseA4-{run}-rule-{index + 1}", branch["structureJson"])))
+                w.reading(merged)["semString"], f"phaseA4-{run}-rule-{index + 1}", branch["structureJson"])))
         spaces.append(frozenset(space))
         print(f"  run {run + 1}: {len(branches)} branches -> {len(space)} distinct mappings in total")
     stable_space = len(set(spaces)) == 1
@@ -173,9 +173,9 @@ def main():
     by_reading = {}
     for run in range(RUNS):
         merged, tier_b, _, _ = build_once(f"phaseB-{run}")
-        pcdrs = w.gswb_generate_pcdrs(merged["semantic"], f"phaseB-{run}-rule-1", tier_b)
-        by_reading.setdefault(merged["semantic"], []).append(mapping_set(pcdrs))
-        print(f"  run {run + 1}: merged DRS #{list(by_reading).index(merged['semantic']) + 1}, "
+        pcdrs = w.gswb_generate_pcdrs(w.reading(merged)["semString"], f"phaseB-{run}-rule-1", tier_b)
+        by_reading.setdefault(w.reading(merged)["semString"], []).append(mapping_set(pcdrs))
+        print(f"  run {run + 1}: merged DRS #{list(by_reading).index(w.reading(merged)['semString']) + 1}, "
               f"{len(mapping_set(pcdrs))} candidate mapping(s)")
 
     print(f"\n  distinct merged DRSs across {RUNS} runs: {len(by_reading)}")

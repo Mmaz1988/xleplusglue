@@ -10,7 +10,7 @@ from probe_x7 import S1, S2, S3, edges, deduce_for, part_semantics  # noqa: E402
 
 def collect(seq_solution, merged):
     syntax = seq_solution["structureJson"]
-    tier_a = w.liger_merge_structure(syntax, merged.get("graph"))["structureJson"]
+    tier_a = w.liger_merge_structure(syntax, w.reading(merged).get("graph"))["structureJson"]
     ann = w.liger_apply_rules_to_structure(tier_a, w.pragmatics_rules(), "probe-x7b.json")["annotations"][0]
     tier_b = ann.get("structureJson")
     src = dict(edges(tier_a, "SRC"))

@@ -17,7 +17,7 @@ from probe_x7 import S1, S2, S3, edges, deduce_for, part_semantics  # noqa: E402
 
 
 def src_map(seq_solution, merged):
-    tier_a = w.liger_merge_structure(seq_solution["structureJson"], merged.get("graph"))["structureJson"]
+    tier_a = w.liger_merge_structure(seq_solution["structureJson"], w.reading(merged).get("graph"))["structureJson"]
     return dict(edges(tier_a, "SRC"))
 
 

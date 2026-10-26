@@ -100,22 +100,22 @@ def main():
         parent_solution_id="t3", solution_key="0", mc_set_id="0")
 
     turns = (
-        ("turn 2 (prior = A)", seq2, merged2, sol1["semantic"],
-         [sol1["graph"]], [cur2["graph"]]),
-        ("turn 3 (prior = A + B)", seq3, merged3, merged2["semantic"],
-         [merged2["graph"]], [cur3["graph"]]),
+        ("turn 2 (prior = A)", seq2, merged2, w.reading(sol1)["semString"],
+         [w.reading(sol1)["graph"]], [w.reading(cur2)["graph"]]),
+        ("turn 3 (prior = A + B)", seq3, merged3, w.reading(merged2)["semString"],
+         [w.reading(merged2)["graph"]], [w.reading(cur3)["graph"]]),
     )
 
     verdicts = {}
     for label, sequence, merged, prior_semantic, premise_asts, hypothesis_asts in turns:
         print(f"\n{'=' * 70}\n{label}\n  prior   : {prior_semantic[:160]}\n"
-              f"  merged  : {merged['semantic'][:160]}")
+              f"  merged  : {w.reading(merged)['semString'][:160]}")
         checks = gswb_reasoning_check_asts(premise_asts, hypothesis_asts).get("checks") or {}
 
-        tier_a = w.liger_merge_structure(sequence["structureJson"], merged.get("graph"))
+        tier_a = w.liger_merge_structure(sequence["structureJson"], w.reading(merged).get("graph"))
         annotation = w.liger_apply_rules_to_structure(
             tier_a["structureJson"], w.pragmatics_rules(), "probe-context-prior.json")["annotations"][0]
-        pcdrs = w.gswb_generate_pcdrs(merged["semantic"], f"{label}-rule-1",
+        pcdrs = w.gswb_generate_pcdrs(w.reading(merged)["semString"], f"{label}-rule-1",
                                       annotation["structureJson"])
 
         # Two mappings is enough to see both the bound and the unbound shape.

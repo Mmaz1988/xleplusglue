@@ -51,7 +51,7 @@ def part_semantics(seq_solution, sentence_id):
 def analyse(label, seq_solution, merged):
     print(f"\n{'='*78}\n{label}\n{'='*78}")
     syntax = seq_solution["structureJson"]
-    tier_a = w.liger_merge_structure(syntax, merged.get("graph"))["structureJson"]
+    tier_a = w.liger_merge_structure(syntax, w.reading(merged).get("graph"))["structureJson"]
     ann = w.liger_apply_rules_to_structure(tier_a, w.pragmatics_rules(), "probe-x7.json")["annotations"][0]
     tier_b = ann.get("structureJson")
 
@@ -81,7 +81,7 @@ def analyse(label, seq_solution, merged):
         targets = src_by_node.get(node, [])
         joins = [t for t in targets if t in syn_ids]
         print(f"     {node:>5}  SRC={targets or '[]':<12} joins={joins or '[]':<10} hasSYNSEM={node in synsem_sources}")
-    return merged.get("semantic")
+    return w.reading(merged).get("semString")
 
 
 def main():
@@ -103,7 +103,7 @@ def main():
     merged2 = w.gswb_merge_sequence_semantics(
         [w.semantic_part(sol1), w.semantic_part(cur2)],
         parent_solution_id="t2", solution_key="0", mc_set_id="0")
-    print(f"\n[turn 2] merged DRS: {merged2.get('semantic')}")
+    print(f"\n[turn 2] merged DRS: {w.reading(merged2).get('semString')}")
 
     # --- turn 3, variant C: sequence + sentence ---------------------------
     seq3c = w.liger_sequence([f"{S1} {S2}", S3], w.pragmatics_rules(),
@@ -113,7 +113,7 @@ def main():
         [w.semantic_part(merged2), w.semantic_part(cur3c)],
         parent_solution_id="t3c", solution_key="0", mc_set_id="0")
     print(f"[turn 3 C] part sourceIndexOffset={part_c.get('sourceIndex')}")
-    print(f"[turn 3 C] merged DRS: {merged3c.get('semantic')}")
+    print(f"[turn 3 C] merged DRS: {w.reading(merged3c).get('semString')}")
 
     # --- turn 3, variant B: all three at once ------------------------------
     seq3b = w.liger_sequence([S1, S2, S3], w.pragmatics_rules(), None)["solutions"][0]
@@ -122,7 +122,7 @@ def main():
         [w.semantic_part(merged2), w.semantic_part(cur3b)],
         parent_solution_id="t3b", solution_key="0", mc_set_id="0")
     print(f"[turn 3 B] part sourceIndexOffset={part_b.get('sourceIndex')}")
-    print(f"[turn 3 B] merged DRS: {merged3b.get('semantic')}")
+    print(f"[turn 3 B] merged DRS: {w.reading(merged3b).get('semString')}")
 
     analyse("VARIANT B -- all three sentences in one call", seq3b, merged3b)
     analyse("VARIANT C -- sequence + sentence (what chat does)", seq3c, merged3c)

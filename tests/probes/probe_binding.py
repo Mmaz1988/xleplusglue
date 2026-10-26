@@ -40,10 +40,10 @@ def relations(mapping):
 
 
 def bindings_for(label, seq_solution, merged):
-    tier_a = w.liger_merge_structure(seq_solution["structureJson"], merged.get("graph"))
+    tier_a = w.liger_merge_structure(seq_solution["structureJson"], w.reading(merged).get("graph"))
     annotation = w.liger_apply_rules_to_structure(
         tier_a["structureJson"], w.pragmatics_rules(), "probe-binding.json")["annotations"][0]
-    pcdrs = w.gswb_generate_pcdrs(merged["semantic"], f"{label}-rule-1", annotation["structureJson"])
+    pcdrs = w.gswb_generate_pcdrs(w.reading(merged)["semString"], f"{label}-rule-1", annotation["structureJson"])
 
     mappings = pcdrs.get("solutions") or []
     bound = set()
@@ -84,7 +84,7 @@ def main():
         # The antecedent is reported as a display name (x1, x2, ...), and display names are
         # allocated per DRS -- so two runs are only comparable if the merged DRS they were
         # allocated over is the same string.
-        print(f"\n--- {label} merged semantic ---\n{merged['semantic']}")
+        print(f"\n--- {label} merged semantic ---\n{w.reading(merged)['semString']}")
         bound[label] = bindings_for(label, seq, merged)
 
     print("\n" + "=" * 70)

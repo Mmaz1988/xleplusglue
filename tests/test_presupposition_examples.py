@@ -452,11 +452,12 @@ def sequence_readings(first, second, semantics):
                                                      "structure": proofs[0]["structure"], "proofs": proofs})
     readings = []
     for reading in derived["solutions"]:
-        if not (reading.get("semantic") and reading.get("graph")):
+        if not (w.reading(reading).get("semString") and w.reading(reading).get("graph")):
             continue
         merged = w.gswb_merge_sequence_semantics([w.semantic_part(sol1), w.semantic_part(reading)],
                                                  reading.get("id"), reading.get("solutionKey"), reading.get("mcSetId"))
-        readings.append((structures[reading["solutionKey"]], merged["graph"], merged["semantic"], merged["id"]))
+        readings.append((structures[reading["solutionKey"]], w.reading(merged)["graph"],
+                         w.reading(merged)["semString"], merged["id"]))
     return readings
 
 
@@ -466,7 +467,7 @@ def run_example(example):
     sentences = example["sentences"]
     if len(sentences) == 1:
         _, _, sol, syntax, semantic = w.parse_and_deduce(sentences[0], semantics)
-        derivations = [(syntax, sol["graph"], semantic, sol["id"])]
+        derivations = [(syntax, w.reading(sol)["graph"], semantic, sol["id"])]
     else:
         derivations = sequence_readings(sentences[0], sentences[1], semantics)
 

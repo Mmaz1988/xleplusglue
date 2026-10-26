@@ -360,10 +360,18 @@ def gswb_deduce(premises, structure, proofs):
     return response
 
 
+def reading(solution):
+    """A derived or merged reading (/deduce, /merge_sequence_semantics): GSWB sends it once,
+    as `semanticAnalysis` (semString, graph, svg | prologRender), and nothing flat."""
+    analysis = solution.get("semanticAnalysis")
+    assert analysis, f"GSWB solution {solution.get('id')!r} carries no semanticAnalysis: {solution}"
+    return analysis
+
+
 def first_semantic_solution(gswb_response):
     for solution in gswb_response["solutions"]:
-        semantic = solution.get("semantic") or solution.get("solution")
-        if semantic and semantic.strip() and solution.get("graph"):
+        analysis = reading(solution)
+        if (analysis.get("semString") or "").strip() and analysis.get("graph"):
             return solution
     raise AssertionError(f"No GSWB solution had both a semantic DRS and a graph: {gswb_response}")
 
@@ -397,11 +405,10 @@ def liger_sequence(sentences, rule_string, parsed_sentences):
 def semantic_part(solution):
     """Reproduce GswbVisComponent.semanticPart() (gswb-vis.component.ts) --
     the analysis workflow's actual /merge_sequence_semantics transport.
-    Reads the GswbSolution's own nested `semanticAnalysis` (syntacticOrigin,
-    semId, semString, graph), which /deduce already populates -- not a
-    reconstruction from the raw solution/semantic/graph fields.
+    Reads the GswbSolution's `semanticAnalysis` (syntacticOrigin, semId,
+    semString, graph), the only place /deduce sends the reading.
     """
-    analysis = solution.get("semanticAnalysis") or {}
+    analysis = reading(solution)
     return {
         "id": analysis.get("semId"),
         "solutionId": analysis.get("semId"),
@@ -532,7 +539,7 @@ def parse_and_deduce(sentence, rule_string, label="sentence", sentence_id=None):
     gswb_response = gswb_deduce(mcs, selected["structureJson"], proofs)
     sol = first_semantic_solution(gswb_response)
     syntax = matching_syntax(liger_response["solutions"], sol.get("solutionKey"), selected["structureJson"])
-    semantic = sol.get("semantic") or sol.get("solution")
+    semantic = reading(sol)["semString"]
     print(f"[trace] {label} DRS: {semantic}")
     return liger_response, selected, sol, syntax, semantic
 
@@ -578,7 +585,7 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
     )
     current_solution = first_semantic_solution(gswb_seq)
     print(f"[trace] sentence 2 DRS (re-indexed within sequence): "
-          f"{current_solution.get('semantic') or current_solution.get('solution')}")
+          f"{reading(current_solution)['semString']}")
 
     print(f"\n=== merge the two semantic graphs into the final Sequence DRS ===")
     parts = [semantic_part(sol1), semantic_part(current_solution)]
@@ -588,11 +595,11 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
         solution_key=current_solution.get("solutionKey"),
         mc_set_id=current_solution.get("mcSetId"),
     )
-    merged_semantic = merged.get("semantic")
+    merged_semantic = reading(merged).get("semString")
     print(f"[trace] merged sequence DRS: {merged_semantic}")
 
     assert merged_semantic and merged_semantic.strip(), f"Sequence merge produced no semantic DRS: {merged}"
-    assert merged.get("graph"), f"Sequence merge produced no semantic graph: {merged}"
+    assert reading(merged).get("graph"), f"Sequence merge produced no semantic graph: {merged}"
     # GswbController.compositeSemanticId: ordered "<part.id or part.solutionId>"
     # joined with "+", per ../xleplusglue-client/docs/analysis-data-model.md
     # ("Composite IDs and Provenance") -- this is the id scheme the `parts`
@@ -671,11 +678,11 @@ def test_full_analysis_workflow():
     select_grammar()
 
     seq_solution, sol1, current_solution, merged = run_sequence_semantics(SENTENCE_1, SENTENCE_2, rule_string)
-    merged_semantic = merged.get("semantic")
+    merged_semantic = reading(merged)["semString"]
     semantic_solution_id = merged["id"]
 
     annotation, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
-        seq_solution["structureJson"], merged["graph"], merged_semantic, semantic_solution_id,
+        seq_solution["structureJson"], reading(merged)["graph"], merged_semantic, semantic_solution_id,
         rules["pragmatics"],
     )
 
@@ -753,11 +760,11 @@ def test_sequence_examples():
         set_dump_run(f"sequence_{label}")
         print(f"\n#### Sequence example: {label} ({sentence_1!r} + {sentence_2!r}) ####")
         seq_solution, sol1, current_solution, merged = run_sequence_semantics(sentence_1, sentence_2, rule_string)
-        merged_semantic = merged.get("semantic")
+        merged_semantic = reading(merged)["semString"]
         semantic_solution_id = merged["id"]
 
         _, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
-            seq_solution["structureJson"], merged["graph"], merged_semantic, semantic_solution_id,
+            seq_solution["structureJson"], reading(merged)["graph"], merged_semantic, semantic_solution_id,
             rules["pragmatics"], content_id=f"{label}-merged-graph-test.json", require_real_antecedent=require_real_antecedent,
         )
         print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "
@@ -782,7 +789,7 @@ def test_single_sentence_discourse_examples():
         _, _, sol, syntax, semantic = parse_and_deduce(sentence, rule_string, label=label)
 
         _, pcdrs_candidates, candidate_with_mapping, collapsed = run_discourse_postprocessing(
-            syntax, sol["graph"], semantic, sol["id"], rules["pragmatics"],
+            syntax, reading(sol)["graph"], semantic, sol["id"], rules["pragmatics"],
             content_id=f"{label}-merged-graph-test.json", require_real_antecedent=True,
         )
         print(f"[trace] {label}: {len(pcdrs_candidates)} PCDRS candidate(s), "
