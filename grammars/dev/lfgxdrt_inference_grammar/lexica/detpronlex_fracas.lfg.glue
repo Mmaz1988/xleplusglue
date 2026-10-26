@@ -177,21 +177,21 @@ Most    D * @(SPEC-AQUANT-PRED most)
              (^ DEF) = -
 	         (^ NUM) = pl
  	        @(QUANT-SCOPE ^ %q)
- 	         :$ (\P.(\Q.([d],[]) + ([x],[]) + P@x + Q@x + ([],[many(x,d)]) + ([],[not(([y],[]) + P@y + ([],[not(Q@y)]) + ([],[many(y,d)]))]))) :
+ 	         :$ (\P.(\Q.([d],[]) + ([x],[]) + P@x + Q@x + ([],[many(x,d)]) + ([],[~(([y],[]) + P@y + ([],[~(Q@y)]) + ([],[many(y,d)]))]))) :
  	         ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Neither D * @(SPEC-QUANT-PRED no)
             @(SPEC-QUANT-TYPE negative)
             (^ DEF) = -
             @(QUANT-SCOPE ^ %q)
-            :$ (\P.(\Q.([],[not(([x],[]) + P@x + Q@x)]))) :
+            :$ (\P.(\Q.([],[~(([x],[]) + P@x + Q@x)]))) :
             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 neither D * @(SPEC-QUANT-PRED no)
             @(SPEC-QUANT-TYPE negative)
             (^ DEF) = -
             @(QUANT-SCOPE ^ %q)
-            :$ (\P.(\Q.([],[not(([x],[]) + P@x + Q@x)]))) :
+            :$ (\P.(\Q.([],[~(([x],[]) + P@x + Q@x)]))) :
             ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 No D * @(SPEC-QUANT-PRED no)
@@ -310,7 +310,7 @@ Nobody N * (^ PRED) = 'nobody'
        (^ HUMAN) = +
        @(COUNT-NOUN-SEM person)
        @(QUANT-SCOPE ^ %q)
-       :$ (\P.(\Q.([],[not(([x],[]) + P@x + Q@x)]))) :
+       :$ (\P.(\Q.([],[~(([x],[]) + P@x + Q@x)]))) :
               	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 nobody N * (^ PRED) = 'nobody'
@@ -320,7 +320,7 @@ nobody N * (^ PRED) = 'nobody'
        (^ HUMAN) = +
        @(COUNT-NOUN-SEM person)
        @(QUANT-SCOPE ^ %q)
-       :$ (\P.(\Q.([],[not(([x],[]) + P@x + Q@x)]))) :
+       :$ (\P.(\Q.([],[~(([x],[]) + P@x + Q@x)]))) :
               	      ((s::^_e -o s::^_t) -o ((s::^_e -o %q_t) -o %q_t)).
 
 Somebody N * (^ PRED) = 'somebody'
