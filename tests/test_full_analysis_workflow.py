@@ -617,7 +617,8 @@ def append_sentence(sentences, rule_string, parses, contexts, own):
     reading merged with the contexts of its own variant, moved by the part's sourceIndexOffset.
     parses: per sentence, its /apply_rules_xle solutions; contexts: (parse index tuple, reading)
     of the earlier sentences; own: the new sentence's derive_once. Returns (parse index tuple,
-    merged reading, variant structure), contexts first, then the new sentence's parses."""
+    merged reading, variant structure, context index, new reading), contexts first, then the new
+    sentence's parses."""
     k = len(sentences) - 1
     supplied = [sorted({t[i] for t, _ in contexts}) for i in range(k)] + [sorted(j for j, rs in own.items() if rs)]
     variants = liger_sequence(sentences, rule_string,
@@ -631,7 +632,7 @@ def append_sentence(sentences, rule_string, parses, contexts, own):
         assert [i for i, _ in located] == list(range(k + 1)), f"variant {variant['solutionKey']} parts out of place"
         placed[tuple(j for _, j in located)] = (variant, parts[k]["sourceIndexOffset"])
     out = []
-    for prefix, previous in contexts:
+    for c, (prefix, previous) in enumerate(contexts):
         for j, readings in sorted(own.items()):
             if (*prefix, j) not in placed:
                 continue
@@ -641,7 +642,7 @@ def append_sentence(sentences, rule_string, parses, contexts, own):
                 merged = gswb_merge_sequence_semantics(
                     [semantic_part(previous), {**semantic_part(current), "sourceIndexOffset": offset}],
                     current["id"], syntax_id, syntax_id)
-                out.append(((*prefix, j), merged, variant["structureJson"]))
+                out.append(((*prefix, j), merged, variant["structureJson"], c, current))
     return out
 
 

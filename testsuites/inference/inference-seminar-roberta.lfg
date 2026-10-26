@@ -1,0 +1,258 @@
+# RoBERTa (FacebookAI/roberta-large-mnli) vs xleplusglue, for the computational semantics seminar.
+# Settings: session pronouns-new (lfgxdrt inference grammar, no TAM rules, pragmatics rules,
+# tff, no model building, anaphora top-k = 1). x01-x23: xleplusglue right, RoBERTa wrong;
+# x24-x29: both right (contrast). Each item names where its xleplusglue verdict was checked.
+
+# x01: comparative -- nli_verdict_probe.py, 2026-10-26
+{
+Peter is faster than Sue.
+====
+Peter is fast.
+>>> 0
+}
+
+# x02: comparative -- nli_verdict_probe.py, 2026-10-26
+{
+Peter is faster than Sue.
+====
+Sue is not fast.
+>>> 0
+}
+
+# x03: comparative, equative, transitivity -- nli_verdict_probe.py, 2026-10-26
+{
+Peter is as fast as Sue.
+Sue is faster than Bill.
+====
+Peter is faster than Bill.
+>>> 1
+}
+
+# x04: comparative, equative, pronoun -- nli_verdict_probe.py, 2026-10-26
+{
+Peter is as fast as Sue.
+She is faster than Bill.
+====
+Peter is faster than Bill.
+>>> 1
+}
+
+# x05: comparative, pronoun, negation -- nli_verdict_probe.py, 2026-10-26
+{
+Peter is faster than Sue.
+She is not fast.
+====
+Peter is not fast.
+>>> 0
+}
+
+# x06: comparative, quantifier -- nli_verdict_probe.py, 2026-10-26
+{
+Kim is cleverer than every student.
+====
+Kim is clever.
+>>> 0
+}
+
+# x07: comparative, equative, quantifier -- stored session pronoun-full-prsp
+{
+The PC-6082 is faster than every ITEL computer.
+The ITEL-XZ is an ITEL computer.
+====
+The ITEL-XZ is as fast as the PC-6082.
+>>> -1
+}
+
+# x08: comparative, equative, transitivity -- stored session pronoun-full-prsp
+{
+The PC-6082 is faster than the ITEL-ZX.
+The ITEL-ZX is as fast as the ITEL-XZ.
+====
+The PC-6082 is faster than the ITEL-XZ.
+>>> 1
+}
+
+# x09: comparative, equative, transitivity -- stored session ambiguity-testing
+{
+The PC-6082 is faster than the ITEL-XZ.
+The ITEL-ZX is as fast as the PC-6082.
+====
+The ITEL-ZX is faster than the ITEL-XZ.
+>>> 1
+}
+
+# x10: pronoun, negation -- nli_verdict_probe.py, 2026-10-26
+{
+A man saw a dog.
+It did not bark.
+====
+A dog barked.
+>>> 0
+}
+
+# x11: pronoun, ambiguous antecedent, negation -- nli_verdict_probe.py, 2026-10-26
+{
+A dog saw a cat.
+It did not bark.
+====
+A dog barked.
+>>> 0
+}
+
+# x12: pronoun, negation -- nli_verdict_probe.py, 2026-10-26
+{
+A man saw a woman.
+He did not smile.
+====
+A man smiled.
+>>> 0
+}
+
+# x13: pronoun, gender -- nli_verdict_probe.py, 2026-10-26
+{
+A man saw a woman.
+He smiled.
+====
+A woman smiled.
+>>> 0
+}
+
+# x14: pronoun, argument roles -- nli_verdict_probe.py, 2026-10-26
+{
+Bill saw Sue.
+She praised him.
+====
+Bill praised Sue.
+>>> 0
+}
+
+# x15: pronoun, argument roles -- nli_verdict_probe.py, 2026-10-26
+{
+Bill saw Sue.
+He praised her.
+====
+Sue praised Bill.
+>>> 0
+}
+
+# x16: definite description, presupposition, negation -- nli_verdict_probe.py, 2026-10-26
+{
+A man saw a dog.
+The dog did not bark.
+====
+A dog barked.
+>>> 0
+}
+
+# x17: definite description, presupposition, negation, relative clause -- nli_verdict_probe.py, 2026-10-26
+{
+Bill did not see the dog that barked.
+====
+Bill saw a dog.
+>>> 0
+}
+
+# x18: definite description, presupposition, conditional -- nli_verdict_probe.py, 2026-10-26
+{
+If Bill has a dog, the dog barks.
+====
+There is a dog.
+>>> 0
+}
+
+# x19: quantifier, existential import -- nli_verdict_probe.py, 2026-10-26
+{
+Every man saw a dog.
+====
+A man saw a dog.
+>>> 0
+}
+
+# x20: quantifier, relative clause, existential import -- nli_verdict_probe.py, 2026-10-26
+{
+Every man who saw a dog smiled.
+Bill is a man.
+====
+Bill smiled.
+>>> 0
+}
+
+# x21: negative quantifier, relative clause -- nli_verdict_probe.py, 2026-10-26
+{
+No man who saw a dog smiled.
+Bill saw a dog.
+====
+Bill smiled.
+>>> 0
+}
+
+# x22: scope ambiguity, negation, quantifier -- nli_verdict_probe.py, 2026-10-26
+{
+Every man did not see a dog.
+Bill is a man.
+====
+Bill saw a dog.
+>>> 0
+}
+
+# x23: conditional, negation -- nli_verdict_probe.py, 2026-10-26
+{
+If Sue smiles, Bill smiles.
+Sue does not smile.
+====
+Bill smiles.
+>>> 0
+}
+
+# x24: comparative, transitivity, negation (contrast) -- nli_verdict_probe.py, 2026-10-26
+{
+Peter is faster than Sue.
+Sue is faster than Bill.
+====
+Bill is not faster than Peter.
+>>> 1
+}
+
+# x25: comparative, pronoun (contrast) -- nli_verdict_probe.py, 2026-10-26
+{
+Peter is faster than Sue.
+She is fast.
+====
+Peter is fast.
+>>> 1
+}
+
+# x26: pronoun, relative clause (contrast) -- nli_verdict_probe.py, 2026-10-26
+{
+A man saw a dog.
+It barked.
+====
+A man saw a dog that barked.
+>>> 1
+}
+
+# x27: definite description, presupposition, negation (contrast) -- nli_verdict_probe.py, 2026-10-26
+{
+Bill did not see the dog that barked.
+====
+A dog barked.
+>>> 1
+}
+
+# x28: quantifier, negative quantifier (contrast) -- nli_verdict_probe.py, 2026-10-26
+{
+Every man saw a dog.
+Bill is a man.
+====
+No man saw a dog.
+>>> -1
+}
+
+# x29: conditional, negation (contrast) -- nli_verdict_probe.py, 2026-10-26
+{
+If Sue smiles, Bill smiles.
+Bill does not smile.
+====
+Sue smiles.
+>>> -1
+}

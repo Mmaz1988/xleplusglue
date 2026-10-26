@@ -1,0 +1,227 @@
+[
+  {
+    "premises": [
+      "Peter is faster than Sue."
+    ],
+    "conclusion": "Peter is fast.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Peter is faster than Sue."
+    ],
+    "conclusion": "Sue is not fast.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Peter is as fast as Sue.",
+      "Sue is faster than Bill."
+    ],
+    "conclusion": "Peter is faster than Bill.",
+    "gold_label": "1"
+  },
+  {
+    "premises": [
+      "Peter is as fast as Sue.",
+      "She is faster than Bill."
+    ],
+    "conclusion": "Peter is faster than Bill.",
+    "gold_label": "1"
+  },
+  {
+    "premises": [
+      "Peter is faster than Sue.",
+      "She is not fast."
+    ],
+    "conclusion": "Peter is not fast.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Kim is cleverer than every student."
+    ],
+    "conclusion": "Kim is clever.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "The PC-6082 is faster than every ITEL computer.",
+      "The ITEL-XZ is an ITEL computer."
+    ],
+    "conclusion": "The ITEL-XZ is as fast as the PC-6082.",
+    "gold_label": "-1"
+  },
+  {
+    "premises": [
+      "The PC-6082 is faster than the ITEL-ZX.",
+      "The ITEL-ZX is as fast as the ITEL-XZ."
+    ],
+    "conclusion": "The PC-6082 is faster than the ITEL-XZ.",
+    "gold_label": "1"
+  },
+  {
+    "premises": [
+      "The PC-6082 is faster than the ITEL-XZ.",
+      "The ITEL-ZX is as fast as the PC-6082."
+    ],
+    "conclusion": "The ITEL-ZX is faster than the ITEL-XZ.",
+    "gold_label": "1"
+  },
+  {
+    "premises": [
+      "A man saw a dog.",
+      "It did not bark."
+    ],
+    "conclusion": "A dog barked.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "A dog saw a cat.",
+      "It did not bark."
+    ],
+    "conclusion": "A dog barked.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "A man saw a woman.",
+      "He did not smile."
+    ],
+    "conclusion": "A man smiled.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "A man saw a woman.",
+      "He smiled."
+    ],
+    "conclusion": "A woman smiled.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Bill saw Sue.",
+      "She praised him."
+    ],
+    "conclusion": "Bill praised Sue.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Bill saw Sue.",
+      "He praised her."
+    ],
+    "conclusion": "Sue praised Bill.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "A man saw a dog.",
+      "The dog did not bark."
+    ],
+    "conclusion": "A dog barked.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Bill did not see the dog that barked."
+    ],
+    "conclusion": "Bill saw a dog.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "If Bill has a dog, the dog barks."
+    ],
+    "conclusion": "There is a dog.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Every man saw a dog."
+    ],
+    "conclusion": "A man saw a dog.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Every man who saw a dog smiled.",
+      "Bill is a man."
+    ],
+    "conclusion": "Bill smiled.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "No man who saw a dog smiled.",
+      "Bill saw a dog."
+    ],
+    "conclusion": "Bill smiled.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Every man did not see a dog.",
+      "Bill is a man."
+    ],
+    "conclusion": "Bill saw a dog.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "If Sue smiles, Bill smiles.",
+      "Sue does not smile."
+    ],
+    "conclusion": "Bill smiles.",
+    "gold_label": "0"
+  },
+  {
+    "premises": [
+      "Peter is faster than Sue.",
+      "Sue is faster than Bill."
+    ],
+    "conclusion": "Bill is not faster than Peter.",
+    "gold_label": "1"
+  },
+  {
+    "premises": [
+      "Peter is faster than Sue.",
+      "She is fast."
+    ],
+    "conclusion": "Peter is fast.",
+    "gold_label": "1"
+  },
+  {
+    "premises": [
+      "A man saw a dog.",
+      "It barked."
+    ],
+    "conclusion": "A man saw a dog that barked.",
+    "gold_label": "1"
+  },
+  {
+    "premises": [
+      "Bill did not see the dog that barked."
+    ],
+    "conclusion": "A dog barked.",
+    "gold_label": "1"
+  },
+  {
+    "premises": [
+      "Every man saw a dog.",
+      "Bill is a man."
+    ],
+    "conclusion": "No man saw a dog.",
+    "gold_label": "-1"
+  },
+  {
+    "premises": [
+      "If Sue smiles, Bill smiles.",
+      "Bill does not smile."
+    ],
+    "conclusion": "Sue smiles.",
+    "gold_label": "-1"
+  }
+]

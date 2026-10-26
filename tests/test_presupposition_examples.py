@@ -442,7 +442,7 @@ def sequence_readings(first, second, semantics):
     appended = w.append_sentence([first, second], semantics, parses, [((first_parse,), sol1)],
                                  w.derive_once(parses[1], "sentence-2"))
     return [(structure, w.reading(merged)["graph"], w.reading(merged)["semString"], merged["id"])
-            for _, merged, structure in appended]
+            for _, merged, structure, _, _ in appended]
 
 
 def run_example(example):

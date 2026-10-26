@@ -49,9 +49,9 @@ def readings(sentences, semantics, pragmatics):
     discourse = [((j,), r, parses[0][j]["structureJson"]) for j, rs in sorted(own[0].items()) for r in rs]
     for k in range(1, len(sentences)):
         discourse = w.append_sentence(sentences[:k + 1], semantics, parses,
-                                      [(t, r) for t, r, _ in discourse], own[k])
+                                      [(t, r) for t, r, *_ in discourse], own[k])
     by_parses = {}
-    for t, merged, structure in discourse:
+    for t, merged, structure, *_ in discourse:
         by_parses.setdefault(t, []).append((merged, structure))
 
     found = []
