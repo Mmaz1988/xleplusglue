@@ -7,10 +7,12 @@ the same payload shapes, that a human uses in the browser client to:
   1. load the rewrite rules and select the DRT grammar
   2. parse + rewrite sentence 1 with LiGER, then compose its semantics with GSWB
   3. parse + rewrite sentence 2 with LiGER, then compose its semantics with GSWB
-  4. merge the syntax of both sentences with LiGER into one Sequence
-  5. recompute sentence 2's semantics *within* the merged sequence (its DRS
-     referents are re-indexed relative to sentence 1)
-  6. merge the two semantic graphs with GSWB into the final Sequence DRS
+  4. merge the syntax of both sentences with LiGER into one Sequence (both
+     supplied as parsed); its part for sentence 2 reports the offset of
+     sentence 2's meaning-constructor indices in the sequence
+  5. -- (sentence 2 is not derived again: its own reading is appended)
+  6. merge the two semantic graphs with GSWB into the final Sequence DRS,
+     GSWB moving sentence 2's SRC indices by that offset
 
 This is the "Coordinated Element Merge" pipeline described in
 ../xleplusglue-client/docs/analysis-data-model.md (LiGER syntax merge -> GSWB
@@ -34,17 +36,15 @@ repo. NLI consistency/informativity checks and Vampire calls remain out of
 scope -- those belong to a later reasoning layer, not discourse-representation
 building.
 
-The call sequence for steps 1-6 mirrors the analysis workflow's own
-addSentence() / mergeCurrentSolutions() (liger-vis.component.ts /
-gswb-vis.component.ts in the sibling ../xleplusglue-client repo) -- notably
-run_sequence_semantics() feeds GSWB the newly-added sentence's own
-sequenceParts[-1] entry (already source-index-shifted by LiGER's
-SequenceGraphAssembler when the sequence is assembled) rather than
-reparsing/joining the whole sequence's meaning constructors, and
-/merge_sequence_semantics uses the `parts` transport (semantic_part(),
-matching GswbVisComponent.semanticPart()), not the legacy graphs/semantics
-transport ChatComponent's separate implementation
-(chat-interface/chat/chat.component.ts) uses. Field names below
+The call sequence for steps 1-6 mirrors the client's shared append,
+DocumentBuilderService.appendSentence (document-builder.service.ts in the
+sibling ../xleplusglue-client repo; xleplusglue
+docs/plans/DERIVE_ONCE_REBASE_PLAN.md): a sentence is derived once on its own,
+and appending it runs no /deduce -- run_sequence_semantics() merges sentence
+2's own reading with the `sourceIndexOffset` of its sequenceParts[-1] entry,
+and GSWB moves its SRC indices by it. /merge_sequence_semantics uses the
+`parts` transport (semantic_part(), matching the client's semanticPart()).
+Field names below
 (structureJson, meaningConstructors, solutionKey, mcSetId, sequenceParts,
 anaphoraRelations, ...) are taken directly from the LiGER/GSWB
 request/response DTOs in ../liger and ../GlueSemWorkbench_v2.
@@ -59,9 +59,9 @@ helpers -- parse_and_deduce() (steps 1/2), run_sequence_semantics() (steps
 further example-driven tests:
 
   - test_sequence_examples() re-runs steps 1-9 over SEQUENCE_EXAMPLES,
-    additional sentence pairs that exercise the same SYN-ID/SRC offsetting
-    that addSentence() (liger-vis.component.ts) applies when a sentence is
-    appended to a sequence, with real (non-proper-name) antecedents so the
+    additional sentence pairs that exercise the same SRC offsetting the
+    client's appendSentence applies when a sentence is appended to a
+    sequence, with real (non-proper-name) antecedents so the
     pronoun-binding rules are expected to actually resolve them.
   - test_single_sentence_discourse_examples() runs steps 1 and 6-9 over
     SINGLE_SENTENCE_DISCOURSE_EXAMPLES, sentences with in-sentence anaphora
@@ -79,6 +79,7 @@ each `python3 tests/test_full_analysis_workflow.py` invocation; set
 DUMP_REQUESTS=0 to disable it (e.g. under pytest, where it stays enabled by
 default but accumulates across runs instead of being cleared).
 """
+import itertools
 import json
 import os
 import shutil
@@ -545,16 +546,16 @@ def parse_and_deduce(sentence, rule_string, label="sentence", sentence_id=None):
 
 
 def run_sequence_semantics(sentence_1, sentence_2, rule_string):
-    """Steps 1-5: parse both sentences, merge their syntax into one sequence,
-    recompute sentence 2's semantics *within* that sequence's referent
-    numbering (this is what exercises the SYN-ID/SRC offsetting fix in
-    addSentence()), and merge the two semantic graphs into the final
-    Sequence DRS. Returns (seq_solution, sol1, current_solution, merged).
+    """Steps 1-6: parse and derive both sentences on their own, merge their syntax into one
+    sequence (both supplied as parsed), and append sentence 2's own reading to sentence 1's:
+    the semantic merge moves it by its part's sourceIndexOffset (DocumentBuilderService.
+    appendSentence). Returns (seq_solution, sol1, current_solution, merged), current_solution
+    being sentence 2's own reading.
     """
     _, _, sol1, syntax1, _ = parse_and_deduce(sentence_1, rule_string, label="sentence 1", sentence_id="sentence-1")
 
-    liger2, selected2, sol2_standalone, syntax2, _ = parse_and_deduce(
-        sentence_2, rule_string, label="sentence 2 (standalone)", sentence_id="sentence-2"
+    liger2, selected2, current_solution, syntax2, _ = parse_and_deduce(
+        sentence_2, rule_string, label="sentence 2", sentence_id="sentence-2"
     )
 
     print(f"\n=== merge syntax of both sentences into one sequence ===")
@@ -563,37 +564,19 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
     sequence_parts = seq_solution.get("sequenceParts") or []
     assert sequence_parts, f"Merged sequence has no sequenceParts: {seq_solution}"
     current_part = sequence_parts[-1]
-    assert (current_part.get("meaningConstructors") or "").strip(), (
-        "The merged sequence has no source-indexed current-sentence part."
-    )
+    offset = current_part.get("sourceIndexOffset")
+    assert isinstance(offset, int), f"The sentence's part reports no sourceIndexOffset: {current_part}"
     print(f"[trace] sequence has {len(sequence_parts)} part(s); "
-          f"current part sourceIndex={current_part.get('sourceIndex')}")
-
-    print(f"\n=== recompute sentence 2's semantics within the sequence's referent numbering ===")
-    gswb_seq = gswb_deduce(
-        current_part["meaningConstructors"],
-        seq_solution["structureJson"],
-        [
-            {
-                "proofId": current_part.get("solutionKey") or "sequence-current-sentence",
-                "sentenceId": "sentence-2",
-                "solutionKey": current_part.get("solutionKey"),
-                "meaningConstructors": current_part["meaningConstructors"],
-                "structure": seq_solution["structureJson"],
-            }
-        ],
-    )
-    current_solution = first_semantic_solution(gswb_seq)
-    print(f"[trace] sentence 2 DRS (re-indexed within sequence): "
-          f"{reading(current_solution)['semString']}")
+          f"sentence 2's part sourceIndex={current_part.get('sourceIndex')}, sourceIndexOffset={offset}")
 
     print(f"\n=== merge the two semantic graphs into the final Sequence DRS ===")
-    parts = [semantic_part(sol1), semantic_part(current_solution)]
+    parts = [semantic_part(sol1), {**semantic_part(current_solution), "sourceIndexOffset": offset}]
+    syntax_id = f"{sol1.get('solutionKey')}+{current_solution.get('solutionKey')}"
     merged = gswb_merge_sequence_semantics(
         parts=parts,
         parent_solution_id=current_solution.get("id"),
-        solution_key=current_solution.get("solutionKey"),
-        mc_set_id=current_solution.get("mcSetId"),
+        solution_key=syntax_id,
+        mc_set_id=syntax_id,
     )
     merged_semantic = reading(merged).get("semString")
     print(f"[trace] merged sequence DRS: {merged_semantic}")
@@ -611,6 +594,55 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
     )
 
     return seq_solution, sol1, current_solution, merged
+
+
+def derive_once(parses, sentence_id):
+    """DocumentBuilderService.deriveSentence: one /deduce over a sentence's own parses (LiGER
+    /apply_rules_xle solutions). Returns parse index -> the readings derived from that parse."""
+    proofs = [{"proofId": p["solutionKey"], "sentenceId": sentence_id, "solutionKey": p["solutionKey"],
+               "mcSetId": p["solutionKey"], "meaningConstructors": p["meaningConstructors"],
+               "structure": p["structureJson"]}
+              for p in parses if (p.get("meaningConstructors") or "").strip()]
+    derived = _post_json(f"{GSWB_URL}/deduce", {"premises": "\n".join(p["meaningConstructors"] for p in proofs),
+                                                 "gswbPreferences": GSWB_PREFERENCES,
+                                                 "structure": proofs[0]["structure"], "proofs": proofs})
+    readings = [s for s in derived.get("solutions") or []
+                if (reading(s).get("semString") or "").strip() and reading(s).get("graph")]
+    return {j: [s for s in readings if s.get("solutionKey") == p["solutionKey"]] for j, p in enumerate(parses)}
+
+
+def append_sentence(sentences, rule_string, parses, contexts, own):
+    """DocumentBuilderService.appendSentence for the last of `sentences`: one LiGER sequence call
+    over the parses the contexts use and the new sentence's parses with a reading, then each new
+    reading merged with the contexts of its own variant, moved by the part's sourceIndexOffset.
+    parses: per sentence, its /apply_rules_xle solutions; contexts: (parse index tuple, reading)
+    of the earlier sentences; own: the new sentence's derive_once. Returns (parse index tuple,
+    merged reading, variant structure), contexts first, then the new sentence's parses."""
+    k = len(sentences) - 1
+    supplied = [sorted({t[i] for t, _ in contexts}) for i in range(k)] + [sorted(j for j, rs in own.items() if rs)]
+    variants = liger_sequence(sentences, rule_string,
+                              [[parses[i][j]["structureJson"] for j in js] for i, js in enumerate(supplied)])["solutions"]
+    # LiGER numbers the analyses of one call S0, S1, ... in sentence order, supplied ones included.
+    by_id = dict(zip((f"S{n}" for n in itertools.count()), ((i, j) for i, js in enumerate(supplied) for j in js)))
+    placed = {}
+    for variant in variants:
+        parts = sorted(variant["sequenceParts"], key=lambda p: p["sourceIndex"])
+        located = [by_id[p["syntaxVariantId"]] for p in parts]
+        assert [i for i, _ in located] == list(range(k + 1)), f"variant {variant['solutionKey']} parts out of place"
+        placed[tuple(j for _, j in located)] = (variant, parts[k]["sourceIndexOffset"])
+    out = []
+    for prefix, previous in contexts:
+        for j, readings in sorted(own.items()):
+            if (*prefix, j) not in placed:
+                continue
+            variant, offset = placed[(*prefix, j)]
+            syntax_id = "+".join(parses[i][t]["solutionKey"] for i, t in enumerate((*prefix, j)))
+            for current in readings:
+                merged = gswb_merge_sequence_semantics(
+                    [semantic_part(previous), {**semantic_part(current), "sourceIndexOffset": offset}],
+                    current["id"], syntax_id, syntax_id)
+                out.append(((*prefix, j), merged, variant["structureJson"]))
+    return out
 
 
 def run_discourse_postprocessing(structure_json, drs_graph, merged_semantic, semantic_solution_id,

@@ -1,8 +1,9 @@
 """Every reading of a few ambiguous discourses (PRESUPPOSITION_PRONOUN_PIPELINE_PLAN.md, hand-off step 1).
 
-Runs each discourse the way regression does -- every sentence parsed, one LiGER sequence over all
-parses, each sentence composed per parse pairing, the readings folded by
-/merge_sequence_semantics, the post-processing rules, /generate_pcdrs, /collapse_anaphora -- and
+Runs each discourse the way every view does -- every sentence parsed and derived once on its own,
+then appended one at a time (one LiGER sequence call, each new reading merged by
+/merge_sequence_semantics with the readings of its own parse pairing, moved by the part's
+sourceIndexOffset), the post-processing rules, /generate_pcdrs, /collapse_anaphora -- and
 prints every reading: its parse pairing, semantic combination and rule branch, A:, P:, the
 collapse report, the pragmatic profile and the collapsed DRS. It judges nothing: it is the raw
 material for the expected readings of the ambiguity test set.
@@ -10,7 +11,6 @@ material for the expected readings of the ambiguity test set.
 usage (scratch servers, no TAM rules):
   LIGER_URL=http://localhost:8090 GSWB_URL=http://localhost:8091 python3 tests/probes/ambiguity_probe.py [id filter]
 """
-import itertools
 import json
 import os
 import re
@@ -44,51 +44,21 @@ DISCOURSES = {
 
 def readings(sentences, semantics, pragmatics):
     """(scope, solution, collapse) for every reading of the discourse."""
-    parsed = [w.liger_annotate(s, semantics) for s in sentences]
-    if len(sentences) == 1:
-        variants = [{"structureJson": sol["structureJson"],
-                     "sequenceParts": [{"sourceIndex": 0, "solutionKey": sol["solutionKey"],
-                                        "meaningConstructors": sol.get("meaningConstructors") or ""}]}
-                    for sol in parsed[0]["solutions"]]
-    else:
-        variants = w.liger_sequence(sentences, semantics,
-                                    [[s["structureJson"] for s in p["solutions"]] for p in parsed])["solutions"]
-    composed = []
-    for i in range(len(sentences)):
-        proofs, keys = [], set()
-        for variant in variants:
-            part = next(p for p in variant["sequenceParts"] if p["sourceIndex"] == i)
-            key = part["solutionKey"]
-            if key in keys or not (part.get("meaningConstructors") or "").strip():
-                continue
-            keys.add(key)
-            proofs.append({"proofId": key, "sentenceId": f"s{i}", "solutionKey": key, "mcSetId": key,
-                           "meaningConstructors": part["meaningConstructors"], "structure": variant["structureJson"]})
-        derived = w._post_json(f"{w.GSWB_URL}/deduce", {"premises": "\n".join(p["meaningConstructors"] for p in proofs),
-                                                         "gswbPreferences": w.GSWB_PREFERENCES,
-                                                         "structure": proofs[0]["structure"], "proofs": proofs})
-        by_key = {}
-        for solution in derived.get("solutions") or []:
-            if (w.reading(solution).get("semString") or "").strip() and w.reading(solution).get("graph"):
-                by_key.setdefault(solution.get("solutionKey"), []).append(solution)
-        composed.append(by_key)
+    parses = [w.liger_annotate(s, semantics)["solutions"] for s in sentences]
+    own = [w.derive_once(ps, f"s{i}") for i, ps in enumerate(parses)]
+    discourse = [((j,), r, parses[0][j]["structureJson"]) for j, rs in sorted(own[0].items()) for r in rs]
+    for k in range(1, len(sentences)):
+        discourse = w.append_sentence(sentences[:k + 1], semantics, parses,
+                                      [(t, r) for t, r, _ in discourse], own[k])
+    by_parses = {}
+    for t, merged, structure in discourse:
+        by_parses.setdefault(t, []).append((merged, structure))
 
     found = []
-    for v, variant in enumerate(variants):
-        keys = [next(p for p in variant["sequenceParts"] if p["sourceIndex"] == i)["solutionKey"]
-                for i in range(len(sentences))]
-        per_sentence = [composed[i].get(key, []) for i, key in enumerate(keys)]
-        if not all(per_sentence):
-            found.append((f"v{v}", None, f"no reading for parse(s) {[k for k, r in zip(keys, per_sentence) if not r]}"))
-            continue
-        for c, combination in enumerate(itertools.islice(itertools.product(*per_sentence), MAX_COMBINATIONS)):
-            merged = combination[0]
-            for i in range(1, len(sentences)):
-                merged = w._post_json(f"{w.GSWB_URL}/merge_sequence_semantics", {
-                    "parts": [w.semantic_part(merged), w.semantic_part(combination[i])],
-                    "parentSolutionId": combination[i]["id"], "solutionKey": keys[i], "mcSetId": keys[i],
-                    "resolveDrs": True})
-            base = w.liger_merge_structure(variant["structureJson"], w.reading(merged)["graph"])["structureJson"]
+    for t, combinations in by_parses.items():
+        v = ".".join(map(str, t))
+        for c, (merged, structure) in enumerate(combinations[:MAX_COMBINATIONS]):
+            base = w.liger_merge_structure(structure, w.reading(merged)["graph"])["structureJson"]
             try:
                 applied = w.liger_apply_rules_to_structure(base, pragmatics, f"v{v}c{c}.json")
             except RuntimeError as error:

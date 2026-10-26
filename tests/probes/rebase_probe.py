@@ -1,24 +1,28 @@
-"""Deriving a sentence once and rebasing it, against deriving it inside the sequence.
+"""Deriving a sentence once and appending it, against deriving it inside the sequence.
 
 Within a LiGER sequence a sentence's meaning constructors are its own, with their indices shifted by
 the part's `sourceIndexOffset`; a derived reading carries that index only as `SRC: iN` on its graph
-nodes. So a sentence derived once on its own, with its SRC ids moved by the offset, should be the
-reading the in-sequence derivation gives -- the procedure the analysis view, chat and regression
-would share instead of deriving the new sentence once per sequence variant.
+nodes. So a sentence derived once on its own, merged with its SRC ids moved by the offset, should be
+the reading the in-sequence derivation gives. That is the procedure the analysis view, chat and
+regression share (DocumentBuilderService.appendSentence, docs/plans/DERIVE_ONCE_REBASE_PLAN.md).
 
 Per discourse (a stored regression session's items, or the NLI-style discourses below):
 
-  A  each sentence's part derived inside the sequence, once per distinct part (as regression does);
-  B  each parse of each sentence derived once on its own, its graph's SRC moved by the part's offset.
+  A  each sentence's part derived inside the whole sequence, once per distinct part (the reference);
+  B  the shared procedure: each sentence derived once on its own (one /deduce over its parses), then
+     appended sentence by sentence -- per append one LiGER sequence call supplying the parses the
+     discourse readings use and the new sentence's, each new reading merged only with the readings
+     of its own variant, GSWB moving it by the part's sourceIndexOffset (the merge part's
+     `sourceIndexOffset`; the probe edits no SRC itself).
 
-Both fold every reading combination of every sequence variant with /merge_sequence_semantics and run
-the post-processing rules, /generate_pcdrs and /collapse_anaphora; the PCDRS readings must match
-(bindings, P:, DRS text order-insensitively, collapse result). REBASE_ERROR=1 shifts B by one more,
-which must break the match (negative control).
+Both fold every reading combination of every sequence variant and run the post-processing rules,
+/generate_pcdrs and /collapse_anaphora; the PCDRS readings must match (bindings, P:, DRS text
+order-insensitively, collapse result). REBASE_ERROR=1 sends every offset one too high, which must
+break the match (negative control).
 
-It also counts and times what each view does to add the sentences one at a time today -- the
-analysis view and chat prove the new sentence once per sequence variant, and the analysis view
-merges every such derivation with every previous reading -- against deriving each sentence once.
+It also counts and times what the views did to add the sentences one at a time before -- the
+analysis view and chat proved the new sentence once per sequence variant, and the analysis view
+merged every such derivation with every previous reading -- against deriving each sentence once.
 
 usage (scratch servers; the session supplies the rule set and gswbPreferences):
   LIGER_URL=http://localhost:8090 GSWB_URL=http://localhost:8091 \\
@@ -99,22 +103,6 @@ def part_of(variant, index):
     return next(p for p in variant["sequenceParts"] if p["sourceIndex"] == index)
 
 
-def shift_mcs(text, k):
-    return re.sub(r"^\[(\d+)\]", lambda m: f"[{int(m.group(1)) + k}]", text, flags=re.M).strip()
-
-
-def rebased(solution, k):
-    """The reading with every SRC iN, and the graph's sourceIndex, moved by k."""
-    s = json.loads(json.dumps(solution))
-    graph = s["semanticAnalysis"]["graph"]
-    bump = lambda v: re.sub(r"^i(\d+)$", lambda m: f"i{int(m.group(1)) + k}", v) if isinstance(v, str) else v
-    for node in graph.get("nodes", []):
-        if "SRC" in node.get("avp", {}):
-            node["avp"]["SRC"] = bump(node["avp"]["SRC"])
-    graph["sourceIndex"] = bump(graph.get("sourceIndex"))
-    return s
-
-
 def norm(text):
     return "".join(sorted(text or ""))
 
@@ -146,10 +134,13 @@ def post_process(structure, merged, scope):
     return sorted(found)
 
 
-def merge(previous, current):
+def merge(previous, current, offset=0, syntax_id=None):
+    part = w.semantic_part(current)
+    if offset:
+        part["sourceIndexOffset"] = offset
     return timed("semantic merge, per call", post, f"{w.GSWB_URL}/merge_sequence_semantics", {
-        "parts": [w.semantic_part(previous), w.semantic_part(current)], "parentSolutionId": current["id"],
-        "solutionKey": current.get("solutionKey"), "mcSetId": current.get("mcSetId"),
+        "parts": [w.semantic_part(previous), part], "parentSolutionId": current["id"],
+        "solutionKey": syntax_id or current.get("solutionKey"), "mcSetId": syntax_id or current.get("mcSetId"),
         "resolveDrs": bool(PREFS.get("resolveDrs"))})
 
 
@@ -163,15 +154,55 @@ def fold(variant, per_sentence, scope):
     return out
 
 
+def call_ids(supplied):
+    """LiGER numbers the analyses of one sequence call S0, S1, ... in sentence order, supplied
+    ones included; maps each id back to (sentence, parse) -- what appendSentence does."""
+    ids, n = {}, 0
+    for i, parse_indices in enumerate(supplied):
+        for j in parse_indices:
+            ids[f"S{n}"] = (i, j)
+            n += 1
+    return ids
+
+
+def append(texts, ids, parses, contexts, own):
+    """DocumentBuilderService.appendSentence for the sentence at index len(contexts' tuples): one
+    LiGER sequence call over the parses the contexts use and the new sentence's parses with a
+    reading; each new reading merged with the contexts of its own variant, moved by the part's
+    offset. contexts: (parse tuple, merged reading); own: parse index -> readings of the new
+    sentence. Returns (parse tuple, merged reading, variant structure) in product order."""
+    k = len(texts) - 1
+    supplied = [sorted({t[i] for t, _ in contexts}) for i in range(k)] + [sorted(j for j, rs in own.items() if rs)]
+    variants = timed("LiGER sequence call", post, f"{w.LIGER_URL}/apply_rules_xle_sequence", {
+        "sentences": texts, "sentenceIds": ids, "ruleString": SEMANTICS,
+        "parsedSentences": [[parses[i][j]["structureJson"] for j in js] for i, js in enumerate(supplied)]})["solutions"]
+    by_id = call_ids(supplied)
+    placed = {}
+    for v in variants:
+        located = [by_id[part_of(v, i)["syntaxVariantId"]] for i in range(k + 1)]
+        assert [i for i, _ in located] == list(range(k + 1)), f"variant {v['solutionKey']} parts out of place"
+        placed[tuple(j for _, j in located)] = (v, part_of(v, k)["sourceIndexOffset"])
+    out = []
+    for prefix, previous in contexts:
+        for j, readings in sorted(own.items()):
+            if (*prefix, j) not in placed:
+                continue
+            v, offset = placed[(*prefix, j)]
+            syntax_id = "+".join(parses[i][t]["solutionKey"] for i, t in enumerate((*prefix, j)))
+            for r in readings:
+                out.append(((*prefix, j), merge(previous, r, offset + REBASE_ERROR, syntax_id), v["structureJson"]))
+    return out
+
+
 def turn_by_turn_cost(item_id, texts, ids, parses):
-    """What the analysis view and chat do today to add sentences 2..n one at a time: per turn one
+    """What the analysis view and chat did before to add sentences 2..n one at a time: per turn one
     LiGER sequence call over every parse so far, then one /deduce proving the new sentence once per
     sequence variant. Returns the proofs per turn and the readings each turn yields."""
     proofs_per_turn, current_per_turn = [], []
     for k in range(1, len(texts)):
         variants = sequence(texts[:k + 1], ids[:k + 1], parses[:k + 1])
         proofs = [proof(v["solutionKey"], ids[k], part_of(v, k)["meaningConstructors"], v["structureJson"]) for v in variants]
-        derived = deduce(proofs, "/deduce, new sentence per sequence variant (today)")
+        derived = deduce(proofs, "/deduce, new sentence per sequence variant (before)")
         proofs_per_turn.append(len(proofs))
         current_per_turn.append(len(derived))
     return proofs_per_turn, current_per_turn
@@ -187,38 +218,41 @@ def run(item_id, texts, ids, parses):
             if key not in in_sequence:
                 in_sequence[key] = deduce([proof(part["solutionKey"], ids[i], part["meaningConstructors"], v["structureJson"])],
                                           "/deduce, one part in sequence")
-    standalone, readings_per_sentence = {}, []
+    # B: each sentence derived once on its own, then appended one at a time.
+    own, readings_per_sentence = [], []
     for i, ps in enumerate(parses):
         derived = deduce([proof(p["solutionKey"], ids[i], p["meaningConstructors"], p["structureJson"]) for p in ps],
                          "/deduce, one sentence on its own (derive once)")
         readings_per_sentence.append(len(derived))
-        for p in ps:
-            standalone[(i, p["meaningConstructors"].strip())] = [s for s in derived if s.get("solutionKey") == p["solutionKey"]]
+        own.append({j: [s for s in derived if s.get("solutionKey") == p["solutionKey"]] for j, p in enumerate(ps)})
+    discourse = [((j,), r, None) for j, rs in sorted(own[0].items()) for r in rs]
+    for k in range(1, len(texts)):
+        discourse = append(texts[:k + 1], ids[:k + 1], parses, [(t, r) for t, r, _ in discourse], own[k])
+    by_variant = {}
+    for t, r, structure in discourse:
+        by_variant.setdefault(t, []).append((r, structure))
 
+    full_ids = call_ids([list(range(len(ps))) for ps in parses])
     results, readings_total = [], 0
     for v in variants:
         parts = [part_of(v, i) for i in range(len(texts))]
-        per_a = [in_sequence[p["meaningConstructors"].strip()] for p in parts]
-        per_b = []
-        for i, p in enumerate(parts):
-            k = p["sourceIndexOffset"]
-            match = [mcs for (j, mcs) in standalone if j == i and shift_mcs(mcs, k) == p["meaningConstructors"].strip()]
-            assert len(match) == 1, f"{item_id} sentence {i}: {len(match)} standalone parses match the part"
-            per_b.append([rebased(s, k + REBASE_ERROR) for s in standalone[(i, match[0])]])
-        ra, rb = fold(v, per_a, f"{item_id}-A"), fold(v, per_b, f"{item_id}-B")
+        t = tuple(full_ids[p["syntaxVariantId"]][1] for p in parts)
+        ra = fold(v, [in_sequence[p["meaningConstructors"].strip()] for p in parts], f"{item_id}-A")
+        rb = [post_process(structure, r, f"{item_id}-B/c{c}")
+              for c, (r, structure) in enumerate(by_variant.get(t, [])[:MAX_COMBINATIONS])]
         readings_total += len(ra)
-        same = ra == rb
+        same = sorted(map(json.dumps, ra)) == sorted(map(json.dumps, rb))
         results.append(same)
         print(f"  {v['solutionKey']}: offsets {[p['sourceIndexOffset'] for p in parts]}, {len(ra)} combination(s), "
               f"{sum(map(len, ra))} PCDRS reading(s), identical: {same}")
         if not same:
-            for c, (xa, xb) in enumerate(zip(ra, rb)):
-                for line in sorted(set(xa) - set(xb)): print(f"     c{c} only A:", line[:240])
-                for line in sorted(set(xb) - set(xa)): print(f"     c{c} only B:", line[:240])
+            xa, xb = {l for c in ra for l in c}, {l for c in rb for l in c}
+            for line in sorted(xa - xb): print("     only A:", line[:240])
+            for line in sorted(xb - xa): print("     only B:", line[:240])
 
     proofs_today, current_today = turn_by_turn_cost(item_id, texts, ids, parses)
-    # The analysis view merges every derivation of the new sentence with every reading it showed
-    # for the previous turn, and shows all of them; the right count is the fold's own.
+    # The analysis view merged every derivation of the new sentence with every reading it showed
+    # for the previous turn, and showed all of them; the right count is the fold's own.
     shown, merges_analysis = readings_per_sentence[0], 0
     for current in current_today:
         merges_analysis += current * shown
@@ -258,7 +292,7 @@ for name, texts, ids, parses in discourses:
     all_results += results
     costs[name] = cost
     print(f"  parses {cost['parses']}, readings {cost['readings']}, {cost['variants']} variant(s); new-sentence proofs "
-          f"{cost['proofs_today']} today vs {cost['proofs_once']} derived once; analysis view shows "
+          f"{cost['proofs_today']} before vs {cost['proofs_once']} derived once; analysis view showed "
           f"{cost['analysis_readings']} reading(s) after {cost['analysis_merges']} merges, right: "
           f"{cost['right_readings']} after {cost['right_merges']}")
 

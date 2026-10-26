@@ -432,33 +432,17 @@ def consistency_problems(structure, pcdrs_text):
 
 def sequence_readings(first, second, semantics):
     """Every reading of a two-sentence sequence, each with the merged structure of its own
-    parse pairing -- as the analysis view derives them (one ligerSequence over every parse, one
-    aggregate /deduce with a proof per variant, then each reading merged with the first
-    sentence's). Following only the first parse misses readings: "It was cute." parses as
+    parse pairing -- as every view derives them (each sentence derived once on its own, the second
+    appended to the first's reading: one ligerSequence, each of its readings merged moved by its
+    part's offset). Following only the first parse misses readings: "It was cute." parses as
     expletive first, and that parse has no pronoun."""
-    _, _, sol1, syntax1, _ = w.parse_and_deduce(first, semantics, label="sentence 1", sentence_id="sentence-1")
-    parsed = w.liger_annotate(second, semantics)
-    sequence = w.liger_sequence([first, second], semantics,
-                                [[syntax1], [s["structureJson"] for s in parsed["solutions"]]])
-    proofs, structures = [], {}
-    for solution in sequence["solutions"]:
-        part = next(p for p in solution["sequenceParts"] if p["sourceIndex"] == 1)
-        key = solution["solutionKey"]
-        structures[key] = solution["structureJson"]
-        proofs.append({"proofId": key, "sentenceId": "sentence-2", "solutionKey": key, "mcSetId": key,
-                       "meaningConstructors": part["meaningConstructors"], "structure": solution["structureJson"]})
-    derived = w._post_json(f"{w.GSWB_URL}/deduce", {"premises": "\n".join(p["meaningConstructors"] for p in proofs),
-                                                     "gswbPreferences": w.GSWB_PREFERENCES,
-                                                     "structure": proofs[0]["structure"], "proofs": proofs})
-    readings = []
-    for reading in derived["solutions"]:
-        if not (w.reading(reading).get("semString") and w.reading(reading).get("graph")):
-            continue
-        merged = w.gswb_merge_sequence_semantics([w.semantic_part(sol1), w.semantic_part(reading)],
-                                                 reading.get("id"), reading.get("solutionKey"), reading.get("mcSetId"))
-        readings.append((structures[reading["solutionKey"]], w.reading(merged)["graph"],
-                         w.reading(merged)["semString"], merged["id"]))
-    return readings
+    liger1, _, sol1, _, _ = w.parse_and_deduce(first, semantics, label="sentence 1", sentence_id="sentence-1")
+    parses = [liger1["solutions"], w.liger_annotate(second, semantics)["solutions"]]
+    first_parse = next(j for j, p in enumerate(parses[0]) if p["solutionKey"] == sol1["solutionKey"])
+    appended = w.append_sentence([first, second], semantics, parses, [((first_parse,), sol1)],
+                                 w.derive_once(parses[1], "sentence-2"))
+    return [(structure, w.reading(merged)["graph"], w.reading(merged)["semString"], merged["id"])
+            for _, merged, structure in appended]
 
 
 def run_example(example):
