@@ -266,8 +266,59 @@ class UnsupportedSchemaVersion(Exception):
 # only stored sessions were testing artifacts, and carrying migration code for data that
 # no longer exists means maintaining a path nothing exercises until it silently rots. An
 # older session is refused loudly by UnsupportedSchemaVersion, the same as a future one.
-REGRESSION_SCHEMA_VERSION = 5
-SUPPORTED_REGRESSION_SCHEMA_VERSIONS = (5,)
+#
+# v6 replaces the pronoun-specific anaphora selection with the general reading selection
+# (N4 6d): `vampirePreferences.anaphora_selection`/`anaphora_top_k` become
+# `reading_selection` {criteria, filters, k}, and every recorded `anaphoraSelection` (on a
+# ReasoningUpdate, on an inference result) becomes `readingSelection`. A v5 session is
+# upgraded on read and on write (`_upgrade_v5`): the reference banks are v5 sessions, and a
+# client bundle built before v6 still writes v5.
+REGRESSION_SCHEMA_VERSION = 6
+SUPPORTED_REGRESSION_SCHEMA_VERSIONS = (5, 6)
+
+
+def _reading_selection_from_anaphora_selection(old):
+    """A v5 `{mode, k, ...}` as a v6 reading selection: top-k becomes the global top-k by the
+    LM alone, no filters; `all` (or nothing) is every reading. Other keys (`applied`,
+    `used`, `total`) are kept."""
+    old = old if isinstance(old, dict) else {}
+    kept = {key: value for key, value in old.items() if key not in ("mode", "k")}
+    if old.get("mode") == "top_k":
+        try:
+            k = max(1, int(old.get("k") or 1))
+        except (TypeError, ValueError):
+            k = 1
+        return {"criteria": ["lm"], "filters": [], "k": k, **kept}
+    return {"criteria": [], "filters": [], "k": None, **kept}
+
+
+def _upgrade_v5(payload):
+    """v5 -> v6, in place on a copy. See REGRESSION_SCHEMA_VERSION."""
+    upgraded = json.loads(json.dumps(payload))
+    upgraded["schemaVersion"] = 6
+
+    preferences = _section(upgraded, "inputs", "vampirePreferences")
+    if preferences:
+        mode = preferences.pop("anaphora_selection", None)
+        k = preferences.pop("anaphora_top_k", None)
+        if mode == "top_k" and "reading_selection" not in preferences:
+            preferences["reading_selection"] = _reading_selection_from_anaphora_selection(
+                {"mode": mode, "k": k})
+
+    def upgrade_record(record):
+        if isinstance(record, dict) and "anaphoraSelection" in record:
+            record["readingSelection"] = _reading_selection_from_anaphora_selection(
+                record.pop("anaphoraSelection"))
+
+    documents = _section(upgraded, "analysis").get("documents")
+    for document in (documents.values() if isinstance(documents, dict) else []):
+        updates = document.get("reasoningUpdates") if isinstance(document, dict) else None
+        for update in (updates if isinstance(updates, list) else []):
+            upgrade_record(update)
+    results = _section(upgraded, "analysis", "system").get("inferenceResults")
+    for result in (results if isinstance(results, list) else []):
+        upgrade_record(result)
+    return upgraded
 
 
 def _declared_schema_version(payload):
@@ -308,6 +359,9 @@ def _prepare_regression_session_payload(session_key, payload):
     version = _declared_schema_version(prepared)
     if version not in SUPPORTED_REGRESSION_SCHEMA_VERSIONS:
         raise UnsupportedSchemaVersion(version)
+    if version == 5:
+        prepared = _upgrade_v5(prepared)
+        version = 6
     prepared["schemaVersion"] = version
 
     metadata = dict(_section(prepared, "metadata"))
@@ -515,6 +569,8 @@ def load_regression_session(session_key, client=None):
     version = _declared_schema_version(payload)
     if version == REGRESSION_SCHEMA_VERSION:
         return payload
+    if version == 5:
+        return _upgrade_v5(payload)
     # No in-place upgrade: v2/v3/v4 sessions were dropped with the store's contents.
     # Refused rather than read with the wrong field expectations, same as a future version.
     raise UnsupportedSchemaVersion(version)

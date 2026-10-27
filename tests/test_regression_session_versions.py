@@ -161,6 +161,58 @@ def test_documents_default_to_an_empty_map_rather_than_being_synthesized():
     check(loaded["analysis"]["documents"] == {}, "documents defaults to an empty map")
 
 
+def v5_session_with_top_k():
+    payload = v2_session()
+    payload["schemaVersion"] = 5
+    payload["analysis"]["save_state"] = payload["analysis"].pop("saveState")
+    payload["inputs"]["vampirePreferences"] = {
+        "logic_type": 0, "anaphora_selection": "top_k", "anaphora_top_k": 2, "anaphora_rankers": ["recency"]}
+    payload["analysis"]["system"]["inferenceResults"] = [{
+        "id": "n1", "anaphoraSelection": {"mode": "top_k", "k": 2, "applied": True, "used": 2, "total": 5}}]
+    payload["analysis"]["documents"] = {"n1": {"reasoningUpdates": [
+        {"id": "ru-n1", "anaphoraSelection": {"mode": "top_k", "k": 2, "applied": False}, "assignments": []},
+        {"id": "ru-n2", "anaphoraSelection": {"mode": "all", "k": 1, "applied": True}, "assignments": []},
+    ]}}
+    return payload
+
+
+def test_v5_is_upgraded_to_the_reading_selection_on_read():
+    """The reference banks are v5 sessions: their top-k is per semantic reading, the v6 one
+    global, so a re-run may change verdicts (accepted 2026-10-27); stored ones stay."""
+    client = FakeRedis()
+    client.set("regression_session:s9", json.dumps(v5_session_with_top_k()))
+
+    loaded = load_regression_session("s9", client=client)
+    check(loaded["schemaVersion"] == 6, "a v5 session reads as v6")
+    preferences = loaded["inputs"]["vampirePreferences"]
+    check(preferences["reading_selection"] == {"criteria": ["lm"], "filters": [], "k": 2},
+          "top-k becomes the global top-k by the LM alone")
+    check("anaphora_selection" not in preferences and "anaphora_top_k" not in preferences,
+          "the old fields are gone")
+    check(preferences["anaphora_rankers"] == ["recency"], "the other settings stay")
+    updates = loaded["analysis"]["documents"]["n1"]["reasoningUpdates"]
+    check(updates[0]["readingSelection"] == {"criteria": ["lm"], "filters": [], "k": 2, "applied": False},
+          "a recorded top-k keeps whether it was applied")
+    check(updates[1]["readingSelection"] == {"criteria": [], "filters": [], "k": None, "applied": True},
+          "a recorded `all` is every reading")
+    check(all("anaphoraSelection" not in update for update in updates), "no old record is left")
+    check(loaded["analysis"]["system"]["inferenceResults"][0]["readingSelection"]
+          == {"criteria": ["lm"], "filters": [], "k": 2, "applied": True, "used": 2, "total": 5},
+          "an inference result keeps its coverage")
+
+
+def test_v5_is_upgraded_on_write_and_all_needs_no_setting():
+    client = FakeRedis()
+    payload = v5_session_with_top_k()
+    payload["inputs"]["vampirePreferences"] = {"anaphora_selection": "all", "anaphora_top_k": 1}
+    save_regression_session("s10", payload, client=client)
+
+    stored = json.loads(client.get("regression_session:s10"))
+    check(stored["schemaVersion"] == 6, "a v5 write is stored as v6")
+    check(stored["inputs"]["vampirePreferences"] == {},
+          "`all` leaves no setting: the client's default selects every reading")
+
+
 def test_unsupported_version_is_refused_rather_than_read():
     client = FakeRedis()
     stored = v2_session()
