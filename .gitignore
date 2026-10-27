@@ -50,7 +50,9 @@ __pycache__/
 # Local runtime, build and model artifacts -- large, machine-specific, never in git.
 # See CLAUDE.md "Working rules": these are generated/runtime artifacts, not sources.
 /.idea/
-/Stanza/
+# Stanza service: local venv and downloaded models (Stanza/setup_stanza.sh)
+/Stanza/venv/
+/Stanza/models/
 /models/
 /vampire_build_mac/
 /redis-data/

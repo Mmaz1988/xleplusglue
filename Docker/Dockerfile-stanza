@@ -1,0 +1,21 @@
+# Stanza dependency parsing for LiGER (Stanza/main.py). Optional: compose starts it only with
+# the `ud` profile; without it the client's UD toggle stays disabled and LFG works as before.
+FROM python:3.11-slim
+
+EXPOSE 8085
+
+WORKDIR /stanza
+
+# CPU-only torch, as in Dockerfile-lm.
+COPY Stanza/requirements.txt /stanza/requirements.txt
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+      "torch==$(sed -n 's/^torch==//p' requirements.txt)" && \
+    grep -v -E '^(torch|pytest|httpx)==' requirements.txt > /tmp/requirements-runtime.txt && \
+    pip install --no-cache-dir -r /tmp/requirements-runtime.txt
+
+COPY Stanza/main.py Stanza/stanza_service.py /stanza/
+
+# The models are mounted (Stanza/models, filled by Stanza/setup_stanza.sh), not baked in.
+ENV STANZA_MODELS_DIR=/stanza/models
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8085"]

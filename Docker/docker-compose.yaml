@@ -106,6 +106,18 @@ services:
     mem_limit: 3g
     # No depends_on: lm starts without LiGER and reports it unreachable per request, and
     # nothing depends on lm -- the client ranks when it is up and carries on when it is not.
+  stanza:
+    # UD parsing (docs/plans/UD_PARSING_PLAN.md). Optional: started only with
+    # `docker compose --profile ud up`. Models come from Stanza/setup_stanza.sh.
+    profiles: ['ud']
+    build:
+      dockerfile: Docker/Dockerfile-stanza
+      context: ..
+    ports:
+      - '8085:8085'
+    volumes:
+      - ../Stanza/models:/stanza/models:ro
+    mem_limit: 3g
   frontend:
     build:
       dockerfile: Docker/Dockerfile-frontend
