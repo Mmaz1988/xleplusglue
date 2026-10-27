@@ -1,0 +1,260 @@
+{
+ "n0": {
+  "sentences": [
+   "A Swede won a Nobel prize.",
+   "Every Swede is a Scandinavian.",
+   "A Scandinavian won a Nobel prize."
+  ],
+  "gold": "1",
+  "readings": [
+   "([x1],[Swede(x1)]) + ([x2],[kind('nobel',x2),prize(x2)]) + ([x3:v],[win(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([],[([x4],[Swede(x4)]) -> ([x5],[Scandinavian(x5)]) + ([x6:v],[be(x6),arg1(x6,x4),arg2(x6,x5)])]) ; ([x4],[Scandinavian(x4)]) + ([x5],[kind('nobel',x5),prize(x5)]) + ([x6:v],[win(x6),arg1(x6,x4),arg2(x6,x5)])",
+   "([x1],[Swede(x1)]) + ([x2],[kind('nobel',x2),prize(x2)]) + ([x3:v],[win(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[Scandinavian(x4),([x5],[Swede(x5)]) -> ([x6:v],[be(x6),arg1(x6,x5),arg2(x6,x4)])]) ; ([x5],[Scandinavian(x5)]) + ([x6],[kind('nobel',x6),prize(x6)]) + ([x7:v],[win(x7),arg1(x7,x5),arg2(x7,x6)])"
+  ]
+ },
+ "n1": {
+  "sentences": [
+   "A Nobel prize was won by a Swede.",
+   "Every Swede is a Scandinavian.",
+   "A Scandinavian won a Nobel prize."
+  ],
+  "gold": "1",
+  "readings": [
+   "([x1],[kind('nobel',x1),prize(x1)]) + ([x2],[Swede(x2)]) + ([x3:v],[win(x3),arg1(x3,x2),arg2(x3,x1)]) ; ([],[([x4],[Swede(x4)]) -> ([x5],[Scandinavian(x5)]) + ([x6:v],[be(x6),arg1(x6,x4),arg2(x6,x5)])]) ; ([x4],[Scandinavian(x4)]) + ([x5],[kind('nobel',x5),prize(x5)]) + ([x6:v],[win(x6),arg1(x6,x4),arg2(x6,x5)])",
+   "([x1],[kind('nobel',x1),prize(x1)]) + ([x2],[Swede(x2)]) + ([x3:v],[win(x3),arg1(x3,x2),arg2(x3,x1)]) ; ([x4],[Scandinavian(x4),([x5],[Swede(x5)]) -> ([x6:v],[be(x6),arg1(x6,x5),arg2(x6,x4)])]) ; ([x5],[Scandinavian(x5)]) + ([x6],[kind('nobel',x6),prize(x6)]) + ([x7:v],[win(x7),arg1(x7,x5),arg2(x7,x6)])"
+  ]
+ },
+ "n2": {
+  "sentences": [
+   "A dog appeared.",
+   "No dog appeared."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([x1],[dog(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[~(([x3],[dog(x3)]) + ([x4:v],[appear(x4),arg1(x4,x3)]))])"
+  ]
+ },
+ "n3": {
+  "sentences": [
+   "A dog appeared.",
+   "No cat appeared."
+  ],
+  "gold": "0",
+  "readings": [
+   "([x1],[dog(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[~(([x3],[cat(x3)]) + ([x4:v],[appear(x4),arg1(x4,x3)]))])"
+  ]
+ },
+ "n4": {
+  "sentences": [
+   "Vincent knows every boxer.",
+   "Butch is a boxer.",
+   "Vincent knows Butch."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[boxer(x1)]) -> ([],[p(([y1],[bind(y1),y1='vincent']))]) + ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='vincent'])),p(([y4],[bind(y4),y4='butch']))]) + ([x3:v],[know(x3),arg1(x3,y3),arg2(x3,y4)]),A:[a(s10:y3,x1),a(s11:y4,x1)],P:[p(s3,s0),p(s6,s0),p(s10,s5),p(s11,s5)]",
+   "([],[([x1],[boxer(x1)]) -> ([],[p(([y1],[bind(y1),y1='vincent']))]) + ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='vincent'])),p(([y4],[bind(y4),y4='butch']))]) + ([x3:v],[know(x3),arg1(x3,y3),arg2(x3,y4)]),A:[a(s10:y3,x1)],P:[p(s3,s0),p(s6,s0),p(s10,s5),p(s11,s0)]",
+   "([],[([x1],[boxer(x1)]) -> ([],[p(([y1],[bind(y1),y1='vincent']))]) + ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='vincent'])),p(([y4],[bind(y4),y4='butch']))]) + ([x3:v],[know(x3),arg1(x3,y3),arg2(x3,y4)]),A:[a(s11:y4,x1)],P:[p(s3,s0),p(s6,s0),p(s10,s0),p(s11,s5)]",
+   "([],[([x1],[boxer(x1)]) -> ([],[p(([y1],[bind(y1),y1='vincent']))]) + ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='vincent'])),p(([y4],[bind(y4),y4='butch']))]) + ([x3:v],[know(x3),arg1(x3,y3),arg2(x3,y4)]),P:[p(s3,s0),p(s6,s0),p(s10,s0),p(s11,s0)]",
+   "([],[p(([y1],[bind(y1),y1='vincent'])),([x1],[boxer(x1)]) -> ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='vincent'])),p(([y4],[bind(y4),y4='butch']))]) + ([x3:v],[know(x3),arg1(x3,y3),arg2(x3,y4)]),A:[a(s10:y4,x1)],P:[p(s1,s1),p(s5,s0),p(s9,s0),p(s10,s4)]",
+   "([],[p(([y1],[bind(y1),y1='vincent'])),([x1],[boxer(x1)]) -> ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='vincent'])),p(([y4],[bind(y4),y4='butch']))]) + ([x3:v],[know(x3),arg1(x3,y3),arg2(x3,y4)]),A:[a(s9:y3,x1),a(s10:y4,x1)],P:[p(s1,s1),p(s5,s0),p(s9,s4),p(s10,s4)]",
+   "([],[p(([y1],[bind(y1),y1='vincent'])),([x1],[boxer(x1)]) -> ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='vincent'])),p(([y4],[bind(y4),y4='butch']))]) + ([x3:v],[know(x3),arg1(x3,y3),arg2(x3,y4)]),A:[a(s9:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s9,s4),p(s10,s0)]",
+   "([],[p(([y1],[bind(y1),y1='vincent'])),([x1],[boxer(x1)]) -> ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='vincent'])),p(([y4],[bind(y4),y4='butch']))]) + ([x3:v],[know(x3),arg1(x3,y3),arg2(x3,y4)]),P:[p(s1,s1),p(s5,s0),p(s9,s0),p(s10,s0)]"
+  ]
+ },
+ "n5": {
+  "sentences": [
+   "If Mia snorts, then Vincent smokes.",
+   "Vincent smokes.",
+   "Mia snorts."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s11:y4,y1)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s11:y4,y2)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s11:y4,y3)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s5:y2,y1),a(s11:y4,y1)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s5:y2,y1),a(s11:y4,y3)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s5:y2,y1),a(s8:y3,y1),a(s11:y4,y1)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s5:y2,y1),a(s8:y3,y1)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s5:y2,y1)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s8:y3,y1),a(s11:y4,y1)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s8:y3,y1),a(s11:y4,y2)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s8:y3,y1)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s8:y3,y2),a(s11:y4,y1)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s8:y3,y2),a(s11:y4,y2)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),A:[a(s8:y3,y2)],P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]",
+   "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])]) ; ([],[p(([y3],[bind(y3),y3='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y3)]) ; ([],[p(([y4],[bind(y4),y4='mia']))]) + ([x2:v],[snort(x2),arg1(x2,y4)]),P:[p(s2,s0),p(s5,s0),p(s8,s0),p(s11,s0)]"
+  ]
+ },
+ "n6": {
+  "sentences": [
+   "A woman loves every man.",
+   "Every boxer is a man.",
+   "A woman loves every boxer."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[man(x1)]) -> ([x2],[woman(x2)]) + ([x3:v],[love(x3),arg1(x3,x2),arg2(x3,x1)])]) ; ([],[([x1],[boxer(x1)]) -> ([x2],[man(x2)]) + ([x3:v],[be(x3),arg1(x3,x1),arg2(x3,x2)])]) ; ([],[([x1],[boxer(x1)]) -> ([x2],[woman(x2)]) + ([x3:v],[love(x3),arg1(x3,x2),arg2(x3,x1)])])",
+   "([],[([x1],[man(x1)]) -> ([x2],[woman(x2)]) + ([x3:v],[love(x3),arg1(x3,x2),arg2(x3,x1)])]) ; ([],[([x1],[boxer(x1)]) -> ([x2],[man(x2)]) + ([x3:v],[be(x3),arg1(x3,x1),arg2(x3,x2)])]) ; ([x1],[woman(x1),([x2],[boxer(x2)]) -> ([x3:v],[love(x3),arg1(x3,x1),arg2(x3,x2)])])",
+   "([],[([x1],[man(x1)]) -> ([x2],[woman(x2)]) + ([x3:v],[love(x3),arg1(x3,x2),arg2(x3,x1)])]) ; ([x1],[man(x1),([x2],[boxer(x2)]) -> ([x3:v],[be(x3),arg1(x3,x2),arg2(x3,x1)])]) ; ([],[([x2],[boxer(x2)]) -> ([x3],[woman(x3)]) + ([x4:v],[love(x4),arg1(x4,x3),arg2(x4,x2)])])",
+   "([],[([x1],[man(x1)]) -> ([x2],[woman(x2)]) + ([x3:v],[love(x3),arg1(x3,x2),arg2(x3,x1)])]) ; ([x1],[man(x1),([x2],[boxer(x2)]) -> ([x3:v],[be(x3),arg1(x3,x2),arg2(x3,x1)])]) ; ([x2],[woman(x2),([x3],[boxer(x3)]) -> ([x4:v],[love(x4),arg1(x4,x2),arg2(x4,x3)])])",
+   "([x1],[woman(x1),([x2],[man(x2)]) -> ([x3:v],[love(x3),arg1(x3,x1),arg2(x3,x2)])]) ; ([],[([x2],[boxer(x2)]) -> ([x3],[man(x3)]) + ([x4:v],[be(x4),arg1(x4,x2),arg2(x4,x3)])]) ; ([],[([x2],[boxer(x2)]) -> ([x3],[woman(x3)]) + ([x4:v],[love(x4),arg1(x4,x3),arg2(x4,x2)])])",
+   "([x1],[woman(x1),([x2],[man(x2)]) -> ([x3:v],[love(x3),arg1(x3,x1),arg2(x3,x2)])]) ; ([],[([x2],[boxer(x2)]) -> ([x3],[man(x3)]) + ([x4:v],[be(x4),arg1(x4,x2),arg2(x4,x3)])]) ; ([x2],[woman(x2),([x3],[boxer(x3)]) -> ([x4:v],[love(x4),arg1(x4,x2),arg2(x4,x3)])])",
+   "([x1],[woman(x1),([x2],[man(x2)]) -> ([x3:v],[love(x3),arg1(x3,x1),arg2(x3,x2)])]) ; ([x2],[man(x2),([x3],[boxer(x3)]) -> ([x4:v],[be(x4),arg1(x4,x3),arg2(x4,x2)])]) ; ([],[([x3],[boxer(x3)]) -> ([x4],[woman(x4)]) + ([x5:v],[love(x5),arg1(x5,x4),arg2(x5,x3)])])",
+   "([x1],[woman(x1),([x2],[man(x2)]) -> ([x3:v],[love(x3),arg1(x3,x1),arg2(x3,x2)])]) ; ([x2],[man(x2),([x3],[boxer(x3)]) -> ([x4:v],[be(x4),arg1(x4,x3),arg2(x4,x2)])]) ; ([x3],[woman(x3),([x4],[boxer(x4)]) -> ([x5:v],[love(x5),arg1(x5,x3),arg2(x5,x4)])])"
+  ]
+ },
+ "n7": {
+  "sentences": [
+   "All boxers are crazy.",
+   "Butch is a boxer.",
+   "Butch is crazy."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x3:v],[crazy(x3),be(x3),arg1(x3,y2)]),A:[a(s8:y2,x1)],P:[p(s4,s0),p(s8,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x3:v],[crazy(x3),be(x3),arg1(x3,y2)]),P:[p(s4,s0),p(s8,s0)]"
+  ]
+ },
+ "n8": {
+  "sentences": [
+   "All boxers are slow.",
+   "Butch is a boxer.",
+   "Butch is not slow."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch'])),~([x3:v],[slow(x3),be(x3),arg1(x3,y2)])]),A:[a(s8:y2,x1)],P:[p(s4,s0),p(s8,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch'])),~([x3:v],[slow(x3),be(x3),arg1(x3,y2)])]),P:[p(s4,s0),p(s8,s0)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[~(([],[p(([y2],[bind(y2),y2='butch']))]) + ([x3:v],[slow(x3),be(x3),arg1(x3,y2)]))]),A:[a(s9:y2,x1)],P:[p(s4,s0),p(s9,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[~(([],[p(([y2],[bind(y2),y2='butch']))]) + ([x3:v],[slow(x3),be(x3),arg1(x3,y2)]))]),P:[p(s4,s0),p(s9,s0)]"
+  ]
+ },
+ "n9": {
+  "sentences": [
+   "All boxers are slow.",
+   "Butch is a boxer.",
+   "Mia likes Butch."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='mia'])),p(([y3],[bind(y3),y3='butch']))]) + ([x3:v],[like(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s8:y2,x1),a(s9:y3,x1)],P:[p(s4,s0),p(s8,s3),p(s9,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='mia'])),p(([y3],[bind(y3),y3='butch']))]) + ([x3:v],[like(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s8:y2,x1)],P:[p(s4,s0),p(s8,s3),p(s9,s0)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='mia'])),p(([y3],[bind(y3),y3='butch']))]) + ([x3:v],[like(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s9:y3,x1)],P:[p(s4,s0),p(s8,s0),p(s9,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='mia'])),p(([y3],[bind(y3),y3='butch']))]) + ([x3:v],[like(x3),arg1(x3,y2),arg2(x3,y3)]),P:[p(s4,s0),p(s8,s0),p(s9,s0)]"
+  ]
+ },
+ "n10": {
+  "sentences": [
+   "All boxers are crazy.",
+   "Butch is a boxer.",
+   "Butch is crazy."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x3:v],[crazy(x3),be(x3),arg1(x3,y2)]),A:[a(s8:y2,x1)],P:[p(s4,s0),p(s8,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch']))]) + ([x3:v],[crazy(x3),be(x3),arg1(x3,y2)]),P:[p(s4,s0),p(s8,s0)]"
+  ]
+ },
+ "n11": {
+  "sentences": [
+   "All boxers are crazy.",
+   "Butch is a boxer.",
+   "Butch loves Fabian."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch'])),p(([y3],[bind(y3),y3='fabian']))]) + ([x3:v],[love(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s8:y2,x1),a(s9:y3,x1)],P:[p(s4,s0),p(s8,s3),p(s9,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch'])),p(([y3],[bind(y3),y3='fabian']))]) + ([x3:v],[love(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s8:y2,x1)],P:[p(s4,s0),p(s8,s3),p(s9,s0)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch'])),p(([y3],[bind(y3),y3='fabian']))]) + ([x3:v],[love(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s9:y3,x1)],P:[p(s4,s0),p(s8,s0),p(s9,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='butch'])),p(([y3],[bind(y3),y3='fabian']))]) + ([x3:v],[love(x3),arg1(x3,y2),arg2(x3,y3)]),P:[p(s4,s0),p(s8,s0),p(s9,s0)]"
+  ]
+ },
+ "n12": {
+  "sentences": [
+   "All boxers are slow.",
+   "Butch is a boxer.",
+   "Mia likes Butch."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='mia'])),p(([y3],[bind(y3),y3='butch']))]) + ([x3:v],[like(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s8:y2,x1),a(s9:y3,x1)],P:[p(s4,s0),p(s8,s3),p(s9,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='mia'])),p(([y3],[bind(y3),y3='butch']))]) + ([x3:v],[like(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s8:y2,x1)],P:[p(s4,s0),p(s8,s3),p(s9,s0)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='mia'])),p(([y3],[bind(y3),y3='butch']))]) + ([x3:v],[like(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s9:y3,x1)],P:[p(s4,s0),p(s8,s0),p(s9,s3)]",
+   "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])]) ; ([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='mia'])),p(([y3],[bind(y3),y3='butch']))]) + ([x3:v],[like(x3),arg1(x3,y2),arg2(x3,y3)]),P:[p(s4,s0),p(s8,s0),p(s9,s0)]"
+  ]
+ },
+ "n13": {
+  "sentences": [
+   "A boxer with an injury lost a fight.",
+   "A boxer lost a fight."
+  ],
+  "gold": "1",
+  "readings": [
+   "([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)]) ; ([x5],[boxer(x5)]) + ([x6],[fight(x6)]) + ([x7:v],[lose(x7),arg1(x7,x5),arg2(x7,x6)])",
+   "([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)]) ; ([x5],[boxer(x5)]) + ([x6],[fight(x6)]) + ([x7:v],[lose(x7),arg1(x7,x5),arg2(x7,x6)])"
+  ]
+ },
+ "n14": {
+  "sentences": [
+   "A boxer with an injury lost a fight.",
+   "No boxer lost a fight."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)]) ; ([],[~(([x5],[boxer(x5)]) + ([x6],[fight(x6)]) + ([x7:v],[lose(x7),arg1(x7,x5),arg2(x7,x6)]))])",
+   "([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)]) ; ([x5],[fight(x5),~(([x6],[boxer(x6)]) + ([x7:v],[lose(x7),arg1(x7,x6),arg2(x7,x5)]))])",
+   "([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)]) ; ([],[~(([x5],[boxer(x5)]) + ([x6],[fight(x6)]) + ([x7:v],[lose(x7),arg1(x7,x5),arg2(x7,x6)]))])",
+   "([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)]) ; ([x5],[fight(x5),~(([x6],[boxer(x6)]) + ([x7:v],[lose(x7),arg1(x7,x6),arg2(x7,x5)]))])"
+  ]
+ },
+ "n15": {
+  "sentences": [
+   "Every boxer with an injury lost a fight.",
+   "A boxer with an injury did not lose a fight."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([],[~(([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x1),arg2(x4,x3)]))])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([],[~(([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x3)]))])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1),~(([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x1),arg2(x4,x3)]))])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) + ([x3],[fight(x3),~([x4:v],[lose(x4),arg1(x4,x1),arg2(x4,x3)])])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([x1],[fight(x1),~(([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) + ([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x1)]))])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([x1],[fight(x1),~(([x2],[injury(x2)]) + ([x3],[with(x3,x2),boxer(x3)]) + ([x4:v],[lose(x4),arg1(x4,x3),arg2(x4,x1)]))])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([x1],[injury(x1),~(([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x3)]))])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([x1],[injury(x1)]) + ([x2],[fight(x2),~(([x3],[with(x3,x1),boxer(x3)]) + ([x4:v],[lose(x4),arg1(x4,x3),arg2(x4,x2)]))])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2),~(([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x3)]))])",
+   "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])]) ; ([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3),~([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x3)])])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([],[~(([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) + ([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x2),arg2(x5,x4)]))])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([],[~(([x2],[injury(x2)]) + ([x3],[with(x3,x2),boxer(x3)]) + ([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x4)]))])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2),~(([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x2),arg2(x5,x4)]))])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) + ([x4],[fight(x4),~([x5:v],[lose(x5),arg1(x5,x2),arg2(x5,x4)])])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([x2],[fight(x2),~(([x3],[]) + ([x4],[injury(x4),with(x3,x4),boxer(x3)]) + ([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x2)]))])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([x2],[fight(x2),~(([x3],[injury(x3)]) + ([x4],[with(x4,x3),boxer(x4)]) + ([x5:v],[lose(x5),arg1(x5,x4),arg2(x5,x2)]))])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([x2],[injury(x2),~(([x3],[with(x3,x2),boxer(x3)]) + ([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x4)]))])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([x2],[injury(x2)]) + ([x3],[fight(x3),~(([x4],[with(x4,x2),boxer(x4)]) + ([x5:v],[lose(x5),arg1(x5,x4),arg2(x5,x3)]))])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([x2],[injury(x2)]) + ([x3],[with(x3,x2),boxer(x3),~(([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x4)]))])",
+   "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])]) ; ([x2],[injury(x2)]) + ([x3],[with(x3,x2),boxer(x3)]) + ([x4],[fight(x4),~([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x4)])])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([],[~(([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) + ([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x2),arg2(x5,x4)]))])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([],[~(([x2],[injury(x2)]) + ([x3],[with(x3,x2),boxer(x3)]) + ([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x4)]))])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2),~(([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x2),arg2(x5,x4)]))])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) + ([x4],[fight(x4),~([x5:v],[lose(x5),arg1(x5,x2),arg2(x5,x4)])])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([x2],[fight(x2),~(([x3],[]) + ([x4],[injury(x4),with(x3,x4),boxer(x3)]) + ([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x2)]))])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([x2],[fight(x2),~(([x3],[injury(x3)]) + ([x4],[with(x4,x3),boxer(x4)]) + ([x5:v],[lose(x5),arg1(x5,x4),arg2(x5,x2)]))])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([x2],[injury(x2),~(([x3],[with(x3,x2),boxer(x3)]) + ([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x4)]))])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([x2],[injury(x2)]) + ([x3],[fight(x3),~(([x4],[with(x4,x2),boxer(x4)]) + ([x5:v],[lose(x5),arg1(x5,x4),arg2(x5,x3)]))])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([x2],[injury(x2)]) + ([x3],[with(x3,x2),boxer(x3),~(([x4],[fight(x4)]) + ([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x4)]))])",
+   "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])]) ; ([x2],[injury(x2)]) + ([x3],[with(x3,x2),boxer(x3)]) + ([x4],[fight(x4),~([x5:v],[lose(x5),arg1(x5,x3),arg2(x5,x4)])])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([],[~(([x3],[]) + ([x4],[injury(x4),with(x3,x4),boxer(x3)]) + ([x5],[fight(x5)]) + ([x6:v],[lose(x6),arg1(x6,x3),arg2(x6,x5)]))])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([],[~(([x3],[injury(x3)]) + ([x4],[with(x4,x3),boxer(x4)]) + ([x5],[fight(x5)]) + ([x6:v],[lose(x6),arg1(x6,x4),arg2(x6,x5)]))])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([x3],[]) + ([x4],[injury(x4),with(x3,x4),boxer(x3),~(([x5],[fight(x5)]) + ([x6:v],[lose(x6),arg1(x6,x3),arg2(x6,x5)]))])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([x3],[]) + ([x4],[injury(x4),with(x3,x4),boxer(x3)]) + ([x5],[fight(x5),~([x6:v],[lose(x6),arg1(x6,x3),arg2(x6,x5)])])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([x3],[fight(x3),~(([x4],[]) + ([x5],[injury(x5),with(x4,x5),boxer(x4)]) + ([x6:v],[lose(x6),arg1(x6,x4),arg2(x6,x3)]))])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([x3],[fight(x3),~(([x4],[injury(x4)]) + ([x5],[with(x5,x4),boxer(x5)]) + ([x6:v],[lose(x6),arg1(x6,x5),arg2(x6,x3)]))])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([x3],[injury(x3),~(([x4],[with(x4,x3),boxer(x4)]) + ([x5],[fight(x5)]) + ([x6:v],[lose(x6),arg1(x6,x4),arg2(x6,x5)]))])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([x3],[injury(x3)]) + ([x4],[fight(x4),~(([x5],[with(x5,x3),boxer(x5)]) + ([x6:v],[lose(x6),arg1(x6,x5),arg2(x6,x4)]))])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([x3],[injury(x3)]) + ([x4],[with(x4,x3),boxer(x4),~(([x5],[fight(x5)]) + ([x6:v],[lose(x6),arg1(x6,x4),arg2(x6,x5)]))])",
+   "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])]) ; ([x3],[injury(x3)]) + ([x4],[with(x4,x3),boxer(x4)]) + ([x5],[fight(x5),~([x6:v],[lose(x6),arg1(x6,x4),arg2(x6,x5)])])"
+  ]
+ }
+}

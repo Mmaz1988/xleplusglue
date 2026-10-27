@@ -1,0 +1,43 @@
+// Pragmatics core for UD parses: grammars/dev/lfgxdrt_inference_grammar/liger/pragmatics/core.liger
+// with the syntax side read off dependency structures. List it first.
+
+// HIERARCHIES
+
+//Functional hierarchy over UD relations
+GF ::= NSUBJ > NSUBJ:PASS > OBJ > IOBJ > OBL > OBL:AGENT .
+
+//Templates
+GF := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | XCOMP .
+
+DRS := IMP | NOT | MERGE | UPDATE | SUB | SCOPE .
+
+//Coarguments: dependents of one head in grammatical functions
+COARG(#a,#b) := #h @GF #a & #h @GF #b & id(#a) != id(#b).
+
+//States a referent's state is evaluated in: its parents, a p-box's host included
+CONTEXT := IMP | NOT | MERGE | UPDATE | SUB | SCOPE | PRSP .
+
+DR-PRECEDENCE(#b,#d) := #a IN #b NAME %a & #b NODE_TYPE referent &
+                        #c IN #d NAME %b & #d NODE_TYPE referent &
+                        #c ^(@CONTEXT*) #e & #a !(POTENTIAL-ACC*) #e &
+                        id(#c) != id(#e) &
+                        #a NAME %s & #c NAME %t & id(%s) < id(%t) .
+
+DR-SEM(#a,#b) := #a SYNSEM #c s:: #b.
+
+//Sortal restriction: an anaphor (pronoun or presupposition) binds only a referent of its sort
+SORTAL-RESTRICTION(#a,#b) := #a SORT %q & #b SORT %r & %q == %r.
+
+// RULES
+
+//Connects referents with the words they come from: SRC is the source index of the meaning
+//constructor that introduced the referent, SYN-ID numbers that constructor's node, ANCHOR is
+//its word (LiGER UdSourceIndices). A determiner's referent is its noun phrase's, as XLE's
+//determiner projects into the noun phrase's f-structure.
+#a NODE_TYPE 'referent' & #a SRC %a & #b SYN-ID %b & %a == %b & #b ANCHOR #w & #n DET #w ==> #a SYNSEM #n.
+#a NODE_TYPE 'referent' & #a SRC %a & #b SYN-ID %b & %a == %b & #b ANCHOR #w & -(#n DET #w) ==> #a SYNSEM #w.
+
+@COARG(#a,#b) ==> #a COARG #b.
+
+//Default sort: referents without one (eventualities are v, degrees d) are entities
+#a NODE_TYPE 'referent' & #a NAME %a & -(#a SORT %b) ==> #a SORT e.
