@@ -217,7 +217,7 @@ def run_item(item, settings):
             "nli_items": {item["id"]: {"premises": [], "hypothesis": [], "axioms": settings["axioms"],
                                        "grammar_axioms": grammar_axioms,
                                        "tptp_checks": [a["bundle"] for a in selected]}},
-            "pruning": False, "vampire_preferences": settings["vampire"], "session_key": session_key,
+            "vampire_preferences": settings["vampire"], "session_key": session_key,
             "run_id": uuid.uuid4().hex})
         if status.get("status") != "ok":
             return {"label": None, "failure": f"Vampire run {status.get('status')}"}

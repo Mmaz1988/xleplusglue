@@ -25,7 +25,6 @@ class VampireRequest(BaseModel):
     # encoded here with this request's logic type (vampire_call.grammar_axiom_lines).
     grammar_axioms: dict = Field(default_factory=dict)
     hypothesis: str = ""
-    pruning: bool = False
     active_indices: List[int] = Field(default_factory=list)
     vampire_preferences: dict = Field(default_factory=dict)
     tptp_checks: List[dict] = Field(default_factory=list)
@@ -39,7 +38,6 @@ class VampireRequest(BaseModel):
 
 class VampireMultipleRequest(BaseModel):
     nli_items: dict
-    pruning: bool
     vampire_preferences: dict
     session_key: str = "last_session"
     # Names this run on its progress record and in cancel requests. Generated when absent.

@@ -94,7 +94,6 @@ def test_tptp_branch_persists_last_session_and_snapshots_progress():
                 ],
             },
         },
-        pruning=False,
         vampire_preferences={"logic_type": 0, "model_building": False, "max_duration": 5},
         session_key="test-tptp-session",
     )
@@ -191,7 +190,6 @@ def test_item_with_empty_tptp_checks_does_not_crash_the_batch():
                 "tptp_checks": [],
             },
         },
-        pruning=False,
         vampire_preferences={"logic_type": 0, "model_building": False, "max_duration": 5},
         session_key="test-empty-tptp-session",
     )
@@ -217,7 +215,7 @@ def test_empty_batch_is_rejected_by_the_endpoint():
 
     client = TestClient(vampire_endpoints.app)
     response = client.post("/vampire_multiple_request", json={
-        "nli_items": {}, "pruning": False, "vampire_preferences": {},
+        "nli_items": {}, "vampire_preferences": {},
     })
     check(response.status_code == 400, "an empty nli_items batch is refused, not accepted as ok")
 

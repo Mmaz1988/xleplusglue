@@ -520,14 +520,6 @@ def _single_vampire_request(request, session_key):
         new_active_indices = [i for i in range(len(new_context))]
 
 
-    # Create singleton list consisting of first hypothesis
-    if request.pruning:
-        if len(new_context) > 0:
-            new_context = [new_context[0]]
-        else:
-            new_context = [hypotheses[0]]
-        new_active_indices = [0]
-
     context_checks_mapping = {}
     # Create context_checks_mapping
     for i, check in enumerate(current_checks):
@@ -714,19 +706,14 @@ def _multiple_vampire_request(request, session_key, run_id):
 
                     merged_list = []
 
-                    if not request.pruning:
-                        for reading1 in first:
-                            for reading2 in second:
-                                _ensure_not_cancelled(session_key)
-                                merged = mergeDrs(reading1, reading2, tmp_root=tmp_root)
-                                for drs in merged:
-                                    if drs not in merged_list:
-                                        merged_list.append(drs)
-                                        logger.debug("Updated merged list: %s", merged_list)
-                    else:
-                        merged = mergeDrs(first[0], second[0], tmp_root=tmp_root)
-                        if merged:
-                            merged_list.append(merged[0])
+                    for reading1 in first:
+                        for reading2 in second:
+                            _ensure_not_cancelled(session_key)
+                            merged = mergeDrs(reading1, reading2, tmp_root=tmp_root)
+                            for drs in merged:
+                                if drs not in merged_list:
+                                    merged_list.append(drs)
+                                    logger.debug("Updated merged list: %s", merged_list)
 
                     nli_item['premises'] = [merged_list] + nli_item['premises'][2:]
 
@@ -734,8 +721,6 @@ def _multiple_vampire_request(request, session_key, run_id):
                 nli_item['premises'] = [extract_drs_blocks(nli_item['premises'][0])]
 
             premise_semantics = nli_item['premises'][0]
-            if request.pruning:
-                premise_semantics = [premise_semantics[0]]
             logger.debug("Premise semantics: %s", premise_semantics)
 
             # This might require fixing if there are multiple hyptheses
@@ -744,8 +729,6 @@ def _multiple_vampire_request(request, session_key, run_id):
                 _ensure_not_cancelled(session_key)
                 hypothesis_semantics += extract_drs_blocks(item)
 
-            if request.pruning:
-                hypothesis_semantics = [hypothesis_semantics[0]]
             logger.debug("Hypothesis semantics: %s", hypothesis_semantics)
 
             inference_checks = []
