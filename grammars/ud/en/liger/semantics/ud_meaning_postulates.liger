@@ -1,0 +1,5 @@
+//Be equality axiom: a copula with a nominal predicate equates subject and predicate.
+#h COP #b LEMMA be & #h UPOS NOUN ==>
+#b TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).
+#h COP #b LEMMA be & #h UPOS PROPN ==>
+#b TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).

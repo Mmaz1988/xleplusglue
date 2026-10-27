@@ -1,0 +1,101 @@
+--replace(true);
+
+// UD (Stanza) semantics in LFGxDRT notation: the meaning constructors the lfgxdrt inference
+// grammar gives the same sentences (xleplusglue docs/plans/UD_PARSING_PLAN.md, step 3).
+//
+// Every meaning constructor hangs on a node of its own, reached from the word whose lexical
+// material it encodes. That word is its anchor: LiGER numbers the constructors by their
+// anchors' positions (UdSourceIndices), as XLE numbers a grammar's constructors by their
+// tokens. A determiner's constructor hangs from the determiner, a noun's from the noun, a
+// verb's argument constructors from the verb.
+
+// ---- Clauses -------------------------------------------------------------------------
+// A clause head -- a verb, or the predicate of a copula -- has a clause node (the scope of
+// its quantifiers, #c_t) and a goal node the clause resolves to (XLE's (\P.P) : f_t -o g_t).
+
+#v UPOS VERB ==> #v CLAUSE #c & #c GOAL #g.
+#h COP #b ==> #h CLAUSE #c & #c GOAL #g.
+
+#c GOAL #g ==> #g GLUE (\P.P) : (#c_t -o #g_t).
+
+// The scope of a noun phrase: the clause of its head, or its own for a predicate nominal.
+#v NSUBJ #n & #v CLAUSE #c ==> #n SCOPE #c.
+#v NSUBJ:PASS #n & #v CLAUSE #c ==> #n SCOPE #c.
+#v OBJ #n & #v CLAUSE #c ==> #n SCOPE #c.
+#v OBL #n & #v CLAUSE #c ==> #n SCOPE #c.
+#v OBL:AGENT #n & #v CLAUSE #c ==> #n SCOPE #c.
+#n COP #b & #n CLAUSE #c ==> #n SCOPE #c.
+// A noun inside a noun phrase ("a boxer with an injury") scopes where that phrase does.
+#m NMOD #n & #m SCOPE #c ==> #n SCOPE #c.
+
+// ---- Events ----------------------------------------------------------------------------
+
+#v UPOS VERB & #v LEMMA %l ==> #v EV #e & #e GLUE (\v.([],[%l(v)])) : (#e_v -o #e_t).
+#h COP #b & #b LEMMA %l ==> #b EV #e & #e GLUE (\v.([],[%l(v)])) : (#e_v -o #e_t).
+
+#v EV #e & #v CLAUSE #c ==> #e CLOSURE #m & #m GLUE (\V.([e:v],[])+V@e) : ((#e_v -o #e_t) -o #c_t).
+#h COP #b EV #e & #h CLAUSE #c ==> #e CLOSURE #m & #m GLUE (\V.([e:v],[])+V@e) : ((#e_v -o #e_t) -o #c_t).
+
+// Arguments: arg1 the subject (the agent of a passive), arg2 the object (the subject of a
+// passive, the predicate nominal of a copula).
+#v NSUBJ #n & #v EV #e ==> #e ARG1 #m &
+#m GLUE (\V.(\x.(\e.(V@e+([],[arg1(e,x)]))))) : ((#e_v -o #e_t) -o (#n_e -o (#e_v -o #e_t))) || noscope.
+#v OBL:AGENT #n & #v EV #e ==> #e ARG1 #m &
+#m GLUE (\V.(\x.(\e.(V@e+([],[arg1(e,x)]))))) : ((#e_v -o #e_t) -o (#n_e -o (#e_v -o #e_t))) || noscope.
+#v OBJ #n & #v EV #e ==> #e ARG2 #m &
+#m GLUE (\V.(\x.(\e.(V@e+([],[arg2(e,x)]))))) : ((#e_v -o #e_t) -o (#n_e -o (#e_v -o #e_t))) || noscope.
+#v NSUBJ:PASS #n & #v EV #e ==> #e ARG2 #m &
+#m GLUE (\V.(\x.(\e.(V@e+([],[arg2(e,x)]))))) : ((#e_v -o #e_t) -o (#n_e -o (#e_v -o #e_t))) || noscope.
+
+#h COP #b EV #e & #h NSUBJ #n ==> #e ARG1 #m &
+#m GLUE (\V.(\x.(\e.(V@e+([],[arg1(e,x)]))))) : ((#e_v -o #e_t) -o (#n_e -o (#e_v -o #e_t))) || noscope.
+#h COP #b EV #e & #h UPOS NOUN ==> #e ARG2 #m &
+#m GLUE (\V.(\x.(\e.(V@e+([],[arg2(e,x)]))))) : ((#e_v -o #e_t) -o (#h_e -o (#e_v -o #e_t))) || noscope.
+#h COP #b EV #e & #h UPOS PROPN ==> #e ARG2 #m &
+#m GLUE (\V.(\x.(\e.(V@e+([],[arg2(e,x)]))))) : ((#e_v -o #e_t) -o (#h_e -o (#e_v -o #e_t))) || noscope.
+
+// An adjectival predicate holds of the event (XLE: crazy(x) : f_v -o f_t, added to be(v)).
+#h COP #b EV #e & #h UPOS ADJ & #h LEMMA %l ==> #h PRED-SEM #p &
+#p GLUE (\x.([],[%l(x)])) : (#p_v -o #p_t) & #p MOD #m &
+#m GLUE (\Q.(\R.(\x.(Q@x+R@x)))) : ((#p_v -o #p_t) -o ((#e_v -o #e_t) -o (#e_v -o #e_t))) || noscope.
+
+// ---- Nouns and determiners ---------------------------------------------------------------
+// A common noun: a NOUN, or a PROPN with a determiner ("a Swede"). A name: a PROPN with
+// neither a determiner nor a head it is a compound of.
+
+#n UPOS NOUN & #n LEMMA %l ==> #n NOUN-SEM #s & #s GLUE (\x.([],[%l(x)])) : (#n_e -o #n_t).
+#n UPOS PROPN & #n DET #d & #n LEMMA %l ==> #n NOUN-SEM #s & #s GLUE (\x.([],[%l(x)])) : (#n_e -o #n_t).
+
+#n UPOS PROPN & #n LEMMA %l & #n SCOPE #c & -(#n DET #d) ==>
+#n NAME-SEM #s & #s GLUE (\x.([],[x='%l'])) : (#n_e -o #n_t) &
+#n DEF-SEM #q & #q GLUE (\P.(\Q.p(([x],[bind(x)])+P@x)+Q@x)) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)) || insitu.
+
+// A prepositional modifier of a noun ("a boxer with an injury"): the preposition relates
+// the two, and a combinator adds that to what the head noun says (XLE's two MCs of "with").
+#m NMOD #n & #n CASE #p & #p LEMMA %l ==> #p PP-SEM #s &
+#s GLUE (\U.(\V.(\e.(U@e+V@e)))) : ((#m_e -o #p_t) -o ((#m_e -o #m_t) -o (#m_e -o #m_t))) || noscope &
+#p REL-SEM #r & #r GLUE (\y.(\x.([],[%l(x,y)]))) : (#n_e -o (#m_e -o #p_t)).
+
+// A compound modifier ("Nobel prize"): a kind of what the head names.
+#n COMPOUND #m & #m LEMMA %l ==> #m MOD-SEM #s &
+#s GLUE (\P.(\x.([],[kind('%l',x)]) + P@x)) : ((#n_e -o #n_t) -o (#n_e -o #n_t)) || noscope.
+
+#n DET #d & #d LEMMA a & #n SCOPE #c ==> #d DET-SEM #s &
+#s GLUE (\P.(\Q.([x],[])+P@x+Q@x)) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)).
+#n DET #d & #d LEMMA every & #n SCOPE #c ==> #d DET-SEM #s &
+#s GLUE (\P.(\Q.([],[([x],[])+P@x->Q@x]))) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)).
+#n DET #d & #d LEMMA all & #n SCOPE #c ==> #d DET-SEM #s &
+#s GLUE (\P.(\Q.([],[([x],[])+P@x->Q@x]))) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)).
+#n DET #d & #d LEMMA no & #n SCOPE #c ==> #d DET-SEM #s &
+#s GLUE (\P.(\Q.([],[~(([x],[])+P@x+Q@x)]))) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)).
+
+// ---- Clause operators ----------------------------------------------------------------------
+
+// Negation of the clause ("not", "did not").
+#h ADVMOD #n & #n LEMMA not & #h CLAUSE #c ==> #n NEG-SEM #s &
+#s GLUE (\P.([],[~(P)])) : (#c_t -o #c_t).
+
+// A conditional: "if" relates the goals of its clause and of the clause it modifies.
+// (Node variables are one letter.)
+#m ADVCL #a & #a MARK #i & #i LEMMA if & #m CLAUSE #c GOAL #g & #a CLAUSE #p GOAL #q ==>
+#i COND-SEM #s & #s GLUE (\P.(\Q.([],[P->Q]))) : (#q_t -o (#g_t -o #g_t)).

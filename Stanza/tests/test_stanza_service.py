@@ -27,15 +27,17 @@ def test_lists_installed_models():
 def test_parses_one_sentence_into_word_nodes_with_xle_style_spans():
     structure = client.post('/parse_to_liger', json={'sentence': 'Every dog barked.', 'model': 'en'}).json()
     assert structure['syntaxType'] == 'ud'
-    assert facts(structure, '1', 'LEMMA') == [('1', 'LEMMA', 'every')]
+    # One analysis, as XLE writes the choice space of an unambiguous sentence.
+    assert structure['choiceSpace']['choices'] == [[{'choiceID': '1', 'propValue': 'true'}]]
+    assert facts(structure, 'w1', 'LEMMA') == [('w1', 'LEMMA', 'every')]
     # "dog" at [6,9): 1-based, end exclusive, as XLE writes it.
-    assert facts(structure, '2', 'token') == [('2', 'token', 'dog')]
-    assert facts(structure, '2', 'start') == [('2', 'start', '7')]
-    assert facts(structure, '2', 'end') == [('2', 'end', '10')]
-    assert ('3', 'NSUBJ', '2') in facts(structure)
-    assert ('2', 'DET', '1') in facts(structure)
-    assert ('0', 'ROOT', '3') in facts(structure)
-    assert ('3', 'TENSE', 'Past') in facts(structure)
+    assert facts(structure, 'w2', 'token') == [('w2', 'token', 'dog')]
+    assert facts(structure, 'w2', 'start') == [('w2', 'start', 'int(7)')]
+    assert facts(structure, 'w2', 'end') == [('w2', 'end', 'int(10)')]
+    assert ('w3', 'NSUBJ', 'w2') in facts(structure)
+    assert ('w2', 'DET', 'w1') in facts(structure)
+    assert ('w0', 'ROOT', 'w3') in facts(structure)
+    assert ('w3', 'TENSE', 'Past') in facts(structure)
 
 
 def test_refuses_more_than_one_sentence():

@@ -1,0 +1,103 @@
+{
+ "A Swede won a Nobel prize.": [
+  "([x1],[Swede(x1)]) + ([x2],[kind('nobel',x2),prize(x2)]) + ([x3:v],[win(x3),arg1(x3,x1),arg2(x3,x2)])"
+ ],
+ "Every Swede is a Scandinavian.": [
+  "([],[([x1],[Swede(x1)]) -> ([x2],[Scandinavian(x2)]) + ([x3:v],[be(x3),arg1(x3,x1),arg2(x3,x2)])])",
+  "([x1],[Scandinavian(x1),([x2],[Swede(x2)]) -> ([x3:v],[be(x3),arg1(x3,x2),arg2(x3,x1)])])"
+ ],
+ "A Scandinavian won a Nobel prize.": [
+  "([x1],[Scandinavian(x1)]) + ([x2],[kind('nobel',x2),prize(x2)]) + ([x3:v],[win(x3),arg1(x3,x1),arg2(x3,x2)])"
+ ],
+ "A Nobel prize was won by a Swede.": [
+  "([x1],[kind('nobel',x1),prize(x1)]) + ([x2],[Swede(x2)]) + ([x3:v],[win(x3),arg1(x3,x2),arg2(x3,x1)])"
+ ],
+ "A dog appeared.": [
+  "([x1],[dog(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)])"
+ ],
+ "No dog appeared.": [
+  "([],[~(([x1],[dog(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]))])"
+ ],
+ "No cat appeared.": [
+  "([],[~(([x1],[cat(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]))])"
+ ],
+ "Vincent knows every boxer.": [
+  "([],[([x1],[boxer(x1)]) -> ([],[p(([y1],[bind(y1),y1='vincent']))]) + ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])])",
+  "([],[p(([y1],[bind(y1),y1='vincent'])),([x1],[boxer(x1)]) -> ([x2:v],[know(x2),arg1(x2,y1),arg2(x2,x1)])])"
+ ],
+ "Butch is a boxer.": [
+  "([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1],[boxer(x1)]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)])"
+ ],
+ "Vincent knows Butch.": [
+  "([],[p(([y1],[bind(y1),y1='vincent'])),p(([y2],[bind(y2),y2='butch']))]) + ([x1:v],[know(x1),arg1(x1,y1),arg2(x1,y2)])"
+ ],
+ "If Mia snorts, then Vincent smokes.": [
+  "([],[([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)]) -> ([],[p(([y2],[bind(y2),y2='vincent']))]) + ([x2:v],[smoke(x2),arg1(x2,y2)])])"
+ ],
+ "Vincent smokes.": [
+  "([],[p(([y1],[bind(y1),y1='vincent']))]) + ([x1:v],[smoke(x1),arg1(x1,y1)])"
+ ],
+ "Mia snorts.": [
+  "([],[p(([y1],[bind(y1),y1='mia']))]) + ([x1:v],[snort(x1),arg1(x1,y1)])"
+ ],
+ "A woman loves every man.": [
+  "([],[([x1],[man(x1)]) -> ([x2],[woman(x2)]) + ([x3:v],[love(x3),arg1(x3,x2),arg2(x3,x1)])])",
+  "([x1],[woman(x1),([x2],[man(x2)]) -> ([x3:v],[love(x3),arg1(x3,x1),arg2(x3,x2)])])"
+ ],
+ "Every boxer is a man.": [
+  "([],[([x1],[boxer(x1)]) -> ([x2],[man(x2)]) + ([x3:v],[be(x3),arg1(x3,x1),arg2(x3,x2)])])",
+  "([x1],[man(x1),([x2],[boxer(x2)]) -> ([x3:v],[be(x3),arg1(x3,x2),arg2(x3,x1)])])"
+ ],
+ "A woman loves every boxer.": [
+  "([],[([x1],[boxer(x1)]) -> ([x2],[woman(x2)]) + ([x3:v],[love(x3),arg1(x3,x2),arg2(x3,x1)])])",
+  "([x1],[woman(x1),([x2],[boxer(x2)]) -> ([x3:v],[love(x3),arg1(x3,x1),arg2(x3,x2)])])"
+ ],
+ "All boxers are crazy.": [
+  "([],[([x1],[boxer(x1)]) -> ([x2:v],[crazy(x2),be(x2),arg1(x2,x1)])])"
+ ],
+ "Butch is crazy.": [
+  "([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1:v],[crazy(x1),be(x1),arg1(x1,y1)])"
+ ],
+ "All boxers are slow.": [
+  "([],[([x1],[boxer(x1)]) -> ([x2:v],[slow(x2),be(x2),arg1(x2,x1)])])"
+ ],
+ "Butch is not slow.": [
+  "([],[p(([y1],[bind(y1),y1='butch'])),~([x1:v],[slow(x1),be(x1),arg1(x1,y1)])])",
+  "([],[~(([],[p(([y1],[bind(y1),y1='butch']))]) + ([x1:v],[slow(x1),be(x1),arg1(x1,y1)]))])"
+ ],
+ "Mia likes Butch.": [
+  "([],[p(([y1],[bind(y1),y1='mia'])),p(([y2],[bind(y2),y2='butch']))]) + ([x1:v],[like(x1),arg1(x1,y1),arg2(x1,y2)])"
+ ],
+ "Butch loves Fabian.": [
+  "([],[p(([y1],[bind(y1),y1='butch'])),p(([y2],[bind(y2),y2='fabian']))]) + ([x1:v],[love(x1),arg1(x1,y1),arg2(x1,y2)])"
+ ],
+ "A boxer with an injury lost a fight.": [
+  "([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])",
+  "([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])"
+ ],
+ "A boxer lost a fight.": [
+  "([x1],[boxer(x1)]) + ([x2],[fight(x2)]) + ([x3:v],[lose(x3),arg1(x3,x1),arg2(x3,x2)])"
+ ],
+ "No boxer lost a fight.": [
+  "([],[~(([x1],[boxer(x1)]) + ([x2],[fight(x2)]) + ([x3:v],[lose(x3),arg1(x3,x1),arg2(x3,x2)]))])",
+  "([x1],[fight(x1),~(([x2],[boxer(x2)]) + ([x3:v],[lose(x3),arg1(x3,x2),arg2(x3,x1)]))])"
+ ],
+ "Every boxer with an injury lost a fight.": [
+  "([],[([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x1)])])",
+  "([x1],[fight(x1),([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) -> ([x4:v],[lose(x4),arg2(x4,x1),arg1(x4,x2)])])",
+  "([x1],[injury(x1),([x2],[with(x2,x1),boxer(x2)]) -> ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg2(x4,x3),arg1(x4,x2)])])",
+  "([x1],[injury(x1)]) + ([x2],[fight(x2),([x3],[with(x3,x1),boxer(x3)]) -> ([x4:v],[lose(x4),arg2(x4,x2),arg1(x4,x3)])])"
+ ],
+ "A boxer with an injury did not lose a fight.": [
+  "([],[~(([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x1),arg2(x4,x3)]))])",
+  "([],[~(([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x3)]))])",
+  "([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1),~(([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x1),arg2(x4,x3)]))])",
+  "([x1],[]) + ([x2],[injury(x2),with(x1,x2),boxer(x1)]) + ([x3],[fight(x3),~([x4:v],[lose(x4),arg1(x4,x1),arg2(x4,x3)])])",
+  "([x1],[fight(x1),~(([x2],[]) + ([x3],[injury(x3),with(x2,x3),boxer(x2)]) + ([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x1)]))])",
+  "([x1],[fight(x1),~(([x2],[injury(x2)]) + ([x3],[with(x3,x2),boxer(x3)]) + ([x4:v],[lose(x4),arg1(x4,x3),arg2(x4,x1)]))])",
+  "([x1],[injury(x1),~(([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x3)]))])",
+  "([x1],[injury(x1)]) + ([x2],[fight(x2),~(([x3],[with(x3,x1),boxer(x3)]) + ([x4:v],[lose(x4),arg1(x4,x3),arg2(x4,x2)]))])",
+  "([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2),~(([x3],[fight(x3)]) + ([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x3)]))])",
+  "([x1],[injury(x1)]) + ([x2],[with(x2,x1),boxer(x2)]) + ([x3],[fight(x3),~([x4:v],[lose(x4),arg1(x4,x2),arg2(x4,x3)])])"
+ ]
+}

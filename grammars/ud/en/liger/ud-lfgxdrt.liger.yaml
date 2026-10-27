@@ -1,0 +1,12 @@
+# LiGER config for English UD parses (the Stanza service's "en" model): the semantics of the
+# lfgxdrt inference grammar written over dependency structures (docs/plans/UD_PARSING_PLAN.md).
+# Paths are relative to this file.
+
+scope: .
+
+semantics:
+  - semantics/ud_lfgxdrt.liger
+  - semantics/ud_meaning_postulates.liger
+
+lexica:
+  - ../../../dev/lfgxdrt_inference_grammar/liger/dicts/ling_dict_eng.txt

@@ -4,10 +4,11 @@ One input is one sentence: the parse fails, rather than keep the first sentence,
 splits it into several. A parse is a LiGER LinguisticStructure in the constraint format
 `LinguisticStructure.parseFromJson` reads:
 
-- word nodes "1".."n" (the UD word ids), the root "0";
+- word nodes "w1".."wn" (the UD word ids; a letter prefix, as XLE's "f3", so LiGER's sequence
+  assembly renumbers them), the root "w0";
 - per word TEXT, LEMMA, UPOS, XPOS, the UD features (names upper-cased, values as UD writes
-  them) and the surface span as XLE writes it -- `token`, `start`, `end`, 1-based, end
-  exclusive -- which LiGER's SourceTokenIndex reads;
+  them) and the surface span as XLE writes it -- `token`, `start` and `end` as `int(n)`,
+  1-based, end exclusive -- which LiGER's SourceTokenIndex and sequence assembly read;
 - per dependency `head DEPREL dependent`, the relation upper-cased with ":" kept
   (`NSUBJ:PASS`);
 - `syntaxType: "ud"` on the structure.
@@ -71,8 +72,13 @@ def unload_idle(now: Optional[datetime.datetime] = None) -> list[str]:
     return idle
 
 
+# A UD parse is unambiguous: XLE's choice space for a sentence with one analysis.
+ROOT_CHOICE = {'choiceID': '1', 'propValue': 'true'}
+CHOICE_SPACE = {'rootChoice': [ROOT_CHOICE], 'choiceNodes': [], 'choices': [[ROOT_CHOICE]], 'allVars': []}
+
+
 def constraint(source: str, relation: str, target) -> dict:
-    return {'choiceVars': [], 'sourceNode': source, 'relationLabel': relation,
+    return {'choiceVars': [ROOT_CHOICE], 'sourceNode': source, 'relationLabel': relation,
             'targetNode': str(target), 'projection': 'false'}
 
 
@@ -83,7 +89,7 @@ def to_liger(sentence_id: str, text: str, document: stanza.Document) -> dict:
     constraints = []
     for token in sentence.tokens:
         for word in token.words:
-            node = str(word.id)
+            node = f'w{word.id}'
             constraints.append(constraint(node, 'TEXT', word.text))
             constraints.append(constraint(node, 'LEMMA', word.lemma))
             constraints.append(constraint(node, 'UPOS', word.upos))
@@ -95,12 +101,12 @@ def to_liger(sentence_id: str, text: str, document: stanza.Document) -> dict:
                     constraints.append(constraint(node, name.upper(), value))
             # A multi-word token's words share its span ("don't" -> do, n't).
             constraints.append(constraint(node, 'token', word.text))
-            constraints.append(constraint(node, 'start', token.start_char + 1))
-            constraints.append(constraint(node, 'end', token.end_char + 1))
+            constraints.append(constraint(node, 'start', f'int({token.start_char + 1})'))
+            constraints.append(constraint(node, 'end', f'int({token.end_char + 1})'))
     for head, relation, dependent in sentence.dependencies:
-        constraints.append(constraint(str(head.id) if head.id != 0 else '0', relation.upper(), dependent.id))
+        constraints.append(constraint(f'w{head.id}', relation.upper(), f'w{dependent.id}'))
     return {'id': sentence_id, 'text': text, 'syntaxType': 'ud', 'constraints': constraints,
-            'annotations': [], 'choiceSpace': {}}
+            'annotations': [], 'choiceSpace': CHOICE_SPACE}
 
 
 def parse(sentence_id: str, text: str, model: str, models_dir: Path = MODELS_DIR) -> dict:
