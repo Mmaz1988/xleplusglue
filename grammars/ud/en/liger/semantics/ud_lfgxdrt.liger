@@ -18,15 +18,25 @@
 
 #c GOAL #g ==> #g GLUE (\P.P) : (#c_t -o #g_t).
 
-// The scope of a noun phrase: the clause of its head, or its own for a predicate nominal.
-#v NSUBJ #n & #v CLAUSE #c ==> #n SCOPE #c.
-#v NSUBJ:PASS #n & #v CLAUSE #c ==> #n SCOPE #c.
-#v OBJ #n & #v CLAUSE #c ==> #n SCOPE #c.
-#v OBL #n & #v CLAUSE #c ==> #n SCOPE #c.
-#v OBL:AGENT #n & #v CLAUSE #c ==> #n SCOPE #c.
-#n COP #b & #n CLAUSE #c ==> #n SCOPE #c.
-// A noun inside a noun phrase ("a boxer with an injury") scopes where that phrase does.
-#m NMOD #n & #m SCOPE #c ==> #n SCOPE #c.
+// Scope (as XLE's QUANT-SCOPE, by inside-out functional uncertainty): a noun phrase can scope
+// at the clause of any clause head it is embedded in, along argument, modifier and clausal
+// relations. Step 1 states every site; step 2 has each noun phrase choose one, independently
+// of the others (?*=>: one branch per combination).
+EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP | ADVCL | ACL | ACL:RELCL .
+
+#n UPOS NOUN & #n ^(@EMB*) #v & #v CLAUSE #c ==> #n SCOPE-SITE #c.
+#n UPOS PROPN & #n DET #d & #n ^(@EMB*) #v & #v CLAUSE #c ==> #n SCOPE-SITE #c.
+
+#n SCOPE-SITE #c & -(#n SCOPE #x) ?*=> #n SCOPE #c.
+
+// A name scopes locally: at the closest tense-marked clause it is embedded in (finite head, or
+// a finite auxiliary or copula), as it stays in situ ("Kim believes that Mia left").
+#v CLAUSE #c & #v VERBFORM Fin ==> #v TAM-CLAUSE #c.
+#v CLAUSE #c & #v AUX #a & #a VERBFORM Fin ==> #v TAM-CLAUSE #c.
+#v CLAUSE #c & #v COP #a & #a VERBFORM Fin ==> #v TAM-CLAUSE #c.
+
+#n UPOS PROPN & -(#n DET #d) & #n ^(@EMB*) #v & #v TAM-CLAUSE #c &
+-(#n ^(@EMB*) #u ^(@EMB+) #v & #u TAM-CLAUSE #x) ==> #n SCOPE #c.
 
 // ---- Events ----------------------------------------------------------------------------
 

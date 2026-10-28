@@ -33,8 +33,7 @@ GSWB_PREFERENCES = {"prover": 1, "debugging": False, "outputstyle": 5, "parseSem
                     "naturalDeductionStyle": 0}
 
 # XLE has a second parse in which the determiner inside "with an injury" scopes over the PP; UD
-# has one parse and gives the reading with the clause scope only. Rule branches do not give a
-# second constructor set (LiGER composes a sentence's first branch), so this stays a subset.
+# has one parse, and the PP is no clause, so its only scope site is the clause: a subset.
 KNOWN_SUBSETS = {
     'A boxer with an injury lost a fight.',
     'Every boxer with an injury lost a fight.',
@@ -78,19 +77,22 @@ def ud_readings(sentence, rules):
                                                   'parser': {'kind': 'ud', 'model': 'en'}})
     solutions = liger.get('solutions') or []
     assert solutions, f'LiGER gave no UD analysis of {sentence!r}: {liger.get("failureMessage")}'
-    solution = solutions[0]
-    mcs = solution['meaningConstructors']
-    # Every constructor has a numeric source index (UdSourceIndices), as XLE's do.
-    indices = re.findall(r'^\[([^\]]+)\]', mcs, re.M)
-    assert indices and all(index.isdigit() for index in indices), f'{sentence!r}: {mcs}'
-    assert len(set(indices)) == len(indices), f'{sentence!r}: indices not distinct: {mcs}'
-    gswb = post(f'{GSWB_URL}/deduce', {'premises': mcs, 'gswbPreferences': GSWB_PREFERENCES,
-                                       'structure': solution['structureJson'],
-                                       'proofs': [{'proofId': solution['solutionKey'], 'sentenceId': 'S0',
-                                                   'solutionKey': solution['solutionKey'],
-                                                   'meaningConstructors': mcs,
-                                                   'structure': solution['structureJson']}]})
-    return {(s.get('semanticAnalysis') or {}).get('semString') for s in gswb.get('solutions') or []} - {None}
+    readings = set()
+    # Every solution: a parse's rule branches (scope choices) are solutions of their own.
+    for solution in solutions:
+        mcs = solution['meaningConstructors']
+        # Every constructor has a numeric source index (UdSourceIndices), as XLE's do.
+        indices = re.findall(r'^\[([^\]]+)\]', mcs, re.M)
+        assert indices and all(index.isdigit() for index in indices), f'{sentence!r}: {mcs}'
+        assert len(set(indices)) == len(indices), f'{sentence!r}: indices not distinct: {mcs}'
+        gswb = post(f'{GSWB_URL}/deduce', {'premises': mcs, 'gswbPreferences': GSWB_PREFERENCES,
+                                           'structure': solution['structureJson'],
+                                           'proofs': [{'proofId': solution['solutionKey'], 'sentenceId': 'S0',
+                                                       'solutionKey': solution['solutionKey'],
+                                                       'meaningConstructors': mcs,
+                                                       'structure': solution['structureJson']}]})
+        readings |= {(s.get('semanticAnalysis') or {}).get('semString') for s in gswb.get('solutions') or []} - {None}
+    return readings
 
 
 def compare():
