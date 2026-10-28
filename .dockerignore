@@ -21,8 +21,12 @@ vampire_build_mac/
 tmp/
 redis-data/
 
-# Local model/toolkit downloads -- ~1.1 GB combined, needed by nothing in any image.
-Stanza/
+# Local model/toolkit downloads -- ~1.1 GB combined, needed by nothing in any image. The stanza
+# image copies only its service modules and requirements; its models are mounted.
+Stanza/venv/
+Stanza/models/
+Stanza/tests/
+Stanza/**/__pycache__/
 models/
 
 # The lm service's local virtualenv (~800 MB) and test scratch output; the lm image installs
