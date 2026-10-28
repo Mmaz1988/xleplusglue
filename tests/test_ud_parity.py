@@ -1,4 +1,4 @@
-"""UD parity (docs/plans/UD_PARSING_PLAN.md, step 3) on basic-short, up to referent names:
+"""UD parity (docs/plans/UD_PARSING_PLAN.md, steps 3 and 5) on basic-short and anaphora, up to referent names:
 
 - sentences: every sentence parsed with Stanza (LiGER `parser: ud`), annotated with
   grammars/ud/en/liger and composed by GSWB, gives the DRSs the lfgxdrt inference grammar gives
@@ -7,13 +7,15 @@
   append, post-process with the config's pragmatics rules, /generate_pcdrs; the helpers of
   test_full_analysis_workflow.py), gives the PCDRS readings, A: and P: included, of the XLE run.
 
-The XLE results are fixtures (tests/fixtures/ud_parity_xle_basic_short*.json, from the reference
-session basic-short-new-copy, 2026-10-27), so only LiGER, GSWB and the Stanza service are needed:
+The XLE results are fixtures (tests/fixtures/ud_parity_xle_<suite>*.json, from the reference
+sessions basic-short-new-copy and pronouns-new-copy, 2026-10-27), so only LiGER, GSWB and the
+Stanza service are needed:
 
     STANZA_URL=http://localhost:8085 java -jar ../liger/target/liger-20250303.jar -web
-    python3 tests/test_ud_parity.py            # or pytest; LIGER_URL / GSWB_URL to point elsewhere
+    python3 tests/test_ud_parity.py [suite ...]   # or pytest; LIGER_URL / GSWB_URL to point elsewhere
 
-Known differences are listed in KNOWN_SUBSETS: there UD gives a subset of XLE's readings.
+Known differences are listed per suite: `subsets` where UD gives a subset of XLE's readings,
+`skipped` what the UD rules do not cover yet.
 """
 import json
 import os
@@ -25,22 +27,38 @@ from pathlib import Path
 LIGER_URL = os.environ.get('LIGER_URL', 'http://localhost:8080')
 GSWB_URL = os.environ.get('GSWB_URL', 'http://localhost:8081')
 CONFIG = Path(__file__).resolve().parents[1] / 'grammars' / 'ud' / 'en' / 'liger'
-FIXTURE = Path(__file__).resolve().parent / 'fixtures' / 'ud_parity_xle_basic_short.json'
-DISCOURSE_FIXTURE = Path(__file__).resolve().parent / 'fixtures' / 'ud_parity_xle_basic_short_discourses.json'
+FIXTURES = Path(__file__).resolve().parent / 'fixtures'
 PARSER = {'kind': 'ud', 'model': 'en'}
 GSWB_PREFERENCES = {"prover": 1, "debugging": False, "outputstyle": 5, "parseSem": False, "betaReduce": True,
                     "resolveDrs": True, "glueOnly": False, "meaningOnly": False, "explainFail": False,
                     "naturalDeductionStyle": 0}
 
-# XLE has a second parse in which the determiner inside "with an injury" scopes over the PP; UD
-# has one parse, and the PP is no clause, so its only scope site is the clause: a subset.
-KNOWN_SUBSETS = {
-    'A boxer with an injury lost a fight.',
-    'Every boxer with an injury lost a fight.',
-    'A boxer with an injury did not lose a fight.',
+SUITES = {
+    'basic-short': {
+        # XLE has a second parse in which the determiner inside "with an injury" scopes over the
+        # PP; UD has one parse, and the PP is no clause, so its only scope site is the clause.
+        'subsets': {
+            'A boxer with an injury lost a fight.',
+            'Every boxer with an injury lost a fight.',
+            'A boxer with an injury did not lose a fight.',
+        },
+        # The items with those sentences, for the same reason.
+        'subset_items': {'n13', 'n14', 'n15'},
+        'skipped': set(),
+        'skipped_items': set(),
+    },
+    'anaphora': {
+        'subsets': set(),
+        'subset_items': set(),
+        # Comparatives are the degree suite's (UD plan, stretch).
+        'skipped': {'Peter is faster than Sue.'},
+        'skipped_items': {'n2', 'n3'},
+    },
 }
-# The items with those sentences, for the same reason.
-KNOWN_SUBSET_ITEMS = {'n13', 'n14', 'n15'}
+
+
+def fixture(suite, kind=''):
+    return json.loads((FIXTURES / f"ud_parity_xle_{suite.replace('-', '_')}{kind}.json").read_text())
 
 
 def post(url, payload):
@@ -95,15 +113,18 @@ def ud_readings(sentence, rules):
     return readings
 
 
-def compare():
-    expected = json.loads(FIXTURE.read_text())
+def compare(suite):
+    known = SUITES[suite]
     rules = semantics_rules()
     failures = []
-    for sentence, xle in expected.items():
+    for sentence, xle in fixture(suite).items():
+        if sentence in known['skipped']:
+            print('skip  ', sentence)
+            continue
         xle_set = {canonical(drs) for drs in xle}
         ud = ud_readings(sentence, rules)
         ud_set = {canonical(drs) for drs in ud}
-        if ud_set == xle_set or (sentence in KNOWN_SUBSETS and ud_set and ud_set <= xle_set):
+        if ud_set == xle_set or (sentence in known['subsets'] and ud_set and ud_set <= xle_set):
             print('ok    ', sentence)
             continue
         failures.append(sentence)
@@ -150,14 +171,17 @@ def ud_discourse(sentences, semantics, pragmatics):
     return readings
 
 
-def compare_discourses():
-    expected = json.loads(DISCOURSE_FIXTURE.read_text())
+def compare_discourses(suite):
+    known = SUITES[suite]
     semantics, pragmatics = stage_rules('semantics'), stage_rules('pragmatics')
     failures = []
-    for item, data in expected.items():
+    for item, data in fixture(suite, '_discourses').items():
+        if item in known['skipped_items']:
+            print(f'skip   {item}')
+            continue
         xle = {canonical(drs) for drs in data['readings']}
         ud = {canonical(drs) for drs in ud_discourse(data['sentences'], semantics, pragmatics)}
-        if ud == xle or (item in KNOWN_SUBSET_ITEMS and ud and ud <= xle):
+        if ud == xle or (item in known['subset_items'] and ud and ud <= xle):
             print(f'ok     {item} ({len(ud)} of {len(xle)} readings)')
             continue
         failures.append(item)
@@ -166,12 +190,21 @@ def compare_discourses():
 
 
 def test_ud_parity_with_xle_on_basic_short():
-    assert compare() == []
+    assert compare('basic-short') == []
 
 
 def test_ud_discourses_match_xle_on_basic_short():
-    assert compare_discourses() == []
+    assert compare_discourses('basic-short') == []
+
+
+def test_ud_parity_with_xle_on_anaphora():
+    assert compare('anaphora') == []
+
+
+def test_ud_discourses_match_xle_on_anaphora():
+    assert compare_discourses('anaphora') == []
 
 
 if __name__ == '__main__':
-    sys.exit(1 if compare() + compare_discourses() else 0)
+    suites = sys.argv[1:] or list(SUITES)
+    sys.exit(1 if [f for suite in suites for f in compare(suite) + compare_discourses(suite)] else 0)

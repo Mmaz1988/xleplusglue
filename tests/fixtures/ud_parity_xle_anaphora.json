@@ -1,0 +1,56 @@
+{
+ "A man appeared.": [
+  "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)])"
+ ],
+ "He smiled.": [
+  "([x1],[ant(x1),male(x1)]) + ([x2:v],[smile(x2),arg1(x2,x1)])"
+ ],
+ "A man smiled.": [
+  "([x1],[man(x1)]) + ([x2:v],[smile(x2),arg1(x2,x1)])"
+ ],
+ "A woman appeared.": [
+  "([x1],[woman(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)])"
+ ],
+ "She smiled.": [
+  "([x1],[ant(x1),female(x1)]) + ([x2:v],[smile(x2),arg1(x2,x1)])"
+ ],
+ "A woman smiled.": [
+  "([x1],[woman(x1)]) + ([x2:v],[smile(x2),arg1(x2,x1)])"
+ ],
+ "Peter is faster than Sue.": [
+  "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)])"
+ ],
+ "She is fast.": [
+  "([x1],[ant(x1),female(x1)]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,x1)])"
+ ],
+ "Peter is fast.": [
+  "([],[p(([y1],[bind(y1),y1='peter']))]) + ([x1:v],[]) + ([x2:d],[x2>th_fast('be'),fast(x1,x2),be(x1),arg1(x1,y1)])"
+ ],
+ "He is fast.": [
+  "([x1],[ant(x1),male(x1)]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,x1)])"
+ ],
+ "Sue is fast.": [
+  "([],[p(([y1],[bind(y1),y1='sue']))]) + ([x1:v],[]) + ([x2:d],[x2>th_fast('be'),fast(x1,x2),be(x1),arg1(x1,y1)])"
+ ],
+ "The big cat ate the black dog.": [
+  "([],[p(([y1],[bind(y1)]) + ([y2:d],[y2>th_big('cat'),big(y1,y2),cat(y1)])),p(([y3],[bind(y3),black(y3),dog(y3)]))]) + ([x1:v],[eat(x1),arg1(x1,y1),arg2(x1,y3)])"
+ ],
+ "It barked.": [
+  "([x1],[ant(x1)]) + ([x2:v],[bark(x2),arg1(x2,x1)])"
+ ],
+ "A dog barked.": [
+  "([x1],[dog(x1)]) + ([x2:v],[bark(x2),arg1(x2,x1)])"
+ ],
+ "The black dog ate the big cat.": [
+  "([],[p(([y1],[bind(y1),black(y1),dog(y1)])),p(([y2],[bind(y2)]) + ([y3:d],[y3>th_big('cat'),big(y2,y3),cat(y2)]))]) + ([x1:v],[eat(x1),arg1(x1,y1),arg2(x1,y2)])"
+ ],
+ "A man saw a woman.": [
+  "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)])"
+ ],
+ "Bill saw himself.": [
+  "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)])"
+ ],
+ "Bill saw Bill.": [
+  "([],[p(([y1],[bind(y1),y1='bill'])),p(([y2],[bind(y2),y2='bill']))]) + ([x1:v],[see(x1),arg1(x1,y1),arg2(x1,y2)])"
+ ]
+}

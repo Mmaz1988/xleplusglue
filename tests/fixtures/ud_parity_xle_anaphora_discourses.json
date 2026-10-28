@@ -1,0 +1,140 @@
+{
+ "n0": {
+  "sentences": [
+   "A man appeared.",
+   "He smiled.",
+   "A man smiled."
+  ],
+  "gold": "1",
+  "readings": [
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([x3],[ant(x3),male(x3)]) + ([x4:v],[smile(x4),arg1(x4,x3)]) ; ([x5],[man(x5)]) + ([x6:v],[smile(x6),arg1(x6,x5)]),A:[a(s2:x3,/)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([x3],[ant(x3),male(x3)]) + ([x4:v],[smile(x4),arg1(x4,x3)]) ; ([x5],[man(x5)]) + ([x6:v],[smile(x6),arg1(x6,x5)]),A:[a(s2:x3,x1)]"
+  ]
+ },
+ "n1": {
+  "sentences": [
+   "A woman appeared.",
+   "She smiled.",
+   "A woman smiled."
+  ],
+  "gold": "1",
+  "readings": [
+   "([x1],[woman(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([x3],[ant(x3),female(x3)]) + ([x4:v],[smile(x4),arg1(x4,x3)]) ; ([x5],[woman(x5)]) + ([x6:v],[smile(x6),arg1(x6,x5)]),A:[a(s2:x3,/)]",
+   "([x1],[woman(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([x3],[ant(x3),female(x3)]) + ([x4:v],[smile(x4),arg1(x4,x3)]) ; ([x5],[woman(x5)]) + ([x6:v],[smile(x6),arg1(x6,x5)]),A:[a(s2:x3,x1)]"
+  ]
+ },
+ "n2": {
+  "sentences": [
+   "Peter is faster than Sue.",
+   "She is fast.",
+   "Peter is fast."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),female(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='peter']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,/),a(s10:y3,x3)],P:[p(s1,s1),p(s2,s2),p(s10,s6)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),female(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='peter']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,/)],P:[p(s1,s1),p(s2,s2),p(s10,s0)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),female(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='peter']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,y1),a(s10:y3,x3)],P:[p(s1,s1),p(s2,s2),p(s10,s6)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),female(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='peter']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,y1)],P:[p(s1,s1),p(s2,s2),p(s10,s0)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),female(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='peter']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,y2),a(s10:y3,x3)],P:[p(s1,s1),p(s2,s2),p(s10,s6)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),female(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='peter']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,y2)],P:[p(s1,s1),p(s2,s2),p(s10,s0)]"
+  ]
+ },
+ "n3": {
+  "sentences": [
+   "Peter is faster than Sue.",
+   "He is fast.",
+   "Sue is fast."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),male(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='sue']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,/),a(s10:y3,x3)],P:[p(s1,s1),p(s2,s2),p(s10,s6)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),male(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='sue']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,/)],P:[p(s1,s1),p(s2,s2),p(s10,s0)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),male(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='sue']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,y1),a(s10:y3,x3)],P:[p(s1,s1),p(s2,s2),p(s10,s6)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),male(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='sue']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,y1)],P:[p(s1,s1),p(s2,s2),p(s10,s0)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),male(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='sue']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,y2),a(s10:y3,x3)],P:[p(s1,s1),p(s2,s2),p(s10,s6)]",
+   "([],[p(([y1],[bind(y1),y1='peter'])),p(([y2],[bind(y2),y2='sue']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([x3],[ant(x3),male(x3)]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='sue']))]) + ([x6:v],[]) + ([x7:d],[x7>th_fast('be'),fast(x6,x7),be(x6),arg1(x6,y3)]),A:[a(s6:x3,y2)],P:[p(s1,s1),p(s2,s2),p(s10,s0)]"
+  ]
+ },
+ "n4": {
+  "sentences": [
+   "The big cat ate the black dog.",
+   "It barked.",
+   "A dog barked."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1)]) + ([y2:d],[y2>th_big('cat'),big(y1,y2),cat(y1)])),p(([y3],[bind(y3),black(y3),dog(y3)]))]) + ([x1:v],[eat(x1),arg1(x1,y1),arg2(x1,y3)]) ; ([x2],[ant(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]) ; ([x4],[dog(x4)]) + ([x5:v],[bark(x5),arg1(x5,x4)]),A:[a(s5:x2,/)],P:[p(s1,s1),p(s3,s3)]",
+   "([],[p(([y1],[bind(y1)]) + ([y2:d],[y2>th_big('cat'),big(y1,y2),cat(y1)])),p(([y3],[bind(y3),black(y3),dog(y3)]))]) + ([x1:v],[eat(x1),arg1(x1,y1),arg2(x1,y3)]) ; ([x2],[ant(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]) ; ([x4],[dog(x4)]) + ([x5:v],[bark(x5),arg1(x5,x4)]),A:[a(s5:x2,y1)],P:[p(s1,s1),p(s3,s3)]",
+   "([],[p(([y1],[bind(y1)]) + ([y2:d],[y2>th_big('cat'),big(y1,y2),cat(y1)])),p(([y3],[bind(y3),black(y3),dog(y3)]))]) + ([x1:v],[eat(x1),arg1(x1,y1),arg2(x1,y3)]) ; ([x2],[ant(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]) ; ([x4],[dog(x4)]) + ([x5:v],[bark(x5),arg1(x5,x4)]),A:[a(s5:x2,y3)],P:[p(s1,s1),p(s3,s3)]"
+  ]
+ },
+ "n5": {
+  "sentences": [
+   "The black dog ate the big cat.",
+   "It barked.",
+   "A dog barked."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),black(y1),dog(y1)])),p(([y2],[bind(y2)]) + ([y3:d],[y3>th_big('cat'),big(y2,y3),cat(y2)]))]) + ([x1:v],[eat(x1),arg1(x1,y1),arg2(x1,y2)]) ; ([x2],[ant(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]) ; ([x4],[dog(x4)]) + ([x5:v],[bark(x5),arg1(x5,x4)]),A:[a(s5:x2,/)],P:[p(s1,s1),p(s2,s2)]",
+   "([],[p(([y1],[bind(y1),black(y1),dog(y1)])),p(([y2],[bind(y2)]) + ([y3:d],[y3>th_big('cat'),big(y2,y3),cat(y2)]))]) + ([x1:v],[eat(x1),arg1(x1,y1),arg2(x1,y2)]) ; ([x2],[ant(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]) ; ([x4],[dog(x4)]) + ([x5:v],[bark(x5),arg1(x5,x4)]),A:[a(s5:x2,y1)],P:[p(s1,s1),p(s2,s2)]",
+   "([],[p(([y1],[bind(y1),black(y1),dog(y1)])),p(([y2],[bind(y2)]) + ([y3:d],[y3>th_big('cat'),big(y2,y3),cat(y2)]))]) + ([x1:v],[eat(x1),arg1(x1,y1),arg2(x1,y2)]) ; ([x2],[ant(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]) ; ([x4],[dog(x4)]) + ([x5:v],[bark(x5),arg1(x5,x4)]),A:[a(s5:x2,y2)],P:[p(s1,s1),p(s2,s2)]"
+  ]
+ },
+ "n6": {
+  "sentences": [
+   "A man saw a woman.",
+   "She smiled.",
+   "A woman smiled."
+  ],
+  "gold": "1",
+  "readings": [
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),female(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[woman(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,/)]",
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),female(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[woman(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,x1)]",
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),female(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[woman(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,x2)]"
+  ]
+ },
+ "n7": {
+  "sentences": [
+   "A man saw a woman.",
+   "She smiled.",
+   "A man smiled."
+  ],
+  "gold": "0",
+  "readings": [
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),female(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[man(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,/)]",
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),female(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[man(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,x1)]",
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),female(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[man(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,x2)]"
+  ]
+ },
+ "n8": {
+  "sentences": [
+   "A man saw a woman.",
+   "He smiled.",
+   "A man smiled."
+  ],
+  "gold": "1",
+  "readings": [
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),male(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[man(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,/)]",
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),male(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[man(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,x1)]",
+   "([x1],[man(x1)]) + ([x2],[woman(x2)]) + ([x3:v],[see(x3),arg1(x3,x1),arg2(x3,x2)]) ; ([x4],[ant(x4),male(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]) ; ([x6],[man(x6)]) + ([x7:v],[smile(x7),arg1(x7,x6)]),A:[a(s3:x4,x2)]"
+  ]
+ },
+ "n9": {
+  "sentences": [
+   "Bill saw himself.",
+   "Bill saw Bill."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,/),a(s5:y2,x1),a(s6:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
+   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,/),a(s5:y2,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
+   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,/),a(s6:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
+   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,/)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
+   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,y1),a(s5:y2,x1),a(s6:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
+   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,y1),a(s5:y2,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
+   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,y1),a(s6:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
+   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,y1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]"
+  ]
+ }
+}
