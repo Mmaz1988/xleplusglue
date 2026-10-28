@@ -24,18 +24,24 @@
 // of the others (?*=>: one branch per combination).
 EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP | ADVCL | ACL | ACL:RELCL .
 
-#n UPOS NOUN & #n ^(@EMB*) #v & #v CLAUSE #c ==> #n SCOPE-SITE #c.
-#n UPOS PROPN & #n DET #d & #n ^(@EMB*) #v & #v CLAUSE #c ==> #n SCOPE-SITE #c.
+// Names, definite descriptions and personal pronouns stay in situ (XLE's NAME-SCOPE): below.
+#n UPOS PROPN & -(#n DET #d) ==> #n IN-SITU true.
+#n DET #d & #d LEMMA the ==> #n IN-SITU true.
+#n UPOS PRON & #n PRONTYPE Prs ==> #n IN-SITU true.
+
+#n UPOS NOUN & -(#n IN-SITU true) & #n ^(@EMB*) #v & #v CLAUSE #c ==> #n SCOPE-SITE #c.
+#n UPOS PROPN & -(#n IN-SITU true) & #n DET #d & #n ^(@EMB*) #v & #v CLAUSE #c ==> #n SCOPE-SITE #c.
 
 #n SCOPE-SITE #c & -(#n SCOPE #x) ?*=> #n SCOPE #c.
 
-// A name scopes locally: at the closest tense-marked clause it is embedded in (finite head, or
-// a finite auxiliary or copula), as it stays in situ ("Kim believes that Mia left").
+// What stays in situ scopes locally: at the closest tense-marked clause it is embedded in
+// (finite head, or a finite auxiliary or copula), e.g. a name in "Kim believes that Mia left".
+
 #v CLAUSE #c & #v VERBFORM Fin ==> #v TAM-CLAUSE #c.
 #v CLAUSE #c & #v AUX #a & #a VERBFORM Fin ==> #v TAM-CLAUSE #c.
 #v CLAUSE #c & #v COP #a & #a VERBFORM Fin ==> #v TAM-CLAUSE #c.
 
-#n UPOS PROPN & -(#n DET #d) & #n ^(@EMB*) #v & #v TAM-CLAUSE #c &
+#n IN-SITU true & #n ^(@EMB*) #v & #v TAM-CLAUSE #c &
 -(#n ^(@EMB*) #u ^(@EMB+) #v & #u TAM-CLAUSE #x) ==> #n SCOPE #c.
 
 // ---- Events ----------------------------------------------------------------------------
@@ -69,6 +75,35 @@ EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP 
 #p GLUE (\x.([],[%l(x)])) : (#p_v -o #p_t) & #p MOD #m &
 #m GLUE (\Q.(\R.(\x.(Q@x+R@x)))) : ((#p_v -o #p_t) -o ((#e_v -o #e_t) -o (#e_v -o #e_t))) || noscope.
 
+// ---- Adjectives ----------------------------------------------------------------------------
+// Degree (gradable) adjectives: the lfgxdrt grammar's lexicon (lexica/adj_adv_lex_fracas,
+// SEMTYPE degree). Any other adjective is intersective, as one the grammar does not list.
+#a UPOS ADJ & #a LEMMA big ==> #a SEMTYPE degree.
+#a UPOS ADJ & #a LEMMA clever ==> #a SEMTYPE degree.
+#a UPOS ADJ & #a LEMMA fast ==> #a SEMTYPE degree.
+#a UPOS ADJ & #a LEMMA fat ==> #a SEMTYPE degree.
+#a UPOS ADJ & #a LEMMA important ==> #a SEMTYPE degree.
+#a UPOS ADJ & #a LEMMA large ==> #a SEMTYPE degree.
+#a UPOS ADJ & #a LEMMA small ==> #a SEMTYPE degree.
+#a UPOS ADJ & #a LEMMA successful ==> #a SEMTYPE degree.
+#a UPOS ADJ & #a LEMMA warm ==> #a SEMTYPE degree.
+
+// An attributive adjective ("black dog") adds its predicate to the noun's (XLE's DEFAULT-ADJ-SEM).
+#n AMOD #a & #a LEMMA %l ==> #a ADJ-SEM #p &
+#p GLUE (\x.([],[%l(x)])) : (#p_e -o #p_t) & #p MOD #m &
+#m GLUE (\Q.(\R.(\x.(Q@x+R@x)))) : ((#p_e -o #p_t) -o ((#n_e -o #n_t) -o (#n_e -o #n_t))) || noscope.
+
+// A degree adjective relates its holder to a degree above the threshold of the noun (attributive,
+// "big cat": th_big('cat')) or of the copula (predicative: th_fast('be')): the lfgxdrt grammar's
+// degree rules (liger/semantics/degree_rules_lfgxdrt.liger), positive uses.
+#n AMOD #a & #a SEMTYPE degree & #a LEMMA %l & #a ADJ-SEM #p & #n LEMMA %x ==>
+#p DEGREE #d & #d POSITIVE #o & #o GLUE (\P.([d:d],[]) + ([],[d > th_%l('%x')]) + P@d) : ((#d_d -o #n_t) -o #n_t) || noscope &
+#p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_e -o #p_t) -o (#d_d -o (#p_e -o #p_t))).
+
+#h COP #b EV #e & #h SEMTYPE degree & #h LEMMA %l & #h PRED-SEM #p & #b LEMMA %x ==>
+#p DEGREE #d & #d POSITIVE #o & #o GLUE (\P.([d:d],[]) + ([],[d > th_%l('%x')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope &
+#p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_v -o #p_t) -o (#d_d -o (#p_v -o #p_t))).
+
 // ---- Nouns and determiners ---------------------------------------------------------------
 // A common noun: a NOUN, or a PROPN with a determiner ("a Swede"). A name: a PROPN with
 // neither a determiner nor a head it is a compound of.
@@ -79,6 +114,17 @@ EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP 
 #n UPOS PROPN & #n LEMMA %l & #n SCOPE #c & -(#n DET #d) ==>
 #n NAME-SEM #s & #s GLUE (\x.([],[x='%l'])) : (#n_e -o #n_t) &
 #n DEF-SEM #q & #q GLUE (\P.(\Q.p(([x],[bind(x)])+P@x)+Q@x)) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)) || insitu.
+
+// A personal pronoun: an indefinite with ant(x) and its gender, in situ (XLE's PRON-SEM-GEND;
+// "it", without a gender, PRON-SEM).
+#n UPOS PRON & #n PRONTYPE Prs & #n SCOPE #c ==> #n PRON-Q #q &
+#q GLUE (\P.(\Q.([x],[])+P@x+Q@x)) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)) || insitu.
+#n UPOS PRON & #n PRONTYPE Prs & #n GENDER Masc ==> #n PRON-SEM #s &
+#s GLUE (\x.([],[ant(x),male(x)])) : (#n_e -o #n_t).
+#n UPOS PRON & #n PRONTYPE Prs & #n GENDER Fem ==> #n PRON-SEM #s &
+#s GLUE (\x.([],[ant(x),female(x)])) : (#n_e -o #n_t).
+#n UPOS PRON & #n PRONTYPE Prs & -(#n GENDER Masc) & -(#n GENDER Fem) ==> #n PRON-SEM #s &
+#s GLUE (\x.([],[ant(x)])) : (#n_e -o #n_t).
 
 // A prepositional modifier of a noun ("a boxer with an injury"): the preposition relates
 // the two, and a combinator adds that to what the head noun says (XLE's two MCs of "with").
@@ -96,6 +142,8 @@ EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP 
 #s GLUE (\P.(\Q.([],[([x],[])+P@x->Q@x]))) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)).
 #n DET #d & #d LEMMA all & #n SCOPE #c ==> #d DET-SEM #s &
 #s GLUE (\P.(\Q.([],[([x],[])+P@x->Q@x]))) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)).
+#n DET #d & #d LEMMA the & #n SCOPE #c ==> #d DET-SEM #s &
+#s GLUE (\P.(\Q.p(([x],[bind(x)])+P@x)+Q@x)) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)) || insitu.
 #n DET #d & #d LEMMA no & #n SCOPE #c ==> #d DET-SEM #s &
 #s GLUE (\P.(\Q.([],[~(([x],[])+P@x+Q@x)]))) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)).
 

@@ -3,3 +3,17 @@
 #b TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).
 #h COP #b LEMMA be & #h UPOS PROPN ==>
 #b TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).
+
+//Degree adjectives (the lfgxdrt grammar's degree_rules_lfgxdrt.liger), keyed on the semantics:
+//wherever a degree predicate was introduced (DEGREE-PRED). TFF_TYPE: the tff types of the
+//predicate (individual and degree) and of its threshold, declared once per inference run and
+//dropped for fof. TPTP_AXIOM: monotonicity, comparison and maximality (escape conjunction as \&).
+#a SEMTYPE degree & #a ADJ-SEM #p DEGREE-PRED #q ==> #a DEGREE-SEM #p.
+#a SEMTYPE degree & #a PRED-SEM #p DEGREE-PRED #q ==> #a DEGREE-SEM #p.
+
+#a DEGREE-SEM #p & #a LEMMA %l & #p DEGREE #d ==>
+#p TFF_TYPE %l: ($i * $int) > $o &
+#d TFF_TYPE th_%l: $i > $int &
+#a MONO #m & #m TPTP_AXIOM ![X:$i, Delta1:$int]: (%l(X,Delta1) <=> ![Delta2:$int]: ($lesseq(Delta2,Delta1) => %l(X,Delta2))) &
+#a CP #r & #r TPTP_AXIOM ![X:$i, Y:$i]: (?[D:$int]: (%l(X,D) \& ~ %l(Y,D)) => ![D2:$int]: (%l(Y,D2) => %l(X,D2))) &
+#a MAX #s & #s TPTP_AXIOM ![X:$i]: ?[Delta1:$int]: (%l(X,Delta1) \& ~ ?[Delta2:$int]: ($greater(Delta2,Delta1) \& %l(X,Delta2))).
