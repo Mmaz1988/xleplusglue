@@ -1,0 +1,56 @@
+// Pronouns for UD parses: grammars/dev/lfgxdrt_inference_grammar/liger/pragmatics/pronouns.liger
+// with the syntax side read off dependency structures (PRONTYPE Prs, REFLEX Yes; a reflexive's
+// binder is a dependent of its head, higher on the GF hierarchy). The rest works on the DRS
+// graph and is unchanged. Needs pragmatics/ud_core.liger before it.
+
+//Reflexive binding constraint (positive constraint): the reflexive's head has a dependent
+//higher in the functional hierarchy
+REFL-BIND(#f,#h) := #f REFLEX Yes & #j @GF #f & #j @GF #h & superior(GF,#h,#f) .
+
+//Checks if two antecedent paths remain disjoint
+DISJOINT(#a,#b) := -(#a !(POSSIBLE-ANT+) #g & #b !(POSSIBLE-ANT+) #h & id(#g) == id(#h)) .
+
+CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c .
+
+ANT(#a) := #a ^(TERM1) #b & #b NAME 'ant' .
+
+//A personal pronoun, not a reflexive
+PERS(#b) := #b PRONTYPE Prs & -(#b REFLEX Yes) .
+
+//Pronoun rules
+
+//Reflexives
+@ANT(#a) & #a SYNSEM #b & @REFL-BIND(#b,#c) & #c ^(SYNSEM) #d & @SORTAL-RESTRICTION(#d,#a) ==> #a POSSIBLE-ANT #d.
+
+//Personal pronouns
+@ANT(#a) & #a SYNSEM #b & @PERS(#b) & #c SYNSEM #d &
+@DR-PRECEDENCE(#c,#a) & @SORTAL-RESTRICTION(#c,#a) & -(@COARG(#b,#d)) ==> #a POTENTIAL-ANT #c.
+
+//For cases like EX.: Kim thought he saw him"
+//There is no antecedent path such that two coargs refer to the same DR
+@ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
+@DR-PRECEDENCE(#c,#a) & @COARG(#b,#d) &
+@CLOSEST-POTENTIAL-ANT(#a,#e) &
+@CLOSEST-POTENTIAL-ANT(#c,#f) &
+id(#f) != id(#e) ?+=> #a POSSIBLE-ANT #e & #c POSSIBLE-ANT #f.
+
+//Preparing for elimination of redundant edges (reflexive closure)
+#a POTENTIAL-ANT #c &
+-(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) &
+-(#a POSSIBLE-ANT) ==> #a POSSIBLE-ANT #c.
+
+@ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
+@COARG(#b,#d) & -(@DISJOINT(#a,#c)) ?+=> 0.
+
+//Clean up
+edge=POTENTIAL-ANT =-> 0.
+
+//Bound pronouns: the pronoun and its antecedent stand in one complex condition, e.g. "it" in
+//the consequent and "every cat" in the restrictor of "Every cat ate the mouse that it caught".
+//Any other antecedent is referential.
+COMPLEX := SUB | NOT | OR | SCOPE .
+
+IN-COMPLEX(#s,#k) := #s ^(@CONTEXT*) #k & #k ^(@COMPLEX) #h .
+
+@ANT(#a) & #a POSSIBLE-ANT #c & #s IN #a & #t IN #c &
+@IN-COMPLEX(#s,#k) & @IN-COMPLEX(#t,#k) ==> #a BOUND-ANT #c .

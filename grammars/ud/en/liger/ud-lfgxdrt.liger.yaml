@@ -8,10 +8,11 @@ semantics:
   - semantics/ud_lfgxdrt.liger
   - semantics/ud_meaning_postulates.liger
 
-# Post-processing rules over the merged syntax + DRS. Pronouns are not covered yet.
+# Post-processing rules over the merged syntax + DRS.
 pragmatics:
   - pragmatics/ud_core.liger
   - pragmatics/ud_presupposition.liger
+  - pragmatics/ud_pronouns.liger
 
 lexica:
   - ../../../dev/lfgxdrt_inference_grammar/liger/dicts/ling_dict_eng.txt
