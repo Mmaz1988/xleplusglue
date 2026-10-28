@@ -40,7 +40,7 @@ ANT(#a) := #a ^(TERM1) #b & #b NAME 'ant' .
 @DR-PRECEDENCE(#c,#a) & @COARG(#b,#d) & 
 @CLOSEST-POTENTIAL-ANT(#a,#e) & 
 @CLOSEST-POTENTIAL-ANT(#c,#f) & 
-id(#f) != id(#e) ?=> #a POSSIBLE-ANT #e & #c POSSIBLE-ANT #f.
+id(#f) != id(#e) ?+=> #a POSSIBLE-ANT #e & #c POSSIBLE-ANT #f.
 
 //Preparing for elimination of redundant edges (reflexive closure)
 #a POTENTIAL-ANT #c & 
@@ -48,7 +48,7 @@ id(#f) != id(#e) ?=> #a POSSIBLE-ANT #e & #c POSSIBLE-ANT #f.
 -(#a POSSIBLE-ANT) ==> #a POSSIBLE-ANT #c.
 
 @ANT(#a) & #a SYNSEM #b & @ANT(#c) & #c SYNSEM #d &
-@COARG(#b,#d) & -(@DISJOINT(#a,#c)) ?=> 0.
+@COARG(#b,#d) & -(@DISJOINT(#a,#c)) ?+=> 0.
 
 //Clean up
 edge=POTENTIAL-ANT =-> 0.

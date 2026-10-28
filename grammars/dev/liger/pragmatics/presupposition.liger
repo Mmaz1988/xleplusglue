@@ -19,6 +19,6 @@ BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
 //search for bound referents 
 #a POTENTIAL-BINDER #b IN #c & #a IN #d & @BIND(#d) ==> #d POSSIBLE-BINDER #c .
 
-#a POTENTIAL-BINDER #b IN #c & #a IN #d & -(#d POSSIBLE-BINDER #c) ?=> #d acc #d.
+#a POTENTIAL-BINDER #b IN #c & #a IN #d & -(#d POSSIBLE-BINDER #c) ?+=> #d acc #d.
 
 @BIND(#d) & #d acc #d =-> #d acc #d.
