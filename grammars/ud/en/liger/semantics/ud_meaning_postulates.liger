@@ -3,6 +3,9 @@
 #b TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).
 #h COP #b LEMMA be & #h UPOS PROPN ==>
 #b TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).
+//Existential "there is" (be the verb): XLE states the axiom for every be.
+#v UPOS VERB & #v LEMMA be ==>
+#v TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).
 
 //Degree adjectives (the lfgxdrt grammar's degree_rules_lfgxdrt.liger), keyed on the semantics:
 //wherever a degree predicate was introduced (DEGREE-PRED). TFF_TYPE: the tff types of the

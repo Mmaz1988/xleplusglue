@@ -99,40 +99,67 @@ EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP 
 
 // A degree adjective relates its holder to a degree above the threshold of the noun (attributive,
 // "big cat": th_big('cat')) or of the copula (predicative: th_fast('be')): the lfgxdrt grammar's
-// degree rules (liger/semantics/degree_rules_lfgxdrt.liger), positive uses.
+// degree rules (liger/semantics/degree_rules_lfgxdrt.liger), positive uses. The degree predicate
+// takes no scope (noscope): GSWB would otherwise count it, numbered like every UD constructor, as
+// a scope element an in-situ name must not outscope (XLE's copy carries no number).
 #n AMOD #a & #a SEMTYPE degree & #a LEMMA %l & #a ADJ-SEM #p & #n LEMMA %x ==>
 #p DEGREE #d & #d POSITIVE #o & #o GLUE (\P.([d:d],[]) + ([],[d > th_%l('%x')]) + P@d) : ((#d_d -o #n_t) -o #n_t) || noscope &
-#p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_e -o #p_t) -o (#d_d -o (#p_e -o #p_t))).
+#p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_e -o #p_t) -o (#d_d -o (#p_e -o #p_t))) || noscope.
 
 #h COP #b EV #e & #h SEMTYPE degree & #h LEMMA %l & #h PRED-SEM #p ==>
-#p DEGREE #d & #p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_v -o #p_t) -o (#d_d -o (#p_v -o #p_t))).
+#p DEGREE #d & #p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_v -o #p_t) -o (#d_d -o (#p_v -o #p_t))) || noscope.
 
-#h COP #b EV #e & #h LEMMA %l & #h PRED-SEM #p DEGREE #d & #b LEMMA %x & -(#h DEGREE Cmp) ==>
+#h COP #b EV #e & #h LEMMA %l & #h PRED-SEM #p DEGREE #d & #b LEMMA %x & -(#h DEGREE Cmp) & -(#h ADVMOD #a & #a LEMMA as) ==>
 #d POSITIVE #o & #o GLUE (\P.([d:d],[]) + ([],[d > th_%l('%x')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
-// A comparative ("Peter is faster than Sue"): the holder's degree d, and the compared phrase's
-// event, with a degree and an event of its own, does not reach d (XLE's comparative rule for
-// predicative uses; its threshold-free degree replaces the positive's). The compared phrase is
-// "than"'s noun; its constructors hang from "than".
+// A comparative ("Peter is faster than Sue") or an equative ("Peter is as fast as Sue"): the
+// holder's degree d, and the compared phrase's event, with a degree and an event of its own
+// (XLE's comparative and equative rules for predicative uses; their threshold-free degree
+// replaces the positive's). Comparative: the compared event does not reach d; equative: every
+// degree the compared event reaches, the holder's does. The compared phrase is the noun of
+// "than" or of the second "as"; its constructors hang from that word.
 #h COP #b EV #e & #h DEGREE Cmp & #h PRED-SEM #p DEGREE #d & #h OBL #s & #s CASE #t & #t LEMMA than ==>
 #t CMP-DEGREE #x & #t CMP-EVENT #y & #t CMP-CLAUSE #m.
+#h COP #b EV #e & #h ADVMOD #a & #a LEMMA as & #h PRED-SEM #p DEGREE #d & #h OBL #s & #s CASE #t & #t LEMMA as ==>
+#t CMP-DEGREE #x & #t CMP-EVENT #y & #t CMP-CLAUSE #m.
 
-#h COP #b EV #e & #h LEMMA %l & #h PRED-SEM #p DEGREE #d & #h OBL #s & #s CASE #t &
-#t CMP-DEGREE #x & #t CMP-EVENT #y & #t CMP-CLAUSE #m ==>
+#h PRED-SEM #p DEGREE #d & #h OBL #s & #s CASE #t & #t LEMMA than & #t CMP-DEGREE #x & #t CMP-EVENT #y & #t CMP-CLAUSE #m ==>
 #t CMP-SEM #q & #q GLUE (\P.(\Q.(\e.([d:d],[]) + P@d@e + ([],[~(([v],[]) + Q@d@v)])))) :
-((#d_d -o (#p_v -o #p_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#p_v -o #p_t))) || noscope &
+((#d_d -o (#p_v -o #p_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#p_v -o #p_t))) || noscope.
+#h PRED-SEM #p DEGREE #d & #h OBL #s & #s CASE #t & #t LEMMA as & #t CMP-DEGREE #x & #t CMP-EVENT #y & #t CMP-CLAUSE #m ==>
+#t CMP-SEM #q & #q GLUE (\P.(\Q.(\e.([],[(([d:d],[]) + ([v],[]) + Q@d@v) -> P@d@e])))) :
+((#d_d -o (#p_v -o #p_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#p_v -o #p_t))) || noscope.
+
+#h LEMMA %l & #h OBL #s & #s CASE #t & #t CMP-DEGREE #x & #t CMP-EVENT #y & #t CMP-CLAUSE #m ==>
 #t CMP-PRED #r & #r GLUE (\d.(\e.([],[%l(e,d)]))) : (#x_d -o (#y_v -o #m_t)) &
 #t CMP-ARG #u & #u GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) : ((#y_v -o #m_t) -o (#s_e -o (#y_v -o #m_t))) || noscope.
 
 // ---- Nouns and determiners ---------------------------------------------------------------
-// A common noun: a NOUN, or a PROPN with a determiner ("a Swede"). A name: a PROPN with
-// neither a determiner nor a head it is a compound of.
+// A proper noun: a PROPN, or a noun with a hyphenated number ("PC-6082", which Stanza may tag
+// NOUN). Stanza splits a hyphenated name ("PC-6082", "ITEL-ZX") at the hyphen: the part carrying
+// the hyphen is a compound before the head or a nummod after it, and the name is the two joined.
+// A common noun: a NOUN that is no proper noun and no compound of a head ("APCOM computer"), or a
+// proper noun with a determiner other than "the" ("a Swede"). A name: a proper noun without a
+// determiner, or with "the" ("the PC-6082": XLE's proper noun under "the"'s DEF-NAME), that is no
+// compound of a head ("ITEL computer").
 
-#n UPOS NOUN & #n LEMMA %l ==> #n NOUN-SEM #s & #s GLUE (\x.([],[%l(x)])) : (#n_e -o #n_t).
-#n UPOS PROPN & #n DET #d & #n LEMMA %l ==> #n NOUN-SEM #s & #s GLUE (\x.([],[%l(x)])) : (#n_e -o #n_t).
+HYPHENATED(#m) := #m PUNCT #p & #p XPOS HYPH .
+NAME(#n) := #n PROPER true & -(#n DET #d & -(#d LEMMA the)) & -(#h COMPOUND #n) .
 
-#n UPOS PROPN & #n LEMMA %l & #n SCOPE #c & -(#n DET #d) ==>
-#n NAME-SEM #s & #s GLUE (\x.([],[x='%l'])) : (#n_e -o #n_t) &
+#n UPOS PROPN ==> #n PROPER true.
+#n NUMMOD #m & @HYPHENATED(#m) ==> #n PROPER true.
+
+#n UPOS NOUN & -(#n PROPER true) & -(#h COMPOUND #n) & #n LEMMA %l ==> #n NOUN-SEM #s & #s GLUE (\x.([],[%l(x)])) : (#n_e -o #n_t).
+#n PROPER true & #n DET #d & -(#d LEMMA the) & #n LEMMA %l ==> #n NOUN-SEM #s & #s GLUE (\x.([],[%l(x)])) : (#n_e -o #n_t).
+
+@NAME(#n) & #n LEMMA %l & -(#n COMPOUND #m & @HYPHENATED(#m)) & -(#n NUMMOD #u & @HYPHENATED(#u)) ==>
+#n NAME-SEM #s & #s GLUE (\x.([],[x='%l'])) : (#n_e -o #n_t).
+@NAME(#n) & #n LEMMA %l & #n COMPOUND #m & @HYPHENATED(#m) & #m LEMMA %a ==>
+#n NAME-SEM #s & #s GLUE (\x.([],[x='%a-%l'])) : (#n_e -o #n_t).
+@NAME(#n) & #n LEMMA %l & #n NUMMOD #m & @HYPHENATED(#m) & #m LEMMA %a ==>
+#n NAME-SEM #s & #s GLUE (\x.([],[x='%l-%a'])) : (#n_e -o #n_t).
+
+#n UPOS PROPN & #n SCOPE #c & -(#n DET #d) ==>
 #n DEF-SEM #q & #q GLUE (\P.(\Q.p(([x],[bind(x)])+P@x)+Q@x)) : ((#n_e -o #n_t) -o ((#n_e -o #c_t) -o #c_t)) || insitu.
 
 // A personal pronoun: an indefinite with ant(x) and its gender, in situ (XLE's PRON-SEM-GEND;
@@ -152,8 +179,14 @@ EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP 
 #s GLUE (\U.(\V.(\e.(U@e+V@e)))) : ((#m_e -o #p_t) -o ((#m_e -o #m_t) -o (#m_e -o #m_t))) || noscope &
 #p REL-SEM #r & #r GLUE (\y.(\x.([],[%l(x,y)]))) : (#n_e -o (#m_e -o #p_t)).
 
+// A relative clause ("a computer that is fast"): the clause, with the relative pronoun's
+// argument abstracted, adds to what the head noun says (XLE's relative clause constructor).
+RELGF := NSUBJ | NSUBJ:PASS | OBJ .
+#n ACL:RELCL #r & #r @RELGF #w & #w PRONTYPE Rel & #r CLAUSE #c GOAL #g ==> #w REL-SEM #m &
+#m GLUE (\P.(\Q.(\x.(P@x+Q@x)))) : ((#n_e -o #n_t) -o ((#w_e -o #g_t) -o (#n_e -o #n_t))) || noscope.
+
 // A compound modifier ("Nobel prize"): a kind of what the head names.
-#n COMPOUND #m & #m LEMMA %l ==> #m MOD-SEM #s &
+#n COMPOUND #m & -(@HYPHENATED(#m)) & #m LEMMA %l ==> #m MOD-SEM #s &
 #s GLUE (\P.(\x.([],[kind('%l',x)]) + P@x)) : ((#n_e -o #n_t) -o (#n_e -o #n_t)) || noscope.
 
 #n DET #d & #d LEMMA a & #n SCOPE #c ==> #d DET-SEM #s &

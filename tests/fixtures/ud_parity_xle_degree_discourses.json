@@ -1,0 +1,315 @@
+{
+ "n0": {
+  "sentences": [
+   "The PC-6082 is faster than every ITEL computer.",
+   "The ITEL-ZX is an ITEL computer.",
+   "The PC-6082 is faster than the ITEL-ZX."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[kind('itel',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-zx']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,y4)]),be(x3),arg1(x3,y3)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),([x1],[kind('itel',x1),computer(x1)]) -> ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-zx']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,y4)]),be(x3),arg1(x3,y3)])"
+  ]
+ },
+ "n1": {
+  "sentences": [
+   "The PC-6082 is faster than every ITEL computer.",
+   "The ITEL-XZ is an ITEL computer.",
+   "The ITEL-XZ is faster than the PC-6082."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[([x1],[kind('itel',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,y4)]),be(x3),arg1(x3,y3)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),([x1],[kind('itel',x1),computer(x1)]) -> ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,y2),arg2(x2,x1)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,y4)]),be(x3),arg1(x3,y3)])"
+  ]
+ },
+ "n2": {
+  "sentences": [
+   "The PC-6082 is a computer that is faster than every ITEL computer.",
+   "The ITEL-XZ is an ITEL computer.",
+   "The PC-6082 is faster than the ITEL-XZ."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[kind('itel',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x2],[computer(x2)]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x1)]),be(x3),arg1(x3,x2)]) + ([x5:v],[be(x5),arg1(x5,y1),arg2(x5,x2)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg2(x2,x1),arg1(x2,y2)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,y4)]),be(x3),arg1(x3,y3)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),([x1],[kind('itel',x1),computer(x1)]) -> ([x2],[computer(x2)]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x1)]),be(x3),arg1(x3,x2)]) + ([x5:v],[be(x5),arg1(x5,y1),arg2(x5,x2)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg2(x2,x1),arg1(x2,y2)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,y4)]),be(x3),arg1(x3,y3)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x1],[computer(x1),([x2],[kind('itel',x2),computer(x2)]) -> ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x2)]),be(x3),arg1(x3,x1)])]) + ([x2:v],[be(x2),arg2(x2,x1),arg1(x2,y1)]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x3],[kind('itel',x3),computer(x3)]) + ([x4:v],[be(x4),arg2(x4,x3),arg1(x4,y2)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,y4)]),be(x5),arg1(x5,y3)])"
+  ]
+ },
+ "n3": {
+  "sentences": [
+   "The PC-6082 is faster than every ITEL computer.",
+   "The PC-6082 is fast."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[([x1],[kind('itel',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x1:v],[]) + ([x2:d],[x2>th_fast('be'),fast(x1,x2),be(x1),arg1(x1,y2)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),([x1],[kind('itel',x1),computer(x1)]) -> ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x1:v],[]) + ([x2:d],[x2>th_fast('be'),fast(x1,x2),be(x1),arg1(x1,y2)])"
+  ]
+ },
+ "n4": {
+  "sentences": [
+   "The PC-6082 is faster than the ITEL-XZ.",
+   "The PC-6082 is fast."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082']))]) + ([x3:v],[]) + ([x4:d],[x4>th_fast('be'),fast(x3,x4),be(x3),arg1(x3,y3)])"
+  ]
+ },
+ "n5": {
+  "sentences": [
+   "The PC-6082 is faster than the ITEL-XZ.",
+   "The ITEL-XZ is fast."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[x4>th_fast('be'),fast(x3,x4),be(x3),arg1(x3,y3)])"
+  ]
+ },
+ "n6": {
+  "sentences": [
+   "The ITEL-XZ is not fast.",
+   "The ITEL-XZ is fast."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='itel-xz'])),~(([x1:v],[]) + ([x2:d],[x2>th_fast('be'),fast(x1,x2),be(x1),arg1(x1,y1)]))]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[x2>th_fast('be'),fast(x1,x2),be(x1),arg1(x1,y2)])",
+   "([],[~(([],[p(([y1],[bind(y1),y1='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[x2>th_fast('be'),fast(x1,x2),be(x1),arg1(x1,y1)]))]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[x2>th_fast('be'),fast(x1,x2),be(x1),arg1(x1,y2)])"
+  ]
+ },
+ "n7": {
+  "sentences": [
+   "The PC-6082 is as fast as the ITEL-XZ.",
+   "The ITEL-XZ is faster than the PC-6082."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,y4)]),be(x2),arg1(x2,y3)])"
+  ]
+ },
+ "n8": {
+  "sentences": [
+   "The PC-6082 is faster than every APCOM computer.",
+   "There is an APCOM computer.",
+   "The PC-6082 is faster than an APCOM computer."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[kind('apcom',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([x1],[kind('apcom',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x3],[kind('apcom',x3),computer(x3)]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,x3)]),be(x4),arg1(x4,y2)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),([x1],[kind('apcom',x1),computer(x1)]) -> ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([x1],[kind('apcom',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x3],[kind('apcom',x3),computer(x3)]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,x3)]),be(x4),arg1(x4,y2)])"
+  ]
+ },
+ "n9": {
+  "sentences": [
+   "The PC-6082 is as fast as the ITEL-XZ.",
+   "The ITEL-XZ is faster than every APCOM computer.",
+   "There is an APCOM computer.",
+   "The PC-6082 is faster than an APCOM computer."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[([x2],[kind('apcom',x2),computer(x2)]) -> ([],[p(([y3],[bind(y3),y3='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x2)]),be(x3),arg1(x3,y3)])]) ; ([x2],[kind('apcom',x2),computer(x2)]) + ([x3:v],[be(x3),arg1(x3,x2)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082']))]) + ([x4],[kind('apcom',x4),computer(x4)]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,x4)]),be(x5),arg1(x5,y4)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),([x2],[kind('apcom',x2),computer(x2)]) -> ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x2)]),be(x3),arg1(x3,y3)])]) ; ([x2],[kind('apcom',x2),computer(x2)]) + ([x3:v],[be(x3),arg1(x3,x2)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082']))]) + ([x4],[kind('apcom',x4),computer(x4)]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,x4)]),be(x5),arg1(x5,y4)])"
+  ]
+ },
+ "n10": {
+  "sentences": [
+   "The PC-6082 is not faster than the ITEL-XZ.",
+   "The ITEL-XZ is an ITEL computer.",
+   "The PC-6082 is faster than every ITEL computer."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),~(([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]))]) ; ([],[p(([y3],[bind(y3),y3='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,y3),arg2(x2,x1)]) ; ([],[([x3],[kind('itel',x3),computer(x3)]) -> ([],[p(([y4],[bind(y4),y4='pc-6082']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,x3)]),be(x4),arg1(x4,y4)])])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),~(([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]))]) ; ([],[p(([y3],[bind(y3),y3='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,y3),arg2(x2,x1)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082'])),([x3],[kind('itel',x3),computer(x3)]) -> ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,x3)]),be(x4),arg1(x4,y4)])])",
+   "([],[~(([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]))]) ; ([],[p(([y3],[bind(y3),y3='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,y3),arg2(x2,x1)]) ; ([],[([x3],[kind('itel',x3),computer(x3)]) -> ([],[p(([y4],[bind(y4),y4='pc-6082']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,x3)]),be(x4),arg1(x4,y4)])])",
+   "([],[~(([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]))]) ; ([],[p(([y3],[bind(y3),y3='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,y3),arg2(x2,x1)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082'])),([x3],[kind('itel',x3),computer(x3)]) -> ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,x3)]),be(x4),arg1(x4,y4)])])"
+  ]
+ },
+ "n11": {
+  "sentences": [
+   "The PC-6082 is as fast as the ITEL-ZX.",
+   "The PC-6082 is fast.",
+   "The ITEL-ZX is fast."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]) ; ([],[p(([y4],[bind(y4),y4='itel-zx']))]) + ([x4:v],[]) + ([x5:d],[x5>th_fast('be'),fast(x4,x5),be(x4),arg1(x4,y4)])"
+  ]
+ },
+ "n12": {
+  "sentences": [
+   "The PC-6082 is faster than the ITEL-ZX.",
+   "The ITEL-ZX is as fast as the ITEL-XZ.",
+   "The PC-6082 is faster than the ITEL-XZ."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x3:v],[([x4:d],[]) + ([x5],[fast(x5,x4),arg1(x5,y4)]) -> ([],[fast(x3,x4)]),be(x3),arg1(x3,y3)]) ; ([],[p(([y5],[bind(y5),y5='pc-6082'])),p(([y6],[bind(y6),y6='itel-xz']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y6)]),be(x4),arg1(x4,y5)])"
+  ]
+ },
+ "n13": {
+  "sentences": [
+   "The PC-6082 is as fast as the ITEL-ZX.",
+   "The ITEL-ZX is faster than the ITEL-XZ.",
+   "The PC-6082 is faster than the ITEL-XZ."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,y4)]),be(x2),arg1(x2,y3)]) ; ([],[p(([y5],[bind(y5),y5='pc-6082'])),p(([y6],[bind(y6),y6='itel-xz']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y6)]),be(x4),arg1(x4,y5)])"
+  ]
+ },
+ "n14": {
+  "sentences": [
+   "The PC-6082 is as fast as the ITEL-ZX.",
+   "The ITEL-ZX is not fast.",
+   "The PC-6082 is not fast."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),~(([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]))]) ; ([],[p(([y4],[bind(y4),y4='pc-6082'])),~(([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y4)]))])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),~(([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]))]) ; ([],[~(([],[p(([y4],[bind(y4),y4='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y4)]))])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[~(([],[p(([y3],[bind(y3),y3='itel-zx']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]))]) ; ([],[p(([y4],[bind(y4),y4='pc-6082'])),~(([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y4)]))])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[~(([],[p(([y3],[bind(y3),y3='itel-zx']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]))]) ; ([],[~(([],[p(([y4],[bind(y4),y4='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y4)]))])"
+  ]
+ },
+ "n15": {
+  "sentences": [
+   "The PC-6082 is faster than the ITEL-ZX.",
+   "The ITEL-ZX is fast.",
+   "The PC-6082 is fast."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx']))]) + ([x3:v],[]) + ([x4:d],[x4>th_fast('be'),fast(x3,x4),be(x3),arg1(x3,y3)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082']))]) + ([x5:v],[]) + ([x6:d],[x6>th_fast('be'),fast(x5,x6),be(x5),arg1(x5,y4)])"
+  ]
+ },
+ "n16": {
+  "sentences": [
+   "The PC-6082 is faster than the ITEL-ZX.",
+   "The ITEL-ZX is faster than the ITEL-XZ.",
+   "The PC-6082 is faster than the ITEL-XZ."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,y4)]),be(x3),arg1(x3,y3)]) ; ([],[p(([y5],[bind(y5),y5='pc-6082'])),p(([y6],[bind(y6),y6='itel-xz']))]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,y6)]),be(x5),arg1(x5,y5)])"
+  ]
+ },
+ "n17": {
+  "sentences": [
+   "The ITEL-XZ is as fast as the ITEL-ZX.",
+   "The ITEL-ZX is not fast.",
+   "The ITEL-XZ is not fast."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='itel-xz'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),~(([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]))]) ; ([],[p(([y4],[bind(y4),y4='itel-xz'])),~(([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y4)]))])",
+   "([],[p(([y1],[bind(y1),y1='itel-xz'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),~(([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]))]) ; ([],[~(([],[p(([y4],[bind(y4),y4='itel-xz']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y4)]))])",
+   "([],[p(([y1],[bind(y1),y1='itel-xz'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[~(([],[p(([y3],[bind(y3),y3='itel-zx']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]))]) ; ([],[p(([y4],[bind(y4),y4='itel-xz'])),~(([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y4)]))])",
+   "([],[p(([y1],[bind(y1),y1='itel-xz'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[~(([],[p(([y3],[bind(y3),y3='itel-zx']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y3)]))]) ; ([],[~(([],[p(([y4],[bind(y4),y4='itel-xz']))]) + ([x2:v],[]) + ([x3:d],[x3>th_fast('be'),fast(x2,x3),be(x2),arg1(x2,y4)]))])"
+  ]
+ },
+ "n18": {
+  "sentences": [
+   "The PC-6082 is faster than every ITEL computer.",
+   "The ITEL-XZ is an ITEL computer that is as fast as the ITEL-ZX.",
+   "The PC-6082 is faster than the ITEL-ZX."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[kind('itel',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz'])),p(([y3],[bind(y3),y3='itel-zx']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[([x3:d],[]) + ([x4],[fast(x4,x3),arg1(x4,y3)]) -> ([],[fast(x2,x3)]),be(x2),arg1(x2,x1)]) + ([x3:v],[be(x3),arg2(x3,x1),arg1(x3,y2)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082'])),p(([y5],[bind(y5),y5='itel-zx']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y5)]),be(x4),arg1(x4,y4)])",
+   "([],[([x1],[kind('itel',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1),p(([y3],[bind(y3),y3='itel-zx']))]) + ([x2:v],[([x3:d],[]) + ([x4],[fast(x4,x3),arg1(x4,y3)]) -> ([],[fast(x2,x3)]),be(x2),arg1(x2,x1)]) + ([x3:v],[be(x3),arg1(x3,y2),arg2(x3,x1)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082'])),p(([y5],[bind(y5),y5='itel-zx']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y5)]),be(x4),arg1(x4,y4)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),([x1],[kind('itel',x1),computer(x1)]) -> ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz'])),p(([y3],[bind(y3),y3='itel-zx']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[([x3:d],[]) + ([x4],[fast(x4,x3),arg1(x4,y3)]) -> ([],[fast(x2,x3)]),be(x2),arg1(x2,x1)]) + ([x3:v],[be(x3),arg2(x3,x1),arg1(x3,y2)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082'])),p(([y5],[bind(y5),y5='itel-zx']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y5)]),be(x4),arg1(x4,y4)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),([x1],[kind('itel',x1),computer(x1)]) -> ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1),p(([y3],[bind(y3),y3='itel-zx']))]) + ([x2:v],[([x3:d],[]) + ([x4],[fast(x4,x3),arg1(x4,y3)]) -> ([],[fast(x2,x3)]),be(x2),arg1(x2,x1)]) + ([x3:v],[be(x3),arg1(x3,y2),arg2(x3,x1)]) ; ([],[p(([y4],[bind(y4),y4='pc-6082'])),p(([y5],[bind(y5),y5='itel-zx']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y5)]),be(x4),arg1(x4,y4)])"
+  ]
+ },
+ "n19": {
+  "sentences": [
+   "The ITEL-ZX is a computer that is faster than every APCOM computer.",
+   "There is an APCOM computer.",
+   "The ITEL-ZX is faster than an APCOM computer."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[kind('apcom',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='itel-zx']))]) + ([x2],[computer(x2)]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x1)]),be(x3),arg1(x3,x2)]) + ([x5:v],[be(x5),arg2(x5,x2),arg1(x5,y1)])]) ; ([x1],[kind('apcom',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='itel-zx']))]) + ([x3],[kind('apcom',x3),computer(x3)]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,x3)]),be(x4),arg1(x4,y2)])",
+   "([],[p(([y1],[bind(y1),y1='itel-zx'])),([x1],[kind('apcom',x1),computer(x1)]) -> ([x2],[computer(x2)]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x1)]),be(x3),arg1(x3,x2)]) + ([x5:v],[be(x5),arg2(x5,x2),arg1(x5,y1)])]) ; ([x1],[kind('apcom',x1),computer(x1)]) + ([x2:v],[be(x2),arg1(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='itel-zx']))]) + ([x3],[kind('apcom',x3),computer(x3)]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,x3)]),be(x4),arg1(x4,y2)])",
+   "([],[p(([y1],[bind(y1),y1='itel-zx']))]) + ([x1],[computer(x1),([x2],[kind('apcom',x2),computer(x2)]) -> ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x2)]),be(x3),arg1(x3,x1)])]) + ([x2:v],[be(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([x3],[kind('apcom',x3),computer(x3)]) + ([x4:v],[be(x4),arg1(x4,x3)]) ; ([],[p(([y2],[bind(y2),y2='itel-zx']))]) + ([x5],[kind('apcom',x5),computer(x5)]) + ([x6:v],[]) + ([x7:d],[fast(x6,x7),~([x8],[fast(x8,x7),arg1(x8,x5)]),be(x6),arg1(x6,y2)])"
+  ]
+ },
+ "n20": {
+  "sentences": [
+   "The PC-6082 is faster than the ITEL-ZX.",
+   "The ITEL-ZX is as fast as the ITEL-XZ.",
+   "The ITEL-XZ is faster than the PC-6082."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x3:v],[([x4:d],[]) + ([x5],[fast(x5,x4),arg1(x5,y4)]) -> ([],[fast(x3,x4)]),be(x3),arg1(x3,y3)]) ; ([],[p(([y5],[bind(y5),y5='itel-xz'])),p(([y6],[bind(y6),y6='pc-6082']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y6)]),be(x4),arg1(x4,y5)])"
+  ]
+ },
+ "n21": {
+  "sentences": [
+   "The PC-6082 is not faster than the ITEL-ZX.",
+   "The PC-6082 is faster than the ITEL-ZX."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),~(([],[p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]))]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-zx']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y4)]),be(x1),arg1(x1,y3)])",
+   "([],[~(([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y2)]),be(x1),arg1(x1,y1)]))]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-zx']))]) + ([x1:v],[]) + ([x2:d],[fast(x1,x2),~([x3],[fast(x3,x2),arg1(x3,y4)]),be(x1),arg1(x1,y3)])"
+  ]
+ },
+ "n22": {
+  "sentences": [
+   "The PC-6082 is faster than every ITEL computer.",
+   "The ITEL-XZ is an ITEL computer.",
+   "The ITEL-XZ is as fast as the PC-6082."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[([x1],[kind('itel',x1),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg2(x2,x1),arg1(x2,y2)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x3:v],[([x4:d],[]) + ([x5],[fast(x5,x4),arg1(x5,y4)]) -> ([],[fast(x3,x4)]),be(x3),arg1(x3,y3)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),([x1],[kind('itel',x1),computer(x1)]) -> ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,x1)]),be(x2),arg1(x2,y1)])]) ; ([],[p(([y2],[bind(y2),y2='itel-xz']))]) + ([x1],[kind('itel',x1),computer(x1)]) + ([x2:v],[be(x2),arg2(x2,x1),arg1(x2,y2)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x3:v],[([x4:d],[]) + ([x5],[fast(x5,x4),arg1(x5,y4)]) -> ([],[fast(x3,x4)]),be(x3),arg1(x3,y3)])"
+  ]
+ },
+ "n23": {
+  "sentences": [
+   "The ITEL-XZ is a computer that is faster than the PC-6082.",
+   "The PC-6082 is faster than the ITEL-XZ."
+  ],
+  "gold": "-1",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='itel-xz'])),p(([y2],[bind(y2),y2='pc-6082']))]) + ([x1],[computer(x1)]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,y2)]),be(x2),arg1(x2,x1)]) + ([x4:v],[be(x4),arg2(x4,x1),arg1(x4,y1)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,y4)]),be(x5),arg1(x5,y3)])",
+   "([],[p(([y1],[bind(y1),y1='itel-xz']))]) + ([x1],[computer(x1),p(([y2],[bind(y2),y2='pc-6082']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,y2)]),be(x2),arg1(x2,x1)]) + ([x4:v],[be(x4),arg2(x4,x1),arg1(x4,y1)]) ; ([],[p(([y3],[bind(y3),y3='pc-6082'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,y4)]),be(x5),arg1(x5,y3)])"
+  ]
+ },
+ "n24": {
+  "sentences": [
+   "The PC-6082 is as fast as the ITEL-ZX.",
+   "The ITEL-ZX is not faster than the ITEL-XZ.",
+   "The PC-6082 is faster than the ITEL-XZ."
+  ],
+  "gold": "0",
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[p(([y3],[bind(y3),y3='itel-zx'])),~(([],[p(([y4],[bind(y4),y4='itel-xz']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,y4)]),be(x2),arg1(x2,y3)]))]) ; ([],[p(([y5],[bind(y5),y5='pc-6082'])),p(([y6],[bind(y6),y6='itel-xz']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,y6)]),be(x2),arg1(x2,y5)])",
+   "([],[p(([y1],[bind(y1),y1='pc-6082'])),p(([y2],[bind(y2),y2='itel-zx']))]) + ([x1:v],[([x2:d],[]) + ([x3],[fast(x3,x2),arg1(x3,y2)]) -> ([],[fast(x1,x2)]),be(x1),arg1(x1,y1)]) ; ([],[~(([],[p(([y3],[bind(y3),y3='itel-zx'])),p(([y4],[bind(y4),y4='itel-xz']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,y4)]),be(x2),arg1(x2,y3)]))]) ; ([],[p(([y5],[bind(y5),y5='pc-6082'])),p(([y6],[bind(y6),y6='itel-xz']))]) + ([x2:v],[]) + ([x3:d],[fast(x2,x3),~([x4],[fast(x4,x3),arg1(x4,y6)]),be(x2),arg1(x2,y5)])"
+  ]
+ },
+ "n25": {
+  "sentences": [
+   "The ITEL-XZ is faster than every computer with an APCOM processor.",
+   "The PC-6082 is a computer with an APCOM processor.",
+   "The ITEL-XZ is faster than the PC-6082."
+  ],
+  "gold": "1",
+  "readings": [
+   "([],[([x1],[]) + ([x2],[kind('apcom',x2),processor(x2),with(x1,x2),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x1)]),be(x3),arg1(x3,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x1],[]) + ([x2],[kind('apcom',x2),processor(x2),with(x1,x2),computer(x1)]) + ([x3:v],[be(x3),arg1(x3,y2),arg2(x3,x1)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y4)]),be(x4),arg1(x4,y3)])",
+   "([],[([x1],[]) + ([x2],[kind('apcom',x2),processor(x2),with(x1,x2),computer(x1)]) -> ([],[p(([y1],[bind(y1),y1='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x1)]),be(x3),arg1(x3,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x1],[kind('apcom',x1),processor(x1)]) + ([x2],[with(x2,x1),computer(x2)]) + ([x3:v],[be(x3),arg1(x3,y2),arg2(x3,x2)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y4)]),be(x4),arg1(x4,y3)])",
+   "([],[p(([y1],[bind(y1),y1='itel-xz'])),([x1],[]) + ([x2],[kind('apcom',x2),processor(x2),with(x1,x2),computer(x1)]) -> ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x1)]),be(x3),arg1(x3,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x1],[]) + ([x2],[kind('apcom',x2),processor(x2),with(x1,x2),computer(x1)]) + ([x3:v],[be(x3),arg1(x3,y2),arg2(x3,x1)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y4)]),be(x4),arg1(x4,y3)])",
+   "([],[p(([y1],[bind(y1),y1='itel-xz'])),([x1],[]) + ([x2],[kind('apcom',x2),processor(x2),with(x1,x2),computer(x1)]) -> ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x1)]),be(x3),arg1(x3,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x1],[kind('apcom',x1),processor(x1)]) + ([x2],[with(x2,x1),computer(x2)]) + ([x3:v],[be(x3),arg1(x3,y2),arg2(x3,x2)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x4:v],[]) + ([x5:d],[fast(x4,x5),~([x6],[fast(x6,x5),arg1(x6,y4)]),be(x4),arg1(x4,y3)])",
+   "([],[p(([y1],[bind(y1),y1='itel-xz']))]) + ([x1],[kind('apcom',x1),processor(x1),([x2],[with(x2,x1),computer(x2)]) -> ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x2)]),be(x3),arg1(x3,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x2],[]) + ([x3],[kind('apcom',x3),processor(x3),with(x2,x3),computer(x2)]) + ([x4:v],[be(x4),arg1(x4,y2),arg2(x4,x2)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,y4)]),be(x5),arg1(x5,y3)])",
+   "([],[p(([y1],[bind(y1),y1='itel-xz']))]) + ([x1],[kind('apcom',x1),processor(x1),([x2],[with(x2,x1),computer(x2)]) -> ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x2)]),be(x3),arg1(x3,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x2],[kind('apcom',x2),processor(x2)]) + ([x3],[with(x3,x2),computer(x3)]) + ([x4:v],[be(x4),arg1(x4,y2),arg2(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,y4)]),be(x5),arg1(x5,y3)])",
+   "([x1],[kind('apcom',x1),processor(x1),([x2],[with(x2,x1),computer(x2)]) -> ([],[p(([y1],[bind(y1),y1='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x2)]),be(x3),arg1(x3,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x2],[]) + ([x3],[kind('apcom',x3),processor(x3),with(x2,x3),computer(x2)]) + ([x4:v],[be(x4),arg1(x4,y2),arg2(x4,x2)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,y4)]),be(x5),arg1(x5,y3)])",
+   "([x1],[kind('apcom',x1),processor(x1),([x2],[with(x2,x1),computer(x2)]) -> ([],[p(([y1],[bind(y1),y1='itel-xz']))]) + ([x3:v],[]) + ([x4:d],[fast(x3,x4),~([x5],[fast(x5,x4),arg1(x5,x2)]),be(x3),arg1(x3,y1)])]) ; ([],[p(([y2],[bind(y2),y2='pc-6082']))]) + ([x2],[kind('apcom',x2),processor(x2)]) + ([x3],[with(x3,x2),computer(x3)]) + ([x4:v],[be(x4),arg1(x4,y2),arg2(x4,x3)]) ; ([],[p(([y3],[bind(y3),y3='itel-xz'])),p(([y4],[bind(y4),y4='pc-6082']))]) + ([x5:v],[]) + ([x6:d],[fast(x5,x6),~([x7],[fast(x7,x6),arg1(x7,y4)]),be(x5),arg1(x5,y3)])"
+  ]
+ }
+}

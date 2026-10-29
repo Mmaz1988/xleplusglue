@@ -8,7 +8,7 @@
   test_full_analysis_workflow.py), gives the PCDRS readings, A: and P: included, of the XLE run.
 
 The XLE results are fixtures (tests/fixtures/ud_parity_xle_<suite>*.json, from the reference
-sessions basic-short-new-copy and pronouns-new-copy, 2026-10-27; embedded: see SUITES), so only LiGER, GSWB and the
+sessions basic-short-new-copy and pronouns-new-copy, 2026-10-27; embedded, degree: see SUITES), so only LiGER, GSWB and the
 Stanza service are needed:
 
     STANZA_URL=http://localhost:8085 java -jar ../liger/target/liger-20250303.jar -web
@@ -62,6 +62,22 @@ SUITES = {
         'subset_items': set(),
         'skipped': set(),
         'skipped_items': set(),
+    },
+    # The session degree-full-new (2026-10-26), without pragmatics: the discourses are compared as
+    # sequence DRSs.
+    'degree': {
+        # A "with" PP: XLE's second parse, as on basic-short. A name in a relative clause: UD
+        # scopes it at the clause, as a name in a complement (embedded).
+        'subsets': {
+            'The ITEL-XZ is faster than every computer with an APCOM processor.',
+            'The PC-6082 is a computer with an APCOM processor.',
+            'The ITEL-XZ is an ITEL computer that is as fast as the ITEL-ZX.',
+            'The ITEL-XZ is a computer that is faster than the PC-6082.',
+        },
+        'subset_items': {'n18', 'n23', 'n25'},
+        'skipped': set(),
+        'skipped_items': set(),
+        'pragmatics': False,
     },
 }
 
@@ -199,6 +215,9 @@ def ud_discourse(sentences, semantics, pragmatics):
     readings = set()
     for (_, merged), structure in zip(contexts, structures):
         semantic = workflow.reading(merged)
+        if pragmatics is None:
+            readings.add(semantic['semString'])
+            continue
         base = post(f'{LIGER_URL}/merge_uploaded_structures', {'syntax': structure, 'drs': semantic['graph']})
         applied = post(f'{LIGER_URL}/apply_rules_uploaded_structure', {
             'content': json.dumps(base['structureJson']), 'format': 'json', 'id': 'ud-parity', 'ruleString': pragmatics})
@@ -211,7 +230,8 @@ def ud_discourse(sentences, semantics, pragmatics):
 
 def compare_discourses(suite):
     known = SUITES[suite]
-    semantics, pragmatics = stage_rules('semantics'), stage_rules('pragmatics')
+    semantics = stage_rules('semantics')
+    pragmatics = stage_rules('pragmatics') if known.get('pragmatics', True) else None
     failures = []
     for item, data in fixture(suite, '_discourses').items():
         if item in known['skipped_items']:
@@ -249,6 +269,14 @@ def test_ud_parity_with_xle_on_anaphora():
 
 def test_ud_discourses_match_xle_on_anaphora():
     assert compare_discourses('anaphora') == []
+
+
+def test_ud_parity_with_xle_on_degree():
+    assert compare('degree') == []
+
+
+def test_ud_discourses_match_xle_on_degree():
+    assert compare_discourses('degree') == []
 
 
 if __name__ == '__main__':
