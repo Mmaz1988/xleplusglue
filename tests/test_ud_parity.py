@@ -50,9 +50,8 @@ SUITES = {
     'anaphora': {
         'subsets': set(),
         'subset_items': set(),
-        # Comparatives are the degree suite's (UD plan, stretch).
-        'skipped': {'Peter is faster than Sue.'},
-        'skipped_items': {'n2', 'n3'},
+        'skipped': set(),
+        'skipped_items': set(),
     },
 }
 

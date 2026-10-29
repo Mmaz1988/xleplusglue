@@ -17,3 +17,7 @@
 #a MONO #m & #m TPTP_AXIOM ![X:$i, Delta1:$int]: (%l(X,Delta1) <=> ![Delta2:$int]: ($lesseq(Delta2,Delta1) => %l(X,Delta2))) &
 #a CP #r & #r TPTP_AXIOM ![X:$i, Y:$i]: (?[D:$int]: (%l(X,D) \& ~ %l(Y,D)) => ![D2:$int]: (%l(Y,D2) => %l(X,D2))) &
 #a MAX #s & #s TPTP_AXIOM ![X:$i]: ?[Delta1:$int]: (%l(X,Delta1) \& ~ ?[Delta2:$int]: ($greater(Delta2,Delta1) \& %l(X,Delta2))).
+
+//Comparative axiom: what the compared individual has to a degree, the holder has too.
+#a SEMTYPE degree & #a DEGREE Cmp & #a LEMMA %l ==> #a COMPARATIVE #c &
+#c TPTP_AXIOM ![X:$i, Y:$i, D:$int]: ((arg1(X,Y) \& %l(X,D)) => %l(Y,D)).

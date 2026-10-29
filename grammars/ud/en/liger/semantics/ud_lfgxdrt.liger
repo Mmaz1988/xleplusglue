@@ -100,9 +100,25 @@ EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP 
 #p DEGREE #d & #d POSITIVE #o & #o GLUE (\P.([d:d],[]) + ([],[d > th_%l('%x')]) + P@d) : ((#d_d -o #n_t) -o #n_t) || noscope &
 #p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_e -o #p_t) -o (#d_d -o (#p_e -o #p_t))).
 
-#h COP #b EV #e & #h SEMTYPE degree & #h LEMMA %l & #h PRED-SEM #p & #b LEMMA %x ==>
-#p DEGREE #d & #d POSITIVE #o & #o GLUE (\P.([d:d],[]) + ([],[d > th_%l('%x')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope &
-#p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_v -o #p_t) -o (#d_d -o (#p_v -o #p_t))).
+#h COP #b EV #e & #h SEMTYPE degree & #h LEMMA %l & #h PRED-SEM #p ==>
+#p DEGREE #d & #p DEGREE-PRED #q & #q GLUE (\P.(\d.(\x.([],[%l(x,d)])))) : ((#p_v -o #p_t) -o (#d_d -o (#p_v -o #p_t))).
+
+#h COP #b EV #e & #h LEMMA %l & #h PRED-SEM #p DEGREE #d & #b LEMMA %x & -(#h DEGREE Cmp) ==>
+#d POSITIVE #o & #o GLUE (\P.([d:d],[]) + ([],[d > th_%l('%x')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
+
+// A comparative ("Peter is faster than Sue"): the holder's degree d, and the compared phrase's
+// event, with a degree and an event of its own, does not reach d (XLE's comparative rule for
+// predicative uses; its threshold-free degree replaces the positive's). The compared phrase is
+// "than"'s noun; its constructors hang from "than".
+#h COP #b EV #e & #h DEGREE Cmp & #h PRED-SEM #p DEGREE #d & #h OBL #s & #s CASE #t & #t LEMMA than ==>
+#t CMP-DEGREE #x & #t CMP-EVENT #y & #t CMP-CLAUSE #m.
+
+#h COP #b EV #e & #h LEMMA %l & #h PRED-SEM #p DEGREE #d & #h OBL #s & #s CASE #t &
+#t CMP-DEGREE #x & #t CMP-EVENT #y & #t CMP-CLAUSE #m ==>
+#t CMP-SEM #q & #q GLUE (\P.(\Q.(\e.([d:d],[]) + P@d@e + ([],[~(([v],[]) + Q@d@v)])))) :
+((#d_d -o (#p_v -o #p_t)) -o ((#x_d -o (#y_v -o #m_t)) -o (#p_v -o #p_t))) || noscope &
+#t CMP-PRED #r & #r GLUE (\d.(\e.([],[%l(e,d)]))) : (#x_d -o (#y_v -o #m_t)) &
+#t CMP-ARG #u & #u GLUE (\V.(\x.(\e.(V@e + ([],[arg1(e,x)]))))) : ((#y_v -o #m_t) -o (#s_e -o (#y_v -o #m_t))) || noscope.
 
 // ---- Nouns and determiners ---------------------------------------------------------------
 // A common noun: a NOUN, or a PROPN with a determiner ("a Swede"). A name: a PROPN with
