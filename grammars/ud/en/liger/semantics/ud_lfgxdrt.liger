@@ -32,6 +32,10 @@ EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP 
 #n UPOS NOUN & -(#n IN-SITU true) & #n ^(@EMB*) #v & #v CLAUSE #c ==> #n SCOPE-SITE #c.
 #n UPOS PROPN & -(#n IN-SITU true) & #n DET #d & #n ^(@EMB*) #v & #v CLAUSE #c ==> #n SCOPE-SITE #c.
 
+// A noun phrase in a prepositional modifier ("a boxer with an injury") can also scope at the
+// preposition, inside the modified noun (XLE: the PP's own f_t).
+#m NMOD #n & #n CASE #p & -(#n IN-SITU true) ==> #n SCOPE-SITE #p.
+
 #n SCOPE-SITE #c & -(#n SCOPE #x) ?*=> #n SCOPE #c.
 
 // What stays in situ scopes locally: at the closest tense-marked clause it is embedded in

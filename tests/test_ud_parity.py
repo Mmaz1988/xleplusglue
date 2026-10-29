@@ -35,15 +35,8 @@ GSWB_PREFERENCES = {"prover": 1, "debugging": False, "outputstyle": 5, "parseSem
 
 SUITES = {
     'basic-short': {
-        # XLE has a second parse in which the determiner inside "with an injury" scopes over the
-        # PP; UD has one parse, and the PP is no clause, so its only scope site is the clause.
-        'subsets': {
-            'A boxer with an injury lost a fight.',
-            'Every boxer with an injury lost a fight.',
-            'A boxer with an injury did not lose a fight.',
-        },
-        # The items with those sentences, for the same reason.
-        'subset_items': {'n13', 'n14', 'n15'},
+        'subsets': set(),
+        'subset_items': set(),
         'skipped': set(),
         'skipped_items': set(),
     },
@@ -66,15 +59,13 @@ SUITES = {
     # The session degree-full-new (2026-10-26), without pragmatics: the discourses are compared as
     # sequence DRSs.
     'degree': {
-        # A "with" PP: XLE's second parse, as on basic-short. A name in a relative clause: UD
-        # scopes it at the clause, as a name in a complement (embedded).
+        # A name in a relative clause: UD scopes it at the clause, as a name in a complement
+        # (embedded).
         'subsets': {
-            'The ITEL-XZ is faster than every computer with an APCOM processor.',
-            'The PC-6082 is a computer with an APCOM processor.',
             'The ITEL-XZ is an ITEL computer that is as fast as the ITEL-ZX.',
             'The ITEL-XZ is a computer that is faster than the PC-6082.',
         },
-        'subset_items': {'n18', 'n23', 'n25'},
+        'subset_items': {'n18', 'n23'},
         'skipped': set(),
         'skipped_items': set(),
         'pragmatics': False,
