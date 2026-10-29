@@ -8,7 +8,7 @@
   test_full_analysis_workflow.py), gives the PCDRS readings, A: and P: included, of the XLE run.
 
 The XLE results are fixtures (tests/fixtures/ud_parity_xle_<suite>*.json, from the reference
-sessions basic-short-new-copy and pronouns-new-copy, 2026-10-27), so only LiGER, GSWB and the
+sessions basic-short-new-copy and pronouns-new-copy, 2026-10-27; embedded: see SUITES), so only LiGER, GSWB and the
 Stanza service are needed:
 
     STANZA_URL=http://localhost:8085 java -jar ../liger/target/liger-20250303.jar -web
@@ -44,6 +44,16 @@ SUITES = {
         },
         # The items with those sentences, for the same reason.
         'subset_items': {'n13', 'n14', 'n15'},
+        'skipped': set(),
+        'skipped_items': set(),
+    },
+    # Clausal complements: no reference session, the fixtures come from XLE with the lfgxdrt
+    # config's rules without the TAM rules (2026-10-29), composed as here.
+    'embedded': {
+        # XLE lets a name or a personal pronoun in a complement scope in any clause above it; UD
+        # scopes them at the closest tense-marked clause (names: the user, 2026-10-28).
+        'subsets': {'A man said that Kim smiled.', 'Kim said that he smiled.'},
+        'subset_items': {'e1'},
         'skipped': set(),
         'skipped_items': set(),
     },
@@ -83,10 +93,39 @@ def semantics_rules():
 
 
 def canonical(drs):
-    """Referents renamed in order of occurrence, conditions of each box sorted: a DRS up to names."""
+    """Referents renamed in order of occurrence, the items of every list (a box's referents and
+    conditions, A:, P:) sorted: a DRS up to names and the order of conditions. Where a box stands
+    still counts, so scope readings stay apart."""
     names = {}
     renamed = re.sub(r'\b[xy]\d+\b', lambda m: names.setdefault(m.group(0), f'r{len(names)}'), drs)
-    return ''.join(sorted(renamed))
+    return sorted_lists(renamed)
+
+
+def sorted_lists(text):
+    """Every [...] with its comma-separated items (at its own depth) normalized and sorted."""
+    out, i = [], 0
+    while i < len(text):
+        if text[i] != '[':
+            out.append(text[i])
+            i += 1
+            continue
+        depth, j, items, start = 0, i, [], i + 1
+        while True:
+            c = text[j]
+            if c in '([':
+                depth += 1
+            elif c in ')]':
+                depth -= 1
+                if depth == 0:
+                    break
+            elif c == ',' and depth == 1:
+                items.append(text[start:j])
+                start = j + 1
+            j += 1
+        items.append(text[start:j])
+        out.append('[' + ','.join(sorted(sorted_lists(item) for item in items)) + ']')
+        i = j + 1
+    return ''.join(out)
 
 
 def ud_readings(sentence, rules):
@@ -194,6 +233,14 @@ def test_ud_parity_with_xle_on_basic_short():
 
 def test_ud_discourses_match_xle_on_basic_short():
     assert compare_discourses('basic-short') == []
+
+
+def test_ud_parity_with_xle_on_embedded_clauses():
+    assert compare('embedded') == []
+
+
+def test_ud_discourses_match_xle_on_embedded_clauses():
+    assert compare_discourses('embedded') == []
 
 
 def test_ud_parity_with_xle_on_anaphora():

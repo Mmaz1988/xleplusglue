@@ -1,0 +1,32 @@
+{
+ "Kim thinks that a dog barked.": [
+  "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1:v],[think(x1),cont(x1):([x2],[dog(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]),arg1(x1,y1)])",
+  "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1],[dog(x1)]) + ([x2:v],[think(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)])"
+ ],
+ "A man said that Kim smiled.": [
+  "([x1],[man(x1),p(([y1],[bind(y1),y1='kim']))]) + ([x2:v],[say(x2),cont(x2):([x3:v],[smile(x3),arg1(x3,y1)]),arg1(x2,x1)])",
+  "([x1],[man(x1)]) + ([x2:v],[say(x2),cont(x2):([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3:v],[smile(x3),arg1(x3,y1)]),arg1(x2,x1)])"
+ ],
+ "Every man said that a woman smiled.": [
+  "([],[([x1],[man(x1)]) -> ([x2:v],[say(x2),cont(x2):([x3],[woman(x3)]) + ([x4:v],[smile(x4),arg1(x4,x3)]),arg1(x2,x1)])])",
+  "([],[([x1],[man(x1)]) -> ([x2],[woman(x2)]) + ([x3:v],[say(x3),cont(x3):([x4:v],[smile(x4),arg1(x4,x2)]),arg1(x3,x1)])])",
+  "([x1],[woman(x1),([x2],[man(x2)]) -> ([x3:v],[say(x3),cont(x3):([x4:v],[smile(x4),arg1(x4,x1)]),arg1(x3,x2)])])"
+ ],
+ "Kim knows that every dog barked.": [
+  "([],[([x1],[dog(x1)]) -> ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x2:v],[know(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)])])",
+  "([],[p(([y1],[bind(y1),y1='kim'])),([x1],[dog(x1)]) -> ([x2:v],[know(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)])])",
+  "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1:v],[know(x1),cont(x1):([],[([x2],[dog(x2)]) -> ([x3:v],[bark(x3),arg1(x3,x2)])]),arg1(x1,y1)])"
+ ],
+ "Kim said that he smiled.": [
+  "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1:v],[say(x1),cont(x1):([x2],[ant(x2),male(x2)]) + ([x3:v],[smile(x3),arg1(x3,x2)]),arg1(x1,y1)])",
+  "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[say(x2),cont(x2):([x3:v],[smile(x3),arg1(x3,x1)]),arg1(x2,y1)])"
+ ],
+ "Kim did not say that a dog barked.": [
+  "([],[p(([y1],[bind(y1),y1='kim'])),~(([x1],[dog(x1)]) + ([x2:v],[say(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)]))])",
+  "([],[p(([y1],[bind(y1),y1='kim'])),~([x1:v],[say(x1),cont(x1):([x2],[dog(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]),arg1(x1,y1)])])",
+  "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1],[dog(x1),~([x2:v],[say(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)])])",
+  "([],[~(([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1:v],[say(x1),cont(x1):([x2],[dog(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]),arg1(x1,y1)]))])",
+  "([],[~(([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1],[dog(x1)]) + ([x2:v],[say(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)]))])",
+  "([x1],[dog(x1),~(([],[p(([y1],[bind(y1),y1='kim']))]) + ([x2:v],[say(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)]))])"
+ ]
+}

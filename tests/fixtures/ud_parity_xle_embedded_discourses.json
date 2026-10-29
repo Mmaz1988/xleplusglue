@@ -1,0 +1,35 @@
+{
+ "e0": {
+  "sentences": [
+   "Kim said that a dog barked.",
+   "It smiled."
+  ],
+  "gold": null,
+  "readings": [
+   "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1:v],[say(x1),cont(x1):([x2],[dog(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]),arg1(x1,y1)]) ; ([x2],[ant(x2)]) + ([x3:v],[smile(x3),arg1(x3,x2)]),A:[a(s5:x2,/)],P:[p(s1,s1)]",
+   "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1:v],[say(x1),cont(x1):([x2],[dog(x2)]) + ([x3:v],[bark(x3),arg1(x3,x2)]),arg1(x1,y1)]) ; ([x2],[ant(x2)]) + ([x3:v],[smile(x3),arg1(x3,x2)]),A:[a(s5:x2,y1)],P:[p(s1,s1)]",
+   "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1],[dog(x1)]) + ([x2:v],[say(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)]) ; ([x3],[ant(x3)]) + ([x4:v],[smile(x4),arg1(x4,x3)]),A:[a(s5:x3,/)],P:[p(s1,s1)]",
+   "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1],[dog(x1)]) + ([x2:v],[say(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)]) ; ([x3],[ant(x3)]) + ([x4:v],[smile(x4),arg1(x4,x3)]),A:[a(s5:x3,x1)],P:[p(s1,s1)]",
+   "([],[p(([y1],[bind(y1),y1='kim']))]) + ([x1],[dog(x1)]) + ([x2:v],[say(x2),cont(x2):([x3:v],[bark(x3),arg1(x3,x1)]),arg1(x2,y1)]) ; ([x3],[ant(x3)]) + ([x4:v],[smile(x4),arg1(x4,x3)]),A:[a(s5:x3,y1)],P:[p(s1,s1)]"
+  ]
+ },
+ "e1": {
+  "sentences": [
+   "A man appeared.",
+   "Kim thinks that he smiled."
+  ],
+  "gold": null,
+  "readings": [
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3:v],[think(x3),cont(x3):([x4],[ant(x4),male(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]),arg1(x3,y1)]),A:[a(s5:x4,/),a(s3:y1,x1)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3:v],[think(x3),cont(x3):([x4],[ant(x4),male(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]),arg1(x3,y1)]),A:[a(s5:x4,/)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3:v],[think(x3),cont(x3):([x4],[ant(x4),male(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]),arg1(x3,y1)]),A:[a(s5:x4,x1),a(s3:y1,x1)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3:v],[think(x3),cont(x3):([x4],[ant(x4),male(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]),arg1(x3,y1)]),A:[a(s5:x4,x1)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3:v],[think(x3),cont(x3):([x4],[ant(x4),male(x4)]) + ([x5:v],[smile(x5),arg1(x5,x4)]),arg1(x3,y1)]),A:[a(s5:x4,y1)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3],[ant(x3),male(x3)]) + ([x4:v],[think(x4),cont(x4):([x5:v],[smile(x5),arg1(x5,x3)]),arg1(x4,y1)]),A:[a(s4:x3,/),a(s3:y1,x1)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3],[ant(x3),male(x3)]) + ([x4:v],[think(x4),cont(x4):([x5:v],[smile(x5),arg1(x5,x3)]),arg1(x4,y1)]),A:[a(s4:x3,/)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3],[ant(x3),male(x3)]) + ([x4:v],[think(x4),cont(x4):([x5:v],[smile(x5),arg1(x5,x3)]),arg1(x4,y1)]),A:[a(s4:x3,x1),a(s3:y1,x1)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3],[ant(x3),male(x3)]) + ([x4:v],[think(x4),cont(x4):([x5:v],[smile(x5),arg1(x5,x3)]),arg1(x4,y1)]),A:[a(s4:x3,x1)],P:[p(s3,s0)]",
+   "([x1],[man(x1)]) + ([x2:v],[appear(x2),arg1(x2,x1)]) ; ([],[p(([y1],[bind(y1),y1='kim']))]) + ([x3],[ant(x3),male(x3)]) + ([x4:v],[think(x4),cont(x4):([x5:v],[smile(x5),arg1(x5,x3)]),arg1(x4,y1)]),A:[a(s4:x3,y1)],P:[p(s3,s0)]"
+  ]
+ }
+}

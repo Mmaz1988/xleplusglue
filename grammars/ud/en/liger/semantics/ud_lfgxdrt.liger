@@ -60,6 +60,10 @@ EMB := NSUBJ | NSUBJ:PASS | OBJ | IOBJ | OBL | OBL:AGENT | NMOD | CCOMP | XCOMP 
 #m GLUE (\V.(\x.(\e.(V@e+([],[arg1(e,x)]))))) : ((#e_v -o #e_t) -o (#n_e -o (#e_v -o #e_t))) || noscope.
 #v OBJ #n & #v EV #e ==> #e ARG2 #m &
 #m GLUE (\V.(\x.(\e.(V@e+([],[arg2(e,x)]))))) : ((#e_v -o #e_t) -o (#n_e -o (#e_v -o #e_t))) || noscope.
+// A clausal complement ("thinks that a dog barked") is the content of the event (XLE's COMP verbs:
+// cont(v):S, S the complement clause's goal).
+#v CCOMP #w & #v EV #e & #w CLAUSE #c GOAL #g ==> #e CONT #m &
+#m GLUE (\P.(\S.(\v.(P@v + ([],[cont(v):S]))))) : ((#e_v -o #e_t) -o (#g_t -o (#e_v -o #e_t))).
 #v NSUBJ:PASS #n & #v EV #e ==> #e ARG2 #m &
 #m GLUE (\V.(\x.(\e.(V@e+([],[arg2(e,x)]))))) : ((#e_v -o #e_t) -o (#n_e -o (#e_v -o #e_t))) || noscope.
 
