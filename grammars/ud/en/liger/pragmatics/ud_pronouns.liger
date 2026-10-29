@@ -54,3 +54,8 @@ IN-COMPLEX(#s,#k) := #s ^(@CONTEXT*) #k & #k ^(@COMPLEX) #h .
 
 @ANT(#a) & #a POSSIBLE-ANT #c & #s IN #a & #t IN #c &
 @IN-COMPLEX(#s,#k) & @IN-COMPLEX(#t,#k) ==> #a BOUND-ANT #c .
+
+//Personal pronouns may also stay unbound (a(x,/)); a reflexive may not. Unbound is an antecedent
+//node of its own, marked UNBOUND (a value would overwrite the other antecedents). Last: the rules
+//above read POSSIBLE-ANT as antecedents ("-(#a POSSIBLE-ANT)").
+@ANT(#a) & #a SYNSEM #b & @PERS(#b) ==> #a POSSIBLE-ANT #u & #u UNBOUND true.

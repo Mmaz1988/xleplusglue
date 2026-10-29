@@ -127,10 +127,6 @@
   ],
   "gold": "1",
   "readings": [
-   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,/),a(s5:y2,x1),a(s6:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
-   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,/),a(s5:y2,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
-   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,/),a(s6:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
-   "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,/)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
    "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,y1),a(s5:y2,x1),a(s6:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
    "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,y1),a(s5:y2,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
    "([],[p(([y1],[bind(y1),y1='bill']))]) + ([x1],[ant(x1),male(x1)]) + ([x2:v],[see(x2),arg1(x2,y1),arg2(x2,x1)]) ; ([],[p(([y2],[bind(y2),y2='bill'])),p(([y3],[bind(y3),y3='bill']))]) + ([x3:v],[see(x3),arg1(x3,y2),arg2(x3,y3)]),A:[a(s2:x1,y1),a(s6:y3,x1)],P:[p(s1,s1),p(s5,s0),p(s6,s0)]",
