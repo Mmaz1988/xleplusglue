@@ -6,12 +6,13 @@ across all readings, and the readings the shortest-mapping rule would replace.
 
 Choices are keyed by the character spans of each referent's head (`lexicalSpans`). SHORTEST=1
 simulates the shortest-mapping rule (A -> C rewritten to A -> B where B -> C in the reading).
-CHAINS=1 decides membership by coreference chains instead of direct links: a reading has
-A -> X if X precedes A in A's chain (the equivalence closure of its pronoun links and p-box
-bindings), and discriminants are grouped into anaphora and presupposition choice points.
+Membership is by coreference chain (D4 of the plan): a reading has A -> X if X is in A's chain
+(the equivalence closure of its pronoun links and p-box bindings) and precedes A or is A's own
+antecedent; discriminants are grouped into anaphora and presupposition choice points. DIRECT=1
+decides membership by direct links instead, as on 2026-10-29.
 
 usage (scratch servers, no TAM rules):
-  [SHORTEST=1] LIGER_URL=http://localhost:8090 GSWB_URL=http://localhost:8091 python3 tests/probes/discriminant_probe.py [id filter]
+  [SHORTEST=1] [DIRECT=1] LIGER_URL=http://localhost:8090 GSWB_URL=http://localhost:8091 python3 tests/probes/discriminant_probe.py [id filter]
 """
 import json
 import os
@@ -191,7 +192,7 @@ def chain_choices(cs):
             continue
         sep = " -> " if k[0] == "PRON" else " bound to "
         for x in sorted(members[find(k[1])], key=start):
-            if x != k[1] and start(x) < start(k[1]):
+            if x != k[1] and (start(x) < start(k[1]) or x == k[2]):
                 via = "" if x == k[2] else "  [chain]"
                 out.append(((k[0], k[1], x), f"{names[k[1]]}{sep}{names[x]}{via}"))
     return out
@@ -222,7 +223,7 @@ def main():
                     cs = [((("PRON" if k[0] == "PRON" else k[0]), a, b), l.replace(l.split(" -> ")[-1], names[b] + "  [shortened]"))
                           if k[0] == "PRON" and k[1] == a and k[2] == c else (k, l) for k, l in cs]
                     links[a] = b
-            if os.environ.get("CHAINS"):
+            if not os.environ.get("DIRECT"):
                 cs = chain_choices(cs)
             keys = frozenset(k for k, _ in cs)
             per_reading.append(keys)
@@ -237,7 +238,7 @@ def main():
         split = {k: v for k, v in groups.items() if 0 < len(v) < len(found)}
         fixed = [k for k, v in groups.items() if v == total]
         print(f"  -- discriminants ({len(split)} splitting, {len(fixed)} in every reading):")
-        if os.environ.get("CHAINS"):
+        if not os.environ.get("DIRECT"):
             points = defaultdict(list)
             for k, v in groups.items():
                 points[point(k)].append((k, v))
