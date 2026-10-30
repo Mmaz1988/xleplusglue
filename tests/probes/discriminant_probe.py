@@ -198,6 +198,21 @@ def chain_choices(cs):
     return out
 
 
+def gswb_ids(cs):
+    """The probe's choices as GSWB's PragmaticChoiceDto ids; intermediate sites by kind only."""
+    ids = set()
+    for k, _ in cs:
+        span = lambda key: ",".join(key)
+        if k[0] == "PRON":
+            ids.add(f"ANAPHORA@{span(k[1])}={span(k[2])}")
+        elif k[0] == "BIND":
+            ids.add(f"PRESUPPOSITION@{span(k[1])}={span(k[2])}")
+        else:
+            site = {"GLOBAL": "GLOBAL", "LOCAL": "LOCAL"}.get(k[2][0], "INTERMEDIATE")
+            ids.add(f"PRESUPPOSITION@{span(k[1])}={site}")
+    return ids
+
+
 def point(key):
     """Choice point of a choice: (ANAPHORA|PRESUPPOSITION, anaphor/trigger key)."""
     return ("ANAPHORA" if key[0] == "PRON" else "PRESUPPOSITION", key[1])
@@ -215,6 +230,7 @@ def main():
         groups = defaultdict(set)
         labels = {}
         per_reading = []
+        mismatches = []
         for i, e in enumerate(found):
             cs, links = choices(e)
             if os.environ.get("SHORTEST"):
@@ -225,6 +241,12 @@ def main():
                     links[a] = b
             if not os.environ.get("DIRECT"):
                 cs = chain_choices(cs)
+            if not os.environ.get("DIRECT") and not os.environ.get("SHORTEST"):
+                theirs = e["solution"].get("choices")
+                theirs = None if theirs is None else {c["id"].split(":")[0] if "=INTERMEDIATE:" in c["id"] else c["id"]
+                                                      for c in theirs}
+                if theirs != gswb_ids(cs):
+                    mismatches.append((i, sorted(gswb_ids(cs)), None if theirs is None else sorted(theirs)))
             keys = frozenset(k for k, _ in cs)
             per_reading.append(keys)
             for k, l in cs:
@@ -269,6 +291,10 @@ def main():
         unresolved = sorted({l for k, l in labels.items() if "?" in json.dumps(k)})
         if unresolved:
             print(f"  -- unnamed: {unresolved}")
+        if not os.environ.get("DIRECT") and not os.environ.get("SHORTEST"):
+            print(f"  -- GSWB choices: {'all ' + str(len(found)) + ' readings agree' if not mismatches else str(len(mismatches)) + ' differ'}")
+            for i, mine, theirs in mismatches:
+                print(f"     R{i} probe {mine}\n        gswb  {theirs}")
         for scope, why in rejected:
             print(f"  rejected {scope}: {(why or '')[:160]}")
         dump[did] = [{"scope": e["scope"], "choices": [l for _, l in choices(e)[0]]} for e in found]
