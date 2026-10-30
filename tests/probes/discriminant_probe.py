@@ -6,6 +6,9 @@ across all readings, and the readings the shortest-mapping rule would replace.
 
 Choices are keyed by the character spans of each referent's head (`lexicalSpans`). SHORTEST=1
 simulates the shortest-mapping rule (A -> C rewritten to A -> B where B -> C in the reading).
+CHAINS=1 decides membership by coreference chains instead of direct links: a reading has
+A -> X if X precedes A in A's chain (the equivalence closure of its pronoun links and p-box
+bindings), and discriminants are grouped into anaphora and presupposition choice points.
 
 usage (scratch servers, no TAM rules):
   [SHORTEST=1] LIGER_URL=http://localhost:8090 GSWB_URL=http://localhost:8091 python3 tests/probes/discriminant_probe.py [id filter]
@@ -151,6 +154,54 @@ def long_links(links):
     return found
 
 
+def start(key):
+    """Character offset a referent key starts at (unknown keys sort last)."""
+    try:
+        return int(key[0].split("-")[0])
+    except (ValueError, IndexError):
+        return 10 ** 9
+
+
+def chain_choices(cs):
+    """Choices by coreference chain: PRON/BIND A -> X for every X before A in A's chain."""
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    names = {}
+    for k, l in cs:
+        if k[0] in ("PRON", "BIND"):
+            sep = " -> " if k[0] == "PRON" else " bound to "
+            names[k[1]], target = l.split(sep, 1)
+            if k[2] != ("/",):
+                names[k[2]] = target.replace("  [shortened]", "")
+                parent[find(k[1])] = find(k[2])
+    members = defaultdict(set)
+    for x in list(parent):
+        members[find(x)].add(x)
+    out = []
+    for k, l in cs:
+        if k[0] not in ("PRON", "BIND") or k[2] == ("/",):
+            out.append((k, l))
+            continue
+        sep = " -> " if k[0] == "PRON" else " bound to "
+        for x in sorted(members[find(k[1])], key=start):
+            if x != k[1] and start(x) < start(k[1]):
+                via = "" if x == k[2] else "  [chain]"
+                out.append(((k[0], k[1], x), f"{names[k[1]]}{sep}{names[x]}{via}"))
+    return out
+
+
+def point(key):
+    """Choice point of a choice: (ANAPHORA|PRESUPPOSITION, anaphor/trigger key)."""
+    return ("ANAPHORA" if key[0] == "PRON" else "PRESUPPOSITION", key[1])
+
+
 def main():
     only = sys.argv[1] if len(sys.argv) > 1 else ""
     semantics, pragmatics = pe._rules()
@@ -171,6 +222,8 @@ def main():
                     cs = [((("PRON" if k[0] == "PRON" else k[0]), a, b), l.replace(l.split(" -> ")[-1], names[b] + "  [shortened]"))
                           if k[0] == "PRON" and k[1] == a and k[2] == c else (k, l) for k, l in cs]
                     links[a] = b
+            if os.environ.get("CHAINS"):
+                cs = chain_choices(cs)
             keys = frozenset(k for k, _ in cs)
             per_reading.append(keys)
             for k, l in cs:
@@ -184,6 +237,20 @@ def main():
         split = {k: v for k, v in groups.items() if 0 < len(v) < len(found)}
         fixed = [k for k, v in groups.items() if v == total]
         print(f"  -- discriminants ({len(split)} splitting, {len(fixed)} in every reading):")
+        if os.environ.get("CHAINS"):
+            points = defaultdict(list)
+            for k, v in groups.items():
+                points[point(k)].append((k, v))
+            for p in sorted(points, key=lambda p: (p[0], start(p[1]))):
+                alts = points[p]
+                covered = set().union(*(v for _, v in alts))
+                overlap = sum(len(v) for _, v in alts) - len(covered)
+                print(f"     {p[0]} {labels[alts[0][0]].split(' -> ')[0].split(' bound to ')[0].split(' accommodated')[0]}"
+                      f"  ({len(alts)} alternatives, in {len(covered)}/{len(found)} readings"
+                      + (f", {overlap} reading(s) in more than one" if overlap else "") + ")")
+                for k, v in sorted(alts, key=lambda kv: -len(kv[1])):
+                    tag = "all" if v == total else f"{len(v):2}"
+                    print(f"        [{tag}] {labels[k]:60} R{','.join(map(str, sorted(v)))}")
         for k, v in sorted(split.items(), key=lambda kv: (kv[0][0], kv[0][1], -len(kv[1]))):
             excluded = [labels[k2] for k2, v2 in split.items() if k2 != k and not (v & v2)]
             print(f"     [{len(v):2}] {labels[k]:60} R{','.join(map(str, sorted(v)))}"
