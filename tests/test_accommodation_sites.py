@@ -8,12 +8,17 @@ discourse below, every `POSSIBLE-ACC` must name such a state; and in "Every cat 
 the hat." the hat is offered the global box, the restrictor and the consequent, also where the
 restrictor is a merge (a hat scoped inside it).
 
+Binding is not restricted that way: a referent in any segment of an accessible box binds. In
+"Every cat with a hat liked the hat." the hat, and in "... liked it." the pronoun, is offered
+"a hat" in every reading, also where "a hat" is in the restrictor's second segment.
+
 Requires LiGER and GSWB (LIGER_URL / GSWB_URL, default :8080 / :8081; agents use the scratch
 servers). LIGER_RULES_PATH selects the config (default: the lfgxdrt inference grammar's). Run
 directly (prints every site, exits non-zero on a failure) or via pytest.
 """
 import os
 import sys
+from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import test_presupposition_examples as pe  # noqa: E402
@@ -29,7 +34,11 @@ DISCOURSES = [
     ["A man smiled.", "The dog barked."],
     ["Every man saw a dog.", "The cat smiled."],
     ["A man saw a dog.", "The dog barked.", "It smiled."],
+    ["Every cat with a hat liked it."],
 ]
+
+# Discourse index -> (anaphor's condition, binder's condition): offered in every reading.
+BINDERS = {0: ("bind", "hat"), 6: ("ant", "hat")}
 
 
 def structures(sentences, semantics, pragmatics):
@@ -60,6 +69,19 @@ def sites(structure):
             for f in facts if f.get("relationLabel") == "POSSIBLE-ACC"]
 
 
+def binders(structure, anaphor_condition, binder_condition):
+    """POSSIBLE-ANT targets of the referents marked anaphor_condition that carry binder_condition."""
+    facts = (structure.get("constraints") or []) + (structure.get("annotations") or [])
+    name = {f["sourceNode"]: f["targetNode"] for f in facts if f.get("relationLabel") == "NAME"}
+    # a condition node names its symbol and points to its argument by TERM1
+    marked = defaultdict(set)
+    for f in facts:
+        if f.get("relationLabel") == "TERM1":
+            marked[f["targetNode"]].add(name.get(f["sourceNode"]))
+    return [name.get(f["targetNode"]) for f in facts if f.get("relationLabel") == "POSSIBLE-ANT"
+            and anaphor_condition in marked[f["sourceNode"]] and binder_condition in marked[f["targetNode"]]]
+
+
 def check(sentences):
     semantics, pragmatics = pe._rules()
     failures = []
@@ -71,6 +93,10 @@ def check(sentences):
             if edges & CHAIN:
                 failures.append(f"{semantic[:80]}: {p} POSSIBLE-ACC {site}, a state entered by "
                                 f"{sorted(edges & CHAIN)}, not a box's first state")
+        index = DISCOURSES.index(sentences)
+        if index in BINDERS and not binders(structure, *BINDERS[index]):
+            failures.append(f"{semantic[:80]}: the {BINDERS[index][0]} referent is offered no "
+                            f"{BINDERS[index][1]} binder")
         if sentences == DISCOURSES[0]:
             kinds = {frozenset(edges) for _, _, edges in found}
             for expected in (frozenset(), frozenset({"SUB"}), frozenset({"IMP"})):
@@ -107,6 +133,10 @@ def test_second_sentence_after_every():
 
 def test_three_sentences():
     _run(5)
+
+
+def test_pronoun_bound_in_restrictor_segment():
+    _run(6)
 
 
 if __name__ == "__main__":
