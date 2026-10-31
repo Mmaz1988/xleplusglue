@@ -52,5 +52,6 @@ NAME-BINDER(#d) := #s IN #d & #s ^(@CHAIN*) #b & #b CLAUSE-BOX #b | #s IN #d & #
 
 //Accommodation: at every site, whether or not the presupposition can also be bound; a proper
 //name only in a clause box
-#p POTENTIAL-ACC #s & -(#p IN #c & @PROPER-NAME(#c)) ==> #p POSSIBLE-ACC #s .
-#p POTENTIAL-ACC #s & #p IN #c & @PROPER-NAME(#c) & #s CLAUSE-BOX #s ==> #p POSSIBLE-ACC #s .
+//A site is a box, named by its first state: not a state a chain continues into (I10)
+#p POTENTIAL-ACC #s & -(#m @CHAIN #s) & -(#p IN #c & @PROPER-NAME(#c)) ==> #p POSSIBLE-ACC #s .
+#p POTENTIAL-ACC #s & -(#m @CHAIN #s) & #p IN #c & @PROPER-NAME(#c) & #s CLAUSE-BOX #s ==> #p POSSIBLE-ACC #s .
