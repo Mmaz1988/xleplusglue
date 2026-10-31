@@ -4,10 +4,10 @@
 // HIERARCHIES
 
 //Functional hierarchy
-GF ::= SUBJ > OBJ > OBJ2 > OBL > OBL-COMP > PREDLINK .
+GF ::= SUBJ > OBJ > OBJ2 > OBL > OBL-TO > OBL-COMP > PREDLINK .
 
 //Templates
-GF := SUBJ | OBJ | OBL | OBL-COMP | ADJUNCT | PREDLINK .
+GF := SUBJ | OBJ | OBL | OBL-TO | OBL-COMP | ADJUNCT | PREDLINK .
 
 DRS := IMP | NOT | MERGE | UPDATE | SUB | SCOPE .
 
