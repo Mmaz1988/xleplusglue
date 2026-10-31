@@ -16,6 +16,7 @@ usage (scratch servers, no TAM rules):
 """
 import json
 import os
+import re
 import sys
 from collections import defaultdict
 
@@ -32,6 +33,10 @@ DISCOURSES.update({
     "chain1": ["A man saw a dog.", "The dog barked.", "It smiled."],
     "chain2": ["A man smiled.", "He saw a dog.", "He barked."],
     "site1": ["Every man saw the cat that smiled.", "It barked."],
+    # intermediate sites differ between scope readings (D2a)
+    "site2": ["Every cat with a hat liked the hat."],
+    "site3": ["Every cat did not see the hat."],
+    "site4": ["If a man saw every dog, the cat barked."],
 })
 
 
@@ -242,11 +247,15 @@ def main():
             if not os.environ.get("DIRECT"):
                 cs = chain_choices(cs)
             if not os.environ.get("DIRECT") and not os.environ.get("SHORTEST"):
-                theirs = e["solution"].get("choices")
-                theirs = None if theirs is None else {c["id"].split(":")[0] if "=INTERMEDIATE:" in c["id"] else c["id"]
-                                                      for c in theirs}
+                given = e["solution"].get("choices")
+                theirs = None if given is None else {c["id"] for c in given}
                 if theirs != gswb_ids(cs):
                     mismatches.append((i, sorted(gswb_ids(cs)), None if theirs is None else sorted(theirs)))
+                # D2a: an intermediate site's box is the state the reading's P: names
+                targets = set(re.findall(r"p\(s\d+,(s\d+)\)", e["solution"].get("presuppositionMapping") or ""))
+                for c in given or []:
+                    if c["target"] == "INTERMEDIATE" and c.get("site") not in targets:
+                        mismatches.append((i, [f"site {c.get('site')} not in P: {sorted(targets)}"], [c["id"]]))
             keys = frozenset(k for k, _ in cs)
             per_reading.append(keys)
             for k, l in cs:
