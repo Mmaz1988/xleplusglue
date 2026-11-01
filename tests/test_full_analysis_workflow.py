@@ -620,6 +620,11 @@ def append_sentence(sentences, rule_string, parses, contexts, own):
     merged reading, variant structure, context index, new reading), contexts first, then the new
     sentence's parses."""
     k = len(sentences) - 1
+    # Without a reading there is nothing to append to, or nothing to append: say which.
+    if not contexts:
+        raise RuntimeError(f"no reading for the discourse before {sentences[k]!r}")
+    if not any(own.values()):
+        raise RuntimeError(f"no reading for {sentences[k]!r}")
     supplied = [sorted({t[i] for t, _ in contexts}) for i in range(k)] + [sorted(j for j, rs in own.items() if rs)]
     variants = liger_sequence(sentences, rule_string,
                               [[parses[i][j]["structureJson"] for j in js] for i, js in enumerate(supplied)])["solutions"]

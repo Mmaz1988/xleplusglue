@@ -212,10 +212,12 @@ def ud_discourse(sentences, semantics, pragmatics):
         base = post(f'{LIGER_URL}/merge_uploaded_structures', {'syntax': structure, 'drs': semantic['graph']})
         applied = post(f'{LIGER_URL}/apply_rules_uploaded_structure', {
             'content': json.dumps(base['structureJson']), 'format': 'json', 'id': 'ud-parity', 'ruleString': pragmatics})
-        pcdrs = post(f'{GSWB_URL}/generate_pcdrs', {
-            'semantic': semantic['semString'], 'parentSolutionId': merged['id'],
-            'mergedStructure': applied['annotations'][0]['structureJson'], 'rulesApplied': True, 'includeSvg': False})
-        readings |= {solution['semantic'] for solution in pcdrs.get('solutions') or []}
+        # Every rule branch (the pronoun rules branch on coarguments), each with its own id.
+        for r, annotation in enumerate(applied['annotations']):
+            pcdrs = post(f'{GSWB_URL}/generate_pcdrs', {
+                'semantic': semantic['semString'], 'parentSolutionId': f"{merged['id']}-rule-{r}",
+                'mergedStructure': annotation['structureJson'], 'rulesApplied': True, 'includeSvg': False})
+            readings |= {solution['semantic'] for solution in pcdrs.get('solutions') or []}
     return readings
 
 

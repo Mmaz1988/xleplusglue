@@ -52,9 +52,10 @@ def read_testsuite(path):
     lines = [line for line in text.splitlines() if not line.strip().startswith("#")]
     for block in re.findall(r"\{(.*?)\}", "\n".join(lines), re.S):
         body = [line.strip() for line in block.strip().splitlines() if line.strip()]
-        split = body.index("====")
-        label = next(line[3:].strip() for line in body if line.startswith(">>>"))
-        items.append({"id": f"n{len(items)}", "premises": body[:split],
+        # A reading-only item (the ambiguity suite) has neither a conclusion nor a gold label.
+        split = body.index("====") if "====" in body else len(body)
+        label = next((line[3:].strip() for line in body if line.startswith(">>>")), None)
+        items.append({"id": f"n{len(items)}", "premises": [line for line in body[:split] if not line.startswith(">>>")],
                       "conclusion": [line for line in body[split + 1:] if not line.startswith(">>>")],
                       "gold": label})
     return items
