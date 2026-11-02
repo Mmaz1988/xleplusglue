@@ -7,15 +7,16 @@ selection, rankers). Per item, as `prepareNliItem` does:
   1. every sentence parsed (/apply_rules_xle) and derived once on its own (/deduce);
   2. the sentences appended one at a time (derive_once / append_sentence), the premises' merge
      kept as the prior;
-  3. per branch: /reasoning_check_asts, the syntax/semantics union, the pragmatics rules,
-     /generate_pcdrs (rulesApplied says whether rules ran), duplicates dropped, and
-     /collapse_and_tptp_batch for context + sequence + the four checks;
-  4. the readings sent to Vampire: with a schema-v6 session its reading_selection, as
+  3. per branch: the syntax/semantics union, the pragmatics rules, /generate_pcdrs
+     (rulesApplied says whether rules ran), duplicates dropped;
+  4. the readings sent to Vampire, chosen before anything is collapsed: with a schema-v6 session its reading_selection, as
      reading-order.ts selectedReadingIds does -- every reading of the item's discourse ordered by
      the checked criteria (the LM rankers fused across all readings, the profile rows; surface
      alignment is not supported), the filtered ones dropped (names: a proper name not resolved
      automatically), the first k places kept; with an older session (anaphora_selection) under
-     top-k the k best-ranked branches per merged reading;
+     top-k the k best-ranked branches per merged reading; then, for the chosen readings only,
+     /reasoning_check_asts (once per merged reading) and /collapse_and_tptp_batch for
+     context + sequence + the four checks (prepareStoredReadingChecks);
   5. one /vampire_multiple_request per item; the verdict is the majority over its bundles.
 
 It judges nothing beyond the label. Needs scratch LiGER/GSWB, the Vampire (8082), lm (8084) and
@@ -76,12 +77,14 @@ def mapping_key(mapping):
     return "|".join(relations) + "::" + (mapping.get("semantic") or "")
 
 
-def branch_assignments(item_id, index, branch, typed, settings):
-    """ReasoningPipelineService.prepareReasoningChecks for one branch: (assignments, failures)."""
+def branch_readings(item_id, index, branch, settings):
+    """One merged reading's PCDRS readings: the syntax/semantics union, the pragmatics rules,
+    /generate_pcdrs per rule branch, duplicates dropped. Nothing is collapsed here: the
+    selection reads only what /generate_pcdrs returns (bindings, choices, profile), and only
+    the selected readings are collapsed (collapse_reading), as prepareStoredReadingChecks does.
+    Returns (readings, failures)."""
     merged = w.reading(branch["merged"])
     scope = f"pxq-{item_id}-{index + 1}"
-    asts = w._post_json(f"{w.GSWB_URL}/reasoning_check_asts", {
-        "premiseAsts": branch["premise_asts"], "hypothesisAsts": branch["hypothesis_asts"], "typed": typed})
     base = w._post_json(f"{w.LIGER_URL}/merge_uploaded_structures", {
         "syntax": branch["structure"], "drs": merged["graph"], "includeGraph": False})["structureJson"]
     rules_applied = settings["has_rules"]
@@ -91,7 +94,7 @@ def branch_assignments(item_id, index, branch, typed, settings):
             "id": "nli-post-processing", "includeGraph": False})
         rule_branches = [a["structureJson"] for a in applied.get("annotations") or [] if a.get("structureJson")]
         if not rule_branches:
-            return [], [f"{scope}: the post-processing rules left no reading: {applied.get('failureMessage')}"], []
+            return [], [f"{scope}: the post-processing rules left no reading: {applied.get('failureMessage')}"]
     else:
         rule_branches = [base]
     mappings, rejected = [], []
@@ -102,39 +105,43 @@ def branch_assignments(item_id, index, branch, typed, settings):
         mappings += [(m, r) for m in pcdrs.get("solutions") or []]
         rejected += [f"{x.get('id')}: {x.get('rejection')}" for x in pcdrs.get("rejected") or []]
     if not mappings:
-        return [], [f"{scope}: no post-processed interpretation. Rejected: {'; '.join(rejected)}"], []
-    seen, distinct = set(), []
+        return [], [f"{scope}: no post-processed interpretation. Rejected: {'; '.join(rejected)}"]
+    seen, readings = set(), []
     for mapping, r in mappings:
         if mapping_key(mapping) not in seen:
             seen.add(mapping_key(mapping))
-            distinct.append((mapping, r))
-    assignments, failures = [], []
-    readings = [{"mappingId": m["id"], "semanticOrigin": merged["semId"], "mapping": m} for m, _ in distinct]
-    for mapping, r in distinct:
-        items = [{"name": "context", "semantic": branch["prior"]}, {"name": "sequence", "semantic": mapping.get("semantic") or ""}]
-        items += [{"name": name, "semantic": check["semantic"]} for name, check in (asts.get("checks") or {}).items()]
-        result = w._post_json(f"{w.GSWB_URL}/collapse_and_tptp_batch", {
-            "items": [i for i in items if i["semantic"]], "typed": typed, "parentSolutionId": mapping["id"]})["results"]
-        rejections = [f"{name}: {item['rejection']}" for name, item in result.items() if item and item.get("rejection")]
-        missing = [name for name in CHECK_NAMES if not (result.get(name) or {}).get("tptp")]
-        if rejections or missing:
-            failures.append(f"{mapping['id']}: " + (f"collapse rejects the reading ({'; '.join(rejections)})"
-                                                     if rejections else f"missing check(s) {', '.join(missing)}"))
-            continue
-        checks = {name: {k: result[name][k] for k in ("tptp", "anaphoraMapping", "presuppositionMapping", "stateMap",
-                                                      "collapseReport") if result[name].get(k)} for name in CHECK_NAMES}
-        assignments.append({
-            "mappingId": mapping["id"], "semanticOrigin": merged["semId"], "ruleBranch": r, "mapping": mapping,
-            "bundle": {"pairId": scope, "assignmentId": mapping["id"], "mappingId": mapping["id"], "checks": checks,
-                       "contextTptp": (result.get("context") or {}).get("tptp") or ""},
-            "unresolved": (result.get("sequence") or {}).get("unresolvedPronouns") or [],
-        })
-    return assignments, failures, readings
+            readings.append({"mappingId": mapping["id"], "semanticOrigin": merged["semId"], "mapping": mapping,
+                             "ruleBranch": r, "branchIndex": index, "scope": scope})
+    return readings, []
+
+
+def collapse_reading(reading, branch, asts, typed):
+    """The reasoning bundle of one selected reading: one /collapse_and_tptp_batch of the context,
+    the sequence and the four checks. Returns (assignment, None) or (None, failure)."""
+    mapping = reading["mapping"]
+    items = [{"name": "context", "semantic": branch["prior"]}, {"name": "sequence", "semantic": mapping.get("semantic") or ""}]
+    items += [{"name": name, "semantic": check["semantic"]} for name, check in (asts.get("checks") or {}).items()]
+    result = w._post_json(f"{w.GSWB_URL}/collapse_and_tptp_batch", {
+        "items": [i for i in items if i["semantic"]], "typed": typed, "parentSolutionId": mapping["id"]})["results"]
+    rejections = [f"{name}: {item['rejection']}" for name, item in result.items() if item and item.get("rejection")]
+    missing = [name for name in CHECK_NAMES if not (result.get(name) or {}).get("tptp")]
+    if rejections or missing:
+        return None, f"{mapping['id']}: " + (f"collapse rejects the reading ({'; '.join(rejections)})"
+                                             if rejections else f"missing check(s) {', '.join(missing)}")
+    checks = {name: {k: result[name][k] for k in ("tptp", "anaphoraMapping", "presuppositionMapping", "stateMap",
+                                                  "collapseReport") if result[name].get(k)} for name in CHECK_NAMES}
+    return {
+        **reading,
+        "bundle": {"pairId": reading["scope"], "assignmentId": mapping["id"], "mappingId": mapping["id"], "checks": checks,
+                   "contextTptp": (result.get("context") or {}).get("tptp") or ""},
+        "unresolved": (result.get("sequence") or {}).get("unresolvedPronouns") or [],
+    }, None
 
 
 def select_top_k(branches, assignments, settings):
-    """registerDiscourseUpdate + rank_anaphora + selectForVampire: under top-k, the k best-ranked
-    anaphora branches of each merged reading. Returns (selected assignments, ranking or a reason)."""
+    """registerDiscourseUpdate + rank_anaphora + selectForVampire (sessions before schema v6):
+    under top-k, the k best-ranked anaphora branches of each merged reading. Takes and returns
+    readings (not yet collapsed); the second value is the ranking or a reason."""
     if settings["vampire"].get("anaphora_selection") != "top_k":
         return assignments, "all branches"
     if not any(a["mapping"].get("anaphoraRelations") for a in assignments):
@@ -250,11 +257,11 @@ def hidden_by_filter(mapping, name):
     return any(count > 0 for count in profile.get("accommodation") or [])
 
 
-def select_readings(branches, readings, assignments, settings):
+def select_readings(branches, readings, settings):
     """The session's reading_selection (schema v6, reading-order.ts selectedReadingIds): every
     reading of the item's discourse ordered by the checked criteria (the LM ranking fused across
     all readings; the profile rows), the filtered ones removed, the readings on the first k
-    places kept (ties stay together). Returns (selected assignments, a description)."""
+    places kept (ties stay together). Returns (selected readings, a description)."""
     selection = settings["vampire"]["reading_selection"] or {}
     criteria, filters, k = selection.get("criteria") or [], selection.get("filters") or [], selection.get("k")
     unsupported = [c for c in criteria if c not in ("lm", "pronouns", "binding", "accommodation")]
@@ -298,10 +305,9 @@ def select_readings(branches, readings, assignments, settings):
             count += 1
         if k is None or count <= k:
             kept.append(readings[i]["mappingId"])
-    by_id = {a["mappingId"]: a for a in assignments}
-    selected = [by_id[i] for i in kept if i in by_id]
-    description.append(f"top {k}: {len(kept)} kept, {len(selected)} with a bundle")
-    return selected, ", ".join(description)
+    by_id = {r["mappingId"]: r for r in readings}
+    description.append(f"top {k}: {len(kept)} kept")
+    return [by_id[i] for i in kept], ", ".join(description)
 
 
 def majority(values):
@@ -339,24 +345,38 @@ def run_item(item, settings):
             return {"label": None, "failure": f"could not append {texts[k]!r} to any branch"}
 
     typed = settings["logic"] == "tff"
-    assignments, failures, readings = [], [], []
+    readings, failures = [], []
     for index, branch in enumerate(branches):
         try:
-            got, failed, found = branch_assignments(item["id"], index, branch, typed, settings)
+            found, failed = branch_readings(item["id"], index, branch, settings)
         except RuntimeError as error:
-            got, failed, found = [], [f"pxq-{item['id']}-{index + 1}: {error}"], []
-        assignments += got
-        failures += failed
+            found, failed = [], [f"pxq-{item['id']}-{index + 1}: {error}"]
         readings += found
-    if not assignments:
-        return {"label": None, "failure": "no reasoning bundle: " + " | ".join(failures)[:600]}
+        failures += failed
+    if not readings:
+        return {"label": None, "failure": "no reading: " + " | ".join(failures)[:600]}
     if "reading_selection" in settings["vampire"]:
-        selected, ranking = select_readings(branches, readings, assignments, settings)
-        if not selected:
-            return {"label": None, "failure": f"no selected reading has a reasoning bundle ({ranking})",
-                    "readings": len(readings), "assignments": len(assignments), "failures": failures}
+        chosen, ranking = select_readings(branches, readings, settings)
     else:
-        selected, ranking = select_top_k(branches, assignments, settings)
+        chosen, ranking = select_top_k(branches, readings, settings)
+    # Only the selected readings are collapsed; the check ASTs once per merged reading.
+    asts, selected = {}, []
+    for reading in chosen:
+        branch = branches[reading["branchIndex"]]
+        try:
+            if reading["branchIndex"] not in asts:
+                asts[reading["branchIndex"]] = w._post_json(f"{w.GSWB_URL}/reasoning_check_asts", {
+                    "premiseAsts": branch["premise_asts"], "hypothesisAsts": branch["hypothesis_asts"], "typed": typed})
+            assignment, failure = collapse_reading(reading, branch, asts[reading["branchIndex"]], typed)
+        except RuntimeError as error:
+            assignment, failure = None, f"{reading['mappingId']}: {error}"
+        if assignment:
+            selected.append(assignment)
+        else:
+            failures.append(failure)
+    if not selected:
+        return {"label": None, "failure": f"no selected reading has a reasoning bundle ({ranking}): "
+                                          + " | ".join(failures)[:600], "readings": len(readings)}
 
     grammar_axioms = {"prolog": [], "tptp": [], "tffTypes": []}
     for solutions in parses:
@@ -389,7 +409,7 @@ def run_item(item, settings):
     consistent, informative = majority([c["consistent"] for c in results]), majority([c["informative"] for c in results])
     return {
         "label": "-1" if not consistent else ("0" if informative else "1"),
-        "branches": len(branches), "readings": len(readings), "assignments": len(assignments), "sent": len(selected),
+        "branches": len(branches), "readings": len(readings), "chosen": len(chosen), "sent": len(selected),
         "failures": failures, "verdicts": [{k: c[k] for k in ("consistent", "informative", "assignment_id")} for c in results],
         "bindings": [[f"{r.get('pronounDisplay') or r.get('pronounReferentId')}>{r.get('antecedent')}"
                       for r in a["mapping"].get("anaphoraRelations") or []] for a in selected],
@@ -404,7 +424,7 @@ def main():
     parser.add_argument("testsuite")
     parser.add_argument("--session", default="pronouns-new")
     parser.add_argument("--out")
-    parser.add_argument("--only")
+    parser.add_argument("--only", help="comma-separated item ids (n0,n4)")
     args = parser.parse_args()
 
     with urllib.request.urlopen(f"{w.REDIS_URL}/regression_session/{args.session}") as response:
@@ -428,7 +448,7 @@ def main():
     sys.stdout.reconfigure(line_buffering=True)
     results, correct = [], 0
     for item in read_testsuite(args.testsuite):
-        if args.only and item["id"] != args.only:
+        if args.only and item["id"] not in args.only.split(","):
             continue
         started = time.time()
         try:
@@ -445,8 +465,10 @@ def main():
               f"{' '.join(item['premises'])} => {' '.join(item['conclusion'])}")
         if outcome.get("failure"):
             print(f"   failure: {outcome['failure']}")
+        if args.out:  # after every item, so a long run can be read while it goes
+            json.dump(results, open(args.out, "w"), indent=1)
         elif outcome.get("bindings") and any(outcome["bindings"]):
-            print(f"   sent {outcome['sent']}/{outcome['assignments']} bundles, bindings {outcome['bindings']}"
+            print(f"   sent {outcome['sent']} of {outcome['chosen']} selected / {outcome['readings']} readings, bindings {outcome['bindings']}"
                   + (f", unresolved {outcome['unresolved']}" if outcome["unresolved"] else ""))
     print(f"\n{correct}/{len(results)} correct")
     if args.out:
