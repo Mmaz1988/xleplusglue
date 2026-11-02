@@ -9,11 +9,11 @@ selection, rankers). Per item, as `prepareNliItem` does:
      kept as the prior;
   3. per branch: the syntax/semantics union, the pragmatics rules, /generate_pcdrs
      (rulesApplied says whether rules ran), duplicates dropped;
-  4. the readings sent to Vampire, chosen before anything is collapsed: with a schema-v6 session its reading_selection, as
-     reading-order.ts selectedReadingIds does -- every reading of the item's discourse ordered by
-     the checked criteria (the LM rankers fused across all readings, the profile rows; surface
-     alignment is not supported), the filtered ones dropped (names: a proper name not resolved
-     automatically), the first k places kept; with an older session (anaphora_selection) under
+  4. the readings sent to Vampire, chosen before anything is collapsed: with a schema-v6 session its reading_selection
+     (or --selection), after reading-order.ts selectedReadingIds -- the filtered readings dropped
+     first (names: a proper name not resolved automatically; the client filters after ordering),
+     the rest ordered by the checked criteria (the LM rankers fused across them, the profile rows;
+     surface alignment is not supported), the first k places kept; with an older session (anaphora_selection) under
      top-k the k best-ranked branches per merged reading; then, for the chosen readings only,
      /reasoning_check_asts (once per merged reading) and /collapse_and_tptp_batch for
      context + sequence + the four checks (prepareStoredReadingChecks);
@@ -258,18 +258,23 @@ def hidden_by_filter(mapping, name):
 
 
 def select_readings(branches, readings, settings):
-    """The session's reading_selection (schema v6, reading-order.ts selectedReadingIds): every
-    reading of the item's discourse ordered by the checked criteria (the LM ranking fused across
-    all readings; the profile rows), the filtered ones removed, the readings on the first k
-    places kept (ties stay together). Returns (selected readings, a description)."""
+    """The session's reading_selection (schema v6, after reading-order.ts selectedReadingIds):
+    the filtered readings removed, the rest ordered by the checked criteria (the LM ranking fused
+    across them; the profile rows), the readings on the first k places kept (ties stay together).
+    Unlike the client, which orders every reading and filters afterwards, the probe filters
+    first: the LM then ranks only readings that can be selected (n0: 264 instead of 2352). Borda
+    ranks depend on the set ranked, so a top k can differ from the client's.
+    Returns (selected readings, a description)."""
     selection = settings["vampire"]["reading_selection"] or {}
     criteria, filters, k = selection.get("criteria") or [], selection.get("filters") or [], selection.get("k")
     unsupported = [c for c in criteria if c not in ("lm", "pronouns", "binding", "accommodation")]
     if unsupported:
         raise RuntimeError(f"reading_selection criterion not supported by the probe: {unsupported}")
+    total = len(readings)
+    readings = [r for r in readings if not any(hidden_by_filter(r["mapping"], f) for f in filters)]
     ids = [r["mappingId"] for r in readings]
     n = len(ids)
-    rankings, description = [], [f"{n} readings"]
+    rankings, description = [], [f"{total} readings, {n} after filters {filters}"]
     rows = [row for row in ("pronouns", "binding", "accommodation") if row in criteria]
     if rows:
         def profile_key(r):
@@ -297,8 +302,7 @@ def select_readings(branches, readings, settings):
         if position == 0 or order[position - 1][0] - score > 1e-9:
             place += 1
         places.append((i, place))
-    visible = [(i, pl) for i, pl in places if not any(hidden_by_filter(readings[i]["mapping"], f) for f in filters)]
-    description.append(f"{len(visible)} after filters {filters}")
+    visible = places
     kept, count = [], 0
     for position, (i, pl) in enumerate(visible):
         if position == 0 or visible[position - 1][1] != pl:
