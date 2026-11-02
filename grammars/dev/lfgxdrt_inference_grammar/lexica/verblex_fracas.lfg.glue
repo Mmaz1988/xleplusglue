@@ -143,30 +143,23 @@ arrive 	  V-S XLE @(INTRANS-EV %stem).
 
 complain 	  V-S XLE @(INTRANS-EV %stem).
 
-cough 	  V-S XLE @(INTRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+cough 	  V-S XLE @(INTRANS-EV %stem).
 
-cry 	  V-S XLE @(INTRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+cry 	  V-S XLE @(INTRANS-EV %stem).
 
-fall 	  V-S XLE @(INTRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+fall 	  V-S XLE @(INTRANS-EV %stem).
 
-graduate 	  V-S XLE @(INTRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+graduate 	  V-S XLE @(INTRANS-EV %stem).
 
 resign 	  V-S XLE @(INTRANS-EV %stem).
 
 retire 	  V-S XLE @(INTRANS-EV %stem).
 
-run 	  V-S XLE @(INTRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+run 	  V-S XLE @(INTRANS-EV %stem).
 
-sneeze 	  V-S XLE @(INTRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+sneeze 	  V-S XLE @(INTRANS-EV %stem).
 
-swim 	  V-S XLE @(INTRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+swim 	  V-S XLE @(INTRANS-EV %stem).
 
 
 "Optional transitives"
@@ -201,17 +194,13 @@ train      V-S XLE @(OPT-TRANS-EV %stem).
 
 do        V-S XLE @(OPT-TRANS-EV %stem).
 
-cook 	  V-S XLE @(OPT-TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+cook 	  V-S XLE @(OPT-TRANS-EV %stem).
 
-fail 	  V-S XLE @(OPT-TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+fail 	  V-S XLE @(OPT-TRANS-EV %stem).
 
-leave 	  V-S XLE @(OPT-TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+leave 	  V-S XLE @(OPT-TRANS-EV %stem).
 
-read 	  V-S XLE @(OPT-TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+read 	  V-S XLE @(OPT-TRANS-EV %stem).
 
 write 	  V-S XLE @(OPT-TRANS-EV %stem).
 
@@ -305,38 +294,29 @@ visit V-S XLE @(TRANS-EV %stem).
 
 admire 	  V-S XLE @(TRANS-EV %stem).
 
-approve 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+approve 	  V-S XLE @(TRANS-EV %stem).
 
-attend 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+attend 	  V-S XLE @(TRANS-EV %stem).
 
-beat 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+beat 	  V-S XLE @(TRANS-EV %stem).
 
-bite 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+bite 	  V-S XLE @(TRANS-EV %stem).
 
 borrow 	  V-S XLE @(TRANS-EV %stem).
 
-build 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+build 	  V-S XLE @(TRANS-EV %stem).
 
-buy 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+buy 	  V-S XLE @(TRANS-EV %stem).
 
-catch 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+catch 	  V-S XLE @(TRANS-EV %stem).
 
-chase 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+chase 	  V-S XLE @(TRANS-EV %stem).
 
 cite 	  V-S XLE @(TRANS-EV %stem).
 
 criticize 	  V-S XLE @(TRANS-EV %stem).
 
-defeat 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+defeat 	  V-S XLE @(TRANS-EV %stem).
 
 deliver 	  V-S XLE @(TRANS-EV %stem).
 
@@ -344,60 +324,45 @@ describe 	  V-S XLE @(TRANS-EV %stem).
 
 examine 	  V-S XLE @(TRANS-EV %stem).
 
-feed 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+feed 	  V-S XLE @(TRANS-EV %stem).
 
-fix 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+fix 	  V-S XLE @(TRANS-EV %stem).
 
 follow 	  V-S XLE @(TRANS-EV %stem).
 
 greet 	  V-S XLE @(TRANS-EV %stem).
 
-grade 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+grade 	  V-S XLE @(TRANS-EV %stem); ETC.
 
-help 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+help 	  V-S XLE @(TRANS-EV %stem).
 
-hire 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+hire 	  V-S XLE @(TRANS-EV %stem).
 
-interview 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+interview 	  V-S XLE @(TRANS-EV %stem).
 
 invite 	  V-S XLE @(TRANS-EV %stem).
 
-kiss 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+kiss 	  V-S XLE @(TRANS-EV %stem).
 
-meet 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+meet 	  V-S XLE @(TRANS-EV %stem).
 
-open 	  V-S XLE @(TRANS-EV %stem);
-	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem).
+open 	  V-S XLE @(TRANS-EV %stem).
 
-own 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+own 	  V-S XLE @(TRANS-EV %stem).
 
-paint 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+paint 	  V-S XLE @(TRANS-EV %stem).
 
 recommend 	  V-S XLE @(TRANS-EV %stem).
 
 reject 	  V-S XLE @(TRANS-EV %stem).
 
-review 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+review 	  V-S XLE @(TRANS-EV %stem).
 
-sign 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+sign 	  V-S XLE @(TRANS-EV %stem).
 
-steal 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+steal 	  V-S XLE @(TRANS-EV %stem).
 
-trust 	  V-S XLE @(TRANS-EV %stem);
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+trust 	  V-S XLE @(TRANS-EV %stem).
 
 
 "Ditransitives"
@@ -410,21 +375,17 @@ send V-S XLE @(DITRANS-EV send).
 
 bring V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
 
-hand V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) };
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+hand V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
 
 lend V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
 
-offer V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) };
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+offer V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }; ETC.
 
 owe V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
 
-pay V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) };
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+pay V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
 
-show V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) };
-	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+show V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
 
 
 
