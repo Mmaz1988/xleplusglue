@@ -10,7 +10,12 @@ selection, rankers). Per item, as `prepareNliItem` does:
   3. per branch: /reasoning_check_asts, the syntax/semantics union, the pragmatics rules,
      /generate_pcdrs (rulesApplied says whether rules ran), duplicates dropped, and
      /collapse_and_tptp_batch for context + sequence + the four checks;
-  4. under top-k the branches ranked by lm /rank_anaphora and the best k per reading kept;
+  4. the readings sent to Vampire: with a schema-v6 session its reading_selection, as
+     reading-order.ts selectedReadingIds does -- every reading of the item's discourse ordered by
+     the checked criteria (the LM rankers fused across all readings, the profile rows; surface
+     alignment is not supported), the filtered ones dropped (names: a proper name not resolved
+     automatically), the first k places kept; with an older session (anaphora_selection) under
+     top-k the k best-ranked branches per merged reading;
   5. one /vampire_multiple_request per item; the verdict is the majority over its bundles.
 
 It judges nothing beyond the label. Needs scratch LiGER/GSWB, the Vampire (8082), lm (8084) and
@@ -26,12 +31,16 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.request
 import uuid
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 os.environ.setdefault("DUMP_REQUESTS", "0")
 import test_full_analysis_workflow as w  # noqa: E402
+
+# A Vampire batch or a large collapse can take longer than the workflow's 120 s.
+w.TIMEOUT_SECONDS = int(os.environ.get("PROBE_TIMEOUT", "1800"))
 
 VAMPIRE_URL = os.environ.get("VAMPIRE_URL", "http://localhost:8082")
 LM_URL = os.environ.get("LM_URL", "http://localhost:8084")
@@ -82,7 +91,7 @@ def branch_assignments(item_id, index, branch, typed, settings):
             "id": "nli-post-processing", "includeGraph": False})
         rule_branches = [a["structureJson"] for a in applied.get("annotations") or [] if a.get("structureJson")]
         if not rule_branches:
-            return [], [f"{scope}: the post-processing rules left no reading: {applied.get('failureMessage')}"]
+            return [], [f"{scope}: the post-processing rules left no reading: {applied.get('failureMessage')}"], []
     else:
         rule_branches = [base]
     mappings, rejected = [], []
@@ -93,13 +102,14 @@ def branch_assignments(item_id, index, branch, typed, settings):
         mappings += [(m, r) for m in pcdrs.get("solutions") or []]
         rejected += [f"{x.get('id')}: {x.get('rejection')}" for x in pcdrs.get("rejected") or []]
     if not mappings:
-        return [], [f"{scope}: no post-processed interpretation. Rejected: {'; '.join(rejected)}"]
+        return [], [f"{scope}: no post-processed interpretation. Rejected: {'; '.join(rejected)}"], []
     seen, distinct = set(), []
     for mapping, r in mappings:
         if mapping_key(mapping) not in seen:
             seen.add(mapping_key(mapping))
             distinct.append((mapping, r))
     assignments, failures = [], []
+    readings = [{"mappingId": m["id"], "semanticOrigin": merged["semId"], "mapping": m} for m, _ in distinct]
     for mapping, r in distinct:
         items = [{"name": "context", "semantic": branch["prior"]}, {"name": "sequence", "semantic": mapping.get("semantic") or ""}]
         items += [{"name": name, "semantic": check["semantic"]} for name, check in (asts.get("checks") or {}).items()]
@@ -119,7 +129,7 @@ def branch_assignments(item_id, index, branch, typed, settings):
                        "contextTptp": (result.get("context") or {}).get("tptp") or ""},
             "unresolved": (result.get("sequence") or {}).get("unresolvedPronouns") or [],
         })
-    return assignments, failures
+    return assignments, failures, readings
 
 
 def select_top_k(branches, assignments, settings):
@@ -157,6 +167,143 @@ def select_top_k(branches, assignments, settings):
     return selected, ranking
 
 
+def rank_request(branches, readings, settings):
+    """anaphoraRankingRequest (analysis-model.ts): the update's readings with their bindings."""
+    by_origin = {w.reading(b["merged"])["semId"]: b for b in branches}
+    origins = {r["semanticOrigin"] for r in readings if r["mapping"].get("anaphoraRelations")}
+    syntax, semantics = {}, []
+    for origin in origins:
+        merged = w.reading(by_origin[origin]["merged"])
+        syntax[merged["syntacticOrigin"]] = by_origin[origin]["structure"]
+        semantics.append({"semanticOrigin": origin, "syntacticOrigin": merged["syntacticOrigin"], "drs": merged["graph"]})
+    return {
+        "syntax": syntax, "semantics": semantics,
+        "branches": [{"discourseId": r["mappingId"], "semanticOrigin": r["semanticOrigin"],
+                      "relations": [{"pronoun": x.get("pronounDisplay") or x.get("pronounReferentId"),
+                                     "antecedent": x.get("antecedent")} for x in r["mapping"].get("anaphoraRelations") or []]}
+                     for r in readings],
+        "methods": settings["vampire"].get("anaphora_rankers") or [], "averager": settings["vampire"].get("anaphora_averager")}
+
+
+def competition_ranks(values, better):
+    """1 + the number of values strictly better (`better(a, b)`: a is better than b)."""
+    return [1 + sum(better(other, value) for other in values) for value in values]
+
+
+def fuse(ranks, n, averager):
+    """reading-order.ts fuse: Borda (mean of (n - rank) / (n - 1)) or RRF; None contributes 0."""
+    m = len(ranks)
+    if averager == "rrf":
+        return sum(0 if r is None else 1 / (60 + r) for r in ranks) / (m / 61)
+    return sum(0 if r is None else (1 if n == 1 else (n - r) / (n - 1)) for r in ranks) / m
+
+
+def global_lm_scores(ranking, ids):
+    """reading-order.ts globalLmScores: every reading's LM score across all readings."""
+    branches = {b["discourseId"]: b for b in ranking.get("branches") or []}
+    rankers = ranking.get("methods") or [ranking.get("method")]
+    own = [[(branches.get(i) or {}).get("scores", {}).get(r) for r in rankers] if (branches.get(i) or {}).get("scores")
+           else [(branches.get(i) or {}).get("score")] for i in ids]
+    m, n = len(own[0]) if own else 0, len(ids)
+    key = lambda v: float("-inf") if v is None else v  # noqa: E731
+    ranks = [competition_ranks([values[r] for values in own], lambda a, b: key(a) > key(b)) for r in range(m)]
+    averager = ranking.get("averager") or "borda"
+    scores = {}
+    for i, rid in enumerate(ids):
+        values = own[i]
+        if all(v is None for v in values):
+            scores[rid] = None
+        elif m == 1:
+            scores[rid] = values[0]
+        elif averager == "weighted":
+            weights = [m - position for position in range(m)]
+            scores[rid] = sum(wt * (v or 0) for wt, v in zip(weights, values)) / sum(weights)
+        else:
+            scores[rid] = fuse([None if v is None else ranks[r][i] for r, v in enumerate(values)], n, averager)
+    return scores
+
+
+def names_resolved_automatically(choices):
+    """reading-order.ts namesResolvedAutomatically: every name's first mention accommodated
+    globally, every later mention bound to the one before it."""
+    names = [c for c in choices if c.get("kind") == "PRESUPPOSITION" and c.get("name")]
+    mentions = {}
+    for c in names:
+        points = mentions.setdefault(c["name"], [])
+        if c["point"] not in points:
+            points.append(c["point"])
+    holds = lambda point, target: any(c["point"] == point and c["target"] == target for c in names)  # noqa: E731
+    start = lambda point: int(re.match(r"\d+", point).group(0))  # noqa: E731
+    return all(all(holds(p, "GLOBAL" if i == 0 else ps[i - 1]) for i, p in enumerate(ps))
+               for ps in (sorted(points, key=start) for points in mentions.values()))
+
+
+def hidden_by_filter(mapping, name):
+    """reading-order.ts hiddenByFilter."""
+    if name == "names":
+        return mapping.get("choices") is not None and not names_resolved_automatically(mapping.get("choices") or [])
+    profile = mapping.get("pragmaticProfile")
+    if not profile:
+        return False
+    if name == "unbound":
+        return ((profile.get("pronouns") or [0, 0, 0]) + [0, 0, 0])[2] > 0
+    return any(count > 0 for count in profile.get("accommodation") or [])
+
+
+def select_readings(branches, readings, assignments, settings):
+    """The session's reading_selection (schema v6, reading-order.ts selectedReadingIds): every
+    reading of the item's discourse ordered by the checked criteria (the LM ranking fused across
+    all readings; the profile rows), the filtered ones removed, the readings on the first k
+    places kept (ties stay together). Returns (selected assignments, a description)."""
+    selection = settings["vampire"]["reading_selection"] or {}
+    criteria, filters, k = selection.get("criteria") or [], selection.get("filters") or [], selection.get("k")
+    unsupported = [c for c in criteria if c not in ("lm", "pronouns", "binding", "accommodation")]
+    if unsupported:
+        raise RuntimeError(f"reading_selection criterion not supported by the probe: {unsupported}")
+    ids = [r["mappingId"] for r in readings]
+    n = len(ids)
+    rankings, description = [], [f"{n} readings"]
+    rows = [row for row in ("pronouns", "binding", "accommodation") if row in criteria]
+    if rows:
+        def profile_key(r):
+            profile = r["mapping"].get("pragmaticProfile")
+            if not profile:
+                return (1,)
+            key = []
+            for row in rows:
+                counts = (profile.get(row) or []) + [0, 0, 0]
+                key += [-counts[0], -counts[1]]
+            return (0, *key, sum(sum(1 for c in profile.get(row) or [] if c > 0) for row in rows))
+        keys = [profile_key(r) for r in readings]
+        rankings.append(competition_ranks(keys, lambda a, b: a < b))
+    if "lm" in criteria and k is not None and any(r["mapping"].get("anaphoraRelations") for r in readings):
+        ranking = w._post_json(f"{LM_URL}/rank_anaphora", rank_request(branches, readings, settings))
+        scores = global_lm_scores(ranking, ids)
+        key = lambda v: float("-inf") if v is None else v  # noqa: E731
+        rankings.append(competition_ranks([scores[i] for i in ids], lambda a, b: key(a) > key(b)))
+        description.append(f"LM {ranking.get('method')}")
+    averager = "rrf" if settings["vampire"].get("anaphora_averager") == "rrf" else "borda"
+    fused = [(fuse([ranks[i] for ranks in rankings], n, averager) if rankings else 1, i) for i in range(n)]
+    order = sorted(fused, key=lambda e: (-e[0], e[1]))
+    places, place = [], 0
+    for position, (score, i) in enumerate(order):
+        if position == 0 or order[position - 1][0] - score > 1e-9:
+            place += 1
+        places.append((i, place))
+    visible = [(i, pl) for i, pl in places if not any(hidden_by_filter(readings[i]["mapping"], f) for f in filters)]
+    description.append(f"{len(visible)} after filters {filters}")
+    kept, count = [], 0
+    for position, (i, pl) in enumerate(visible):
+        if position == 0 or visible[position - 1][1] != pl:
+            count += 1
+        if k is None or count <= k:
+            kept.append(readings[i]["mappingId"])
+    by_id = {a["mappingId"]: a for a in assignments}
+    selected = [by_id[i] for i in kept if i in by_id]
+    description.append(f"top {k}: {len(kept)} kept, {len(selected)} with a bundle")
+    return selected, ", ".join(description)
+
+
 def majority(values):
     return sum(values) > len(values) - sum(values)
 
@@ -192,17 +339,24 @@ def run_item(item, settings):
             return {"label": None, "failure": f"could not append {texts[k]!r} to any branch"}
 
     typed = settings["logic"] == "tff"
-    assignments, failures = [], []
+    assignments, failures, readings = [], [], []
     for index, branch in enumerate(branches):
         try:
-            got, failed = branch_assignments(item["id"], index, branch, typed, settings)
+            got, failed, found = branch_assignments(item["id"], index, branch, typed, settings)
         except RuntimeError as error:
-            got, failed = [], [f"pxq-{item['id']}-{index + 1}: {error}"]
+            got, failed, found = [], [f"pxq-{item['id']}-{index + 1}: {error}"], []
         assignments += got
         failures += failed
+        readings += found
     if not assignments:
         return {"label": None, "failure": "no reasoning bundle: " + " | ".join(failures)[:600]}
-    selected, ranking = select_top_k(branches, assignments, settings)
+    if "reading_selection" in settings["vampire"]:
+        selected, ranking = select_readings(branches, readings, assignments, settings)
+        if not selected:
+            return {"label": None, "failure": f"no selected reading has a reasoning bundle ({ranking})",
+                    "readings": len(readings), "assignments": len(assignments), "failures": failures}
+    else:
+        selected, ranking = select_top_k(branches, assignments, settings)
 
     grammar_axioms = {"prolog": [], "tptp": [], "tffTypes": []}
     for solutions in parses:
@@ -235,12 +389,13 @@ def run_item(item, settings):
     consistent, informative = majority([c["consistent"] for c in results]), majority([c["informative"] for c in results])
     return {
         "label": "-1" if not consistent else ("0" if informative else "1"),
-        "branches": len(branches), "assignments": len(assignments), "sent": len(selected),
+        "branches": len(branches), "readings": len(readings), "assignments": len(assignments), "sent": len(selected),
         "failures": failures, "verdicts": [{k: c[k] for k in ("consistent", "informative", "assignment_id")} for c in results],
         "bindings": [[f"{r.get('pronounDisplay') or r.get('pronounReferentId')}>{r.get('antecedent')}"
                       for r in a["mapping"].get("anaphoraRelations") or []] for a in selected],
         "unresolved": sorted({p for a in selected for p in a["unresolved"]}),
         "ranking": ranking if isinstance(ranking, str) else ranking.get("method"),
+        "selected": [a["mappingId"] for a in selected],
     }
 
 
@@ -265,7 +420,8 @@ def main():
     settings["has_rules"] = any("=>" in re.sub(r"//.*$", "", line) for line in settings["pragmatics"].splitlines())
     w._post_json(f"{w.LIGER_URL}/change_grammar", {"grammar": inputs["grammarPath"]})
     print(f"session {args.session}: {settings['logic']}, model building {vampire.get('model_building')}, "
-          f"anaphora {vampire.get('anaphora_selection')} k={vampire.get('anaphora_top_k')}, "
+          f"anaphora {vampire.get('reading_selection') or vampire.get('anaphora_selection')} "
+          f"k={vampire.get('anaphora_top_k')}, "
           f"rankers {vampire.get('anaphora_rankers')} ({vampire.get('anaphora_averager')})")
 
     # Line-buffered, so a long run can be followed in its output file.
@@ -274,15 +430,18 @@ def main():
     for item in read_testsuite(args.testsuite):
         if args.only and item["id"] != args.only:
             continue
+        started = time.time()
         try:
             outcome = run_item(item, settings)
-        except (RuntimeError, AssertionError, KeyError) as error:
+        # OSError: a read timeout (not a URLError) must cost one item, not the run.
+        except (RuntimeError, AssertionError, KeyError, OSError, ValueError) as error:
             outcome = {"label": None, "failure": f"{type(error).__name__}: {str(error)[:400]}"}
+        outcome["seconds"] = round(time.time() - started, 1)
         ok = outcome["label"] == item["gold"]
         correct += ok
         results.append({**item, **outcome, "correct": ok})
         print(f"{item["id"]}: gold={LABELS.get(item['gold'], item['gold'])} "
-              f"xle={LABELS.get(outcome['label'], outcome['label'])} {'OK' if ok else 'ERROR'}  "
+              f"xle={LABELS.get(outcome['label'], outcome['label'])} {'OK' if ok else 'ERROR'} ({outcome['seconds']}s)  "
               f"{' '.join(item['premises'])} => {' '.join(item['conclusion'])}")
         if outcome.get("failure"):
             print(f"   failure: {outcome['failure']}")
