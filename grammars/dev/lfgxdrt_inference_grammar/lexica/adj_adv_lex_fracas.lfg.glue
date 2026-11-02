@@ -66,6 +66,8 @@ clever 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 		       (^ ATYPE) =c predicative
 		     }
 		     (^SEMTYPE) = degree"
+exhausted 	  A * @(DEFAULT-ADJ-SEM %stem)
+                    (^SEMTYPE) = intersective.
 
 fast 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 		             (^SEMTYPE) = degree.
@@ -84,6 +86,35 @@ small 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
 
 successful ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
                       (^SEMTYPE) = degree.
+
+"degree adjectives added for the phenomena testsuite"
+
+cheap 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
+
+heavy 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
+
+long 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
+
+old 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
+
+rich 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
+
+short 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
+
+strong 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
+
+tall 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
+
+young 	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem)
+		            (^SEMTYPE) = degree.
 
 warm    ADJ-S XLE   @(DEFAULT-ADJ-SEM %stem)
                     (^SEMTYPE) = degree.

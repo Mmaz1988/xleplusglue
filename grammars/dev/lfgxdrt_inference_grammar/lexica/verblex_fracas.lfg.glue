@@ -98,6 +98,8 @@ want 	  V-S XLE { (^PRED) = '%stem<(^SUBJ)(^XCOMP)>'
           %s = s::(^ XCOMP)
           :$ (\V.(\P.(\x.(\e.(V@x@e + ([],[cont(e):P@x])))))) :
           ((s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)) -o ((s::(^ XCOMP SUBJ)_e -o (%s SIT)_t) -o (s::(^OBJ)_e -o ((s::^ EV)_v -o (s::^ EV)_t)))),
+		  |
+		   @(TRANS-EV %stem)
 		  }.
 
 
@@ -135,6 +137,38 @@ wait 	  V-S XLE { @(INTRANS-EV wait) |
 
 yawn       V-S XLE @(INTRANS-EV %stem).
 
+"Intransitives added for the phenomena testsuite"
+
+arrive 	  V-S XLE @(INTRANS-EV %stem).
+
+complain 	  V-S XLE @(INTRANS-EV %stem).
+
+cough 	  V-S XLE @(INTRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+cry 	  V-S XLE @(INTRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+fall 	  V-S XLE @(INTRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+graduate 	  V-S XLE @(INTRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+resign 	  V-S XLE @(INTRANS-EV %stem).
+
+retire 	  V-S XLE @(INTRANS-EV %stem).
+
+run 	  V-S XLE @(INTRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+sneeze 	  V-S XLE @(INTRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+swim 	  V-S XLE @(INTRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+
 "Optional transitives"
 
 dance   V-S XLE @(OPT-TRANS-EV %stem).
@@ -161,21 +195,42 @@ win       V-S XLE @(OPT-TRANS-EV %stem).
 
 lose      V-S XLE @(OPT-TRANS-EV %stem).
 
-sell      V-S XLE @(OPT-TRANS-EV %stem).
+sell      V-S XLE { @(OPT-TRANS-EV %stem) | @(DITRANS-EV %stem) }.
 
 train      V-S XLE @(OPT-TRANS-EV %stem).
 
 do        V-S XLE @(OPT-TRANS-EV %stem).
 
+cook 	  V-S XLE @(OPT-TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+fail 	  V-S XLE @(OPT-TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+leave 	  V-S XLE @(OPT-TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+read 	  V-S XLE @(OPT-TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+write 	  V-S XLE @(OPT-TRANS-EV %stem).
+
+
 "Transitives"
 
 like      V-S XLE @(TRANS-EV %stem).
+
+bake  	  V-S XLE @(TRANS-EV %stem).
 
 become 	  V-S XLE @(TRANS-EV %stem).
 
 carry  V-S XLE @(TRANS-EV %stem).
 
+climb  V-S XLE @(TRANS-EV %stem).
+
 devour 	  V-S XLE @(TRANS-EV %stem).
+
+fallpar 	  V-S XLE @(TRANS-EV %stem).
 
 find 	  V-S XLE @(TRANS-EV %stem).
 
@@ -195,6 +250,8 @@ receive   V-S XLE @(TRANS-EV %stem).
 
 see 	  V-S XLE @(TRANS-EV %stem).
 
+solve 	  V-S XLE @(TRANS-EV %stem).
+
 obtain    V-S XLE @(TRANS-EV %stem).
 
 finish   V-S XLE @(TRANS-EV %stem).
@@ -206,6 +263,8 @@ photograph  V-S XLE @(TRANS-EV %stem).
 praise V-S XLE @(TRANS-EV %stem).
 
 publish  V-S XLE @(TRANS-EV %stem).
+
+reach  V-S XLE @(TRANS-EV %stem).
 
 spend    V-S XLE @(TRANS-EV %stem).
 
@@ -242,6 +301,105 @@ use     V-S XLE { @(TRANS-EV %stem) |
 
 visit V-S XLE @(TRANS-EV %stem).
 
+"Transitives added for the phenomena testsuite"
+
+admire 	  V-S XLE @(TRANS-EV %stem).
+
+approve 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+attend 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+beat 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+bite 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+borrow 	  V-S XLE @(TRANS-EV %stem).
+
+build 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+buy 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+catch 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+chase 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+cite 	  V-S XLE @(TRANS-EV %stem).
+
+criticize 	  V-S XLE @(TRANS-EV %stem).
+
+defeat 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+deliver 	  V-S XLE @(TRANS-EV %stem).
+
+describe 	  V-S XLE @(TRANS-EV %stem).
+
+examine 	  V-S XLE @(TRANS-EV %stem).
+
+feed 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+fix 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+follow 	  V-S XLE @(TRANS-EV %stem).
+
+greet 	  V-S XLE @(TRANS-EV %stem).
+
+grade 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+help 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+hire 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+interview 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+invite 	  V-S XLE @(TRANS-EV %stem).
+
+kiss 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+meet 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+open 	  V-S XLE @(TRANS-EV %stem);
+	  ADJ-S XLE @(DEFAULT-ADJ-SEM %stem).
+
+own 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+paint 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+recommend 	  V-S XLE @(TRANS-EV %stem).
+
+reject 	  V-S XLE @(TRANS-EV %stem).
+
+review 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+sign 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+steal 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+trust 	  V-S XLE @(TRANS-EV %stem);
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+
 "Ditransitives"
 
 give 	  V-S XLE @(DITRANS-EV give).
@@ -249,6 +407,25 @@ give 	  V-S XLE @(DITRANS-EV give).
 contribute V-S XLE @(DITRANS-EV contribute).
 
 send V-S XLE @(DITRANS-EV send).
+
+bring V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
+
+hand V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) };
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+lend V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
+
+offer V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) };
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+owe V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) }.
+
+pay V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) };
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
+show V-S XLE { @(TRANS-EV %stem) | @(DITRANS-EV %stem) };
+	  N-S XLE @(DEFAULT-NOUN-SEM %stem).
+
 
 
 "comes: eg. 'comes cheap'"
