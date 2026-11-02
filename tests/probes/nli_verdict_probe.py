@@ -407,8 +407,22 @@ def run_item(item, settings):
     if not results:
         return {"label": None, "failure": "Vampire returned no verdict"}
     consistent, informative = majority([c["consistent"] for c in results]), majority([c["informative"] for c in results])
+    # Every reading's own label, with what makes it that reading, for disambiguation later.
+    by_id = {a["mappingId"]: a for a in selected}
+    per_reading = []
+    for c in results:
+        a = by_id.get(c.get("assignment_id")) or {}
+        mapping = a.get("mapping") or {}
+        per_reading.append({
+            "id": c.get("assignment_id"), "label": "-1" if not c["consistent"] else ("0" if c["informative"] else "1"),
+            "choices": [f"{x.get('pointLabel')} {x.get('resolution')}>{x.get('targetLabel')}" for x in mapping.get("choices") or []],
+            "bindings": [f"{r.get('pronounDisplay') or r.get('pronounReferentId')}>{r.get('antecedent')}"
+                         for r in mapping.get("anaphoraRelations") or []],
+            "semantic": mapping.get("semantic")})
+    labels = {label: sum(r["label"] == label for r in per_reading) for label in ("1", "0", "-1")}
     return {
         "label": "-1" if not consistent else ("0" if informative else "1"),
+        "labels": labels, "per_reading": per_reading,
         "branches": len(branches), "readings": len(readings), "chosen": len(chosen), "sent": len(selected),
         "failures": failures, "verdicts": [{k: c[k] for k in ("consistent", "informative", "assignment_id")} for c in results],
         "bindings": [[f"{r.get('pronounDisplay') or r.get('pronounReferentId')}>{r.get('antecedent')}"
@@ -425,12 +439,16 @@ def main():
     parser.add_argument("--session", default="pronouns-new")
     parser.add_argument("--out")
     parser.add_argument("--only", help="comma-separated item ids (n0,n4)")
+    parser.add_argument("--selection", help='a reading_selection overriding the session\'s, as JSON, e.g. '
+                                            '\'{"criteria": [], "filters": ["names"], "k": null}\' (every reading)')
     args = parser.parse_args()
 
     with urllib.request.urlopen(f"{w.REDIS_URL}/regression_session/{args.session}") as response:
         inputs = json.loads(response.read().decode())["inputs"]
     w.GSWB_PREFERENCES = inputs["gswbPreferences"]
     vampire = inputs["vampirePreferences"]
+    if args.selection:
+        vampire = {**vampire, "reading_selection": json.loads(args.selection)}
     settings = {
         "semantics": inputs["rules"]["text"], "pragmatics": inputs["pragmaticsRules"] or "",
         "axioms": (inputs.get("axioms") or {}).get("text") or "", "vampire": vampire,
@@ -446,7 +464,7 @@ def main():
 
     # Line-buffered, so a long run can be followed in its output file.
     sys.stdout.reconfigure(line_buffering=True)
-    results, correct = [], 0
+    results, correct, reachable = [], 0, 0
     for item in read_testsuite(args.testsuite):
         if args.only and item["id"] not in args.only.split(","):
             continue
@@ -459,18 +477,23 @@ def main():
         outcome["seconds"] = round(time.time() - started, 1)
         ok = outcome["label"] == item["gold"]
         correct += ok
+        outcome["reachable"] = bool((outcome.get("labels") or {}).get(item["gold"]))
+        reachable += outcome["reachable"]
         results.append({**item, **outcome, "correct": ok})
         print(f"{item["id"]}: gold={LABELS.get(item['gold'], item['gold'])} "
               f"xle={LABELS.get(outcome['label'], outcome['label'])} {'OK' if ok else 'ERROR'} ({outcome['seconds']}s)  "
               f"{' '.join(item['premises'])} => {' '.join(item['conclusion'])}")
         if outcome.get("failure"):
             print(f"   failure: {outcome['failure']}")
+        else:
+            labels = outcome["labels"]
+            print(f"   {outcome['sent']} of {outcome['chosen']} selected / {outcome['readings']} readings sent; "
+                  f"per reading: entailment {labels['1']}, neutral {labels['0']}, contradiction {labels['-1']}; "
+                  f"gold {'reachable' if outcome['reachable'] else 'NOT reachable'}"
+                  + (f"; unresolved {outcome['unresolved']}" if outcome["unresolved"] else ""))
         if args.out:  # after every item, so a long run can be read while it goes
             json.dump(results, open(args.out, "w"), indent=1)
-        elif outcome.get("bindings") and any(outcome["bindings"]):
-            print(f"   sent {outcome['sent']} of {outcome['chosen']} selected / {outcome['readings']} readings, bindings {outcome['bindings']}"
-                  + (f", unresolved {outcome['unresolved']}" if outcome["unresolved"] else ""))
-    print(f"\n{correct}/{len(results)} correct")
+    print(f"\n{correct}/{len(results)} correct by majority; gold reachable by some reading in {reachable}/{len(results)}")
     if args.out:
         json.dump(results, open(args.out, "w"), indent=1)
 
