@@ -1,0 +1,1320 @@
+# Phenomena testsuite: entailment (1), contradiction (-1) and neutral (0) in about equal numbers,
+# for quantifiers and monotonicity, negation, comparatives and equatives, relative clauses,
+# presupposition, active/passive and dative alternation, plus anaphora, conditionals, a few
+# ambiguous premises and some longer sentences. Built for the lfgxdrt inference grammar
+# (no clausal embedding: attitude reports are not implemented).
+#
+# Checked 2026-11-02: every sentence parses (native XLE) and derives at least one reading (GSWB
+# /deduce, meaning postulates + degree rules, no TAM rules). The regression view numbers the items
+# n0-n149 in file order. Naturalness: tests/probes/testsuite_perplexity.py.
+#
+# Item header: # <id>: <phenomena> -- <source>
+#   source: "after <reference>" for an item adapted from the literature, "new" otherwise.
+#   [reading: ...] marks an item of an ambiguity group: its gold label holds under that reading,
+#   and every reading of the group's premise is needed by at least one item.
+# References: FraCaS = Cooper et al. (1996), The FraCaS test suite; K&R = Kamp & Reyle (1993),
+#   From Discourse to Logic; Geach (1962), Reference and Generality; van der Sandt (1992),
+#   Presupposition projection as anaphora resolution; Karttunen (1973), Presuppositions of
+#   compound sentences; Levin (1993), English Verb Classes and Alternations; Yanaka et al. (2019),
+#   Can neural networks understand monotonicity reasoning? (MED); May (1985), Logical Form.
+
+# ---------------------------------------------------------------------------------------------
+# Quantifiers and monotonicity
+# ---------------------------------------------------------------------------------------------
+
+# q01: universal, relative clause -- after FraCaS 3.x (generalized quantifiers)
+{
+Every student who read the article passed the exam.
+Ann is a student who read the article.
+====
+Ann passed the exam.
+>>> 1
+}
+
+# q02: universal, restrictor not met -- new
+{
+Every student who read the article passed the exam.
+Ann is a student.
+====
+Ann passed the exam.
+>>> 0
+}
+
+# q03: universal, instance negated -- new
+{
+Every student who read the article passed the exam.
+Ann is a student who read the article.
+====
+Ann did not pass the exam.
+>>> -1
+}
+
+# q04: every, downward monotone restrictor -- after MED (Yanaka et al. 2019)
+{
+Every student who read a book passed the exam.
+====
+Every student who read a long book passed the exam.
+>>> 1
+}
+
+# q05: every, restrictor is not upward monotone -- after MED (Yanaka et al. 2019)
+{
+Every student who read a long book passed the exam.
+====
+Every student who read a book passed the exam.
+>>> 0
+}
+
+# q06: every, upward monotone scope -- after MED (Yanaka et al. 2019)
+{
+Every dog in the garden found a big bone.
+====
+Every dog in the garden found a bone.
+>>> 1
+}
+
+# q07: no, downward monotone scope -- after MED (Yanaka et al. 2019)
+{
+No student read a book.
+====
+No student read a long book.
+>>> 1
+}
+
+# q08: no, scope is not upward monotone -- after MED (Yanaka et al. 2019)
+{
+No student read a long book.
+====
+No student read a book.
+>>> 0
+}
+
+# q09: no vs. some -- new
+{
+No student read a book.
+====
+Some student read a long book.
+>>> -1
+}
+
+# q10: some vs. no -- new
+{
+Some student read a long book.
+====
+No student read a book.
+>>> -1
+}
+
+# q11: some, not downward monotone -- new
+{
+A student read a book.
+====
+A student read a long book.
+>>> 0
+}
+
+# q12: nobody vs. somebody -- new
+{
+Nobody complained.
+====
+Somebody complained.
+>>> -1
+}
+
+# q13: each, instance -- after FraCaS 3.x (generalized quantifiers)
+{
+Each candidate received an offer.
+Sue is a candidate.
+====
+Sue received an offer.
+>>> 1
+}
+
+# q14: indefinite, no instance -- new
+{
+A candidate received an offer.
+Sue is a candidate.
+====
+Sue received an offer.
+>>> 0
+}
+
+# q15: no, instance -- new
+{
+No candidate received an offer.
+Sue is a candidate.
+====
+Sue received an offer.
+>>> -1
+}
+
+# q16: not every -- new
+{
+Not every student passed the exam.
+Ann is a student.
+====
+Ann passed the exam.
+>>> 0
+}
+
+# q17: not every vs. every -- new
+{
+Not every student passed the exam.
+====
+Every student passed the exam.
+>>> -1
+}
+
+# q18: not every, some ... not -- new
+{
+Not every student passed the exam.
+====
+Some student did not pass the exam.
+>>> 1
+}
+
+# q19: universal object, relative clause -- new
+{
+Kim read every book that Sue recommended.
+Sue recommended Emma.
+Emma is a book.
+====
+Kim read Emma.
+>>> 1
+}
+
+# q20: universal object, restrictor not met -- new
+{
+Kim read every book that Sue recommended.
+Emma is a book.
+====
+Kim read Emma.
+>>> 0
+}
+
+# q21: universal object, instance negated -- new
+{
+Kim read every book that Sue recommended.
+Sue recommended Emma.
+Emma is a book.
+====
+Kim did not read Emma.
+>>> -1
+}
+
+# q22: donkey sentence -- after Geach (1962), K&R (1993)
+{
+Every farmer who owns a donkey beats it.
+Pedro is a farmer who owns a donkey.
+====
+Pedro beats a donkey.
+>>> 1
+}
+
+# q23: donkey sentence, restrictor not met -- after Geach (1962), K&R (1993)
+{
+Every farmer who owns a donkey beats it.
+Pedro is a farmer.
+====
+Pedro beats a donkey.
+>>> 0
+}
+
+# q24: donkey sentence vs. no -- after Geach (1962), K&R (1993)
+{
+Every farmer who owns a donkey beats it.
+Pedro is a farmer who owns a donkey.
+====
+No farmer beats a donkey.
+>>> -1
+}
+
+# q25: every has no existential import -- after FraCaS 3.x (generalized quantifiers)
+{
+Every student who failed the exam complained.
+====
+A student failed the exam.
+>>> 0
+}
+
+# ---------------------------------------------------------------------------------------------
+# Negation
+# ---------------------------------------------------------------------------------------------
+
+# n01: sentential negation -- new
+{
+Kim did not pass the exam.
+====
+Kim passed the exam.
+>>> -1
+}
+
+# n02: negation, downward monotone object -- after MED (Yanaka et al. 2019)
+{
+Kim did not read a book.
+====
+Kim did not read a long book.
+>>> 1
+}
+
+# n03: negation, object not upward monotone -- after MED (Yanaka et al. 2019)
+{
+Kim did not read a long book.
+====
+Kim did not read a book.
+>>> 0
+}
+
+# n04: no, downward monotone restrictor -- after MED (Yanaka et al. 2019)
+{
+No dog barked.
+====
+No black dog barked.
+>>> 1
+}
+
+# n05: no, instance -- new
+{
+No dog barked.
+Fido is a dog.
+====
+Fido barked.
+>>> -1
+}
+
+# n06: no, restrictor not upward monotone -- after MED (Yanaka et al. 2019)
+{
+No black dog barked.
+====
+No dog barked.
+>>> 0
+}
+
+# n07: no with relative clause, instance -- new
+{
+No student who read the article failed the exam.
+Ann is a student who read the article.
+====
+Ann did not fail the exam.
+>>> 1
+}
+
+# n08: no with relative clause, instance negated -- new
+{
+No student who read the article failed the exam.
+Ann is a student who read the article.
+====
+Ann failed the exam.
+>>> -1
+}
+
+# n09: no with relative clause, restrictor not met -- new
+{
+No student who read the article failed the exam.
+Ann is a student.
+====
+Ann did not fail the exam.
+>>> 0
+}
+
+# n10: conditional, modus ponens -- new
+{
+If the bus arrived, Sue left the station.
+The bus arrived.
+====
+Sue left the station.
+>>> 1
+}
+
+# n11: conditional, modus tollens as contradiction -- new
+{
+If the bus arrived, Sue left the station.
+Sue did not leave the station.
+====
+The bus arrived.
+>>> -1
+}
+
+# n12: conditional, denying the antecedent -- new
+{
+If the bus arrived, Sue left the station.
+The bus did not arrive.
+====
+Sue left the station.
+>>> 0
+}
+
+# n13: conditional, affirming the consequent -- new
+{
+If the bus arrived, Sue left the station.
+Sue left the station.
+====
+The bus arrived.
+>>> 0
+}
+
+# n14: negated predicate nominal -- new
+{
+Kim is not a doctor.
+====
+Kim is a doctor.
+>>> -1
+}
+
+# n15: negated predicate nominal vs. other property -- new
+{
+Kim is not a doctor.
+====
+Kim is a lawyer.
+>>> 0
+}
+
+# ---------------------------------------------------------------------------------------------
+# Comparatives and equatives
+# ---------------------------------------------------------------------------------------------
+
+# c01: comparative, transitivity -- after FraCaS 6.x (comparatives)
+{
+Ann is taller than Bill.
+Bill is taller than Carl.
+====
+Ann is taller than Carl.
+>>> 1
+}
+
+# c02: comparative, asymmetry -- after FraCaS 6.x (comparatives)
+{
+Ann is taller than Bill.
+====
+Bill is taller than Ann.
+>>> -1
+}
+
+# c03: comparative does not entail the positive -- after FraCaS 6.x (comparatives)
+{
+Ann is taller than Bill.
+====
+Ann is tall.
+>>> 0
+}
+
+# c04: comparative, positive passes upward -- new
+{
+Ann is taller than Bill.
+Bill is tall.
+====
+Ann is tall.
+>>> 1
+}
+
+# c05: comparative, positive does not pass downward -- new
+{
+Ann is taller than Bill.
+Ann is tall.
+====
+Bill is tall.
+>>> 0
+}
+
+# c06: equative vs. comparative -- after FraCaS 6.x (comparatives)
+{
+Ann is as old as Bill.
+====
+Bill is older than Ann.
+>>> -1
+}
+
+# c07: equative and comparative, transitivity -- new
+{
+Ann is as old as Bill.
+Bill is older than Carl.
+====
+Ann is older than Carl.
+>>> 1
+}
+
+# c08: negated equative, no positive -- new
+{
+Ann is not as old as Bill.
+====
+Bill is old.
+>>> 0
+}
+
+# c09: negated equative as reversed comparative -- new
+{
+Ann is not as old as Bill.
+====
+Bill is older than Ann.
+>>> 1
+}
+
+# c10: negated equative vs. comparative -- new
+{
+Ann is not as old as Bill.
+====
+Ann is older than Bill.
+>>> -1
+}
+
+# c11: comparative vs. equative, definites -- new
+{
+The truck is heavier than the van.
+====
+The van is as heavy as the truck.
+>>> -1
+}
+
+# c12: comparative with universal standard -- after FraCaS 6.x (comparatives)
+{
+Ann is older than every student in the class.
+Bill is a student in the class.
+====
+Ann is older than Bill.
+>>> 1
+}
+
+# c13: comparative with universal standard, no positive -- after FraCaS 6.x (comparatives)
+{
+Ann is older than every student in the class.
+====
+Ann is old.
+>>> 0
+}
+
+# c14: comparative with universal standard, reversed -- new
+{
+Ann is older than every student in the class.
+Bill is a student in the class.
+====
+Bill is older than Ann.
+>>> -1
+}
+
+# c15: attributive comparative -- new
+{
+Ann is a faster swimmer than Bill.
+====
+Ann is a swimmer.
+>>> 1
+}
+
+# c16: comparative, chain, converse -- new
+{
+The red bike is cheaper than the blue bike.
+The blue bike is cheaper than the green bike.
+====
+The green bike is cheaper than the red bike.
+>>> -1
+}
+
+# c17: comparative and equative, chain -- new
+{
+The red bike is cheaper than the blue bike.
+The blue bike is as cheap as the green bike.
+====
+The green bike is cheaper than the red bike.
+>>> -1
+}
+
+# c18: comparative without positive, definites -- new
+{
+The red bike is cheaper than the blue bike.
+====
+The red bike is cheap.
+>>> 0
+}
+
+# c19: equative, transitivity -- new
+{
+The red bike is as cheap as the blue bike.
+The blue bike is as cheap as the green bike.
+====
+The red bike is as cheap as the green bike.
+>>> 1
+}
+
+# c20: equative is "at least as" -- after FraCaS 6.x (comparatives)
+{
+The red bike is as cheap as the blue bike.
+====
+The red bike is cheaper than the blue bike.
+>>> 0
+}
+
+# c21: comparative chain through a universal, converse -- new
+{
+Ann is stronger than Bill.
+Bill is stronger than every boxer in the gym.
+Carl is a boxer in the gym.
+====
+Carl is stronger than Ann.
+>>> -1
+}
+
+# c22: comparative chain, cycle -- new
+{
+Ann is younger than Bill.
+Bill is younger than Carl.
+====
+Carl is younger than Ann.
+>>> -1
+}
+
+# c23: comparative, unrelated third -- new
+{
+Ann is younger than Bill.
+====
+Ann is younger than Carl.
+>>> 0
+}
+
+# c24: equative passes the positive upward -- new
+{
+The van is as heavy as the truck.
+The truck is heavy.
+====
+The van is not heavy.
+>>> -1
+}
+
+# ---------------------------------------------------------------------------------------------
+# Relative clauses
+# ---------------------------------------------------------------------------------------------
+
+# r01: subject relative in a definite -- new
+{
+The student who wrote the paper won a prize.
+====
+A student won a prize.
+>>> 1
+}
+
+# r02: indefinite vs. universal with relative clause -- new
+{
+A student who wrote a paper won a prize.
+====
+Every student who wrote a paper won a prize.
+>>> 0
+}
+
+# r03: indefinite with relative clause vs. no -- new
+{
+A student who wrote a paper won a prize.
+====
+No student won a prize.
+>>> -1
+}
+
+# r04: object relative -- new
+{
+The professor praised the student that Sue hired.
+====
+Sue hired a student.
+>>> 1
+}
+
+# r05: object relative, roles not shared -- new
+{
+The professor praised the student that Sue hired.
+====
+The professor hired a student.
+>>> 0
+}
+
+# r06: object relative vs. agentless passive -- new
+{
+The professor praised the student that Sue hired.
+====
+No student was hired.
+>>> -1
+}
+
+# r07: negation inside a relative clause -- new
+{
+Every guest who did not bring a present left.
+Sue is a guest.
+Sue did not bring a present.
+====
+Sue left.
+>>> 1
+}
+
+# r08: relative clause, instance negated -- new
+{
+Every guest who brought a present danced.
+Sue is a guest who brought a present.
+====
+Sue did not dance.
+>>> -1
+}
+
+# r09: relative clause, converse -- new
+{
+Every guest who brought a present danced.
+Sue is a guest who danced.
+====
+Sue brought a present.
+>>> 0
+}
+
+# r10: stacked relative clauses, embedded content -- after "This is the house that Jack built"
+{
+The dog that chased the cat that ate the mouse barked.
+====
+A cat ate a mouse.
+>>> 1
+}
+
+# r11: stacked relative clauses, roles not shared -- new
+{
+The dog that chased the cat that ate the mouse barked.
+====
+A dog chased a mouse.
+>>> 0
+}
+
+# r12: stacked relative clauses vs. no -- new
+{
+The dog that chased the cat that ate the mouse barked.
+====
+No dog barked.
+>>> -1
+}
+
+# r13: relative clause with a locative -- new
+{
+Kim met a doctor who lives in Paris.
+====
+A doctor lives in Paris.
+>>> 1
+}
+
+# r14: relative clause with a locative, subject not shared -- new
+{
+Kim met a doctor who lives in Paris.
+====
+Kim lives in Paris.
+>>> 0
+}
+
+# r15: predicative relative clause vs. no -- new
+{
+A woman who is a lawyer bought the house.
+====
+No lawyer bought a house.
+>>> -1
+}
+
+# r16: relative clause with a locative, head negated -- new
+{
+Kim met a doctor who lives in Paris.
+====
+Kim did not meet a doctor.
+>>> -1
+}
+
+# ---------------------------------------------------------------------------------------------
+# Presupposition
+# ---------------------------------------------------------------------------------------------
+
+# p01: definite under negation projects -- after van der Sandt (1992)
+{
+Sue did not meet the man who painted the portrait.
+====
+A man painted a portrait.
+>>> 1
+}
+
+# p02: definite under negation, content contradicted -- new
+{
+Sue did not meet the man who painted the portrait.
+====
+No man painted a portrait.
+>>> -1
+}
+
+# p03: definite under negation, main content not asserted -- new
+{
+Sue did not meet the man who painted the portrait.
+====
+Sue met a man.
+>>> 0
+}
+
+# p04: definite in a conditional antecedent projects -- after Karttunen (1973)
+{
+If the guide arrived, the tourists smiled.
+====
+There is a guide.
+>>> 1
+}
+
+# p05: presupposition filtered in a conditional -- after Karttunen (1973)
+{
+If Bill wrote a novel, the novel is long.
+====
+Bill wrote a novel.
+>>> 0
+}
+
+# p06: presupposition from the scope of no projects -- after van der Sandt (1992)
+{
+No student read the article.
+====
+There is an article.
+>>> 1
+}
+
+# p07: definite with an of-PP -- new
+{
+The director of the museum resigned.
+====
+There is a director of the museum.
+>>> 1
+}
+
+# p08: definite with an of-PP vs. no -- new
+{
+The director of the museum resigned.
+====
+No director resigned.
+>>> -1
+}
+
+# p09: definite with an of-PP, other description -- new
+{
+The director of the museum resigned.
+====
+The director of the zoo resigned.
+>>> 0
+}
+
+# p10: definite with object relative under negation -- new
+{
+Kim did not find the key that Sue lost.
+====
+Sue lost a key.
+>>> 1
+}
+
+# p11: definite with object relative under negation, main content -- new
+{
+Kim did not find the key that Sue lost.
+====
+Kim found a key.
+>>> 0
+}
+
+# p12: definite with object relative under negation, presupposition denied -- new
+{
+Kim did not find the key that Sue lost.
+====
+Sue did not lose a key.
+>>> -1
+}
+
+# p13: definite in the scope of every projects, existence denied -- after van der Sandt (1992)
+{
+Every guest greeted the host.
+====
+There is no host.
+>>> -1
+}
+
+# p14: nested definites under negation project, content denied -- new
+{
+Kim did not visit the castle that the king built.
+====
+The king did not build a castle.
+>>> -1
+}
+
+# ---------------------------------------------------------------------------------------------
+# Active/passive alternation
+# ---------------------------------------------------------------------------------------------
+
+# a01: active to passive -- in the style of SICK (Marelli et al. 2014)
+{
+The board rejected the proposal.
+====
+The proposal was rejected by the board.
+>>> 1
+}
+
+# a02: passive drops the agent -- new
+{
+The proposal was rejected by the board.
+====
+The proposal was rejected.
+>>> 1
+}
+
+# a03: agentless passive does not give the agent -- new
+{
+The proposal was rejected.
+====
+The board rejected the proposal.
+>>> 0
+}
+
+# a04: passive vs. negated active -- new
+{
+The proposal was rejected by the board.
+====
+The board did not reject the proposal.
+>>> -1
+}
+
+# a05: active vs. passive with reversed roles -- new
+{
+The editor criticized the author.
+====
+The editor was criticized by the author.
+>>> 0
+}
+
+# a06: active vs. passive with the same roles -- new
+{
+The editor criticized the author.
+====
+The author was criticized by the editor.
+>>> 1
+}
+
+# a07: passive to active, indefinites -- new
+{
+The thief was caught by a policeman.
+====
+A policeman caught a thief.
+>>> 1
+}
+
+# a08: passive vs. no -- new
+{
+The thief was caught by a policeman.
+====
+No policeman caught the thief.
+>>> -1
+}
+
+# a09: passive, roles reversed -- new
+{
+The thief was caught by a policeman.
+====
+The thief caught a policeman.
+>>> 0
+}
+
+# a10: passive with a relative clause in the subject -- new
+{
+The necklace that the thief stole was found by the maid.
+====
+The maid found a necklace.
+>>> 1
+}
+
+# a11: passive with a relative clause in the subject, roles not shared -- new
+{
+The necklace that the thief stole was found by the maid.
+====
+The thief found a necklace.
+>>> 0
+}
+
+# a12: passive with a relative clause in the subject vs. no -- new
+{
+The necklace that the thief stole was found by the maid.
+====
+No necklace was found.
+>>> -1
+}
+
+# a13: negated passive to negated active -- new
+{
+The letter was not signed by the manager.
+====
+The manager did not sign the letter.
+>>> 1
+}
+
+# a14: negated passive vs. active -- new
+{
+The letter was not signed by the manager.
+====
+The manager signed the letter.
+>>> -1
+}
+
+# ---------------------------------------------------------------------------------------------
+# Dative alternation
+# ---------------------------------------------------------------------------------------------
+
+# d01: double object to prepositional dative -- after Levin (1993) 2.1
+{
+The waiter brought the guest a menu.
+====
+The waiter brought a menu to the guest.
+>>> 1
+}
+
+# d02: double object to recipient passive -- after Levin (1993) 2.1
+{
+The museum offered the artist a contract.
+====
+The artist was offered a contract.
+>>> 1
+}
+
+# d03: double object, roles reversed -- new
+{
+The museum offered the artist a contract.
+====
+The artist offered the museum a contract.
+>>> 0
+}
+
+# d04: prepositional dative vs. negated double object -- new
+{
+The museum offered a contract to the artist.
+====
+The museum did not offer the artist a contract.
+>>> -1
+}
+
+# d05: offering is not receiving -- new
+{
+The museum offered the artist a contract.
+====
+The artist received a contract.
+>>> 0
+}
+
+# d06: double object to prepositional dative, adjective dropped -- new
+{
+Bill sold Sue an old car.
+====
+Bill sold a car to Sue.
+>>> 1
+}
+
+# d07: prepositional dative does not give the adjective -- new
+{
+Bill sold a car to Sue.
+====
+Bill sold Sue an old car.
+>>> 0
+}
+
+# d08: double object vs. negated recipient passive -- new
+{
+Bill sold Sue an old car.
+====
+Sue was not sold a car by Bill.
+>>> -1
+}
+
+# d09: double object with universal recipient -- new
+{
+The teacher handed every student an exam.
+Ann is a student.
+====
+The teacher handed an exam to Ann.
+>>> 1
+}
+
+# d10: double object with universal recipient, instance negated -- new
+{
+The teacher handed every student an exam.
+Ann is a student.
+====
+The teacher did not hand Ann an exam.
+>>> -1
+}
+
+# d11: double object vs. negated prepositional passive with agent -- new
+{
+Sue showed the visitor the garden.
+====
+The garden was not shown to the visitor by Sue.
+>>> -1
+}
+
+# d12: double object, roles reversed -- new
+{
+Sue showed the visitor the garden.
+====
+The visitor showed Sue the garden.
+>>> 0
+}
+
+# d13: recipient passive vs. negated double object -- new
+{
+The visitor was shown the garden by Sue.
+====
+Sue did not show the visitor the garden.
+>>> -1
+}
+
+# d14: prepositional dative, roles reversed -- new
+{
+Kim sent a letter to Sue.
+====
+Sue sent a letter to Kim.
+>>> 0
+}
+
+# ---------------------------------------------------------------------------------------------
+# Anaphora
+# ---------------------------------------------------------------------------------------------
+
+# an01: pronoun to an indefinite -- after K&R (1993)
+{
+A farmer owns a donkey.
+He beats it.
+====
+A farmer beats a donkey.
+>>> 1
+}
+
+# an02: pronoun to an indefinite, roles not shared -- after K&R (1993)
+{
+A farmer owns a donkey.
+He beats it.
+====
+A donkey beats a farmer.
+>>> 0
+}
+
+# an03: pronoun to an indefinite vs. negation -- after K&R (1993)
+{
+A farmer owns a donkey.
+He beats it.
+====
+No farmer beats a donkey.
+>>> -1
+}
+
+# an04: pronoun with a single gender match -- new
+{
+Sue met Bill.
+He smiled.
+====
+Bill smiled.
+>>> 1
+}
+
+# an05: pronoun with a single gender match, other referent -- new
+{
+Sue met Bill.
+He smiled.
+====
+Sue smiled.
+>>> 0
+}
+
+# an06: pronoun with a single gender match, negated -- new
+{
+Sue met Bill.
+He smiled.
+====
+Bill did not smile.
+>>> -1
+}
+
+# ---------------------------------------------------------------------------------------------
+# Ambiguous premises. Each group shares a premise; every reading is needed by one item.
+# ---------------------------------------------------------------------------------------------
+
+# s01: scope (every > a and a > every), anaphora to the object -- after May (1985) [reading: a > every, the professor bound to it]
+{
+Every student in the class admires a professor.
+The professor won a prize.
+====
+Every student in the class admires a professor who won a prize.
+>>> 1
+}
+
+# s02: scope -- after May (1985) [reading: every > a]
+{
+Every student in the class admires a professor.
+====
+There is a professor who every student in the class admires.
+>>> 0
+}
+
+# s03: scope, instance -- after May (1985) [both readings]
+{
+Every student in the class admires a professor.
+Ann is a student in the class.
+====
+Ann does not admire a professor.
+>>> -1
+}
+
+# s04: negation and an indefinite with a relative clause [reading: a > not]
+{
+Kim did not read a book that Sue recommended.
+====
+Sue recommended a book.
+>>> 1
+}
+
+# s05: negation and an indefinite with a relative clause [reading: not > a]
+{
+Kim did not read a book that Sue recommended.
+Sue recommended Emma.
+Emma is a book.
+====
+Kim read Emma.
+>>> -1
+}
+
+# s06: negation and an indefinite with a relative clause [reading: a > not]
+{
+Kim did not read a book that Sue recommended.
+====
+Kim read a book that Sue recommended.
+>>> 0
+}
+
+# s07: pronoun with two antecedents of the same gender [reading: he = Bill]
+{
+Bill visited Carl.
+He was exhausted.
+====
+Bill was exhausted.
+>>> 1
+}
+
+# s08: pronoun with two antecedents of the same gender [reading: he = Carl]
+{
+Bill visited Carl.
+He was exhausted.
+====
+Carl was exhausted.
+>>> 1
+}
+
+# s09: pronoun with two antecedents of the same gender [reading: he = Bill]
+{
+Bill visited Carl.
+He was exhausted.
+====
+Bill was not exhausted.
+>>> -1
+}
+
+# s10: pronoun with two antecedents of the same gender [reading: he = Bill]
+{
+Bill visited Carl.
+He was exhausted.
+====
+Carl was not exhausted.
+>>> 0
+}
+
+# s11: PP attachment -- after the classic telescope example [reading: NP attachment]
+{
+Kim photographed the woman with the camera.
+====
+A woman with a camera was photographed by Kim.
+>>> 1
+}
+
+# s12: PP attachment -- after the classic telescope example [reading: VP attachment]
+{
+Kim photographed the woman with the camera.
+====
+No woman with a camera was photographed by Kim.
+>>> 0
+}
+
+# s13: scope in the double object construction [reading: every > a]
+{
+The teacher gave every student a book.
+====
+There is a book that the teacher gave every student.
+>>> 0
+}
+
+# s14: scope in the double object construction, anaphora to the theme [reading: a > every, the book bound to it]
+{
+The teacher gave every student a book.
+The book was long.
+====
+The teacher gave every student a long book.
+>>> 1
+}
+
+# ---------------------------------------------------------------------------------------------
+# Longer sentences
+# ---------------------------------------------------------------------------------------------
+
+# l01: long, stacked modifiers -- new
+{
+The chef who cooked the soup that every guest praised received a prize.
+====
+A chef cooked a soup.
+>>> 1
+}
+
+# l02: long, stacked modifiers vs. no -- new
+{
+The chef who cooked the soup that every guest praised received a prize.
+====
+No chef received a prize.
+>>> -1
+}
+
+# l03: long, stacked modifiers, roles not shared -- new
+{
+The chef who cooked the soup that every guest praised received a prize.
+====
+The chef praised the soup.
+>>> 0
+}
+
+# l04: long, conditional with a relative clause, antecedent given as a passive -- new
+{
+If the board rejected the report that the manager wrote, the manager resigned.
+The report that the manager wrote was rejected by the board.
+====
+The manager resigned.
+>>> 1
+}
+
+# l05: long, conditional, consequent negated -- new
+{
+If the board rejected the report that the manager wrote, the manager resigned.
+The manager did not resign.
+====
+The board rejected the report that the manager wrote.
+>>> -1
+}
+
+# l06: long, conditional, antecedent not given -- new
+{
+If the board rejected the report that the manager wrote, the manager resigned.
+====
+The manager resigned.
+>>> 0
+}
+
+# l07: long, dative and relative clause -- new
+{
+The librarian lent every student who visited the library a map.
+Ann is a student who visited the library.
+====
+The librarian lent a map to Ann.
+>>> 1
+}
+
+# l08: long, dative and relative clause, restrictor not met -- new
+{
+The librarian lent every student who visited the library a map.
+Ann is a student.
+====
+The librarian lent Ann a map.
+>>> 0
+}
