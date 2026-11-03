@@ -7,6 +7,11 @@
 #v UPOS VERB & #v LEMMA be ==>
 #v TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).
 
+//Existence postulates (as XLE's meaning_postulates.liger): whatever a common noun applies to
+//exists, i.e. is the arg1 of a be eventuality, so "There is a guide." follows from guide(x).
+#n UPOS NOUN & #n LEMMA %l ==>
+#n TPTP_AXIOM ![X]: (%l(X) => ?[E]: (be(E) \& arg1(E,X))).
+
 //Degree adjectives (the lfgxdrt grammar's degree_rules_lfgxdrt.liger), keyed on the semantics:
 //wherever a degree predicate was introduced (DEGREE-PRED). TFF_TYPE: the tff types of the
 //predicate (individual and degree) and of its threshold, declared once per inference run and

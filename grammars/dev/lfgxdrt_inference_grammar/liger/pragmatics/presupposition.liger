@@ -4,7 +4,11 @@
 DRS := IMP | NOT | IN | MERGE | UPDATE | SUB | SCOPE .
 
 //For definites restricting entities
-BIND-PATH(#a,#b) := #a ^(PRSP>@DRS*) #b & #a NAME %a & #b NAME %b & id(%b) < id(%a).
+//A nested presupposition escapes its host: past a p-box, the path goes on to the states the host
+//p-box is evaluated in (PRSP), so it can be accommodated wherever its host can. The collapse
+//resolves nested p-boxes inside out (inner before outer); binders already escape (CONTEXT).
+ESCAPE := IMP | NOT | IN | MERGE | UPDATE | SUB | SCOPE | PRSP .
+BIND-PATH(#a,#b) := #a ^(PRSP>@ESCAPE*) #b & #a NAME %a & #b NAME %b & id(%b) < id(%a).
 
 BIND(#a) := #a ^(TERM1) #b & #b NAME 'bind' .
 

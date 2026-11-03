@@ -1,3 +1,8 @@
 //Be equality axiom
 #p PRED %p & strip(%p) == 'be' & #p PREDLINK #c s:: #s TYPE 'entity' ==>
 #p TPTP_AXIOM ![X,Y,Z]: ((be(X) \& arg1(X,Y) \& arg2(X,Z)) => Y = Z).
+
+//Existence postulates: whatever a common noun applies to exists, i.e. is the arg1 of a be
+//eventuality, so "There is a guide." (be(e), arg1(e,x), guide(x)) follows from guide(x)
+#f PRED %p & #f NTYPE #n & #n NSYN 'common' ==>
+#f TPTP_AXIOM ![X]: (strip(%p)(X) => ?[E]: (be(E) \& arg1(E,X))).
