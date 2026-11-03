@@ -1,9 +1,17 @@
 """A neural NLI baseline on a regression testsuite, and how its errors pattern with perplexity.
 
-Every item's premises (joined by spaces) and hypothesis go to an MNLI classifier (default
-FacebookAI/roberta-large-mnli); its label is mapped to the suite's gold labels (1 entailment,
-0 neutral, -1 contradiction) by the model's own id2label. Reports accuracy overall, per gold label,
-per section (as testsuite_perplexity.py reads it) and the confusion matrix.
+Every item's premises (joined by spaces) and hypothesis go to a model, chosen by its kind:
+  - an MNLI classifier (default FacebookAI/roberta-large-mnli): its label, mapped to the suite's
+    gold labels (1 entailment, 0 neutral, -1 contradiction) by the model's own id2label;
+  - a causal LM (Qwen, GPT-2, GPT-Neo, ...): zero-shot rank classification as in the GPT-3 paper
+    (Brown et al. 2020, ANLI/CB): "<premises>\nQuestion: <hypothesis> True, False, or Neither?
+    Answer:", in the chat template for a model that has one; the answer True / Neither / False
+    whose tokens the model finds most likely (summed log-probability) is the label;
+  - a seq2seq model (Flan-T5): FLAN's own MNLI template (Wei et al. 2022) with its options yes /
+    it is not possible to tell / no, ranked the same way. Flan-T5 was trained on MNLI, ANLI and
+    RTE among others; its score is a fair result, not a zero-shot one.
+p(gold) is the softmax over the three answers' log-probabilities. Reports accuracy overall, per
+gold label, per section (as testsuite_perplexity.py reads it) and the confusion matrix.
 
 With --ppl <tsv from testsuite_perplexity.py> it also reports, for a perplexity column
 (--ppl-column, default ppl_discourse): accuracy per perplexity tercile, the median perplexity of
@@ -14,7 +22,8 @@ given within each gold label.
 
 usage:
   lm/venv/bin/python tests/probes/nli_model_baseline.py testsuites/inference/inference-phenomena.lfg \
-      [--model FacebookAI/roberta-large-mnli] [--ppl FILE.tsv] [--out FILE.tsv]
+      [--model FacebookAI/roberta-large-mnli | Qwen/Qwen2.5-1.5B-Instruct | google/flan-t5-xl]
+      [--ppl FILE.tsv] [--out FILE.tsv]
 """
 import argparse
 import csv
@@ -23,12 +32,91 @@ import statistics
 import sys
 
 import torch
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from transformers import (AutoConfig, AutoModelForCausalLM, AutoModelForSeq2SeqLM,
+                          AutoModelForSequenceClassification, AutoTokenizer)
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from testsuite_perplexity import read_items  # noqa: E402
 
 GOLD_OF = {"entailment": "1", "neutral": "0", "contradiction": "-1"}
+CAUSAL_ANSWERS = {"1": "True", "0": "Neither", "-1": "False"}
+FLAN_ANSWERS = {"1": "yes", "0": "it is not possible to tell", "-1": "no"}
+
+
+class MnliClassifier:
+    def __init__(self, name):
+        self.tokenizer = AutoTokenizer.from_pretrained(name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(name).eval()
+        self.labels = {i: GOLD_OF[label.lower()] for i, label in self.model.config.id2label.items()}
+
+    @torch.no_grad()
+    def probabilities(self, premise, hypothesis):
+        logits = self.model(**self.tokenizer(premise, hypothesis, return_tensors="pt")).logits[0]
+        return {self.labels[i]: p for i, p in enumerate(torch.softmax(logits, dim=-1).tolist())}
+
+
+def softmax_by_gold(log_probs):
+    values = torch.softmax(torch.tensor([log_probs[g] for g in ("1", "0", "-1")]), dim=-1).tolist()
+    return dict(zip(("1", "0", "-1"), values))
+
+
+class CausalRanker:
+    """GPT-3-style rank classification: the summed log-probability of each answer's tokens."""
+
+    def __init__(self, name):
+        self.tokenizer = AutoTokenizer.from_pretrained(name)
+        self.model = AutoModelForCausalLM.from_pretrained(name, dtype=torch.float32).eval()
+        self.chat = bool(getattr(self.tokenizer, "chat_template", None))
+
+    def prompt(self, premise, hypothesis):
+        question = f"{premise}\nQuestion: {hypothesis} True, False, or Neither?"
+        if not self.chat:
+            return f"{question}\nAnswer:", " "
+        messages = [{"role": "user", "content": question + "\nAnswer with one word: True, False, or Neither."}]
+        return self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True), ""
+
+    @torch.no_grad()
+    def probabilities(self, premise, hypothesis):
+        prefix, space = self.prompt(premise, hypothesis)
+        prefix_ids = self.tokenizer(prefix, add_special_tokens=False)["input_ids"]
+        log_probs = {}
+        for gold, answer in CAUSAL_ANSWERS.items():
+            answer_ids = self.tokenizer(space + answer, add_special_tokens=False)["input_ids"]
+            ids = torch.tensor([prefix_ids + answer_ids])
+            logits = torch.log_softmax(self.model(input_ids=ids).logits[0, :-1], dim=-1)
+            start = len(prefix_ids) - 1
+            log_probs[gold] = sum(logits[start + j, token].item() for j, token in enumerate(answer_ids))
+        return softmax_by_gold(log_probs)
+
+
+class Seq2SeqRanker:
+    """Flan-T5 with FLAN's MNLI template; the options ranked by their summed log-probability."""
+
+    def __init__(self, name):
+        self.tokenizer = AutoTokenizer.from_pretrained(name)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(name).eval()
+
+    @torch.no_grad()
+    def probabilities(self, premise, hypothesis):
+        source = (f"Premise: {premise}\nHypothesis: {hypothesis}\nDoes the premise entail the hypothesis?\n"
+                  "OPTIONS:\n- yes\n- it is not possible to tell\n- no")
+        encoded = self.tokenizer(source, return_tensors="pt")
+        log_probs = {}
+        for gold, answer in FLAN_ANSWERS.items():
+            labels = self.tokenizer(answer, return_tensors="pt")["input_ids"]
+            logits = self.model(**encoded, labels=labels).logits[0]
+            token_log_probs = torch.log_softmax(logits, dim=-1)
+            log_probs[gold] = sum(token_log_probs[j, token].item() for j, token in enumerate(labels[0]))
+        return softmax_by_gold(log_probs)
+
+
+def load_model(name):
+    config = AutoConfig.from_pretrained(name)
+    if getattr(config, "is_encoder_decoder", False):
+        return Seq2SeqRanker(name)
+    if any(a.endswith("ForSequenceClassification") for a in getattr(config, "architectures", None) or []):
+        return MnliClassifier(name)
+    return CausalRanker(name)
 
 
 def ranks(values):
@@ -72,19 +160,16 @@ def main():
     parser.add_argument("--out", help="TSV with the per-item predictions")
     args = parser.parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model)
-    model = AutoModelForSequenceClassification.from_pretrained(args.model).eval()
-    labels = {i: GOLD_OF[name.lower()] for i, name in model.config.id2label.items()}
+    model = load_model(args.model)
 
     rows = []
     for item in read_items(args.testsuite):
         if item["gold"] is None or not item["hypothesis"]:
             continue
         premise, hypothesis = " ".join(item["premises"]), " ".join(item["hypothesis"])
-        with torch.no_grad():
-            logits = model(**tokenizer(premise, hypothesis, return_tensors="pt")).logits[0]
-        probs = torch.softmax(logits, dim=-1).tolist()
-        by_gold = {labels[i]: p for i, p in enumerate(probs)}
+        by_gold = model.probabilities(premise, hypothesis)
+        if len(rows) % 10 == 9:
+            print(f"  {len(rows) + 1} items", file=sys.stderr, flush=True)
         predicted = max(by_gold, key=by_gold.get)
         rows.append({"id": item["id"], "section": item["section"], "gold": item["gold"], "predicted": predicted,
                      "correct": predicted == item["gold"], "p_gold": by_gold[item["gold"]],
