@@ -619,6 +619,14 @@ def patch_regression_session(session_key, paths, client=None):
                         put_document(document_id, document)
                     continue
                 document_id = parts[2]
+                if len(parts) == 3 and value is None:
+                    # A document removed: the client patches its path with null, so dropping
+                    # an item needs no full save of the whole session.
+                    if document_id in document_ids:
+                        document_ids.remove(document_id)
+                    stats.pop(document_id, None)
+                    written.pop(document_id, None)
+                    continue
                 if len(parts) == 3:
                     put_document(document_id, value)
                     continue

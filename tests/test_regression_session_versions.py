@@ -384,6 +384,29 @@ def test_documents_are_stored_apart_and_a_patch_touches_only_its_own():
     check(not any(key.startswith("regression_document:s9") for key in client.values), "deleting takes the documents")
 
 
+def test_a_session_is_built_and_trimmed_document_by_document():
+    """A full bank was ~500 MB of JSON: the client cannot build it as one body (V8's string
+    limit, the tab's heap), so it stores the session without documents, then patches each
+    document in, and removes one by patching it with null (2026-11-04)."""
+    client = CountingRedis()
+    save_regression_session("s10", current_session({}), client=client)
+    for name in ("n0", "n1", "n2"):
+        patch_regression_session("s10", {f"analysis.documents.{name}": doc(name)}, client=client)
+    loaded = load_regression_session("s10", client=client)
+    check(sorted(loaded["analysis"]["documents"]) == ["n0", "n1", "n2"], "documents added one patch at a time")
+
+    client.reads.clear(), client.writes.clear()
+    patch_regression_session("s10", {"analysis.documents.n1": None}, client=client)
+    check("regression_document:s10:n1" not in client.values, "a null document path removes the document")
+    check(not any(key.endswith(":n0") or key.endswith(":n2") for key in client.reads + client.writes),
+          "and touches no other document")
+    loaded = load_regression_session("s10", client=client)
+    check(sorted(loaded["analysis"]["documents"]) == ["n0", "n2"], "the rest stay")
+    index = json.loads(client.values["regression_sessions_index"])
+    check(next(entry for entry in index if entry["sessionKey"] == "s10")["assignmentCount"] == 2,
+          "the listing no longer counts the removed document")
+
+
 def test_a_session_stored_inline_is_read_and_split_on_its_next_write():
     client = FakeRedis()
     inline = current_session({"n0": doc("n0")})
