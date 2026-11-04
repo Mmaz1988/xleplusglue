@@ -169,7 +169,40 @@ def run_tptp_vampire_batch(checks, axioms, logic_type, vampire_mode,
     # A cancel kills the running process; what it left behind is not a verdict and must
     # not be recorded as one.
     _ensure_not_cancelled(None)
+    if vampire_mode == ["-sa", "fmb"]:
+        results = _retry_undecided_with_casc(results, checks, axioms, logic_type, max_duration,
+                                             output_folder, context_tptp)
     return proof_files, results
+
+
+def _undecided(result):
+    return (result.get("SZS Status") in ("Timeout", "Unknown", "GaveUp")
+            or result.get("Termination Reason") in ("Timeout", "Time limit"))
+
+
+def _retry_undecided_with_casc(results, checks, axioms, logic_type, max_duration, output_folder, context_tptp):
+    """Finite model building (model building, fof) proves a check unsatisfiable only by ruling
+    out every domain size up to a bound it derives from the problem's sorts. When it derives
+    none it tries ever larger sizes until the time limit, on checks a refutation settles at
+    once: basic-short n8 with a noun's existence postulate (forall X (boxer(X) => exists E
+    arg1(E,X))) tried sizes 1..169 in 300 s, where without it fmb stops after size 3; the
+    logic needs no infinite domain, fmb's bound detection just finds no bound (2026-11-04).
+    Each check fmb left undecided is run again with casc, as the legacy path
+    (run_vampire_batch) does for a timeout majority."""
+    undecided = {result.get("Filename") for result in results if _undecided(result)}
+    if not undecided:
+        return results
+    logger.info("fmb left %d of %d checks undecided; retrying them with casc", len(undecided), len(results))
+    retry_folder = output_folder.rstrip("/") + "-casc"
+    generate_translated_check_files(checks, axioms=axioms, logic=logic_type, output_folder=retry_folder,
+                                    context_tptp=context_tptp)
+    for filename in os.listdir(retry_folder):
+        if filename not in undecided:
+            os.remove(os.path.join(retry_folder, filename))
+    retried = {result.get("Filename"): result
+               for result in massacer(retry_folder, mode=["--mode", "casc"], timeout=max_duration, vampire_path="bin")}
+    _ensure_not_cancelled(None)
+    return [retried.get(result.get("Filename"), result) for result in results]
 
 
 def _request_axioms(axioms, grammar_axioms, logic_type, prolog_translations):

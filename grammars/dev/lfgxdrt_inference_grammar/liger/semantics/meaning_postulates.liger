@@ -5,4 +5,4 @@
 //Existence postulates: whatever a common noun applies to exists, i.e. is the arg1 of a be
 //eventuality, so "There is a guide." (be(e), arg1(e,x), guide(x)) follows from guide(x)
 #f PRED %p & #f NTYPE #n & #n NSYN 'common' ==>
-#f TPTP_AXIOM ![X]: (strip(%p)(X) => ?[E]: (be(E) \& arg1(E,X))).
+#f TPTP_AXIOM ![X]: (lower(strip(%p))(X) => ?[E]: (be(E) \& arg1(E,X))).
