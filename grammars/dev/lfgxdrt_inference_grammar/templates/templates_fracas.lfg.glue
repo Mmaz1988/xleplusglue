@@ -165,8 +165,8 @@ Argument alternation templates
 	    ARG1 = (^ SUBJ)
 	    { 
 	      (^ DATIVE-SHIFT) =c -
-	      ARG2 = (^ OBJ)
-	      ARG3 = (^ OBL-TO)
+	      ARG2 = (^ OBL-TO)
+	      ARG3 = (^ OBJ)
 	     |
 	      (^ DATIVE-SHIFT) =c +
 	      ARG2 = (^ OBJ)
