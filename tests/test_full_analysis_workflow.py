@@ -596,9 +596,11 @@ def run_sequence_semantics(sentence_1, sentence_2, rule_string):
     return seq_solution, sol1, current_solution, merged
 
 
-def derive_once(parses, sentence_id):
+def derive_once(parses, sentence_id, surface_against=None):
     """DocumentBuilderService.deriveSentence: one /deduce over a sentence's own parses (LiGER
-    /apply_rules_xle solutions). Returns parse index -> the readings derived from that parse."""
+    /apply_rules_xle solutions). Returns parse index -> the readings derived from that parse.
+    `surface_against`, if given, gets each reading's count of scopings against the surface
+    (reading-order.ts surfaceAgainstCounts)."""
     proofs = [{"proofId": p["solutionKey"], "sentenceId": sentence_id, "solutionKey": p["solutionKey"],
                "mcSetId": p["solutionKey"], "meaningConstructors": p["meaningConstructors"],
                "structure": p["structureJson"]}
@@ -606,6 +608,11 @@ def derive_once(parses, sentence_id):
     derived = _post_json(f"{GSWB_URL}/deduce", {"premises": "\n".join(p["meaningConstructors"] for p in proofs),
                                                  "gswbPreferences": GSWB_PREFERENCES,
                                                  "structure": proofs[0]["structure"], "proofs": proofs})
+    if surface_against is not None:
+        for discriminant in derived.get("discriminants") or []:
+            if discriminant.get("type") == "scope" and discriminant.get("surfaceAligned") is False:
+                for solution_id in discriminant.get("associatedSolutions") or []:
+                    surface_against[solution_id] = surface_against.get(solution_id, 0) + 1
     readings = [s for s in derived.get("solutions") or []
                 if (reading(s).get("semString") or "").strip() and reading(s).get("graph")]
     return {j: [s for s in readings if s.get("solutionKey") == p["solutionKey"]] for j, p in enumerate(parses)}

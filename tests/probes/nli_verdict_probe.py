@@ -12,8 +12,8 @@ selection, rankers). Per item, as `prepareNliItem` does:
   4. the readings sent to Vampire, chosen before anything is collapsed: with a schema-v6 session its reading_selection
      (or --selection), after reading-order.ts selectedReadingIds -- the filtered readings dropped
      first (names: a proper name not resolved automatically; the client filters after ordering),
-     the rest ordered by the checked criteria (the LM rankers fused across them, the profile rows;
-     surface alignment is not supported), the first k places kept; with an older session (anaphora_selection) under
+     the rest ordered by the checked criteria (surface alignment, the LM rankers fused across them,
+     the profile rows), the first k places kept; with an older session (anaphora_selection) under
      top-k the k best-ranked branches per merged reading; then, for the chosen readings only,
      /reasoning_check_asts (once per merged reading) and /collapse_and_tptp_batch for
      context + sequence + the four checks (prepareStoredReadingChecks);
@@ -267,7 +267,7 @@ def select_readings(branches, readings, settings):
     Returns (selected readings, a description)."""
     selection = settings["vampire"]["reading_selection"] or {}
     criteria, filters, k = selection.get("criteria") or [], selection.get("filters") or [], selection.get("k")
-    unsupported = [c for c in criteria if c not in ("lm", "pronouns", "binding", "accommodation")]
+    unsupported = [c for c in criteria if c not in ("surface", "lm", "pronouns", "binding", "accommodation")]
     if unsupported:
         raise RuntimeError(f"reading_selection criterion not supported by the probe: {unsupported}")
     total = len(readings)
@@ -275,6 +275,9 @@ def select_readings(branches, readings, settings):
     ids = [r["mappingId"] for r in readings]
     n = len(ids)
     rankings, description = [], [f"{total} readings, {n} after filters {filters}"]
+    if "surface" in criteria:
+        # reading-order.ts: fewer scopings against the surface first.
+        rankings.append(competition_ranks([branches[r["branchIndex"]]["against"] for r in readings], lambda a, b: a < b))
     rows = [row for row in ("pronouns", "binding", "accommodation") if row in criteria]
     if rows:
         def profile_key(r):
@@ -322,17 +325,19 @@ def run_item(item, settings):
     texts = item["premises"] + item["conclusion"]
     n_premises = len(item["premises"])
     ids = [f"{item['id']}-S{i}" for i in range(len(texts))]
-    parses, own = [], []
+    parses, own, against = [], [], {}
     for text, sid in zip(texts, ids):
         solutions = w._post_json(f"{w.LIGER_URL}/apply_rules_xle", {
             "sentence": text, "ruleString": settings["semantics"], "logicType": settings["logic"]}).get("solutions") or []
-        readings = w.derive_once(solutions, sid) if any((s.get("meaningConstructors") or "").strip() for s in solutions) else {}
+        readings = w.derive_once(solutions, sid, against) if any((s.get("meaningConstructors") or "").strip() for s in solutions) else {}
         if not any(readings.values()):
             return {"label": None, "failure": f"no reading for {text!r} ({len(solutions)} parse(s))"}
         parses.append(solutions)
         own.append(readings)
 
+    # "against": the branch's scopings against the surface, over its sentences' readings.
     branches = [{"t": (j,), "merged": r, "structure": parses[0][j]["structureJson"], "prior": w.reading(r)["semString"],
+                 "against": against.get(r.get("id"), 0),
                  "premise_asts": [w.reading(r)["graph"]], "hypothesis_asts": []}
                 for j, rs in sorted(own[0].items()) for r in rs]
     for k in range(1, len(texts)):
@@ -341,6 +346,7 @@ def run_item(item, settings):
         premise = k < n_premises
         branches = [{
             "t": t, "merged": merged, "structure": structure,
+            "against": branches[c]["against"] + against.get(current.get("id"), 0),
             "prior": w.reading(merged)["semString"] if premise else branches[c]["prior"],
             "premise_asts": branches[c]["premise_asts"] + ([w.reading(current)["graph"]] if premise else []),
             "hypothesis_asts": branches[c]["hypothesis_asts"] + ([] if premise else [w.reading(current)["graph"]]),
