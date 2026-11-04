@@ -5,6 +5,7 @@ import threading
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 
+from Redis.http_compression import add_compression
 from Redis.redis_store import (
     UnsupportedSchemaVersion,
     clear_chat_document,
@@ -75,6 +76,8 @@ def start_cleanup_loop():
 @app.on_event("shutdown")
 def stop_cleanup_loop():
     _cleanup_stop.set()
+# Before CORS, so CORS stays outermost (see add_compression).
+add_compression(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

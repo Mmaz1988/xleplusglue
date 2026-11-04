@@ -2,6 +2,10 @@ import os
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+try:
+    from http_compression import add_compression  # the vampire image: copied next to this file
+except ImportError:
+    from Redis.http_compression import add_compression  # a checkout (tests)
 from pydantic import BaseModel
 import re
 import traceback
@@ -35,6 +39,8 @@ from vampire_redis_calls import (
 )
 
 app = FastAPI()
+# gzip both ways (Redis/http_compression.py); before CORS, so CORS stays outermost.
+add_compression(app)
 # Enable CORS for all origins (Modify for security in production)
 app.add_middleware(
     CORSMiddleware,
