@@ -25,7 +25,9 @@ from Redis.redis_store import (  # noqa: E402
     REGRESSION_SCHEMA_VERSION,
     UnsupportedSchemaVersion,
     _build_session_summary,
+    delete_regression_session,
     load_regression_session,
+    load_regression_session_json,
     patch_regression_session,
     save_regression_session,
 )
@@ -315,6 +317,87 @@ def test_patch_refuses_a_session_that_does_not_exist():
         pass
     else:
         raise AssertionError("patching a missing session should be refused")
+
+
+def current_session(documents):
+    payload = v2_session()
+    payload["schemaVersion"] = REGRESSION_SCHEMA_VERSION
+    payload["analysis"]["save_state"] = payload["analysis"].pop("saveState")
+    payload["analysis"]["documents"] = documents
+    return payload
+
+
+def doc(name, assignments=1):
+    return {"sentences": [{"id": name}], "discourseUpdates": [],
+            "reasoningUpdates": [{"id": f"ru-{name}", "assignments": [{"id": "a"}] * assignments}]}
+
+
+class CountingRedis(FakeRedis):
+    """Records which keys were read and written."""
+
+    def __init__(self):
+        super().__init__()
+        self.reads, self.writes = [], []
+
+    def get(self, key):
+        self.reads.append(key)
+        return super().get(key)
+
+    def set(self, key, value, ex=None):
+        self.writes.append(key)
+        super().set(key, value, ex)
+
+
+def test_documents_are_stored_apart_and_a_patch_touches_only_its_own():
+    """A long discourse made one document 240 MB; stored inline, a discriminant pick parsed
+    and rewrote all of it, and the store was OOM-killed (2026-11-03)."""
+    client = CountingRedis()
+    save_regression_session("s9", current_session({"n0": doc("n0"), "n1": doc("n1")}), client=client)
+    check(set(client.values) >= {"regression_session:s9", "regression_document:s9:n0", "regression_document:s9:n1"},
+          "each document has a key of its own")
+    check(json.loads(client.values["regression_session:s9"])["analysis"]["documents"] == {},
+          "the session key holds no document")
+
+    client.reads.clear(), client.writes.clear()
+    patch_regression_session("s9", {"analysis.documentSelections": {"n0": {"du": {}}}}, client=client)
+    check(not any(key.startswith("regression_document:") for key in client.reads + client.writes),
+          "a patch of the selections reads and writes no document")
+
+    client.reads.clear(), client.writes.clear()
+    patch_regression_session("s9", {"analysis.documents.n1": doc("n1", assignments=3)}, client=client)
+    check(not any(key.endswith(":n0") for key in client.reads + client.writes), "nor of n1, n0")
+    patch_regression_session("s9", {"analysis.documents.n0.sentences": [{"id": "x"}]}, client=client)
+
+    loaded = load_regression_session("s9", client=client)
+    check(loaded["analysis"]["documents"]["n0"]["sentences"] == [{"id": "x"}], "a path below a document patches it")
+    check(len(loaded["analysis"]["documents"]["n1"]["reasoningUpdates"][0]["assignments"]) == 3, "n1 replaced")
+    check(loaded["analysis"]["documentSelections"] == {"n0": {"du": {}}}, "the selections stored")
+    check("_storage" not in loaded, "the storage bookkeeping is not part of the session")
+    check(json.loads(load_regression_session_json("s9", client=client)) == loaded,
+          "the text load (documents spliced in unparsed) says the same as the parsed one")
+    index = json.loads(client.values["regression_sessions_index"])
+    check(index[0]["assignmentCount"] == 4, "the listing counts patched documents without reading them")
+
+    patch_regression_session("s9", {"analysis.documents": {"n1": doc("n1")}}, client=client)
+    check("regression_document:s9:n0" not in client.values, "replacing every document drops those not named")
+    delete_regression_session("s9", client=client)
+    check(not any(key.startswith("regression_document:s9") for key in client.values), "deleting takes the documents")
+
+
+def test_a_session_stored_inline_is_read_and_split_on_its_next_write():
+    client = FakeRedis()
+    inline = current_session({"n0": doc("n0")})
+    inline["metadata"]["createdAt"] = "2026-11-01T00:00:00+00:00"
+    client.set("regression_session:old", json.dumps(inline))
+    check(load_regression_session("old", client=client)["analysis"]["documents"]["n0"]["sentences"] == [{"id": "n0"}],
+          "read as it is")
+    check(json.loads(load_regression_session_json("old", client=client))["analysis"]["documents"]["n0"]
+          == doc("n0"), "and as text")
+    patch_regression_session("old", {"inputs.grammarPath": "h"}, client=client)
+    check("regression_document:old:n0" in client.values, "split on the first patch")
+    loaded = load_regression_session("old", client=client)
+    check(loaded["analysis"]["documents"]["n0"] == doc("n0") and loaded["inputs"]["grammarPath"] == "h",
+          "nothing lost")
 
 
 def main():

@@ -123,7 +123,20 @@ def test_sweeps_stale_unnamed_sessions_and_orphans_only():
     client.set("vampire_progress:unstamped-orphan",
                json.dumps({"state": "completed", "updatedAt": (NOW - timedelta(days=3)).isoformat()}))
 
+    # Documents (stored apart from their session): of the swept session, of none (old, and
+    # just written by a save that has not written its session yet), of a kept one.
+    for key, idle in ((f"regression_document:{old_default}:n0", 0), ("regression_document:gone:n0", 3 * DAY),
+                      ("regression_document:being-saved:n0", 1), ("regression_document:degree-basic-disambig:n0", 5 * DAY)):
+        client.set(key, "{}")
+        client.idle[key] = idle
+
     report = cleanup_regression_store(keep=[open_default], busy=[running_default], client=client, now=NOW)
+
+    check(f"regression_document:{old_default}:n0" not in client.values, "a swept session's documents go with it")
+    check("regression_document:gone:n0" not in client.values, "an old document without a session is swept")
+    check("regression_document:being-saved:n0" in client.values and
+          "regression_document:degree-basic-disambig:n0" in client.values,
+          "a fresh one, and a kept session's, are kept")
 
     check("restarted-orphan" not in client.values and "vampire_progress:restarted-orphan" not in client.values,
           "records are aged by their own timestamp, not by Redis idle time")

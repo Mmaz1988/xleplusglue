@@ -19,7 +19,10 @@ services:
     # (`docker inspect` reports OOMKilled), which is the difference between evidence and a
     # guess. Sized well above observed steady state (~490 MB) -- this is a backstop, not a
     # budget. Redis forks on AOF rewrite, transiently doubling its footprint, so leave room.
-    mem_limit: 2g
+    # 2g was exceeded on 2026-11-03 (OOMKilled): a 243 MB session (a long discourse's
+    # 65k readings) parsed by the API on every patch, while a background save forked.
+    # Sessions are now stored per document, so a patch parses only what it changes.
+    mem_limit: 4g
 
   liger:
     build:

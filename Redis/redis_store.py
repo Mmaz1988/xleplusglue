@@ -3,6 +3,7 @@ import json
 import os
 import re
 import threading
+import uuid
 from datetime import datetime, timezone
 
 import redis
@@ -208,6 +209,10 @@ def _sessions_index_key():
 
 def _session_storage_key(session_key):
     return f"regression_session:{session_key}"
+
+
+def _session_document_key(session_key, document_id):
+    return f"regression_document:{session_key}:{document_id}"
 
 
 def _vampire_progress_key(session_key):
@@ -418,20 +423,16 @@ def _prepare_regression_session_payload(session_key, payload):
     return prepared
 
 
-def _reasoning_assignment_count(documents):
-    """Total assignments across every per-item document."""
-    if not isinstance(documents, dict):
-        return 0
-    total = 0
-    for document in documents.values():
-        updates = document.get("reasoningUpdates") if isinstance(document, dict) else None
-        if isinstance(updates, list):
-            total += sum(_safe_len(update.get("assignments")) for update in updates
-                         if isinstance(update, dict))
-    return total
+def _document_stats(document):
+    """What the listing counts of one document: its reasoning updates and their assignments."""
+    updates = document.get("reasoningUpdates") if isinstance(document, dict) else None
+    updates = updates if isinstance(updates, list) else []
+    return {"updates": len(updates),
+            "assignments": sum(_safe_len(update.get("assignments")) for update in updates
+                               if isinstance(update, dict))}
 
 
-def _build_session_summary(session_key, payload):
+def _build_session_summary(session_key, payload, document_stats=None):
     metadata = _section(payload, "metadata")
     system = _section(payload, "analysis", "system")
     analysis = _section(payload, "analysis")
@@ -439,11 +440,11 @@ def _build_session_summary(session_key, payload):
     # `system.inferenceResults` is still written and preferred when present: a session
     # showing "0 inferences" because the listing stopped reading the old array would read
     # as a broken run.
-    documents = analysis.get("documents")
-    documents = documents if isinstance(documents, dict) else {}
-    update_count = sum(
-        _safe_len(document.get("reasoningUpdates"))
-        for document in documents.values() if isinstance(document, dict))
+    if document_stats is None:
+        documents = analysis.get("documents")
+        documents = documents if isinstance(documents, dict) else {}
+        document_stats = {key: _document_stats(document) for key, document in documents.items()}
+    update_count = sum(stats["updates"] for stats in document_stats.values())
     inference_count = _safe_len(system.get("inferenceResults")) or update_count
     return {
         "sessionKey": session_key,
@@ -457,7 +458,7 @@ def _build_session_summary(session_key, payload):
         "inferenceCount": inference_count,
         "hasParseResults": _safe_len(system.get("regressionTestResults")) > 0,
         "hasInferenceResults": inference_count > 0,
-        "assignmentCount": _reasoning_assignment_count(documents),
+        "assignmentCount": sum(stats["assignments"] for stats in document_stats.values()),
     }
 
 
@@ -499,15 +500,77 @@ def list_recent_sessions(client=None):
     return sorted(sessions, key=lambda item: item.get("updatedAt", ""), reverse=True)
 
 
+# How a session is stored: the session without its documents under
+# regression_session:<key> (with `_storage` naming them and their counts), and each
+# per-item document under regression_document:<key>:<item id>. A long discourse makes one
+# document hundreds of megabytes; stored inline, every patch -- a discriminant pick -- parsed
+# and rewrote all of it, which took the store down (OOM, 2026-11-03). Now a patch of one
+# document writes that document, and a patch of anything else never reads a document.
+# Sessions stored inline before are read as they are and split on their next write.
+_STORAGE_FIELD = "_storage"
+
+# Writes of one session are read-modify-writes of its skeleton; the endpoints run in a
+# thread pool, so they are serialised, as the index is.
+_SESSION_WRITE_LOCK = threading.RLock()
+
+
+def _write_session(client, session_key, skeleton, documents_to_write, document_ids, document_stats, previous_ids=()):
+    """Write the documents named, then the skeleton naming `document_ids`, then drop the
+    documents no longer named."""
+    for document_id, text in documents_to_write.items():
+        client.set(_session_document_key(session_key, document_id), text)
+    skeleton = dict(skeleton)
+    analysis = dict(skeleton.get("analysis") or {})
+    analysis["documents"] = {}
+    skeleton["analysis"] = analysis
+    skeleton[_STORAGE_FIELD] = {"documentIds": list(document_ids), "documentStats": document_stats}
+    client.set(_session_storage_key(session_key), json.dumps(skeleton))
+    for document_id in set(previous_ids) - set(document_ids):
+        client.delete(_session_document_key(session_key, document_id))
+
+
+def _stored_skeleton(client, session_key):
+    """The stored skeleton, its document ids and stats; a session stored inline is split
+    here (its documents written apart), once. None if nothing is stored."""
+    raw = client.get(_session_storage_key(session_key))
+    if not raw:
+        return None
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8")
+    try:
+        stored = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(stored, dict):
+        return None
+    storage = stored.pop(_STORAGE_FIELD, None)
+    if isinstance(storage, dict):
+        return stored, list(storage.get("documentIds") or []), dict(storage.get("documentStats") or {})
+    documents = _section(stored, "analysis").get("documents")
+    documents = documents if isinstance(documents, dict) else {}
+    stats = {key: _document_stats(document) for key, document in documents.items()}
+    _write_session(client, session_key, stored, {key: json.dumps(document) for key, document in documents.items()},
+                   list(documents), stats)
+    stored.setdefault("analysis", {})["documents"] = {}
+    return stored, list(documents), stats
+
+
 def save_regression_session(session_key, payload, client=None):
     client = client or redis_client()
     payload = _prepare_regression_session_payload(session_key, payload)
-    client.set(_session_storage_key(session_key), json.dumps(payload))
+    documents = payload["analysis"].get("documents") or {}
+    stats = {key: _document_stats(document) for key, document in documents.items()}
+    with _SESSION_WRITE_LOCK:
+        previous = _stored_skeleton(client, session_key)
+        _write_session(client, session_key, payload, {key: json.dumps(document) for key, document in documents.items()},
+                       list(documents), stats, previous[1] if previous else ())
 
-    summary = _build_session_summary(session_key, payload)
+    summary = _build_session_summary(session_key, payload, stats)
     sessions = _update_sessions_index(client, lambda sessions: [summary] + [
         session for session in sessions if session.get("sessionKey") != session_key])
-    return {"status": "ok", "recent_sessions": sessions, "session": payload}
+    # The session is not sent back: the writer has it, and echoing hundreds of megabytes
+    # through FastAPI's encoder cost more memory than the write.
+    return {"status": "ok", "recent_sessions": sessions}
 
 
 def patch_regression_session(session_key, paths, client=None):
@@ -527,24 +590,99 @@ def patch_regression_session(session_key, paths, client=None):
     what was already there.
     """
     client = client or redis_client()
-    stored = load_regression_session(session_key, client=client)
-    if not stored:
-        raise KeyError(f"no stored session under {session_key!r}")
+    with _SESSION_WRITE_LOCK:
+        found = _stored_skeleton(client, session_key)
+        if not found:
+            raise KeyError(f"no stored session under {session_key!r}")
+        skeleton, document_ids, stats = found
+        previous_ids = list(document_ids)
+        written = {}
 
-    for path, value in (paths or {}).items():
-        parts = [part for part in str(path).split(".") if part]
-        if not parts:
-            continue
-        target = stored
-        for part in parts[:-1]:
-            existing = target.get(part)
-            if not isinstance(existing, dict):
-                existing = {}
-                target[part] = existing
-            target = existing
-        target[parts[-1]] = value
+        def put_document(document_id, document):
+            written[document_id] = json.dumps(document)
+            stats[document_id] = _document_stats(document)
+            if document_id not in document_ids:
+                document_ids.append(document_id)
 
-    return save_regression_session(session_key, stored, client=client)
+        for path, value in (paths or {}).items():
+            parts = [part for part in str(path).split(".") if part]
+            if not parts:
+                continue
+            in_document = parts[:2] == ["analysis", "documents"]
+            if in_document:
+                if len(parts) == 2:
+                    # Every document at once: those not named any more go.
+                    document_ids.clear()
+                    stats.clear()
+                    written.clear()
+                    for document_id, document in (value or {}).items():
+                        put_document(document_id, document)
+                    continue
+                document_id = parts[2]
+                if len(parts) == 3:
+                    put_document(document_id, value)
+                    continue
+                # Below a document: that document is read, changed and written.
+                raw = written.get(document_id) or client.get(_session_document_key(session_key, document_id))
+                document = json.loads(raw) if raw else {}
+                target, parts = document, parts[3:]
+            else:
+                target = skeleton
+            for part in parts[:-1]:
+                existing = target.get(part)
+                if not isinstance(existing, dict):
+                    existing = {}
+                    target[part] = existing
+                target = existing
+            target[parts[-1]] = value
+            if in_document:
+                put_document(document_id, document)
+
+        skeleton = _prepare_regression_session_payload(session_key, skeleton)
+        _write_session(client, session_key, skeleton, written, document_ids, stats, previous_ids)
+
+    summary = _build_session_summary(session_key, skeleton, stats)
+    sessions = _update_sessions_index(client, lambda sessions: [summary] + [
+        session for session in sessions if session.get("sessionKey") != session_key])
+    return {"status": "ok", "recent_sessions": sessions}
+
+
+def _stored_document_texts(client, session_key, storage):
+    texts = {}
+    for document_id in storage.get("documentIds") or []:
+        raw = client.get(_session_document_key(session_key, document_id))
+        if raw:
+            texts[document_id] = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+    return texts
+
+
+def load_regression_session_json(session_key, client=None):
+    """The stored session as JSON text, its documents spliced in as stored: a document is
+    never parsed on the way out (a long discourse is hundreds of megabytes, and parsing it
+    and FastAPI's encoder walking it were most of a load's memory). "{}" if nothing is
+    stored; refusals as load_regression_session."""
+    client = client or redis_client()
+    raw = client.get(_session_storage_key(session_key))
+    if not raw:
+        return "{}"
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8")
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return "{}"
+    if not isinstance(payload, dict):
+        return "{}"
+    storage = payload.pop(_STORAGE_FIELD, None)
+    version = _declared_schema_version(payload)
+    if not isinstance(storage, dict) or version != REGRESSION_SCHEMA_VERSION:
+        # Stored inline, or v5 (upgraded as a whole): read as a whole.
+        return json.dumps(load_regression_session(session_key, client=client))
+    texts = _stored_document_texts(client, session_key, storage)
+    marker = f"__documents_{uuid.uuid4().hex}__"
+    payload.setdefault("analysis", {})["documents"] = marker
+    documents = "{" + ",".join(f"{json.dumps(key)}:{text}" for key, text in texts.items()) + "}"
+    return json.dumps(payload).replace(json.dumps(marker), documents, 1)
 
 
 def load_regression_session(session_key, client=None):
@@ -565,6 +703,10 @@ def load_regression_session(session_key, client=None):
         return {}
     if not isinstance(payload, dict):
         return {}
+    storage = payload.pop(_STORAGE_FIELD, None)
+    if isinstance(storage, dict):
+        payload.setdefault("analysis", {})["documents"] = {
+            key: json.loads(text) for key, text in _stored_document_texts(client, session_key, storage).items()}
 
     version = _declared_schema_version(payload)
     if version == REGRESSION_SCHEMA_VERSION:
@@ -601,12 +743,26 @@ def _is_last_session_record(client, key):
     return isinstance(payload, dict) and "results" in payload
 
 
+def _delete_session_documents(client, session_key):
+    """The documents a session's skeleton names (see _STORAGE_FIELD)."""
+    raw = client.get(_session_storage_key(session_key))
+    if not raw:
+        return
+    try:
+        storage = json.loads(raw).get(_STORAGE_FIELD)
+    except (json.JSONDecodeError, AttributeError):
+        return
+    for document_id in (storage or {}).get("documentIds") or []:
+        client.delete(_session_document_key(session_key, document_id))
+
+
 def delete_regression_sessions(session_keys, client=None):
     """Delete banks with everything stored under their key -- the session, its Vampire
     results and its progress record -- and drop them from the index in ONE update."""
     client = client or redis_client()
     keys = [str(key) for key in (session_keys or []) if str(key or "").strip()]
     for session_key in keys:
+        _delete_session_documents(client, session_key)
         client.delete(_session_storage_key(session_key))
         client.delete(_vampire_progress_key(session_key))
         if _is_last_session_record(client, session_key):
@@ -727,8 +883,8 @@ def cleanup_regression_store(keep=(), busy=(), max_age_seconds=CLEANUP_MAX_AGE_S
                  | leased_session_keys(client) | _running_session_keys(client, now))
     index = _load_sessions_index(client)
     indexed = {entry.get("sessionKey"): entry for entry in index}
-    report = {"dryRun": bool(dry_run), "sessions": [], "results": [], "progress": [], "indexEntries": [],
-              "bytes": 0}
+    report = {"dryRun": bool(dry_run), "sessions": [], "results": [], "progress": [], "documents": [],
+              "indexEntries": [], "bytes": 0}
 
     def size(key):
         try:
@@ -769,6 +925,14 @@ def cleanup_regression_store(keep=(), busy=(), max_age_seconds=CLEANUP_MAX_AGE_S
         key = key.decode("utf-8") if isinstance(key, bytes) else key
         if key.startswith("session_open:"):
             continue
+        if key.startswith("regression_document:"):
+            # A document whose session is gone (a crash between the writes of a save).
+            owner = key[len("regression_document:"):].rsplit(":", 1)[0]
+            if owner not in protected and (owner not in stored_sessions or owner in report["sessions"]) \
+                    and (owner in report["sessions"] or stale(key)):
+                report["documents"].append(key)
+                report["bytes"] += size(key)
+            continue
         if key.startswith("vampire_progress:"):
             owner = key[len("vampire_progress:"):]
             if owner in protected or owner.startswith(_FOREIGN_KEY_PREFIXES):
@@ -793,7 +957,7 @@ def cleanup_regression_store(keep=(), busy=(), max_age_seconds=CLEANUP_MAX_AGE_S
     if not dry_run:
         for session_key in report["sessions"]:
             client.delete(_session_storage_key(session_key))
-        for key in report["results"] + report["progress"]:
+        for key in report["results"] + report["progress"] + report["documents"]:
             client.delete(key)
         dropped = set(report["indexEntries"])
         if dropped:

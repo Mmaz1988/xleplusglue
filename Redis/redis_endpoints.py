@@ -2,7 +2,7 @@ import logging
 import os
 import threading
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from Redis.redis_store import (
@@ -23,6 +23,7 @@ from Redis.redis_store import (
     load_last_session,
     load_vampire_progress,
     load_regression_session,
+    load_regression_session_json,
     list_recent_sessions,
     merge_last_session,
     request_vampire_cancel,
@@ -214,7 +215,8 @@ def get_regression_sessions():
 @app.get("/regression_session/{session_key}")
 def get_regression_session(session_key: str):
     try:
-        return load_regression_session(session_key)
+        # As text: the documents are spliced in as stored, never parsed and re-encoded.
+        return Response(content=load_regression_session_json(session_key), media_type="application/json")
     except UnsupportedSchemaVersion as exc:
         # 409, not 500: the store is fine, this server is simply older than what is in it.
         # A client that gets a 500 retries; one that gets this should tell the user to
