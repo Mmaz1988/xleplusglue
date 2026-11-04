@@ -437,6 +437,25 @@ def run_item(item, settings):
     }
 
 
+def rules_from_disk(inputs, semantics, pragmatics):
+    """The session's rule texts with each stored file's text replaced by the file on disk. A
+    stored text the rules do not contain (an excluded file) is left out; one that is neither
+    excluded nor found is an error, not a silent mix of old and new."""
+    excluded = set(inputs.get("ruleSetExcluded") or [])
+    for path, stored in (inputs.get("ruleSetFiles") or {}).items():
+        if path in excluded or not stored:
+            continue
+        current = open(path).read()
+        if stored in semantics:
+            semantics = semantics.replace(stored, current, 1)
+        elif stored in pragmatics:
+            pragmatics = pragmatics.replace(stored, current, 1)
+        else:
+            raise SystemExit(f"{path}: its stored text is in neither the semantics nor the pragmatics rules")
+        print(f"rules from disk: {os.path.basename(path)} ({'unchanged' if current == stored else 'changed'})")
+    return semantics, pragmatics
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("testsuite")
@@ -445,6 +464,9 @@ def main():
     parser.add_argument("--only", help="comma-separated item ids (n0,n4)")
     parser.add_argument("--selection", help='a reading_selection overriding the session\'s, as JSON, e.g. '
                                             '\'{"criteria": [], "filters": ["names"], "k": null}\' (every reading)')
+    parser.add_argument("--rules-from-disk", action="store_true",
+                        help="each rule file the session stored (inputs.ruleSetFiles) as it is on disk now, "
+                             "in place of its stored text: what a session reloaded from disk would run")
     args = parser.parse_args()
 
     with urllib.request.urlopen(f"{w.REDIS_URL}/regression_session/{args.session}") as response:
@@ -458,6 +480,9 @@ def main():
         "axioms": (inputs.get("axioms") or {}).get("text") or "", "vampire": vampire,
         "logic": "fof" if str(vampire.get("logic_type")) == "0" else "tff",
     }
+    if args.rules_from_disk:
+        settings["semantics"], settings["pragmatics"] = rules_from_disk(
+            inputs, settings["semantics"], settings["pragmatics"])
     # hasPostProcessingRules: a rule arrow outside // comments.
     settings["has_rules"] = any("=>" in re.sub(r"//.*$", "", line) for line in settings["pragmatics"].splitlines())
     w._post_json(f"{w.LIGER_URL}/change_grammar", {"grammar": inputs["grammarPath"]})
