@@ -159,19 +159,48 @@ def generate_translated_check_files(checks, axioms="", logic="fof", output_folde
     return files
 
 
+FMB = ["-sa", "fmb"]
+CASC = ["--mode", "casc"]
+
+
+def vampire_settings(preferences):
+    """(logic type, Vampire mode, time limit in s, fallback) from a request's
+    vampire_preferences. Model building runs fof checks with finite model building, everything
+    else runs casc. `allow_fallback` (default on) lets a check fmb leaves undecided run again
+    with casc (_retry_undecided_with_casc)."""
+    preferences = preferences or {}
+    logic_type = "fof" if str(preferences.get('logic_type', 0)) == '0' else "tff"
+    model_building = preferences.get('model_building') is True
+    vampire_mode = FMB if logic_type == "fof" and model_building else CASC
+    max_duration = int(preferences.get('max_duration', 45))
+    fallback = preferences.get('allow_fallback', True) is not False
+    return logic_type, vampire_mode, max_duration, fallback
+
+
 def run_tptp_vampire_batch(checks, axioms, logic_type, vampire_mode,
-                           max_duration, output_folder, context_tptp=""):
-    proof_files = generate_translated_check_files(
+                           max_duration, output_folder, context_tptp="", fallback=True):
+    generated = generate_translated_check_files(
         checks, axioms=axioms, logic=logic_type, output_folder=output_folder,
         context_tptp=context_tptp)
+    return _run_check_files(generated, vampire_mode, max_duration, output_folder, fallback)
+
+
+def _run_check_files(generated, vampire_mode, max_duration, output_folder, fallback):
+    """Runs the four check files written to `output_folder` (`generated`: their contents, in
+    CHECK_ROLES order) and returns (proof files, results). A proof file is the .p file as
+    Vampire ran it, with the run's summary block (vampire_call.append_result_summary) -- the
+    same text a kept tmp file has; the generated text where Vampire wrote none (a cancel)."""
+    files = dict(zip((f"sem_{name}.p" for name in CHECK_ROLES), generated))
     results = massacer(output_folder, mode=vampire_mode,
                        timeout=max_duration, vampire_path="bin")
     # A cancel kills the running process; what it left behind is not a verdict and must
     # not be recorded as one.
     _ensure_not_cancelled(None)
-    if vampire_mode == ["-sa", "fmb"]:
-        results = _retry_undecided_with_casc(results, checks, axioms, logic_type, max_duration,
-                                             output_folder, context_tptp)
+    if vampire_mode == FMB and fallback:
+        results = _retry_undecided_with_casc(results, files, max_duration, output_folder)
+    by_file = {result.get("Filename"): result for result in results}
+    proof_files = [(by_file.get(filename) or {}).get("Proof File") or content
+                   for filename, content in files.items()]
     return proof_files, results
 
 
@@ -180,27 +209,26 @@ def _undecided(result):
             or result.get("Termination Reason") in ("Timeout", "Time limit"))
 
 
-def _retry_undecided_with_casc(results, checks, axioms, logic_type, max_duration, output_folder, context_tptp):
+def _retry_undecided_with_casc(results, files, max_duration, output_folder):
     """Finite model building (model building, fof) proves a check unsatisfiable only by ruling
     out every domain size up to a bound it derives from the problem's sorts. When it derives
     none it tries ever larger sizes until the time limit, on checks a refutation settles at
     once: basic-short n8 with a noun's existence postulate (forall X (boxer(X) => exists E
     arg1(E,X))) tried sizes 1..169 in 300 s, where without it fmb stops after size 3; the
     logic needs no infinite domain, fmb's bound detection just finds no bound (2026-11-04).
-    Each check fmb left undecided is run again with casc, as the legacy path
-    (run_vampire_batch) does for a timeout majority."""
-    undecided = {result.get("Filename") for result in results if _undecided(result)}
+    Each check fmb left undecided is run again with casc; its result, and its proof file's
+    summary block, are casc's. `files`: each check file's generated content by file name."""
+    undecided = [result.get("Filename") for result in results if _undecided(result)]
     if not undecided:
         return results
     logger.info("fmb left %d of %d checks undecided; retrying them with casc", len(undecided), len(results))
     retry_folder = output_folder.rstrip("/") + "-casc"
-    generate_translated_check_files(checks, axioms=axioms, logic=logic_type, output_folder=retry_folder,
-                                    context_tptp=context_tptp)
-    for filename in os.listdir(retry_folder):
-        if filename not in undecided:
-            os.remove(os.path.join(retry_folder, filename))
+    os.makedirs(retry_folder, exist_ok=True)
+    for filename in undecided:
+        with open(os.path.join(retry_folder, filename), "w") as file:
+            file.write(files[filename])
     retried = {result.get("Filename"): result
-               for result in massacer(retry_folder, mode=["--mode", "casc"], timeout=max_duration, vampire_path="bin")}
+               for result in massacer(retry_folder, mode=CASC, timeout=max_duration, vampire_path="bin")}
     _ensure_not_cancelled(None)
     return [retried.get(result.get("Filename"), result) for result in results]
 
@@ -221,7 +249,7 @@ def _translate_grammar_axioms(grammar_axiom_sets, logic_type, tmp_root):
     return translate_prolog_axioms(terms, logic_type, os.path.join(tmp_root, "grammar_axioms"))
 
 
-def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration, axioms):
+def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration, axioms, fallback):
     current_checks = []
     for index, tptp_bundle in enumerate(request.tptp_checks):
         checks = _item_value(tptp_bundle, "checks", tptp_bundle)
@@ -229,7 +257,7 @@ def _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_dur
         proof_files, results = run_tptp_vampire_batch(
             checks, axioms, logic_type, vampire_mode,
             max_duration, output_folder,
-            _bundle_value(tptp_bundle, "context_tptp", "contextTptp"))
+            _bundle_value(tptp_bundle, "context_tptp", "contextTptp"), fallback)
         consistent, informative, relevant = discourse_checks(data=results)
         svg_output = generate_svg_glyph(results)
         current_checks.append(Check(
@@ -410,21 +438,11 @@ def conversion(formula, tptp_type="fof", tmp_root="tmp"):
     return new_fols, prologs
 
 
-def run_vampire_batch(ctx_tptp, hypothesis_tptp, axioms, logic_type, vampire_mode, max_duration, output_folder):
-    proof_files = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
-                                      output_folder=output_folder)
-    results = massacer(output_folder, mode=vampire_mode, timeout=max_duration, vampire_path="bin")
-    _ensure_not_cancelled(None)
-
-    timeout_count = sum(1 for result in results if result.get("Termination Reason") == "Timeout")
-    if vampire_mode == ["-sa", "fmb"] and results and timeout_count > len(results) / 2:
-        logger.info("Timeout majority (%d/%d); retrying with casc", timeout_count, len(results))
-        proof_files = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
-                                          output_folder=output_folder)
-        results = massacer(output_folder, mode=["--mode", "casc"], timeout=max_duration, vampire_path="bin")
-        _ensure_not_cancelled(None)
-
-    return proof_files, results
+def run_vampire_batch(ctx_tptp, hypothesis_tptp, axioms, logic_type, vampire_mode, max_duration,
+                      output_folder, fallback=True):
+    generated = generate_tptp_files(ctx_tptp, hypothesis_tptp, axioms=axioms, logic=logic_type,
+                                    output_folder=output_folder)
+    return _run_check_files(generated, vampire_mode, max_duration, output_folder, fallback)
 
 
 #what a DRT input should look like
@@ -450,14 +468,12 @@ def _single_vampire_request(request, session_key):
     logger.debug("Received Vampire Request: %s", request)
 
     if request.tptp_checks:
-        logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
-        model_building = request.vampire_preferences['model_building'] is True
-        vampire_mode = ["-sa", "fmb"] if logic_type == "fof" and model_building else ["--mode", "casc"]
-        max_duration = int(request.vampire_preferences.get('max_duration', 45))
+        logic_type, vampire_mode, max_duration, fallback = vampire_settings(request.vampire_preferences)
         axioms = _request_axioms(
             request.axioms, request.grammar_axioms, logic_type,
             _translate_grammar_axioms([request.grammar_axioms], logic_type, tmp_root))
-        result = _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration, axioms)
+        result = _single_lfgxdrt_request(request, tmp_root, logic_type, vampire_mode, max_duration,
+                                         axioms, fallback)
         _cleanup_tmp_root(tmp_root)
         logger.info("Single Vampire request %s finished (tptp checks) in %.1fs",
                     session_key, time.monotonic() - started_at)
@@ -466,21 +482,9 @@ def _single_vampire_request(request, session_key):
     readings = extract_drs_blocks(request.hypothesis)
     logger.debug("Readings extracted: %s", readings)
 
-    # if logic_type is zero then use fof, otherwise use tff
-    logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
-    model_building = True if request.vampire_preferences['model_building'] == True  else False
-    logger.debug("Logic type=%s", logic_type)
-
-    # use proof search based on model building in fof and mixed search in tff
-    vampire_mode = []
-    if logic_type == "fof" and model_building:
-        vampire_mode = ["-sa", "fmb"]
-    else:
-        vampire_mode = ["--mode", "casc"]
-
-    # CHeck if vampire preferences have max_duration with default 45 seconds
-    max_duration = int(request.vampire_preferences.get('max_duration', 45))
-    logger.debug("Using Vampire mode: %s with max duration: %d seconds", vampire_mode, max_duration)
+    logic_type, vampire_mode, max_duration, fallback = vampire_settings(request.vampire_preferences)
+    logger.debug("Using Vampire mode: %s (%s) with max duration: %d seconds",
+                 vampire_mode, logic_type, max_duration)
     axioms = _request_axioms(
         request.axioms, request.grammar_axioms, logic_type,
         _translate_grammar_axioms([request.grammar_axioms], logic_type, tmp_root))
@@ -519,6 +523,7 @@ def _single_vampire_request(request, session_key):
                     vampire_mode,
                     max_duration,
                     output_folder,
+                    fallback,
                 )
                 logger.debug("Vampire Results: %s", results)
 
@@ -572,7 +577,7 @@ def _single_vampire_request(request, session_key):
 
 
 def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
-                   max_duration, tmp_root, session_key, on_branch=None):
+                   max_duration, tmp_root, session_key, fallback, on_branch=None):
     checks = []
     branch_index = 0
     for tptp_bundle in _item_value(nli_item, "tptp_checks", []):
@@ -582,7 +587,7 @@ def _run_tptp_item(nli_item, axioms, logic_type, vampire_mode,
         proof_files, results = run_tptp_vampire_batch(
             tptp_checks, axioms, logic_type, vampire_mode,
             max_duration, branch_root,
-            _bundle_value(tptp_bundle, "context_tptp", "contextTptp"))
+            _bundle_value(tptp_bundle, "context_tptp", "contextTptp"), fallback)
         consistent, informative, relevance = discourse_checks(data=results)
         svg_output = generate_svg_glyph(results)
         checks.append(Check(
@@ -615,23 +620,12 @@ def _multiple_vampire_request(request, session_key, run_id):
     started_at = time.monotonic()
     tmp_root = _make_vampire_tmp_root(session_key)
 
-    # if logic_type is zero then use fof, otherwise use tff
-    logic_type = "fof" if str(request.vampire_preferences['logic_type']) == '0' else "tff"
-    model_building = True if request.vampire_preferences['model_building'] == True  else False
-
-    # use proof search based on model building in fof and mixed search in tff
-    vampire_mode = []
-    if logic_type == "fof" and model_building:
-        vampire_mode = ["-sa", "fmb"]
-    else:
-        vampire_mode = ["--mode", "casc"]
-
-    # CHeck if vampire preferences have max_duration with default 45 seconds
-    max_duration = int(request.vampire_preferences.get('max_duration', 45))
+    logic_type, vampire_mode, max_duration, fallback = vampire_settings(request.vampire_preferences)
     # One line per request instead of one per branch: the per-check subprocess
     # lines are at DEBUG, so this is what a default-level run reports.
-    logger.info("Vampire request %s: items=%d, logic=%s, mode=%s, max duration=%ds",
-                session_key, len(request.nli_items), logic_type, vampire_mode, max_duration)
+    logger.info("Vampire request %s: items=%d, logic=%s, mode=%s, max duration=%ds, casc fallback=%s",
+                session_key, len(request.nli_items), logic_type, vampire_mode, max_duration,
+                "on" if fallback else "off")
 
     # Inference id to Check
     inference_results = {}
@@ -713,6 +707,7 @@ def _multiple_vampire_request(request, session_key, run_id):
                     max_duration,
                     tmp_root,
                     session_key,
+                    fallback,
                     on_branch=_on_branch)
                 complete_item(id, item_started_at)
                 snapshot_progress("running", id)
@@ -802,6 +797,7 @@ def _multiple_vampire_request(request, session_key, run_id):
                                 vampire_mode,
                                 max_duration,
                                 output_folder,
+                                fallback,
                             )
                             logger.debug("Vampire Results: %s", results)
 

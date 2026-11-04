@@ -48,7 +48,7 @@ class _Patches:
 
 
 def _fake_run_tptp_vampire_batch(checks, axioms, logic_type, vampire_mode, max_duration,
-                                  output_folder, context_tptp=""):
+                                  output_folder, context_tptp="", fallback=True):
     return ["fake.p"], [{"Termination Reason": "Refutation"}]
 
 

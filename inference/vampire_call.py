@@ -18,7 +18,7 @@ KEEP_TPTP_FILES = os.getenv("VAMPIRE_KEEP_TPTP", "false").strip().lower() in ("1
 
 # Marker for the block append_result_summary() writes at the end of each .p file. Also used
 # to strip a previous run's block, so re-running Vampire over the same file (the fmb -> casc
-# retry in run_vampire.run_vampire_batch) replaces the summary instead of stacking them.
+# retry in run_vampire._retry_undecided_with_casc) replaces the summary instead of stacking them.
 SUMMARY_MARKER = "% ---- Vampire run ----"
 
 # TPTP role of each discourse check's formula. info_pos and cons_neg test validity: they are
@@ -192,14 +192,16 @@ def build_vampire_command(file_path, mode, timeout, vampire_path="bin"):
 
 
 def append_result_summary(file_path, result, timeout, elapsed=None):
-    """Appends how Vampire was called and what it answered to the .p file, as TPTP comments.
+    """Appends how Vampire was called and what it answered to the .p file, as TPTP comments,
+    and returns the file as it now stands (None if it could not be read or written).
 
     The .p files under tmp/ are kept for debugging (VAMPIRE_KEEP_TPTP); on their own they say
     nothing about the run they came from, so the verdict and the invocation are recorded next
-    to the formulas that produced them.
+    to the formulas that produced them. The returned text is what a client shows as the proof
+    file, so it reads the same as a kept tmp file.
     """
     if not os.path.isfile(file_path):
-        return
+        return None
     lines = [
         SUMMARY_MARKER,
         f"% command: {comment_line(' '.join(result.get('Command') or []) or 'Unknown')}",
@@ -216,11 +218,14 @@ def append_result_summary(file_path, result, timeout, elapsed=None):
         marker_at = content.find(SUMMARY_MARKER)
         if marker_at != -1:
             content = content[:marker_at]
+        content = content.rstrip("\n") + "\n\n" + "\n".join(lines) + "\n"
         with open(file_path, mode="w") as file:
-            file.write(content.rstrip("\n") + "\n\n" + "\n".join(lines) + "\n")
+            file.write(content)
+        return content
     except OSError as error:
         # A summary is debugging sugar -- never let it take down a Vampire run.
         logger.warning("Could not write the run summary into %s: %s", file_path, error)
+        return None
 
 
 def generate_tptp_files(context, hypothesis, axioms="", logic="fof", output_folder = "tmp/current/"):
@@ -401,7 +406,10 @@ def bloodsuck(file_path, mode=["-sa", "fmb"], timeout=15,vampire_path="bin"):
 
         result["Termination Reason"] = f"Error: {e}"
 
-    append_result_summary(file_path, result, timeout, elapsed=time.monotonic() - started_at)
+    # The .p file with the run's summary block, for the client's proof-file view; massacer
+    # deletes the folder afterwards unless VAMPIRE_KEEP_TPTP is set.
+    result["Proof File"] = append_result_summary(file_path, result, timeout,
+                                                 elapsed=time.monotonic() - started_at)
 
     return result
 
