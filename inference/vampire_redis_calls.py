@@ -1,6 +1,6 @@
 import json
 import os
-from urllib import error, request
+from urllib import error, parse, request
 
 
 def _crud_base_url():
@@ -120,6 +120,16 @@ def save_regression_session_raw(session_key, body):
 def load_regression_session_raw(session_key):
     """The stored session as raw JSON bytes, for pass-through to the client."""
     return _call_raw(f"/regression_session/{session_key}")
+
+
+def load_regression_session_skeleton_raw(session_key):
+    """The stored session without its documents, and their ids, as raw JSON bytes."""
+    return _call_raw(f"/regression_session/{session_key}/skeleton")
+
+
+def load_regression_document_raw(session_key, document_id):
+    """One stored per-item document as raw JSON bytes."""
+    return _call_raw(f"/regression_session/{session_key}/document/{parse.quote(document_id, safe='')}")
 
 
 def load_last_session_raw(session_key="last_session"):

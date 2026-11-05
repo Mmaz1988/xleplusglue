@@ -25,6 +25,8 @@ from Redis.redis_store import (
     load_vampire_progress,
     load_regression_session,
     load_regression_session_json,
+    load_regression_session_skeleton_json,
+    load_regression_document_json,
     list_recent_sessions,
     merge_last_session,
     request_vampire_cancel,
@@ -227,6 +229,29 @@ def get_regression_session(session_key: str):
         raise HTTPException(status_code=409, detail=str(exc))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/regression_session/{session_key}/skeleton")
+def get_regression_session_skeleton(session_key: str):
+    """The session without its documents, and their ids: a client loads a bank document by
+    document (see load_regression_session_skeleton_json)."""
+    try:
+        return Response(content=load_regression_session_skeleton_json(session_key), media_type="application/json")
+    except UnsupportedSchemaVersion as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/regression_session/{session_key}/document/{document_id}")
+def get_regression_document(session_key: str, document_id: str):
+    try:
+        text = load_regression_document_json(session_key, document_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    if text is None:
+        raise HTTPException(status_code=404, detail=f"no document {document_id!r} in session {session_key!r}")
+    return Response(content=text, media_type="application/json")
 
 
 @app.put("/regression_session/{session_key}")

@@ -693,6 +693,40 @@ def load_regression_session_json(session_key, client=None):
     return json.dumps(payload).replace(json.dumps(marker), documents, 1)
 
 
+def load_regression_session_skeleton_json(session_key, client=None):
+    """The stored session WITHOUT its documents, as JSON text
+    `{"session": ..., "documentIds": [...]}`; the client then reads each document with
+    load_regression_document_json. A bank's documents together pass Chrome's string limit
+    (2^29 - 24 characters, ~537 MB: lilt-bank-auto, 619 MB, could not be loaded as one
+    body, 2026-11-05), and building that body took the store's memory with it. A session
+    stored inline, or v5, comes whole, with no ids left to read. `{"session": {},
+    "documentIds": []}` if nothing is stored; refusals as load_regression_session."""
+    client = client or redis_client()
+    raw = client.get(_session_storage_key(session_key))
+    payload = None
+    if raw:
+        try:
+            payload = json.loads(raw.decode("utf-8") if isinstance(raw, bytes) else raw)
+        except json.JSONDecodeError:
+            payload = None
+    if not isinstance(payload, dict):
+        return json.dumps({"session": {}, "documentIds": []})
+    storage = payload.pop(_STORAGE_FIELD, None)
+    if not isinstance(storage, dict) or _declared_schema_version(payload) != REGRESSION_SCHEMA_VERSION:
+        return json.dumps({"session": load_regression_session(session_key, client=client), "documentIds": []})
+    payload.setdefault("analysis", {})["documents"] = {}
+    return json.dumps({"session": payload, "documentIds": list(storage.get("documentIds") or [])})
+
+
+def load_regression_document_json(session_key, document_id, client=None):
+    """One stored per-item document as its stored text, unparsed; None if there is none."""
+    client = client or redis_client()
+    raw = client.get(_session_document_key(session_key, document_id))
+    if not raw:
+        return None
+    return raw.decode("utf-8") if isinstance(raw, bytes) else raw
+
+
 def load_regression_session(session_key, client=None):
     """Read a stored session, dispatching on its declared schemaVersion.
 

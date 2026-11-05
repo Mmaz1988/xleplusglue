@@ -30,6 +30,8 @@ from vampire_redis_calls import (
     load_last_session_raw,
     load_regression_session,
     load_regression_session_raw,
+    load_regression_session_skeleton_raw,
+    load_regression_document_raw,
     load_vampire_progress,
     request_vampire_cancel,
     save_regression_session,
@@ -257,6 +259,33 @@ def get_regression_session(session_key: str):
         raise HTTPException(status_code=e.status, detail=e.detail)
     except Exception as e:
         logger.error("Unable to load regression session", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.get("/regression_session/{session_key}/skeleton")
+def get_regression_session_skeleton(session_key: str):
+    """Raw pass-through: the session without its documents, and their ids. A bank too large
+    for one body (Chrome's string limit) is loaded document by document."""
+    try:
+        return Response(content=load_regression_session_skeleton_raw(session_key),
+                        media_type="application/json")
+    except RedisApiError as e:
+        raise HTTPException(status_code=e.status, detail=e.detail)
+    except Exception as e:
+        logger.error("Unable to load regression session skeleton", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.get("/regression_session/{session_key}/document/{document_id}")
+def get_regression_document(session_key: str, document_id: str):
+    """Raw pass-through of one per-item document."""
+    try:
+        return Response(content=load_regression_document_raw(session_key, document_id),
+                        media_type="application/json")
+    except RedisApiError as e:
+        raise HTTPException(status_code=e.status, detail=e.detail)
+    except Exception as e:
+        logger.error("Unable to load regression document", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 

@@ -28,6 +28,8 @@ from Redis.redis_store import (  # noqa: E402
     delete_regression_session,
     load_regression_session,
     load_regression_session_json,
+    load_regression_session_skeleton_json,
+    load_regression_document_json,
     patch_regression_session,
     save_regression_session,
 )
@@ -421,6 +423,38 @@ def test_a_session_stored_inline_is_read_and_split_on_its_next_write():
     loaded = load_regression_session("old", client=client)
     check(loaded["analysis"]["documents"]["n0"] == doc("n0") and loaded["inputs"]["grammarPath"] == "h",
           "nothing lost")
+
+
+def test_a_session_is_loaded_document_by_document():
+    """A bank too large for one body (lilt-bank-auto, 619 MB, past Chrome's string limit,
+    2026-11-05) is read as its skeleton, then each document on its own."""
+    client = CountingRedis()
+    save_regression_session("s11", current_session({}), client=client)
+    for name in ("n0", "n1"):
+        patch_regression_session("s11", {f"analysis.documents.{name}": doc(name)}, client=client)
+    client.reads.clear()
+    parts = json.loads(load_regression_session_skeleton_json("s11", client=client))
+    check(parts["documentIds"] == ["n0", "n1"], "the skeleton names the documents")
+    check(parts["session"]["analysis"]["documents"] == {}, "and carries none")
+    check(not any(key.startswith("regression_document:") for key in client.reads), "reading no document")
+    check("_storage" not in parts["session"], "the storage bookkeeping stays in the store")
+    whole = load_regression_session("s11", client=client)
+    rebuilt = parts["session"]
+    rebuilt["analysis"]["documents"] = {
+        name: json.loads(load_regression_document_json("s11", name, client=client)) for name in parts["documentIds"]}
+    check(rebuilt == whole, "skeleton plus documents is the session")
+    check(load_regression_document_json("s11", "n9", client=client) is None, "a missing document is None")
+    check(json.loads(load_regression_session_skeleton_json("nothing", client=client))
+          == {"session": {}, "documentIds": []}, "nothing stored: an empty session")
+
+
+def test_an_inline_session_comes_whole_from_the_skeleton_load():
+    client = FakeRedis()
+    inline = current_session({"n0": doc("n0")})
+    client.set("regression_session:old2", json.dumps(inline))
+    parts = json.loads(load_regression_session_skeleton_json("old2", client=client))
+    check(parts["documentIds"] == [] and parts["session"]["analysis"]["documents"]["n0"] == doc("n0"),
+          "stored inline: the documents come with the session, none left to read")
 
 
 def main():
