@@ -31,8 +31,15 @@
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE (\P.([d:d],[]) + ([],[ d > th_strip(%a)('strip(%x)')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
 
-// predicative
-#x PREDLINK #a & #x PRED %x &
+// predicative, the subject a common noun: the noun is the comparison class, as for an
+// attributive use ("The book is long." and "a long book" both compare to books)
+#x PREDLINK #a & #x SUBJ #j & #j PRED %x & #j NTYPE #n & #n NSYN 'common' &
+#a ATYPE 'predicative' &
+#a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
+==> #d GLUE (\P.([d:d],[]) + ([],[d > th_strip(%a)('strip(%x)')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
+
+// predicative, any other subject (a name, a pronoun): the copula is the comparison class
+#x PREDLINK #a & #x PRED %x & -(#x SUBJ #j & #j NTYPE #n & #n NSYN 'common') &
 #a ATYPE 'predicative' &
 #a PRED %a & #a s:: #b DEGREE #d & #b DEGREE-HOLDER #e
 ==> #d GLUE (\P.([d:d],[]) + ([],[d > th_strip(%a)('strip(%x)')]) + P@d) : ((#d_d -o #e_t) -o #e_t) || noscope.
@@ -93,3 +100,11 @@
 #a MONO #q & #q TPTP_AXIOM ![X:$i, Delta1:$int]: (strip(%p)(X,Delta1) <=> ![Delta2:$int]: ($lesseq(Delta2,Delta1) => strip(%p)(X,Delta2))) &
 #a CP #r & #r TPTP_AXIOM ![X:$i, Y:$i]: (?[D:$int]: (strip(%p)(X,D) \& ~ strip(%p)(Y,D)) => ![D2:$int]: (strip(%p)(Y,D2) => strip(%p)(X,D2))) &
 #a MAX #s & #s TPTP_AXIOM ![X:$i]: ?[Delta1:$int]: (strip(%p)(X,Delta1) \& ~ ?[Delta2:$int]: ($greater(Delta2,Delta1) \& strip(%p)(X,Delta2))).
+
+//Predicative uses put the degree on a be-state whose arg1 is the holder: the state and its
+//holder share their degrees ("The book was long." gives long(book,d); "Bill is old" gives
+//Bill's be-state Bill's degrees). Own nodes: a second TPTP_AXIOM on #a would overwrite the
+//comparative axiom.
+#a ATYPE 'predicative' & #a SEMTYPE 'degree' & #a PRED %p ==>
+#a STATE-UP #u & #u TPTP_AXIOM ![X:$i, Y:$i, D:$int]: ((be(X) \& arg1(X,Y) \& strip(%p)(X,D)) => strip(%p)(Y,D)) &
+#a STATE-DOWN #w & #w TPTP_AXIOM ![X:$i, Y:$i, D:$int]: ((be(X) \& arg1(X,Y) \& strip(%p)(Y,D)) => strip(%p)(X,D)).

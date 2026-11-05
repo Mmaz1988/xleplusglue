@@ -6,3 +6,8 @@
 //eventuality, so "There is a guide." (be(e), arg1(e,x), guide(x)) follows from guide(x)
 #f PRED %p & #f NTYPE #n & #n NSYN 'common' ==>
 #f TPTP_AXIOM ![X]: (lower(strip(%p))(X) => ?[E]: (be(E) \& arg1(E,X))).
+
+//The same for a proper name: its bearer is the arg1 of a be eventuality, so a negated
+//predication ("Ann is not as old as Bill.") is not true just because Ann has no state
+#f PRED %p & #f NTYPE #n & #n NSYN 'proper' ==>
+#f TPTP_AXIOM ?[E]: (be(E) \& arg1(E,lower(strip(%p)))).
