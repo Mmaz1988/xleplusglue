@@ -10,7 +10,8 @@ REFL-BIND(#f,#h) := #f REFLEX Yes & #j @GF #f & #j @GF #h & superior(GF,#h,#f) .
 //Checks if two antecedent paths remain disjoint
 DISJOINT(#a,#b) := -(#a !(POSSIBLE-ANT+) #g & #b !(POSSIBLE-ANT+) #h & id(#g) == id(#h)) .
 
-CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c .
+//The closest potential antecedent: none of #a's other potential antecedents lies between them
+CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c & -(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) .
 
 ANT(#a) := #a ^(TERM1) #b & #b NAME 'ant' .
 

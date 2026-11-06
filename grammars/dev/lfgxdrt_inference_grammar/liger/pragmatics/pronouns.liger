@@ -10,15 +10,14 @@ REFL-BIND(#f,#h) := #f PRON-TYPE 'refl' & @MCN-PATH(#f,#i,#j) & #j !(@GF) #h & s
 //Checks if two antecedent paths remain disjoint
 DISJOINT(#a,#b) := -(#a !(POSSIBLE-ANT+) #g & #b !(POSSIBLE-ANT+) #h & id(#g) == id(#h)) .
 
-CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c .
+//The closest potential antecedent: none of #a's other potential antecedents lies between them
+CLOSEST-POTENTIAL-ANT(#a,#c) := #a POTENTIAL-ANT #c & -(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) .
 
 ANT(#a) := #a ^(TERM1) #b & #b NAME 'ant' .
 
 //Two antecedents a pair of coarguments can take: different referents, or either one unbound (an
 //unbound node's id is not comparable with a referent's)
 DISTINCT-ANT(#e,#f) := #e UNBOUND true | #f UNBOUND true | -(#e UNBOUND true) & -(#f UNBOUND true) & id(#e) != id(#f) .
-
-// & -(#a POTENTIAL-ANT #b POTENTIAL-ANT #c) .
 
 //Personal pronoun binding constraint (negative constraint)
 // For preventing:
