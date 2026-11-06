@@ -1,0 +1,34 @@
+# Discriminant test: sentences with many readings, to see how the discriminant choices needed
+# to reach one reading scale with the number of readings. Built from the lilt-bank's vocabulary
+# (stacked relatives, negation, quantified datives, conditionals). Reading counts with the
+# lilt-bank rules (main_lfgxdrt_inference_grammar), 2026-11-05.
+
+# 7 readings
+The chef who cooked the soup that every guest praised received a prize.
+
+# 14 readings
+No student who read the article that a professor wrote failed every exam.
+
+# 20 readings
+The librarian lent every student who visited the library a book that Sue recommended.
+
+# 32 readings
+If every student who wrote a paper won a prize, the teacher did not give a student a book.
+
+# 42 readings
+Every student who read a book that Sue recommended did not pass an exam.
+
+# 54 readings
+The teacher did not give every student a book that Sue recommended.
+
+# 69 readings
+A professor who did not win a prize gave every student a book.
+
+# 90 readings
+The museum did not offer every artist who painted a portrait a contract.
+
+# 100 readings
+Every student in the class admires a professor who did not give a student an exam.
+
+# 135 readings
+The teacher did not give every student who wrote a paper a book that Sue recommended.
